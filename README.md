@@ -16,5 +16,4 @@ The replies will be in a .csv file within the same directory.
 
 Except as represented in this agreement, all work product by Developer is provided ​“AS IS”. Other than as provided in this agreement, Developer makes no other warranties, express or implied, and hereby disclaims all implied warranties, including any warranty of merchantability and warranty of fitness for a particular purpose.
 
-If you like this library and my articles, please support me on [HackerNoon](https://hackernoon.com/u/nich) and Noonies Writer of the Year - [Advertising](https://noonies.tech/award/hacker-noon-contributor-of-the-year-advertising) - [Entrepreneur] (https://noonies.tech/award/hacker-noon-contributor-of-the-year-entrepreneurship)
-
+If you like this library and my articles, please support me on [HackerNoon](https://hackernoon.com/u/nich) and Noonies Writer of the Year - [Advertising](https://noonies.tech/award/hacker-noon-contributor-of-the-year-advertising) - [Entrepreneur](https://noonies.tech/award/hacker-noon-contributor-of-the-year-entrepreneurship)
