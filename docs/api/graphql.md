@@ -399,5 +399,5 @@ asyncio.run(main())
 ## See Also
 
 - [APIServer](server.md) - REST API server
-- [AuthManager](../core/auth.md) - Cookie management
-- [RateLimiter](../core/rate_limiter.md) - Rate limiting
+- [AuthManager](core/auth.md) - Cookie management
+- [RateLimiter](core/rate_limiter.md) - Rate limiting

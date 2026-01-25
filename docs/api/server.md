@@ -363,5 +363,5 @@ async def tweet_stream(websocket: WebSocket, username: str):
 ## See Also
 
 - [GraphQLClient](graphql.md) - GraphQL API
-- [AuthManager](../core/auth.md) - Authentication
-- [Xeepy](../core/xeepy.md) - Main class
+- [AuthManager](core/auth.md) - Authentication
+- [Xeepy](core/xeepy.md) - Main class

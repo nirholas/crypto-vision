@@ -244,8 +244,8 @@ sentiment = await ai.analyze_sentiment(tweets)
 
 | Module | Description |
 |--------|-------------|
-| [graphql](api/graphql.md) | GraphQL client |
-| [server](api/server.md) | REST API server |
+| [graphql](graphql.md) | GraphQL client |
+| [server](server.md) | REST API server |
 
 ### Example: GraphQL
 

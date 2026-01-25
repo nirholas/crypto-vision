@@ -1039,4 +1039,4 @@ if __name__ == "__main__":
 
 - [Brand Monitoring](../business/brand-monitoring.md) - Data collection patterns
 - [Sentiment Analysis](../../guides/ai/sentiment.md) - Analysis methods
-- [Export Formats](../../guides/export/formats.md) - Data export
+- [Data Export](../../guides/export/index.md) - Data export

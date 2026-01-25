@@ -62,8 +62,7 @@ plugins:
       minify_html: true
   - git-revision-date-localized:
       enable_creation_date: true
-  - tags:
-      tags_file: tags.md
+  - tags
   - social:
       cards_layout_options:
         background_color: "#1DA1F2"
@@ -173,6 +172,13 @@ nav:
       - Tweet Replies: guides/scraping/replies.md
       - User Profiles: guides/scraping/profiles.md
       - Followers & Following: guides/scraping/followers.md
+      - Following Lists: guides/scraping/following.md
+      - User Tweets: guides/scraping/tweets.md
+      - Threads: guides/scraping/threads.md
+      - Search: guides/scraping/search.md
+      - Hashtags: guides/scraping/hashtags.md
+      - Media: guides/scraping/media.md
+      - Lists: guides/scraping/lists.md
     - Actions:
       - guides/actions/index.md
       - Follow Users: guides/actions/follow.md
@@ -182,11 +188,25 @@ nav:
     - Monitoring:
       - guides/monitoring/index.md
       - Unfollower Detection: guides/monitoring/unfollowers.md
+      - Growth Tracking: guides/monitoring/growth.md
+      - Account Monitoring: guides/monitoring/accounts.md
+      - Keyword Alerts: guides/monitoring/keywords.md
+      - Engagement Tracking: guides/monitoring/engagement.md
     - Analytics:
       - guides/analytics/index.md
+      - Growth Analytics: guides/analytics/growth.md
+      - Engagement Analysis: guides/analytics/engagement.md
+      - Best Time to Post: guides/analytics/best-time.md
+      - Audience Insights: guides/analytics/audience.md
+      - Competitor Analysis: guides/analytics/competitors.md
+      - Report Generation: guides/analytics/reports.md
     - AI Features:
       - guides/ai/index.md
       - Content Generation: guides/ai/content.md
+      - Reply Generation: guides/ai/replies.md
+      - Sentiment Analysis: guides/ai/sentiment.md
+      - Bot Detection: guides/ai/bot-detection.md
+      - Smart Targeting: guides/ai/targeting.md
     - Notifications:
       - guides/notifications/index.md
     - Data Export:
@@ -197,7 +217,13 @@ nav:
     - Growth Hacking:
       - cookbook/growth/index.md
       - Viral Content: cookbook/growth/viral-content.md
-    - Automation Workflows: cookbook/automation/index.md
+      - Engagement Pods: cookbook/growth/engagement-pods.md
+      - Hashtag Strategy: cookbook/growth/hashtag-strategy.md
+      - Optimal Timing: cookbook/growth/optimal-timing.md
+    - Automation:
+      - cookbook/automation/index.md
+      - Scheduled Posts: cookbook/automation/scheduled-posts.md
+      - Content Calendar: cookbook/automation/content-calendar.md
     - Data Science:
       - cookbook/data-science/index.md
       - Sentiment Dashboard: cookbook/data-science/sentiment-dashboard.md
@@ -207,7 +233,12 @@ nav:
       - cookbook/business/index.md
       - Competitor Intel: cookbook/business/competitor-intel.md
       - Lead Generation: cookbook/business/lead-generation.md
-    - Research & Analysis: cookbook/research/index.md
+      - Brand Monitoring: cookbook/business/brand-monitoring.md
+      - Crisis Detection: cookbook/business/crisis-detection.md
+      - Influencer Mapping: cookbook/business/influencer-mapping.md
+    - Research:
+      - cookbook/research/index.md
+      - Academic Scraping: cookbook/research/academic-scraping.md
       
   - CLI Reference:
     - cli/index.md
@@ -215,9 +246,84 @@ nav:
       
   - API Reference:
     - api/index.md
+    - Core:
+      - api/core/xeepy.md
+      - api/core/browser.md
+      - api/core/auth.md
+      - api/core/config.md
+      - api/core/rate_limiter.md
+    - Scrapers:
+      - api/scrapers/replies.md
+      - api/scrapers/profile.md
+      - api/scrapers/followers.md
+      - api/scrapers/following.md
+      - api/scrapers/tweets.md
+      - api/scrapers/thread.md
+      - api/scrapers/search.md
+      - api/scrapers/hashtag.md
+      - api/scrapers/media.md
+      - api/scrapers/likes.md
+      - api/scrapers/lists.md
+      - api/scrapers/mentions.md
+      - api/scrapers/spaces.md
+      - api/scrapers/downloads.md
+      - api/scrapers/recommendations.md
+    - Actions:
+      - api/actions/follow.md
+      - api/actions/unfollow.md
+      - api/actions/engage.md
+      - api/actions/messaging.md
+      - api/actions/scheduling.md
+      - api/actions/polls.md
+      - api/actions/settings.md
+    - Monitoring:
+      - api/monitoring/unfollowers.md
+      - api/monitoring/growth.md
+      - api/monitoring/keywords.md
+      - api/monitoring/account.md
+    - Analytics:
+      - api/analytics/growth.md
+      - api/analytics/engagement.md
+      - api/analytics/audience.md
+      - api/analytics/competitors.md
+      - api/analytics/content.md
+    - AI:
+      - api/ai/providers.md
+      - api/ai/content.md
+      - api/ai/sentiment.md
+      - api/ai/detection.md
+    - Models:
+      - api/models/tweet.md
+      - api/models/user.md
+      - api/models/engagement.md
+    - Storage:
+      - api/storage/database.md
+      - api/storage/export.md
+    - Notifications:
+      - api/notifications/discord.md
+      - api/notifications/telegram.md
+      - api/notifications/email.md
+    - REST & GraphQL:
+      - api/graphql.md
+      - api/server.md
       
   - Advanced:
     - advanced/index.md
+    - Architecture: advanced/architecture.md
+    - Plugin System: advanced/plugins.md
+    - Custom Scrapers: advanced/custom-scrapers.md
+    - Performance Tuning: advanced/performance.md
+    - Proxy Configuration: advanced/proxies.md
+    - Stealth Mode: advanced/stealth.md
+    - Distributed Scraping: advanced/distributed.md
+    - Docker Deployment: advanced/docker.md
+    - Testing Guide: advanced/testing.md
+    - Error Handling: advanced/errors.md
+    - Webhooks: advanced/webhooks.md
+    - API Server: advanced/api-server.md
+    - Rate Limiting: advanced/rate-limiting.md
+    - Scheduling: advanced/scheduling.md
+    - Multi-Account: advanced/multi-account.md
     
   - Community:
     - community/index.md
@@ -234,5 +340,4 @@ nav:
     - Examples: EXAMPLES.md
     - Comparison: COMPARISON.md
     - FAQ: FAQ.md
-    - Migration Guide: migration.md
     - Agent Development: AGENT_DEVELOPMENT.md

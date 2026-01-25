@@ -1,437 +1,237 @@
-# Performance Optimization
+# Performance Tuning
 
-Maximize Xeepy throughput while maintaining account safety.
+Optimize XTools for maximum throughput while respecting rate limits.
 
-## Profiling
+## Caching Strategy
 
-### Identify Bottlenecks
-
-```python
-from xeepy import Xeepy
-from xeepy.utils import profile_async
-
-@profile_async
-async def scrape_many_users(users: list):
-    async with Xeepy() as x:
-        results = []
-        for user in users:
-            profile = await x.scrape.profile(user)
-            results.append(profile)
-        return results
-
-# Run with profiling
-results = await scrape_many_users(users)
-# Outputs timing for each operation
-```
-
-### Performance Metrics
+XTools includes a multi-level caching system to reduce redundant requests.
 
 ```python
-async with Xeepy(metrics=True) as x:
-    await x.scrape.followers("username", limit=1000)
-    
-    # Get metrics
-    metrics = x.get_metrics()
-    print(f"Total requests: {metrics.total_requests}")
-    print(f"Avg request time: {metrics.avg_request_time:.2f}s")
-    print(f"Cache hit rate: {metrics.cache_hit_rate:.1%}")
-    print(f"Rate limit waits: {metrics.rate_limit_waits}")
-```
+from xtools.storage.cache import Cache, CacheConfig
 
-## Caching
-
-### Enable Response Caching
-
-```python
-from xeepy import Xeepy
-from xeepy.storage import Cache
-
-# In-memory cache
-cache = Cache(backend="memory", max_size=10000)
-
-# Or Redis cache
-cache = Cache(
-    backend="redis",
-    url="redis://localhost:6379",
-    ttl=3600  # 1 hour
+# Configure caching
+cache_config = CacheConfig(
+    backend="sqlite",  # or "redis", "memory"
+    ttl_seconds=3600,  # 1 hour default TTL
+    max_size_mb=100,
+    compression=True
 )
 
-async with Xeepy(cache=cache) as x:
-    # First call hits Twitter
-    profile1 = await x.scrape.profile("username")
+cache = Cache(cache_config)
+
+# Manual cache usage
+async def cached_profile_fetch(username: str):
+    """Fetch profile with caching."""
+    cache_key = f"profile:{username}"
     
-    # Second call uses cache
-    profile2 = await x.scrape.profile("username")  # Instant!
+    # Check cache first
+    cached = await cache.get(cache_key)
+    if cached:
+        return cached
+    
+    # Fetch fresh data
+    async with XTools() as x:
+        profile = await x.scrape.profile(username)
+    
+    # Store in cache
+    await cache.set(cache_key, profile, ttl=7200)
+    return profile
 ```
 
-### Smart Caching Strategies
+!!! info "Cache Invalidation"
+    Cache is automatically invalidated when actions modify data (follow, like, etc).
 
-```python
-from xeepy.storage import CacheStrategy
+## Parallel Execution
 
-# Cache profiles longer, tweets shorter
-strategy = CacheStrategy({
-    "profile": 86400,      # 24 hours
-    "followers": 3600,     # 1 hour
-    "tweets": 300,         # 5 minutes
-    "trends": 60,          # 1 minute
-})
-
-async with Xeepy(cache_strategy=strategy) as x:
-    pass
-```
-
-### Cache Invalidation
-
-```python
-async with Xeepy(cache=cache) as x:
-    # Force refresh
-    profile = await x.scrape.profile("username", force_refresh=True)
-    
-    # Clear specific cache
-    await x.cache.invalidate("profile:username")
-    
-    # Clear all caches
-    await x.cache.clear()
-```
-
-## Concurrent Operations
-
-### Parallel Scraping (Different Resources)
+Execute independent operations concurrently using `asyncio.gather`:
 
 ```python
 import asyncio
+from xtools import XTools
 
-async with Xeepy() as x:
-    # These can run in parallel (different users)
-    tasks = [
-        x.scrape.profile("user1"),
-        x.scrape.profile("user2"),
-        x.scrape.profile("user3"),
-    ]
-    profiles = await asyncio.gather(*tasks)
-```
-
-### Controlled Concurrency
-
-```python
-import asyncio
-from asyncio import Semaphore
-
-async def scrape_with_limit(x, users: list, max_concurrent: int = 5):
-    semaphore = Semaphore(max_concurrent)
+async def parallel_scraping():
+    """Scrape multiple profiles in parallel."""
+    usernames = ["user1", "user2", "user3", "user4", "user5"]
     
-    async def scrape_one(user):
+    async with XTools() as x:
+        # Parallel profile scraping
+        tasks = [
+            x.scrape.profile(username)
+            for username in usernames
+        ]
+        profiles = await asyncio.gather(*tasks)
+        
+        return profiles
+
+async def parallel_with_semaphore():
+    """Limit concurrency with semaphore."""
+    usernames = ["user" + str(i) for i in range(100)]
+    semaphore = asyncio.Semaphore(5)  # Max 5 concurrent
+    
+    async def fetch_with_limit(username):
         async with semaphore:
-            return await x.scrape.profile(user)
+            async with XTools() as x:
+                return await x.scrape.profile(username)
     
-    tasks = [scrape_one(user) for user in users]
+    tasks = [fetch_with_limit(u) for u in usernames]
     return await asyncio.gather(*tasks)
-
-async with Xeepy() as x:
-    profiles = await scrape_with_limit(x, users, max_concurrent=3)
 ```
 
-### Batch Operations
+!!! warning "Concurrency Limits"
+    Too many parallel requests can trigger rate limits. Use semaphores wisely.
+
+## Connection Pooling
+
+Reuse browser contexts for better performance:
 
 ```python
-async with Xeepy() as x:
-    # Use GraphQL batch endpoint
-    from xeepy.api.graphql import GraphQLClient
-    
-    gql = GraphQLClient(cookies=x.cookies)
-    
-    # Fetch 100 users in one request (vs 100 requests)
-    users = await gql.users_by_ids(user_ids[:100])
-```
+from xtools.core.browser import BrowserPool
 
-## Browser Optimization
-
-### Headless Mode
-
-```python
-# Always use headless in production
-async with Xeepy(headless=True) as x:
-    pass
-```
-
-### Resource Blocking
-
-```python
-from xeepy import Xeepy
-
-# Block unnecessary resources
-async with Xeepy(
-    block_resources=["image", "media", "font", "stylesheet"]
-) as x:
-    # Faster page loads
-    await x.scrape.profile("username")
-```
-
-### Browser Arguments
-
-```python
-browser_args = [
-    "--disable-gpu",
-    "--disable-dev-shm-usage",
-    "--disable-extensions",
-    "--no-first-run",
-    "--disable-background-networking",
-    "--disable-sync",
-]
-
-async with Xeepy(browser_args=browser_args) as x:
-    pass
-```
-
-### Page Reuse
-
-```python
-from xeepy import Xeepy
-
-# Reuse pages instead of creating new ones
-async with Xeepy(page_pool_size=3) as x:
-    for user in users:
-        # Pages are recycled from pool
-        await x.scrape.profile(user)
-```
-
-## Database Optimization
-
-### Connection Pooling
-
-```python
-from xeepy import Xeepy
-
-# Use connection pool for database
-async with Xeepy(
-    database="postgresql://localhost/xeepy",
-    db_pool_size=10,
-    db_pool_overflow=5,
-) as x:
-    pass
-```
-
-### Batch Inserts
-
-```python
-async with Xeepy() as x:
-    # Scrape first, then batch insert
-    profiles = []
-    for user in users:
-        profile = await x.scrape.profile(user)
-        profiles.append(profile)
-    
-    # Single batch insert
-    await x.storage.bulk_insert(profiles)
-```
-
-### Async Database Operations
-
-```python
-import asyncpg
-
-async def save_profiles_fast(profiles: list):
-    conn = await asyncpg.connect('postgresql://localhost/xeepy')
-    
-    # Use COPY for fastest inserts
-    await conn.copy_records_to_table(
-        'profiles',
-        records=[(p.username, p.followers, p.bio) for p in profiles]
+async def connection_pooling():
+    """Use browser connection pool."""
+    pool = BrowserPool(
+        size=5,           # Pool size
+        headless=True,
+        recycle_after=100  # Recycle after N uses
     )
     
-    await conn.close()
+    async with pool:
+        # Get context from pool
+        async with pool.acquire() as browser:
+            page = await browser.new_page()
+            # Use page...
+        # Context returned to pool
+
+# With XTools
+async def xtools_with_pool():
+    pool = BrowserPool(size=3)
+    
+    async with XTools(browser_pool=pool) as x:
+        # XTools uses pool internally
+        results = await x.scrape.replies(url)
 ```
 
-## Memory Management
+## Batch Operations
 
-### Streaming Large Datasets
-
-```python
-async with Xeepy() as x:
-    # Stream instead of loading all into memory
-    async for batch in x.scrape.followers("big_account", batch_size=100):
-        await process_batch(batch)
-        # Batch is garbage collected after processing
-```
-
-### Generator Pattern
+Process items in batches for efficiency:
 
 ```python
-async def scrape_users_generator(usernames: list):
-    """Yield results one at a time to save memory."""
-    async with Xeepy() as x:
-        for username in usernames:
-            yield await x.scrape.profile(username)
+from xtools import XTools
+from xtools.utils import batch_processor
 
-# Process without loading all into memory
-async for profile in scrape_users_generator(million_users):
-    await save_to_database(profile)
-```
-
-### Explicit Cleanup
-
-```python
-async with Xeepy() as x:
-    for i, user in enumerate(users):
-        profile = await x.scrape.profile(user)
-        await save(profile)
+async def batch_follow_users():
+    """Follow users in batches."""
+    users_to_follow = ["user" + str(i) for i in range(500)]
+    
+    async with XTools() as x:
+        results = await batch_processor(
+            items=users_to_follow,
+            processor=x.follow.user,
+            batch_size=10,
+            delay_between_batches=30,  # seconds
+            on_progress=lambda done, total: print(f"{done}/{total}")
+        )
         
-        # Periodic cleanup
-        if i % 100 == 0:
-            await x.browser.cleanup_pages()
-            import gc
-            gc.collect()
+        print(f"Followed: {results.success_count}")
+        print(f"Failed: {results.failure_count}")
 ```
 
-## Network Optimization
+## Memory Optimization
 
-### Connection Reuse
+Handle large datasets without exhausting memory:
 
 ```python
-async with Xeepy(
-    keep_alive=True,
-    connection_pool_size=10,
-) as x:
-    # Connections are reused
-    for user in users:
-        await x.scrape.profile(user)
+from xtools import XTools
+
+async def stream_large_dataset():
+    """Stream results instead of loading all in memory."""
+    async with XTools() as x:
+        # Use async generator for large result sets
+        async for tweet in x.scrape.tweets_stream(
+            "username",
+            limit=10000
+        ):
+            # Process one at a time
+            process_tweet(tweet)
+            
+            # Optionally write to file incrementally
+            append_to_csv(tweet, "output.csv")
+
+async def chunked_export():
+    """Export large datasets in chunks."""
+    async with XTools() as x:
+        chunk_size = 1000
+        offset = 0
+        
+        while True:
+            tweets = await x.scrape.tweets(
+                "username",
+                limit=chunk_size,
+                offset=offset
+            )
+            
+            if not tweets:
+                break
+            
+            x.export.to_csv(
+                tweets,
+                f"tweets_{offset}.csv"
+            )
+            offset += chunk_size
 ```
 
-### Request Pipelining
+!!! tip "Generator Pattern"
+    Use async generators (`async for`) when processing thousands of items.
+
+## Performance Monitoring
 
 ```python
-from xeepy.api.graphql import GraphQLClient
-
-gql = GraphQLClient(cookies=cookies)
-
-# Pipeline multiple requests
-async with gql.pipeline() as pipe:
-    pipe.get_user("user1")
-    pipe.get_user("user2")
-    pipe.get_user("user3")
-    results = await pipe.execute()  # Single round trip
-```
-
-### Compression
-
-```python
-async with Xeepy(
-    accept_encoding="gzip, deflate, br"
-) as x:
-    # Responses are compressed
-    pass
-```
-
-## Rate Limit Optimization
-
-### Maximize Within Limits
-
-```python
-from xeepy import Xeepy
-from xeepy.core.rate_limiter import OptimizedLimiter
-
-# Use all available rate limit capacity
-limiter = OptimizedLimiter(
-    target_utilization=0.95,  # Use 95% of limits
-    buffer_for_manual=0.05,   # Reserve 5% for manual use
-)
-
-async with Xeepy(rate_limiter=limiter) as x:
-    pass
-```
-
-### Adaptive Delays
-
-```python
-from xeepy.core.rate_limiter import AdaptiveLimiter
-
-# Automatically adjusts based on responses
-limiter = AdaptiveLimiter(
-    initial_delay=2.0,
-    min_delay=0.5,
-    max_delay=30.0,
-    increase_on_429=True,     # Slow down on rate limit
-    decrease_on_success=True,  # Speed up on success
-)
-```
-
-## Benchmarks
-
-### Measure Performance
-
-```python
+from xtools.monitoring import PerformanceMonitor
 import time
-from xeepy import Xeepy
 
-async def benchmark_scraping():
-    async with Xeepy() as x:
-        start = time.time()
+async def monitored_scraping():
+    """Monitor scraping performance."""
+    monitor = PerformanceMonitor()
+    
+    async with XTools() as x:
+        with monitor.track("profile_scrape"):
+            profile = await x.scrape.profile("username")
         
-        for i in range(100):
-            await x.scrape.profile(f"user{i}")
-        
-        elapsed = time.time() - start
-        print(f"Scraped 100 profiles in {elapsed:.2f}s")
-        print(f"Average: {elapsed/100:.2f}s per profile")
-
-await benchmark_scraping()
+        with monitor.track("followers_scrape"):
+            followers = await x.scrape.followers("username", limit=1000)
+    
+    # Get metrics
+    stats = monitor.get_stats()
+    print(f"Profile scrape: {stats['profile_scrape']['avg_ms']}ms avg")
+    print(f"Followers scrape: {stats['followers_scrape']['avg_ms']}ms avg")
+    
+    # Export metrics
+    monitor.export_prometheus("metrics.txt")
 ```
 
-### Compare Configurations
+## Configuration Presets
 
 ```python
-configs = [
-    {"name": "baseline", "config": {}},
-    {"name": "with_cache", "config": {"cache": True}},
-    {"name": "blocked_images", "config": {"block_resources": ["image"]}},
-    {"name": "optimized", "config": {"cache": True, "block_resources": ["image", "font"]}},
-]
+from xtools import XTools
+from xtools.config import PerformancePreset
 
-for cfg in configs:
-    async with Xeepy(**cfg["config"]) as x:
-        start = time.time()
-        for user in test_users:
-            await x.scrape.profile(user)
-        elapsed = time.time() - start
-        print(f"{cfg['name']}: {elapsed:.2f}s")
+# High-throughput preset
+async with XTools(preset=PerformancePreset.HIGH_THROUGHPUT) as x:
+    # Aggressive caching, parallel execution
+    pass
+
+# Conservative preset (safer for accounts)
+async with XTools(preset=PerformancePreset.CONSERVATIVE) as x:
+    # Slower, more human-like behavior
+    pass
+
+# Custom configuration
+config = {
+    "cache_ttl": 1800,
+    "max_concurrent": 3,
+    "request_delay": (1, 3),
+    "retry_attempts": 3
+}
+async with XTools(config=config) as x:
+    pass
 ```
-
-## Performance Checklist
-
-### Quick Wins
-
-- [ ] Enable headless mode
-- [ ] Block images and fonts
-- [ ] Enable caching
-- [ ] Use batch operations where possible
-- [ ] Reuse browser pages
-
-### Medium Effort
-
-- [ ] Implement connection pooling
-- [ ] Use streaming for large datasets
-- [ ] Add request pipelining
-- [ ] Optimize database queries
-
-### Advanced
-
-- [ ] Deploy across multiple machines
-- [ ] Implement custom rate limiter
-- [ ] Use GraphQL batch endpoints
-- [ ] Profile and optimize hot paths
-
-## Typical Performance
-
-| Operation | Without Optimization | Optimized |
-|-----------|---------------------|-----------|
-| Profile scrape | 2-3s | 0.5-1s |
-| Followers (1000) | 60-90s | 20-30s |
-| Tweets (100) | 30-45s | 10-15s |
-| Batch profiles (100) | 5-8 min | 1-2 min |
-
-## Next Steps
-
-- [Distributed](distributed.md) - Scale horizontally
-- [Docker](docker.md) - Container optimization
-- [Architecture](architecture.md) - Understanding internals

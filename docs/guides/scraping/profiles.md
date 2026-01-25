@@ -315,6 +315,6 @@ async with Xeepy() as x:
 
 [:octicons-arrow-right-24: Followers Scraping](followers.md) - Get follower lists
 
-[:octicons-arrow-right-24: Bot Detection](../../ai/bot-detection.md) - AI-powered fake account detection
+[:octicons-arrow-right-24: Bot Detection](../ai/bot-detection.md) - AI-powered fake account detection
 
 [:octicons-arrow-right-24: Competitive Analysis](../../cookbook/business/competitor-intel.md) - Profile comparison techniques

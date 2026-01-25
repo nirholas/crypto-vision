@@ -398,6 +398,6 @@ async with Xeepy() as x:
 
 [:octicons-arrow-right-24: Following Scraping](following.md) - Scrape who users follow
 
-[:octicons-arrow-right-24: Unfollower Tracking](../../monitoring/unfollowers.md) - Detect unfollows
+[:octicons-arrow-right-24: Unfollower Tracking](../monitoring/unfollowers.md) - Detect unfollows
 
 [:octicons-arrow-right-24: Network Analysis](../../cookbook/data-science/network-analysis.md) - Map influence networks

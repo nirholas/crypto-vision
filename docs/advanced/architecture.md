@@ -1,420 +1,166 @@
-# Architecture Overview
+# System Architecture
 
-Understanding Xeepy' internal architecture helps you extend, customize, and optimize it for your use cases.
+XTools follows a modular architecture designed for extensibility, performance, and maintainability.
 
-## System Architecture
+## Architecture Overview
 
-```mermaid
-graph TB
-    subgraph "User Layer"
-        CLI[CLI Interface]
-        API[REST API]
-        SDK[Python SDK]
-    end
-    
-    subgraph "Core Layer"
-        Xeepy[Xeepy Class]
-        Auth[Auth Manager]
-        Browser[Browser Manager]
-        RateLimiter[Rate Limiter]
-    end
-    
-    subgraph "Feature Modules"
-        Scrapers[Scrapers]
-        Actions[Actions]
-        Monitor[Monitoring]
-        Analytics[Analytics]
-        AI[AI Integration]
-    end
-    
-    subgraph "Infrastructure"
-        Storage[(SQLite DB)]
-        Export[Export Engine]
-        Notify[Notifications]
-        GraphQL[GraphQL Client]
-    end
-    
-    CLI --> Xeepy
-    API --> Xeepy
-    SDK --> Xeepy
-    
-    Xeepy --> Auth
-    Xeepy --> Browser
-    Xeepy --> RateLimiter
-    
-    Browser --> Scrapers
-    Browser --> Actions
-    Scrapers --> Monitor
-    Scrapers --> Analytics
-    Analytics --> AI
-    
-    Scrapers --> Storage
-    Monitor --> Storage
-    Analytics --> Export
-    Monitor --> Notify
-    
-    Auth --> GraphQL
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      XTools Client                          │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────┐  ┌─────────┐  ┌──────────┐  ┌──────────────┐  │
+│  │ Scrapers│  │ Actions │  │ Monitor  │  │   AI Engine  │  │
+│  └────┬────┘  └────┬────┘  └────┬─────┘  └──────┬───────┘  │
+│       │            │            │               │          │
+│  ┌────┴────────────┴────────────┴───────────────┴───────┐  │
+│  │                    Core Layer                         │  │
+│  │  ┌────────────┐ ┌─────────────┐ ┌──────────────────┐ │  │
+│  │  │  Browser   │ │    Auth     │ │   Rate Limiter   │ │  │
+│  │  │  Manager   │ │   Manager   │ │                  │ │  │
+│  │  └────────────┘ └─────────────┘ └──────────────────┘ │  │
+│  └──────────────────────────────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────┤
+│                    Storage Layer                            │
+│  ┌──────────┐  ┌──────────┐  ┌───────────┐                 │
+│  │  SQLite  │  │  Export  │  │   Cache   │                 │
+│  └──────────┘  └──────────┘  └───────────┘                 │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## Component Overview
+## Core Components
 
-### Core Components
+### Browser Manager
 
-#### Xeepy Class
-
-The main entry point that orchestrates all functionality:
+The `BrowserManager` handles Playwright browser lifecycle and page management.
 
 ```python
-from xeepy import Xeepy
+from xtools.core.browser import BrowserManager
 
-async with Xeepy(
-    headless=True,
-    proxy="http://proxy:8080",
-    rate_limit_profile="conservative"
-) as x:
-    # All features accessible via x.*
-    pass
-```
-
-**Responsibilities:**
-- Lifecycle management (browser startup/shutdown)
-- Dependency injection
-- Configuration management
-- Error handling and recovery
-
-#### Browser Manager
-
-Manages Playwright browser instances:
-
-```python
-from xeepy.core.browser import BrowserManager
-
-class BrowserManager:
-    """
-    Handles browser lifecycle and page management.
+async def browser_lifecycle_example():
+    """Demonstrates browser manager usage."""
+    browser = BrowserManager(
+        headless=True,
+        proxy="http://proxy:8080",
+        user_agent="custom-agent"
+    )
     
-    Features:
-    - Connection pooling
-    - Page recycling
-    - Stealth mode integration
-    - Proxy rotation
-    """
-    
-    async def new_page(self) -> Page:
-        """Get a configured page with stealth settings."""
+    async with browser:
+        # Get a new page context
+        page = await browser.new_page()
         
-    async def close(self):
-        """Clean shutdown of all browser resources."""
-```
-
-#### Auth Manager
-
-Handles authentication and session management:
-
-```python
-from xeepy.core.auth import AuthManager
-
-class AuthManager:
-    """
-    Cookie-based authentication.
-    
-    Features:
-    - Save/load sessions
-    - Cookie validation
-    - Token extraction for GraphQL
-    - Multi-account support
-    """
-```
-
-#### Rate Limiter
-
-Protects accounts with intelligent rate limiting:
-
-```python
-from xeepy.core.rate_limiter import RateLimiter
-
-class RateLimiter:
-    """
-    Adaptive rate limiting based on action types.
-    
-    Profiles:
-    - aggressive: Maximum speed (risky)
-    - normal: Balanced approach
-    - conservative: Safest option
-    - stealth: Mimics human behavior
-    """
-```
-
-### Feature Modules
-
-#### Scrapers Architecture
-
-All scrapers inherit from `BaseScraper`:
-
-```python
-from xeepy.scrapers.base import BaseScraper
-
-class BaseScraper:
-    """Base class for all scrapers."""
-    
-    async def scrape(self, **kwargs) -> ScrapeResult:
-        """Main scraping method."""
+        # Navigate with retry logic
+        await browser.navigate(page, "https://x.com")
         
-    async def _extract_data(self, page: Page) -> List[dict]:
-        """Override to extract specific data."""
+        # Screenshot for debugging
+        await browser.screenshot(page, "debug.png")
         
-    async def _handle_pagination(self, page: Page) -> Optional[str]:
-        """Handle infinite scroll or pagination."""
+        # Close specific page
+        await browser.close_page(page)
 ```
 
-**Scraper Hierarchy:**
+### Auth Manager
 
-```
-BaseScraper
-├── RepliesScraper
-├── ProfileScraper
-├── FollowersScraper
-├── FollowingScraper
-├── TweetsScraper
-├── ThreadScraper
-├── SearchScraper
-├── HashtagScraper
-├── MediaScraper
-├── LikesScraper
-├── ListsScraper
-├── MentionsScraper
-├── SpacesScraper
-├── MediaDownloader
-└── RecommendationsScraper
-```
-
-#### Actions Architecture
-
-Actions perform mutations on Twitter:
+Handles session persistence, cookie management, and authentication state.
 
 ```python
-from xeepy.actions.base import BaseAction
+from xtools.core.auth import AuthManager
 
-class BaseAction:
-    """Base class for all actions."""
+async def auth_example():
+    """Authentication management."""
+    auth = AuthManager(browser_manager)
     
-    async def execute(self, **kwargs) -> ActionResult:
-        """Execute the action with rate limiting."""
+    # Load existing session
+    if await auth.load_cookies("session.json"):
+        print("Session restored")
+    else:
+        # Manual login required
+        await auth.login()
+        await auth.save_cookies("session.json")
+    
+    # Verify session is valid
+    if await auth.is_authenticated():
+        tokens = auth.get_auth_tokens()
+        print(f"CSRF Token: {tokens['ct0']}")
+```
+
+### Rate Limiter
+
+Protects accounts with intelligent request throttling.
+
+```python
+from xtools.core.rate_limiter import RateLimiter, RateLimitConfig
+
+async def rate_limiter_example():
+    """Rate limiting configuration."""
+    config = RateLimitConfig(
+        requests_per_minute=30,
+        requests_per_hour=500,
+        burst_limit=5,
+        cooldown_seconds=60
+    )
+    
+    limiter = RateLimiter(config)
+    
+    async def make_request():
+        async with limiter.acquire("scrape"):
+            # Request is rate-limited
+            await do_scrape()
+    
+    # Check current usage
+    stats = limiter.get_stats()
+    print(f"Requests this hour: {stats['hourly_count']}")
+```
+
+!!! info "Rate Limit Defaults"
+    XTools ships with conservative defaults to protect your account. Adjust based on your needs.
+
+## Component Interaction
+
+```python
+from xtools import XTools
+
+async def component_interaction():
+    """Shows how components work together."""
+    async with XTools() as x:
+        # Browser manager creates page
+        # Auth manager validates session
+        # Rate limiter controls request flow
+        # Scraper uses all three
         
-    async def _pre_action(self):
-        """Setup before action (rate limit check)."""
+        replies = await x.scrape.replies(
+            "https://x.com/user/status/123",
+            limit=100
+        )
         
-    async def _post_action(self):
-        """Cleanup after action (logging, delays)."""
+        # Storage layer handles persistence
+        x.export.to_csv(replies, "output.csv")
 ```
 
-### Data Flow
+!!! tip "Dependency Injection"
+    All components accept dependencies via constructor, enabling easy testing and customization.
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant Xeepy
-    participant RateLimiter
-    participant Browser
-    participant Twitter
-    participant Storage
+## Event System
+
+XTools uses an event-driven architecture for extensibility:
+
+```python
+from xtools.core.events import EventBus
+
+async def event_system_example():
+    """Event-driven architecture."""
+    bus = EventBus()
     
-    User->>Xeepy: scrape.followers("user")
-    Xeepy->>RateLimiter: check_rate_limit("scrape")
-    RateLimiter-->>Xeepy: OK
-    Xeepy->>Browser: new_page()
-    Browser->>Twitter: GET /user/followers
-    Twitter-->>Browser: HTML Response
-    Browser->>Xeepy: Parsed Data
-    Xeepy->>Storage: cache_result()
-    Xeepy-->>User: FollowersList
-```
-
-## Plugin System
-
-Xeepy supports plugins for extending functionality:
-
-```python
-from xeepy.plugins import Plugin, hook
-
-class MyPlugin(Plugin):
-    """Custom plugin example."""
+    @bus.on("scrape.complete")
+    async def on_scrape_complete(data):
+        print(f"Scraped {len(data)} items")
     
-    name = "my-plugin"
-    version = "1.0.0"
+    @bus.on("rate_limit.hit")
+    async def on_rate_limit(endpoint):
+        print(f"Rate limited on {endpoint}")
     
-    @hook("before_scrape")
-    async def on_before_scrape(self, scraper, **kwargs):
-        """Called before any scrape operation."""
-        print(f"Starting scrape: {scraper.__class__.__name__}")
-    
-    @hook("after_action")
-    async def on_after_action(self, action, result):
-        """Called after any action completes."""
-        await self.log_action(action, result)
-
-# Register plugin
-x.plugins.register(MyPlugin())
+    # Events are emitted automatically by components
+    await bus.emit("scrape.complete", replies)
 ```
 
-### Available Hooks
-
-| Hook | Description | Arguments |
-|------|-------------|-----------|
-| `before_scrape` | Before scraping starts | scraper, kwargs |
-| `after_scrape` | After scraping completes | scraper, result |
-| `before_action` | Before action executes | action, kwargs |
-| `after_action` | After action completes | action, result |
-| `on_error` | When an error occurs | error, context |
-| `on_rate_limit` | Rate limit triggered | limiter, action |
-
-## Configuration System
-
-Xeepy uses a layered configuration system:
-
-```
-Priority (highest to lowest):
-1. Runtime arguments
-2. Environment variables
-3. Config file (~/.xeepy/config.yaml)
-4. Default values
-```
-
-```yaml
-# ~/.xeepy/config.yaml
-browser:
-  headless: true
-  timeout: 30000
-  user_agent: "Mozilla/5.0..."
-
-rate_limiting:
-  profile: conservative
-  custom_delays:
-    follow: [5, 10]
-    like: [2, 5]
-
-proxy:
-  enabled: true
-  rotation: round_robin
-  list:
-    - http://proxy1:8080
-    - http://proxy2:8080
-
-storage:
-  database: sqlite:///~/.xeepy/data.db
-  cache_ttl: 3600
-
-notifications:
-  discord_webhook: ${DISCORD_WEBHOOK}
-  telegram_bot_token: ${TELEGRAM_TOKEN}
-```
-
-## Error Handling
-
-Xeepy implements a hierarchical error system:
-
-```python
-from xeepy.exceptions import (
-    XeepyError,           # Base exception
-    AuthenticationError,   # Login/session issues
-    RateLimitError,        # Rate limit exceeded
-    NetworkError,          # Connection issues
-    ScrapingError,         # Data extraction failed
-    ActionError,           # Action failed
-    ValidationError,       # Invalid input
-)
-
-# Custom error handling
-try:
-    await x.follow.user("username")
-except RateLimitError as e:
-    print(f"Rate limited. Wait {e.retry_after} seconds")
-except AuthenticationError:
-    await x.auth.refresh_session()
-except XeepyError as e:
-    print(f"Xeepy error: {e}")
-```
-
-## Memory Management
-
-Xeepy optimizes memory for large-scale operations:
-
-```python
-# Streaming mode for large datasets
-async for batch in x.scrape.followers("user", batch_size=100):
-    process(batch)
-    # Memory released after each batch
-
-# Manual cache control
-x.cache.clear()
-x.cache.set_max_size(1000)  # Max cached items
-```
-
-## Concurrency Model
-
-Xeepy uses asyncio for concurrent operations:
-
-```python
-import asyncio
-
-# Parallel scraping (different users)
-async def scrape_multiple():
-    tasks = [
-        x.scrape.profile("user1"),
-        x.scrape.profile("user2"),
-        x.scrape.profile("user3"),
-    ]
-    results = await asyncio.gather(*tasks)
-    return results
-
-# Sequential with batching (same resource)
-async def follow_users(users: list):
-    for user in users:
-        await x.follow.user(user)
-        # Rate limiter handles delays
-```
-
-## Best Practices
-
-### 1. Always Use Context Manager
-
-```python
-# ✅ Good
-async with Xeepy() as x:
-    await x.scrape.profile("user")
-
-# ❌ Bad - resources may leak
-x = Xeepy()
-await x.scrape.profile("user")
-# Browser never closed!
-```
-
-### 2. Handle Errors Gracefully
-
-```python
-# ✅ Good
-try:
-    result = await x.scrape.followers("user", limit=1000)
-except RateLimitError:
-    await asyncio.sleep(900)  # Wait 15 minutes
-    result = await x.scrape.followers("user", limit=1000)
-```
-
-### 3. Use Appropriate Rate Limit Profiles
-
-```python
-# For important accounts
-async with Xeepy(rate_limit_profile="conservative") as x:
-    pass
-
-# For disposable/test accounts
-async with Xeepy(rate_limit_profile="aggressive") as x:
-    pass
-```
-
-## Next Steps
-
-- [Custom Scrapers](custom-scrapers.md) - Build your own scrapers
-- [Plugins](plugins.md) - Extend Xeepy functionality
-- [Performance](performance.md) - Optimize for scale
-- [Distributed](distributed.md) - Multi-machine setups
+!!! warning "Thread Safety"
+    The event bus is async-safe but not thread-safe. Use within a single event loop.

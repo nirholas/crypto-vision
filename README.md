@@ -192,6 +192,10 @@
 
 ## 📦 Installation
 
+<p align="center">
+  <img src=".github/demos/installation.svg" alt="Installation Demo" width="700">
+</p>
+
 ### Quick Install
 
 ```bash
@@ -301,6 +305,10 @@ asyncio.run(main())
 
 ### Get Tweet Replies (Fixes Original Repo!)
 
+<p align="center">
+  <img src=".github/demos/scrape-replies.svg" alt="Scrape Replies Demo" width="700">
+</p>
+
 ```python
 from xeepy import Xeepy
 
@@ -320,6 +328,10 @@ async with Xeepy() as x:
 ```
 
 ### Unfollow Non-Followers
+
+<p align="center">
+  <img src=".github/demos/unfollow-non-followers.svg" alt="Unfollow Non-Followers Demo" width="700">
+</p>
 
 ```python
 from xeepy import Xeepy
@@ -344,6 +356,10 @@ async with Xeepy() as x:
 
 ### Auto-Like by Keywords
 
+<p align="center">
+  <img src=".github/demos/auto-like.svg" alt="Auto-Like Demo" width="700">
+</p>
+
 ```python
 from xeepy import Xeepy
 
@@ -357,6 +373,10 @@ async with Xeepy() as x:
 ```
 
 ### Generate AI Reply
+
+<p align="center">
+  <img src=".github/demos/ai-replies.svg" alt="AI Replies Demo" width="700">
+</p>
 
 ```python
 from xeepy import Xeepy
@@ -577,6 +597,10 @@ class Tweet:
 ```
 
 ### 2. Profile Scraper
+
+<p align="center">
+  <img src=".github/demos/scrape-profile.svg" alt="Profile Scraper Demo" width="700">
+</p>
 
 Get detailed user profile information.
 
@@ -1320,6 +1344,10 @@ async with Xeepy() as x:
 
 ## 📩 Direct Messages
 
+<p align="center">
+  <img src=".github/demos/send-dm.svg" alt="Send DM Demo" width="700">
+</p>
+
 Full DM operations support.
 
 ```python
@@ -1835,6 +1863,10 @@ print(result["hashtags"])
 
 ## 📊 Monitoring
 
+<p align="center">
+  <img src=".github/demos/monitor-unfollowers.svg" alt="Monitor Unfollowers Demo" width="700">
+</p>
+
 ### Unfollower Detector
 
 Track who unfollows you.
@@ -2208,6 +2240,10 @@ await manager.notify("milestone", "Reached 10K followers! 🎉")
 ---
 
 ## 📤 Data Export
+
+<p align="center">
+  <img src=".github/demos/export-data.svg" alt="Export Data Demo" width="700">
+</p>
 
 ### CSV Export
 
@@ -2616,6 +2652,10 @@ Visit `http://localhost:8000/docs` for interactive API documentation.
 ---
 
 ## 🔷 GraphQL API
+
+<p align="center">
+  <img src=".github/demos/graphql-api.svg" alt="GraphQL API Demo" width="700">
+</p>
 
 Xeepy also supports GraphQL for flexible querying.
 

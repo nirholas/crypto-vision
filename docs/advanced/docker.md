@@ -1,593 +1,305 @@
 # Docker Deployment
 
-Deploy Xeepy in containers for consistent, reproducible environments.
+Deploy XTools in containers for consistent, reproducible environments.
 
-## Quick Start
-
-### Dockerfile
+## Basic Dockerfile
 
 ```dockerfile
 # Dockerfile
-FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
+FROM python:3.11-slim
 
+# Install system dependencies for Playwright
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Playwright browsers
+RUN pip install playwright && playwright install chromium --with-deps
+
+# Set working directory
 WORKDIR /app
 
-# Install dependencies
+# Copy requirements and install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Xeepy
-RUN pip install xeepy
-
-# Copy application
+# Copy application code
 COPY . .
 
-# Run
+# Run as non-root user
+RUN useradd -m xtools && chown -R xtools:xtools /app
+USER xtools
+
+# Default command
 CMD ["python", "main.py"]
 ```
 
-### Basic Docker Compose
+## Docker Compose Setup
 
 ```yaml
 # docker-compose.yml
 version: '3.8'
 
 services:
-  xeepy:
+  xtools:
     build: .
+    environment:
+      - XTOOLS_HEADLESS=true
+      - REDIS_URL=redis://redis:6379
     volumes:
-      - ./cookies:/app/cookies
       - ./data:/app/data
-    environment:
-      - XEEPY_HEADLESS=true
-      - XEEPY_PROXY=${PROXY_URL}
-```
-
-## Production Setup
-
-### Multi-Stage Build
-
-```dockerfile
-# Dockerfile.production
-# Build stage
-FROM python:3.11-slim as builder
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
-
-# Production stage
-FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
-
-WORKDIR /app
-
-# Copy wheels and install
-COPY --from=builder /wheels /wheels
-RUN pip install --no-cache-dir /wheels/* && rm -rf /wheels
-
-# Install browser
-RUN playwright install chromium
-
-# Non-root user for security
-RUN useradd -m -u 1000 xeepy
-USER xeepy
-
-COPY --chown=xeepy:xeepy . .
-
-CMD ["python", "main.py"]
-```
-
-### Production Docker Compose
-
-```yaml
-# docker-compose.prod.yml
-version: '3.8'
-
-services:
-  xeepy-scraper:
-    image: xeepy:latest
-    deploy:
-      replicas: 3
-      resources:
-        limits:
-          cpus: '1'
-          memory: 2G
-        reservations:
-          cpus: '0.5'
-          memory: 1G
-    volumes:
-      - cookies:/app/cookies:ro
-      - data:/app/data
-    environment:
-      - XEEPY_HEADLESS=true
-      - XEEPY_RATE_LIMIT=conservative
-    secrets:
-      - proxy_credentials
-    networks:
-      - xeepy-network
-    healthcheck:
-      test: ["CMD", "python", "-c", "import xeepy; print('ok')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
-
+      - ./cookies:/app/cookies
+    depends_on:
+      - redis
+    
   redis:
     image: redis:7-alpine
     volumes:
       - redis_data:/data
-    networks:
-      - xeepy-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: xeepy
-      POSTGRES_USER: xeepy
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    secrets:
-      - db_password
-    networks:
-      - xeepy-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U xeepy"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-volumes:
-  cookies:
-  data:
-  redis_data:
-  postgres_data:
-
-networks:
-  xeepy-network:
-    driver: bridge
-
-secrets:
-  proxy_credentials:
-    file: ./secrets/proxy.txt
-  db_password:
-    file: ./secrets/db_password.txt
-```
-
-## Specialized Containers
-
-### Scraper Container
-
-```dockerfile
-# Dockerfile.scraper
-FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
-
-WORKDIR /app
-
-RUN pip install xeepy[scraping]
-
-COPY scraper/ .
-
-ENTRYPOINT ["python", "scraper.py"]
-CMD ["--help"]
-```
-
-```python
-# scraper.py
-import asyncio
-import argparse
-from xeepy import Xeepy
-
-async def main(args):
-    async with Xeepy(
-        cookies=args.cookies,
-        headless=True,
-        proxy=args.proxy
-    ) as x:
-        if args.action == "followers":
-            data = await x.scrape.followers(args.target, limit=args.limit)
-        elif args.action == "tweets":
-            data = await x.scrape.tweets(args.target, limit=args.limit)
-        
-        x.export.to_json(data, args.output)
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=["followers", "tweets"])
-    parser.add_argument("target")
-    parser.add_argument("--cookies", required=True)
-    parser.add_argument("--proxy")
-    parser.add_argument("--limit", type=int, default=1000)
-    parser.add_argument("--output", default="output.json")
     
-    args = parser.parse_args()
-    asyncio.run(main(args))
+  worker:
+    build: .
+    command: python worker.py
+    environment:
+      - XTOOLS_HEADLESS=true
+      - REDIS_URL=redis://redis:6379
+    deploy:
+      replicas: 3
+    depends_on:
+      - redis
+
+volumes:
+  redis_data:
 ```
 
-### Worker Container
+!!! info "Headless Mode"
+    Always use headless mode in containers—there's no display available.
+
+## Optimized Production Dockerfile
 
 ```dockerfile
-# Dockerfile.worker
-FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
+# Dockerfile.prod
+FROM python:3.11-slim as builder
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+
+# Production image
+FROM python:3.11-slim
+
+# Install Playwright dependencies only
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
+    libcups2 libdrm2 libxkbcommon0 libxcomposite1 \
+    libxdamage1 libxfixes3 libxrandr2 libgbm1 libasound2 \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-RUN pip install xeepy[distributed] celery redis
+# Copy wheels and install
+COPY --from=builder /app/wheels /wheels
+RUN pip install --no-cache /wheels/*
 
-COPY worker/ .
+# Install Playwright browsers
+RUN playwright install chromium
 
-CMD ["celery", "-A", "tasks", "worker", "--loglevel=info"]
+# Copy application
+COPY . .
+
+# Security: non-root user
+RUN useradd -m -u 1000 xtools && chown -R xtools:xtools /app
+USER xtools
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import xtools; print('healthy')" || exit 1
+
+CMD ["python", "main.py"]
 ```
 
-### API Container
+## Multi-Architecture Build
 
-```dockerfile
-# Dockerfile.api
-FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
-
-WORKDIR /app
-
-RUN pip install xeepy[api] uvicorn
-
-COPY api/ .
-
-EXPOSE 8000
-
-CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
+```bash
+# Build for multiple architectures
+docker buildx build --platform linux/amd64,linux/arm64 \
+    -t myregistry/xtools:latest \
+    --push .
 ```
 
-## Resource Management
-
-### Memory Optimization
-
-```yaml
-# Browser uses significant memory
-services:
-  xeepy:
-    deploy:
-      resources:
-        limits:
-          memory: 2G  # Minimum for browser automation
-    environment:
-      # Reduce memory usage
-      - XEEPY_BROWSER_ARGS=--disable-dev-shm-usage,--disable-gpu
-      - PLAYWRIGHT_BROWSERS_PATH=/tmp/browsers
-```
-
-### CPU Allocation
-
-```yaml
-services:
-  xeepy-scraper:
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-        reservations:
-          cpus: '0.25'
-```
-
-### Shared Memory
-
-```yaml
-services:
-  xeepy:
-    shm_size: '2gb'  # Required for Chromium
-```
-
-## Networking
-
-### Proxy Configuration
-
-```yaml
-services:
-  xeepy:
-    environment:
-      - HTTP_PROXY=http://proxy:8080
-      - HTTPS_PROXY=http://proxy:8080
-      - XEEPY_PROXY=http://proxy:8080
-
-  proxy:
-    image: your-proxy-image
-    ports:
-      - "8080:8080"
-```
-
-### Network Isolation
-
-```yaml
-networks:
-  frontend:
-    driver: bridge
-  backend:
-    driver: bridge
-    internal: true  # No external access
-
-services:
-  api:
-    networks:
-      - frontend
-      - backend
-  
-  xeepy:
-    networks:
-      - backend  # Only internal access
-```
-
-## Persistent Storage
-
-### Cookie Storage
-
-```yaml
-volumes:
-  cookies:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /secure/cookies
-
-services:
-  xeepy:
-    volumes:
-      - cookies:/app/cookies:ro
-```
-
-### Data Storage
-
-```yaml
-volumes:
-  data:
-    driver: local
-
-services:
-  xeepy:
-    volumes:
-      - data:/app/data
-      - ./exports:/app/exports  # Local bind for exports
-```
-
-## Security
-
-### Non-Root User
-
-```dockerfile
-RUN useradd -m -u 1000 xeepy
-USER xeepy
-```
-
-### Read-Only Filesystem
-
-```yaml
-services:
-  xeepy:
-    read_only: true
-    tmpfs:
-      - /tmp
-    volumes:
-      - cookies:/app/cookies:ro
-      - data:/app/data
-```
-
-### Secrets Management
-
-```yaml
-secrets:
-  twitter_cookies:
-    external: true  # From Docker Swarm/K8s
-  proxy_auth:
-    file: ./secrets/proxy.txt
-
-services:
-  xeepy:
-    secrets:
-      - twitter_cookies
-      - proxy_auth
-    environment:
-      - XEEPY_COOKIES=/run/secrets/twitter_cookies
-```
-
-## Health Checks
-
-```yaml
-services:
-  xeepy:
-    healthcheck:
-      test: ["CMD", "python", "healthcheck.py"]
-      interval: 60s
-      timeout: 30s
-      retries: 3
-      start_period: 30s
-```
+## Environment Configuration
 
 ```python
-# healthcheck.py
-import asyncio
-import sys
-from xeepy import Xeepy
+# config.py
+import os
+from xtools import XTools
 
-async def check():
-    try:
-        async with Xeepy(headless=True) as x:
-            # Simple check - can browser launch?
-            return True
-    except Exception:
-        return False
+async def create_xtools():
+    """Create XTools instance from environment."""
+    return XTools(
+        headless=os.getenv("XTOOLS_HEADLESS", "true").lower() == "true",
+        proxy=os.getenv("XTOOLS_PROXY"),
+        cookies_path=os.getenv("XTOOLS_COOKIES", "/app/cookies/session.json"),
+    )
 
-if asyncio.run(check()):
-    sys.exit(0)
-else:
-    sys.exit(1)
+# main.py
+async def main():
+    async with await create_xtools() as x:
+        await x.auth.load_cookies(os.getenv("XTOOLS_COOKIES"))
+        # Your scraping logic here
 ```
 
-## Logging
-
-### Structured Logging
+## Kubernetes Deployment
 
 ```yaml
-services:
-  xeepy:
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-        labels: "service,env"
-    environment:
-      - XEEPY_LOG_FORMAT=json
-      - XEEPY_LOG_LEVEL=INFO
-```
-
-### Centralized Logging
-
-```yaml
-services:
-  xeepy:
-    logging:
-      driver: syslog
-      options:
-        syslog-address: "tcp://logstash:5000"
-        tag: "xeepy-{{.Name}}"
-```
-
-## Monitoring
-
-### Prometheus Metrics
-
-```yaml
-services:
-  xeepy:
-    ports:
-      - "9090:9090"  # Metrics endpoint
-    environment:
-      - XEEPY_METRICS_ENABLED=true
-      - XEEPY_METRICS_PORT=9090
-
-  prometheus:
-    image: prom/prometheus
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9091:9090"
-```
-
-```yaml
-# prometheus.yml
-scrape_configs:
-  - job_name: 'xeepy'
-    static_configs:
-      - targets: ['xeepy:9090']
-```
-
-## Scaling
-
-### Horizontal Scaling
-
-```bash
-# Scale workers
-docker-compose up -d --scale xeepy-worker=5
-
-# Or with Docker Swarm
-docker service scale xeepy_worker=10
-```
-
-### Auto-Scaling with Kubernetes
-
-```yaml
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
+# k8s/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: xeepy-worker
+  name: xtools-worker
 spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: xeepy-worker
-  minReplicas: 2
-  maxReplicas: 20
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
+  replicas: 5
+  selector:
+    matchLabels:
+      app: xtools-worker
+  template:
+    metadata:
+      labels:
+        app: xtools-worker
+    spec:
+      containers:
+      - name: worker
+        image: myregistry/xtools:latest
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        env:
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: xtools-secrets
+              key: redis-url
+        volumeMounts:
+        - name: cookies
+          mountPath: /app/cookies
+      volumes:
+      - name: cookies
+        secret:
+          secretName: xtools-cookies
 ```
 
-## Development vs Production
+!!! warning "Resource Limits"
+    Playwright/Chromium is memory-intensive. Allocate at least 512Mi per container.
 
-### Development
+## Docker Volume Management
+
+```python
+# Persist cookies and data across container restarts
+async def setup_persistence():
+    """Setup persistent storage in Docker."""
+    from pathlib import Path
+    
+    data_dir = Path("/app/data")
+    cookies_dir = Path("/app/cookies")
+    
+    data_dir.mkdir(exist_ok=True)
+    cookies_dir.mkdir(exist_ok=True)
+    
+    async with XTools() as x:
+        cookies_path = cookies_dir / "session.json"
+        
+        if cookies_path.exists():
+            await x.auth.load_cookies(str(cookies_path))
+        
+        # Perform operations...
+        
+        # Save session for next run
+        await x.auth.save_cookies(str(cookies_path))
+```
+
+## Logging Configuration
+
+```python
+# logging_config.py
+import logging
+import sys
+
+def setup_docker_logging():
+    """Configure logging for Docker (stdout/stderr)."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    
+    # JSON logging for log aggregation
+    try:
+        import json_logging
+        json_logging.init_non_web()
+    except ImportError:
+        pass
+
+setup_docker_logging()
+```
+
+## CI/CD Pipeline
 
 ```yaml
-# docker-compose.dev.yml
-version: '3.8'
+# .github/workflows/docker.yml
+name: Docker Build
 
-services:
-  xeepy:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    volumes:
-      - .:/app  # Live code reload
-      - /app/node_modules
-    environment:
-      - XEEPY_DEBUG=true
-      - XEEPY_HEADLESS=false  # Show browser
-    ports:
-      - "5900:5900"  # VNC for browser viewing
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 ```
 
-### Running
+## Health Checks and Monitoring
 
-```bash
-# Development
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+```python
+# health.py
+from fastapi import FastAPI
+from xtools import XTools
 
-# Production
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+app = FastAPI()
+
+@app.get("/health")
+async def health_check():
+    """Docker health check endpoint."""
+    try:
+        async with XTools(headless=True) as x:
+            # Quick connectivity test
+            await x.browser.test_connection()
+        return {"status": "healthy"}
+    except Exception as e:
+        return {"status": "unhealthy", "error": str(e)}
+
+@app.get("/ready")
+async def readiness_check():
+    """Kubernetes readiness probe."""
+    return {"status": "ready"}
 ```
 
-## Troubleshooting
-
-### Browser Issues
-
-```yaml
-services:
-  xeepy:
-    environment:
-      # Common fixes
-      - DISPLAY=:99
-      - XEEPY_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage
-    shm_size: '2gb'
-```
-
-### Permission Issues
-
-```bash
-# Fix volume permissions
-docker-compose run --rm xeepy chown -R 1000:1000 /app/data
-```
-
-### Debugging
-
-```bash
-# Interactive shell
-docker-compose exec xeepy bash
-
-# View logs
-docker-compose logs -f xeepy
-
-# Resource usage
-docker stats
-```
-
-## Next Steps
-
-- [Distributed](distributed.md) - Multi-node setups
-- [Performance](performance.md) - Optimization
-- [Testing](testing.md) - Testing in containers
+!!! tip "Graceful Shutdown"
+    Handle SIGTERM for clean browser shutdown in containers.
