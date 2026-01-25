@@ -1,0 +1,321 @@
+site_name: XTools Documentation
+site_description: The Ultimate X/Twitter Automation Toolkit - No API Keys Required
+site_author: XTools Team
+site_url: https://xtools.dev
+
+repo_name: nirholas/Get-Tweet-Replies-With-Python-Tweepy
+repo_url: https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy
+edit_uri: edit/master/docs/
+
+copyright: Copyright &copy; 2024-2026 XTools Team
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  logo: assets/logo.svg
+  favicon: assets/favicon.png
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode  
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.tooltips
+    - announce.dismiss
+
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+  - minify:
+      minify_html: true
+  - git-revision-date-localized:
+      enable_creation_date: true
+  - tags:
+      tags_file: tags.md
+  - social:
+      cards_layout_options:
+        background_color: "#1DA1F2"
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - tables
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: nirholas
+      repo: Get-Tweet-Replies-With-Python-Tweepy
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      auto_append:
+        - includes/abbreviations.md
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+      combine_header_slug: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+extra:
+  version:
+    provider: mike
+  analytics:
+    provider: google
+    property: G-XXXXXXXXXX
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/xtools_dev
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/xtools
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/xtools/
+  consent:
+    title: Cookie consent
+    description: >- 
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
+  status:
+    new: Recently added
+    deprecated: Deprecated
+    beta: Beta feature
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/extra.js
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - Home:
+    - index.md
+    - Why XTools?: why-xtools.md
+    - Changelog: changelog.md
+    - Roadmap: roadmap.md
+    
+  - Getting Started:
+    - getting-started/index.md
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - Authentication: getting-started/authentication.md
+    - Configuration: getting-started/configuration.md
+    - First Script: getting-started/first-script.md
+    
+  - Guides:
+    - guides/index.md
+    - Scraping:
+      - guides/scraping/index.md
+      - Tweet Replies: guides/scraping/replies.md
+      - User Profiles: guides/scraping/profiles.md
+      - Followers & Following: guides/scraping/followers.md
+      - User Tweets: guides/scraping/tweets.md
+      - Threads: guides/scraping/threads.md
+      - Search: guides/scraping/search.md
+      - Hashtags: guides/scraping/hashtags.md
+      - Media: guides/scraping/media.md
+    - Actions:
+      - guides/actions/index.md
+      - Follow Users: guides/actions/follow.md
+      - Unfollow Users: guides/actions/unfollow.md
+      - Engagement: guides/actions/engagement.md
+      - Mass Operations: guides/actions/mass-operations.md
+    - Monitoring:
+      - guides/monitoring/index.md
+      - Unfollower Detection: guides/monitoring/unfollowers.md
+      - Growth Tracking: guides/monitoring/growth.md
+      - Account Monitoring: guides/monitoring/accounts.md
+      - Keyword Alerts: guides/monitoring/keywords.md
+      - Engagement Tracking: guides/monitoring/engagement.md
+    - Analytics:
+      - guides/analytics/index.md
+      - Growth Analytics: guides/analytics/growth.md
+      - Engagement Analysis: guides/analytics/engagement.md
+      - Best Time to Post: guides/analytics/best-time.md
+      - Audience Insights: guides/analytics/audience.md
+      - Competitor Analysis: guides/analytics/competitors.md
+      - Report Generation: guides/analytics/reports.md
+    - AI Features:
+      - guides/ai/index.md
+      - Content Generation: guides/ai/content.md
+      - Reply Generation: guides/ai/replies.md
+      - Sentiment Analysis: guides/ai/sentiment.md
+      - Bot Detection: guides/ai/bot-detection.md
+      - Smart Targeting: guides/ai/targeting.md
+    - Notifications:
+      - guides/notifications/index.md
+      - Discord Webhooks: guides/notifications/discord.md
+      - Telegram Bots: guides/notifications/telegram.md
+      - Email Alerts: guides/notifications/email.md
+      - Custom Webhooks: guides/notifications/webhooks.md
+    - Data Export:
+      - guides/export/index.md
+      - CSV Export: guides/export/csv.md
+      - JSON Export: guides/export/json.md
+      - Database Export: guides/export/database.md
+      - Custom Formats: guides/export/custom.md
+      
+  - Cookbook:
+    - cookbook/index.md
+    - Growth Hacking:
+      - cookbook/growth/viral-content.md
+      - cookbook/growth/engagement-pods.md
+      - cookbook/growth/hashtag-strategy.md
+      - cookbook/growth/optimal-timing.md
+    - Automation Workflows:
+      - cookbook/automation/scheduled-posts.md
+      - cookbook/automation/auto-engagement.md
+      - cookbook/automation/follower-management.md
+      - cookbook/automation/content-curation.md
+    - Data Science:
+      - cookbook/data-science/sentiment-dashboard.md
+      - cookbook/data-science/network-analysis.md
+      - cookbook/data-science/trend-prediction.md
+      - cookbook/data-science/influencer-mapping.md
+    - Business Intelligence:
+      - cookbook/business/competitor-intel.md
+      - cookbook/business/brand-monitoring.md
+      - cookbook/business/lead-generation.md
+      - cookbook/business/crisis-detection.md
+    - Research:
+      - cookbook/research/academic-scraping.md
+      - cookbook/research/discourse-analysis.md
+      - cookbook/research/misinformation-tracking.md
+      
+  - CLI Reference:
+    - cli/index.md
+    - Global Options: cli/global-options.md
+    - Commands:
+      - cli/commands/scrape.md
+      - cli/commands/follow.md
+      - cli/commands/unfollow.md
+      - cli/commands/engage.md
+      - cli/commands/monitor.md
+      - cli/commands/analytics.md
+      - cli/commands/ai.md
+      - cli/commands/export.md
+      
+  - API Reference:
+    - api/index.md
+    - Core:
+      - api/core/xtools.md
+      - api/core/browser.md
+      - api/core/auth.md
+      - api/core/config.md
+      - api/core/rate-limiter.md
+    - Scrapers:
+      - api/scrapers/index.md
+      - api/scrapers/profile.md
+      - api/scrapers/replies.md
+      - api/scrapers/followers.md
+      - api/scrapers/tweets.md
+      - api/scrapers/search.md
+    - Actions:
+      - api/actions/index.md
+      - api/actions/follow.md
+      - api/actions/unfollow.md
+      - api/actions/engage.md
+    - Monitoring:
+      - api/monitoring/index.md
+      - api/monitoring/unfollower-detector.md
+      - api/monitoring/account-monitor.md
+      - api/monitoring/keyword-monitor.md
+    - Analytics:
+      - api/analytics/index.md
+      - api/analytics/growth-tracker.md
+      - api/analytics/engagement-analytics.md
+      - api/analytics/audience-insights.md
+    - AI:
+      - api/ai/index.md
+      - api/ai/content-generator.md
+      - api/ai/sentiment-analyzer.md
+      - api/ai/spam-detector.md
+    - Models:
+      - api/models/user.md
+      - api/models/tweet.md
+      - api/models/engagement.md
+      
+  - Advanced:
+    - advanced/index.md
+    - Architecture: advanced/architecture.md
+    - Extending XTools: advanced/extending.md
+    - Custom Scrapers: advanced/custom-scrapers.md
+    - Plugin System: advanced/plugins.md
+    - Performance Tuning: advanced/performance.md
+    - Proxy Configuration: advanced/proxies.md
+    - Anti-Detection: advanced/stealth.md
+    - Distributed Scraping: advanced/distributed.md
+    - Error Handling: advanced/errors.md
+    - Testing: advanced/testing.md
+    
+  - Community:
+    - community/index.md
+    - Contributing: community/contributing.md
+    - Code of Conduct: community/code-of-conduct.md
+    - Support: community/support.md
+    - Showcase: community/showcase.md
+    - FAQ: community/faq.md

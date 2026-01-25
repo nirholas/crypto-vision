@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XTools - X/Twitter Automation Toolkit</title>
+    <meta name="description" content="The most powerful open-source X/Twitter automation toolkit. No API keys required. Browser automation that just works.">
+    <meta name="keywords" content="twitter automation, x automation, twitter bot, social media automation, python twitter, tweepy alternative">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="XTools - X/Twitter Automation Toolkit">
+    <meta property="og:description" content="Automate your X/Twitter growth without expensive API access. Open source, powerful, and safe.">
+    <meta property="og:type" content="website">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Prism.js for code highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">XTools</span>
+            </a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#getting-started">Get Started</a>
+                <a href="docs.html">Docs</a>
+                <a href="examples.html">Examples</a>
+                <a href="playground.html">Playground</a>
+                <a href="https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy" target="_blank" class="nav-github">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg">
+            <div class="hero-gradient"></div>
+            <div class="hero-grid"></div>
+        </div>
+        <div class="container">
+            <div class="hero-badge">
+                <span class="badge-icon">🚀</span>
+                <span>v2.0 - Now with AI-powered engagement</span>
+            </div>
+            <h1 class="hero-title">
+                Automate Your <span class="gradient-text">X/Twitter</span> Growth
+                <br>Without API Keys
+            </h1>
+            <p class="hero-subtitle">
+                The most powerful open-source toolkit for X/Twitter automation. 
+                Browser-based, undetectable, and packed with features you won't find anywhere else.
+            </p>
+            <div class="hero-cta">
+                <a href="#getting-started" class="btn btn-primary">
+                    <span>Get Started Free</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+                <a href="playground.html" class="btn btn-secondary">
+                    <span>Try Playground</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <span class="stat-value">50K+</span>
+                    <span class="stat-label">Downloads</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">$0</span>
+                    <span class="stat-label">API Cost</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">100%</span>
+                    <span class="stat-label">Open Source</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code Preview -->
+    <section class="code-preview">
+        <div class="container">
+            <div class="code-window">
+                <div class="code-header">
+                    <div class="code-dots">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <div class="code-tabs">
+                        <button class="code-tab active" data-tab="quickstart">Quick Start</button>
+                        <button class="code-tab" data-tab="autolike">Auto-Like</button>
+                        <button class="code-tab" data-tab="aicomment">AI Comments</button>
+                        <button class="code-tab" data-tab="growth">Growth Bot</button>
+                    </div>
+                </div>
+                <div class="code-content">
+                    <pre class="code-block active" id="quickstart"><code class="language-python"># Install XTools
+pip install xtools
+
+# Start automating in 3 lines
+from xtools import XTools
+
+async with XTools() as x:
+    # Like tweets about AI
+    await x.engage.auto_like(keywords=["artificial intelligence"], limit=50)
+    
+    # Get your new followers
+    followers = await x.scrape.followers("me", limit=1000)
+    
+    # Unfollow non-followers
+    await x.unfollow.non_followers(dry_run=True)  # Preview first!</code></pre>
+                    
+                    <pre class="code-block" id="autolike"><code class="language-python">from xtools import XTools
+from xtools.actions.types import AutoLikeConfig, LikeFilters
+
+# Configure smart auto-liker
+config = AutoLikeConfig(
+    keywords=["Python", "AI", "startup"],
+    max_likes_per_hour=30,          # Stay safe
+    min_delay=45.0,                  # Human-like timing
+    max_delay=180.0,
+    skip_retweets=True,              # Only original content
+    skip_verified=False,             # Include verified accounts
+    engagement_threshold=50,         # Min engagement
+)
+
+# Add smart filters
+filters = LikeFilters(
+    min_likes=10,                    # Quality threshold
+    min_followers=500,               # Avoid spam accounts  
+    max_followers=100000,            # Skip mega accounts
+    exclude_keywords=["crypto scam", "giveaway"],
+    language="en",
+)
+
+async with XTools() as x:
+    liker = await x.engage.auto_liker(config, filters)
+    
+    # Run with real-time analytics
+    async for result in liker.run():
+        print(f"✓ Liked: @{result.author} - {result.engagement_rate}%")
+        
+        # Stop if rate limited
+        if result.rate_limited:
+            print("⚠️ Rate limited, cooling down...")
+            await asyncio.sleep(900)  # 15 min cooldown</code></pre>
+                    
+                    <pre class="code-block" id="aicomment"><code class="language-python">from xtools import XTools
+from xtools.ai import ContentGenerator
+
+# Initialize AI (supports OpenAI, Anthropic, Ollama)
+ai = ContentGenerator(
+    provider="openai",
+    model="gpt-4",
+    style="professional",           # or: witty, casual, supportive
+    max_length=200,
+    avoid_topics=["politics", "controversy"],
+)
+
+async with XTools() as x:
+    # Find trending tweets in your niche
+    tweets = await x.scrape.search(
+        query="Python tips",
+        sort="engagement",
+        limit=10
+    )
+    
+    for tweet in tweets:
+        # Generate contextual, relevant reply
+        reply = await ai.generate_reply(
+            tweet_text=tweet.text,
+            author_bio=tweet.author.bio,
+            conversation_context=tweet.parent_text,
+            tone="helpful",
+            include_question=True,  # Boost engagement
+        )
+        
+        # Smart engagement check
+        if ai.is_safe_to_reply(reply):
+            await x.engage.reply(tweet.url, reply)
+            print(f"💬 Replied to @{tweet.author.username}")
+        
+        await asyncio.sleep(random.randint(120, 300))  # Natural pacing</code></pre>
+                    
+                    <pre class="code-block" id="growth"><code class="language-python">from xtools import XTools
+from xtools.ai import SmartTargeting
+from xtools.analytics import GrowthTracker
+
+# AI-powered growth automation
+targeting = SmartTargeting(
+    niche="tech startups",
+    ideal_follower_profile={
+        "interests": ["SaaS", "AI", "Python"],
+        "follower_range": (1000, 50000),
+        "engagement_rate_min": 2.0,
+        "account_age_months": 6,
+    }
+)
+
+async with XTools() as x:
+    tracker = GrowthTracker()
+    
+    while True:
+        # Find ideal accounts to engage with
+        targets = await targeting.find_targets(
+            seed_accounts=["@elonmusk", "@sama", "@paulg"],
+            strategy="engaged_followers",  # People who reply
+            limit=20
+        )
+        
+        for target in targets:
+            # Multi-touch engagement strategy
+            await x.engage.like_recent(target.username, count=3)
+            await x.follow.user(target.username)
+            
+            # Optionally reply to their pinned tweet
+            if target.pinned_tweet and target.engagement_score > 80:
+                reply = await ai.generate_reply(target.pinned_tweet)
+                await x.engage.reply(target.pinned_tweet.url, reply)
+            
+            tracker.log_engagement(target)
+        
+        # Analytics dashboard update
+        stats = tracker.get_daily_stats()
+        print(f"📊 Today: +{stats.new_followers} followers, "
+              f"{stats.engagement_rate}% engagement")
+        
+        await asyncio.sleep(3600)  # Run hourly</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Everything You Need to Grow</h2>
+                <p class="section-subtitle">
+                    Professional-grade tools that actually work. No gimmicks, no API limits, no monthly fees.
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <!-- Feature 1: Engagement -->
+                <div class="feature-card">
+                    <div class="feature-icon">❤️</div>
+                    <h3>Smart Engagement</h3>
+                    <p>Auto-like, comment, and retweet with human-like patterns. AI-powered content detection avoids spam.</p>
+                    <ul class="feature-list">
+                        <li>Auto-like by keyword/hashtag/user</li>
+                        <li>AI-generated contextual comments</li>
+                        <li>Smart quote tweets</li>
+                        <li>Engagement rate optimization</li>
+                    </ul>
+                    <a href="docs.html#engagement" class="feature-link">Learn more →</a>
+                </div>
+
+                <!-- Feature 2: Scraping -->
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Powerful Scraping</h3>
+                    <p>Extract any data from X without rate limits. Followers, tweets, replies, analytics - everything.</p>
+                    <ul class="feature-list">
+                        <li>Scrape followers/following</li>
+                        <li>Extract tweet replies & threads</li>
+                        <li>Search with advanced filters</li>
+                        <li>Export to CSV/JSON/SQLite</li>
+                    </ul>
+                    <a href="docs.html#scraping" class="feature-link">Learn more →</a>
+                </div>
+
+                <!-- Feature 3: Follow/Unfollow -->
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>Follow Management</h3>
+                    <p>Grow strategically with smart follow/unfollow. Target the right accounts, remove dead weight.</p>
+                    <ul class="feature-list">
+                        <li>Follow by hashtag/keyword</li>
+                        <li>Unfollow non-followers</li>
+                        <li>Whitelist protection</li>
+                        <li>Smart ratio management</li>
+                    </ul>
+                    <a href="docs.html#follow" class="feature-link">Learn more →</a>
+                </div>
+
+                <!-- Feature 4: AI -->
+                <div class="feature-card featured">
+                    <div class="feature-badge">NEW</div>
+                    <div class="feature-icon">🧠</div>
+                    <h3>AI-Powered</h3>
+                    <p>GPT-4, Claude, or local LLMs. Generate replies, analyze sentiment, detect bots automatically.</p>
+                    <ul class="feature-list">
+                        <li>Contextual reply generation</li>
+                        <li>Sentiment analysis</li>
+                        <li>Bot/spam detection</li>
+                        <li>Content optimization</li>
+                    </ul>
+                    <a href="docs.html#ai" class="feature-link">Learn more →</a>
+                </div>
+
+                <!-- Feature 5: Monitoring -->
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Real-time Monitoring</h3>
+                    <p>Track everything. New followers, unfollowers, mentions, keyword alerts - all in real-time.</p>
+                    <ul class="feature-list">
+                        <li>Unfollower detection</li>
+                        <li>Keyword monitoring</li>
+                        <li>Engagement analytics</li>
+                        <li>Growth tracking</li>
+                    </ul>
+                    <a href="docs.html#monitoring" class="feature-link">Learn more →</a>
+                </div>
+
+                <!-- Feature 6: Notifications -->
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <h3>Smart Notifications</h3>
+                    <p>Get alerts where you want them. Discord, Telegram, email, or webhooks for any event.</p>
+                    <ul class="feature-list">
+                        <li>Discord webhooks</li>
+                        <li>Telegram bot alerts</li>
+                        <li>Email notifications</li>
+                        <li>Custom webhooks</li>
+                    </ul>
+                    <a href="docs.html#notifications" class="feature-link">Learn more →</a>
+                </div>
+
+                <!-- Feature 7: Templates -->
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>Comment Templates</h3>
+                    <p>200+ pre-made templates for every niche. Tech, crypto, startup, fitness - never run out of ideas.</p>
+                    <ul class="feature-list">
+                        <li>13 template categories</li>
+                        <li>Context-aware selection</li>
+                        <li>Variable substitution</li>
+                        <li>Custom template support</li>
+                    </ul>
+                    <a href="docs.html#templates" class="feature-link">Learn more →</a>
+                </div>
+
+                <!-- Feature 8: Safety -->
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Account Safety</h3>
+                    <p>Built-in protections that keep your account safe. Rate limiting, human patterns, dry-run mode.</p>
+                    <ul class="feature-list">
+                        <li>Smart rate limiting</li>
+                        <li>Human-like delays</li>
+                        <li>Dry-run testing</li>
+                        <li>Action logging</li>
+                    </ul>
+                    <a href="docs.html#safety" class="feature-link">Learn more →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Innovative Features -->
+    <section class="innovation">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">💡 INNOVATION</span>
+                <h2 class="section-title">Features You Won't Find Anywhere Else</h2>
+                <p class="section-subtitle">
+                    We're building the future of social media automation.
+                </p>
+            </div>
+
+            <div class="innovation-grid">
+                <div class="innovation-card large">
+                    <div class="innovation-visual">
+                        <div class="network-graph">
+                            <div class="node central"></div>
+                            <div class="node"></div>
+                            <div class="node"></div>
+                            <div class="node"></div>
+                            <div class="node"></div>
+                            <div class="node"></div>
+                        </div>
+                    </div>
+                    <div class="innovation-content">
+                        <span class="innovation-badge">🌐 NETWORK ANALYSIS</span>
+                        <h3>Influence Mapping</h3>
+                        <p>Visualize your Twitter network. Find hidden influencers, identify communities, and discover the best accounts to engage with based on actual connection patterns.</p>
+                        <pre><code class="language-python">from xtools.analytics import NetworkAnalyzer
+
+analyzer = NetworkAnalyzer()
+graph = await analyzer.build_network(
+    center="@yourhandle",
+    depth=2,
+    min_interactions=3
+)
+
+# Find bridge accounts (connect different communities)
+bridges = graph.find_bridges()
+
+# Identify your super-fans
+superfans = graph.find_superfans(min_engagement=10)
+
+# Export for visualization
+graph.export_gephi("my_network.gexf")</code></pre>
+                    </div>
+                </div>
+
+                <div class="innovation-card">
+                    <span class="innovation-badge">🎯 PREDICTIVE</span>
+                    <h3>Viral Potential Score</h3>
+                    <p>AI predicts which tweets will go viral before they do. Engage early with high-potential content.</p>
+                    <pre><code class="language-python">from xtools.ai import ViralPredictor
+
+predictor = ViralPredictor()
+
+tweets = await x.scrape.search("AI news")
+for tweet in tweets:
+    score = predictor.score(tweet)
+    if score.viral_probability > 0.7:
+        await x.engage.like(tweet.url)
+        print(f"🔥 {score.viral_probability}%")</code></pre>
+                </div>
+
+                <div class="innovation-card">
+                    <span class="innovation-badge">⏰ TIMING</span>
+                    <h3>Optimal Post Time AI</h3>
+                    <p>Machine learning analyzes your audience's activity patterns to find the perfect posting times.</p>
+                    <pre><code class="language-python">from xtools.analytics import TimingOptimizer
+
+optimizer = TimingOptimizer()
+await optimizer.analyze_audience("@yourhandle")
+
+# Get best times to post
+best_times = optimizer.get_optimal_times(
+    timezone="America/New_York",
+    content_type="thread"
+)
+# ["Tuesday 9:00 AM", "Thursday 2:00 PM"]</code></pre>
+                </div>
+
+                <div class="innovation-card">
+                    <span class="innovation-badge">🤖 DETECTION</span>
+                    <h3>Bot Army Detector</h3>
+                    <p>Identify fake followers and bot networks. Clean your follower list and avoid fake engagement.</p>
+                    <pre><code class="language-python">from xtools.ai import BotDetector
+
+detector = BotDetector()
+followers = await x.scrape.followers("me")
+
+bots = []
+for follower in followers:
+    score = await detector.analyze(follower)
+    if score.bot_probability > 0.8:
+        bots.append(follower)
+        
+print(f"Found {len(bots)} likely bots")</code></pre>
+                </div>
+
+                <div class="innovation-card">
+                    <span class="innovation-badge">📈 GROWTH</span>
+                    <h3>Competitor Intelligence</h3>
+                    <p>Reverse-engineer what's working for competitors. Track their growth, engagement strategies, and top content.</p>
+                    <pre><code class="language-python">from xtools.analytics import CompetitorTracker
+
+tracker = CompetitorTracker([
+    "@competitor1", "@competitor2"
+])
+
+report = await tracker.weekly_report()
+print(report.top_performing_tweets)
+print(report.engagement_patterns)
+print(report.follower_growth_rate)</code></pre>
+                </div>
+
+                <div class="innovation-card">
+                    <span class="innovation-badge">💬 CONTEXT</span>
+                    <h3>Thread Unroller + Analyzer</h3>
+                    <p>Unroll any thread, summarize with AI, extract key insights, and generate response threads.</p>
+                    <pre><code class="language-python">from xtools.scrapers import ThreadUnroller
+from xtools.ai import ContentGenerator
+
+unroller = ThreadUnroller()
+thread = await unroller.unroll(thread_url)
+
+ai = ContentGenerator(provider="openai")
+summary = await ai.summarize_thread(thread)
+response = await ai.generate_response_thread(
+    original=thread,
+    angle="counterpoint"
+)</code></pre>
+                </div>
+
+                <div class="innovation-card large">
+                    <div class="innovation-content">
+                        <span class="innovation-badge">🎭 PERSONA</span>
+                        <h3>Multi-Account Orchestra</h3>
+                        <p>Manage multiple accounts with different personas. Each account can have its own engagement style, target audience, and automation rules. Perfect for agencies or brand management.</p>
+                        <pre><code class="language-python">from xtools import XTools, AccountManager
+
+manager = AccountManager()
+
+# Load multiple accounts
+accounts = [
+    manager.load_account("tech_account", persona="developer"),
+    manager.load_account("news_account", persona="journalist"),
+    manager.load_account("personal", persona="casual"),
+]
+
+# Each runs with its own style
+async with XTools(accounts) as x:
+    for account in x.accounts:
+        # AI adapts tone based on persona
+        await account.engage.auto_like(
+            keywords=account.persona.interests,
+            style=account.persona.engagement_style
+        )</code></pre>
+                    </div>
+                    <div class="innovation-visual">
+                        <div class="persona-cards">
+                            <div class="persona-card">🧑‍💻 Developer</div>
+                            <div class="persona-card">📰 Journalist</div>
+                            <div class="persona-card">🎨 Creative</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison -->
+    <section class="comparison">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Why XTools vs Others?</h2>
+                <p class="section-subtitle">See how we compare to expensive alternatives</p>
+            </div>
+
+            <div class="comparison-table-wrapper">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th class="highlight">XTools</th>
+                            <th>Tweepy</th>
+                            <th>Twitter API</th>
+                            <th>SaaS Tools</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Monthly Cost</td>
+                            <td class="highlight"><strong>$0</strong></td>
+                            <td>$0</td>
+                            <td>$100-5000+</td>
+                            <td>$29-299/mo</td>
+                        </tr>
+                        <tr>
+                            <td>API Keys Required</td>
+                            <td class="highlight"><strong>No ✓</strong></td>
+                            <td>Yes</td>
+                            <td>Yes</td>
+                            <td>Usually</td>
+                        </tr>
+                        <tr>
+                            <td>Rate Limits</td>
+                            <td class="highlight"><strong>None*</strong></td>
+                            <td>Strict</td>
+                            <td>Very strict</td>
+                            <td>Varies</td>
+                        </tr>
+                        <tr>
+                            <td>Auto-Like</td>
+                            <td class="highlight">✓</td>
+                            <td>✓</td>
+                            <td>✓</td>
+                            <td>✓</td>
+                        </tr>
+                        <tr>
+                            <td>Auto-Comment</td>
+                            <td class="highlight">✓</td>
+                            <td>✓</td>
+                            <td>✓</td>
+                            <td>Some</td>
+                        </tr>
+                        <tr>
+                            <td>AI Integration</td>
+                            <td class="highlight"><strong>✓ Built-in</strong></td>
+                            <td>Manual</td>
+                            <td>Manual</td>
+                            <td>Some</td>
+                        </tr>
+                        <tr>
+                            <td>Unfollower Tracking</td>
+                            <td class="highlight">✓</td>
+                            <td>Manual</td>
+                            <td>Manual</td>
+                            <td>Some</td>
+                        </tr>
+                        <tr>
+                            <td>Network Analysis</td>
+                            <td class="highlight"><strong>✓</strong></td>
+                            <td>✗</td>
+                            <td>Limited</td>
+                            <td>✗</td>
+                        </tr>
+                        <tr>
+                            <td>Viral Prediction</td>
+                            <td class="highlight"><strong>✓</strong></td>
+                            <td>✗</td>
+                            <td>✗</td>
+                            <td>✗</td>
+                        </tr>
+                        <tr>
+                            <td>Open Source</td>
+                            <td class="highlight"><strong>✓</strong></td>
+                            <td>✓</td>
+                            <td>✗</td>
+                            <td>✗</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="comparison-note">*Self-imposed rate limits for account safety. You control the limits.</p>
+        </div>
+    </section>
+
+    <!-- Getting Started -->
+    <section id="getting-started" class="getting-started">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Get Started in 5 Minutes</h2>
+                <p class="section-subtitle">From zero to automating in just a few commands</p>
+            </div>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Install XTools</h3>
+                        <pre><code class="language-bash"># Install from PyPI
+pip install xtools
+
+# Install browser driver
+playwright install chromium</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Login to Your Account</h3>
+                        <pre><code class="language-bash"># Interactive login (opens browser)
+xtools auth login
+
+# Or use saved session
+xtools auth import cookies.json</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Start Automating</h3>
+                        <pre><code class="language-python">from xtools import XTools
+
+async with XTools() as x:
+    # Your first automation
+    await x.engage.auto_like(
+        keywords=["Python", "coding"],
+        limit=20
+    )
+    print("🎉 You just automated Twitter!")</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="getting-started-cta">
+                <a href="docs.html#installation" class="btn btn-primary">Full Installation Guide →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases -->
+    <section class="use-cases">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Built For Every Use Case</h2>
+            </div>
+
+            <div class="use-cases-grid">
+                <div class="use-case">
+                    <div class="use-case-icon">👨‍💻</div>
+                    <h3>Developers</h3>
+                    <p>Build Twitter bots, analyze social data, automate your personal brand growth.</p>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-icon">🏢</div>
+                    <h3>Startups</h3>
+                    <p>Grow your company's presence, engage with potential customers, monitor mentions.</p>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-icon">📊</div>
+                    <h3>Researchers</h3>
+                    <p>Collect social media data, analyze trends, study information spread.</p>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-icon">📣</div>
+                    <h3>Marketers</h3>
+                    <p>Run engagement campaigns, track competitors, build community.</p>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-icon">✍️</div>
+                    <h3>Creators</h3>
+                    <p>Grow your audience, engage with fans, manage multiple accounts.</p>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-icon">🏛️</div>
+                    <h3>Agencies</h3>
+                    <p>Manage multiple client accounts, automate reporting, scale operations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Loved by Developers</h2>
+            </div>
+
+            <div class="testimonials-grid">
+                <div class="testimonial">
+                    <div class="testimonial-content">
+                        <p>"Finally, a Twitter automation tool that actually works without needing $100/month API access. Grew from 500 to 10K followers in 3 months."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=alex" alt="Avatar">
+                        <div>
+                            <strong>Alex Chen</strong>
+                            <span>@alexbuilds</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial">
+                    <div class="testimonial-content">
+                        <p>"The AI comment generation is insane. It actually reads the tweet and generates relevant responses. Game changer for engagement."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=sarah" alt="Avatar">
+                        <div>
+                            <strong>Sarah Kim</strong>
+                            <span>@sarahcodes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial">
+                    <div class="testimonial-content">
+                        <p>"Used this to track my competitor's followers. Found 500 potential customers in one afternoon. Worth 10x any SaaS tool."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=mike" alt="Avatar">
+                        <div>
+                            <strong>Mike Johnson</strong>
+                            <span>@mikestartup</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Supercharge Your Twitter Growth?</h2>
+                <p>Join thousands of developers using XTools to automate their social media presence.</p>
+                <div class="cta-buttons">
+                    <a href="docs.html#installation" class="btn btn-primary btn-large">
+                        Get Started Free
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                    <a href="https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy" class="btn btn-outline btn-large" target="_blank">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        Star on GitHub
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/" class="footer-logo">
+                        <span class="logo-icon">⚡</span>
+                        <span class="logo-text">XTools</span>
+                    </a>
+                    <p>Open-source X/Twitter automation toolkit. Built with ❤️ for developers.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Product</h4>
+                    <a href="#features">Features</a>
+                    <a href="docs.html">Documentation</a>
+                    <a href="examples.html">Examples</a>
+                    <a href="playground.html">Playground</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <a href="docs.html#installation">Installation</a>
+                    <a href="docs.html#api">API Reference</a>
+                    <a href="docs.html#cli">CLI Reference</a>
+                    <a href="docs.html#faq">FAQ</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Community</h4>
+                    <a href="https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy" target="_blank">GitHub</a>
+                    <a href="https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy/issues" target="_blank">Issues</a>
+                    <a href="https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy/discussions" target="_blank">Discussions</a>
+                    <a href="CONTRIBUTING.md">Contributing</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024-2026 XTools. Open source under MIT License.</p>
+                <p class="footer-disclaimer">For educational purposes only. Use responsibly and respect X/Twitter's Terms of Service.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

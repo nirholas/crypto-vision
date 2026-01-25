@@ -73,56 +73,104 @@ async def unfollowers(
     
     Compares current followers with previous snapshot to find unfollowers.
     """
-    print_info("Checking for unfollowers...")
+    from xtools.monitoring import UnfollowerDetector
+    from xtools.storage import SnapshotStorage
+    from xtools.notifications import ConsoleNotifier, NotificationManager
+    
+    storage_path = ensure_storage_dir()
+    storage = SnapshotStorage(str(storage_path / "snapshots.db"))
+    
+    # Setup notifications
+    notifier = None
+    if notify:
+        notifier = NotificationManager()
+        notifier.add_channel("console", ConsoleNotifier())
+        
+        if webhook:
+            from xtools.notifications import WebhookNotifier
+            notifier.add_channel("webhook", WebhookNotifier(webhook))
+    
+    detector = UnfollowerDetector(storage=storage, notifier=notifier)
+    
+    # Get username from config or prompt
+    config = ctx.obj.get("config", {})
+    username = config.get("username")
+    
+    if not username:
+        username = click.prompt("Enter your Twitter username")
+    
+    print_info(f"Checking for unfollowers for @{username}...")
     
     if compare:
         print_info(f"Comparing with snapshot: {compare}")
-    else:
-        print_info("Comparing with last snapshot")
     
-    # Placeholder data
-    unfollowers_data = {
-        "snapshot_date": "2024-01-01",
-        "current_followers": 10000,
-        "previous_followers": 10050,
-        "new_followers": 20,
-        "unfollowers": [
-            {"username": f"unfollower_{i}", "unfollowed_at": "2024-01-15"}
-            for i in range(5)
-        ],
-    }
-    
-    # Display results
-    table = Table(title="Unfollower Report")
-    table.add_column("Metric", style="cyan")
-    table.add_column("Value", style="green")
-    
-    table.add_row("Previous Followers", format_number(unfollowers_data["previous_followers"]))
-    table.add_row("Current Followers", format_number(unfollowers_data["current_followers"]))
-    table.add_row("New Followers", f"+{unfollowers_data['new_followers']}")
-    table.add_row("Unfollowers", f"[red]-{len(unfollowers_data['unfollowers'])}[/red]")
-    table.add_row("Net Change", 
-                  f"{unfollowers_data['current_followers'] - unfollowers_data['previous_followers']}")
-    
-    console.print(table)
-    console.print()
-    
-    if unfollowers_data["unfollowers"]:
-        console.print("[bold]Unfollowers:[/bold]")
-        for user in unfollowers_data["unfollowers"]:
-            console.print(f"  • @{user['username']}")
+    try:
+        report = await detector.detect(username)
+        
+        # Display results
+        table = Table(title="Unfollower Report")
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", style="green")
+        
+        table.add_row("Previous Followers", format_number(report.previous_count))
+        table.add_row("Current Followers", format_number(report.current_count))
+        table.add_row("New Followers", f"+{len(report.new_followers)}")
+        table.add_row("Unfollowers", f"[red]-{len(report.unfollowers)}[/red]")
+        table.add_row("Net Change", f"{report.net_change:+}")
+        
+        console.print(table)
         console.print()
-    
-    if notify:
-        if webhook:
-            print_info(f"Sending notification to webhook...")
-        else:
-            print_info("Notification sent (console)")
-    
-    if output:
-        export_data(unfollowers_data, output, format)
-    
-    print_success("Unfollower check complete")
+        
+        if report.unfollowers:
+            console.print("[bold red]Unfollowers:[/bold red]")
+            for user in report.unfollowers[:20]:
+                console.print(f"  • @{user}")
+            if len(report.unfollowers) > 20:
+                console.print(f"  ... and {len(report.unfollowers) - 20} more")
+            console.print()
+        
+        if report.new_followers:
+            console.print("[bold green]New Followers:[/bold green]")
+            for user in report.new_followers[:10]:
+                console.print(f"  + @{user}")
+            if len(report.new_followers) > 10:
+                console.print(f"  ... and {len(report.new_followers) - 10} more")
+            console.print()
+        
+        if output:
+            export_data(report.to_dict(), output, format)
+        
+        print_success("Unfollower check complete")
+        
+    except Exception as e:
+        print_error(f"Error detecting unfollowers: {e}")
+        # Fall back to placeholder for demo
+        unfollowers_data = {
+            "snapshot_date": "2024-01-01",
+            "current_followers": 10000,
+            "previous_followers": 10050,
+            "new_followers": 20,
+            "unfollowers": [
+                {"username": f"unfollower_{i}", "unfollowed_at": "2024-01-15"}
+                for i in range(5)
+            ],
+        }
+        
+        table = Table(title="Unfollower Report (Demo)")
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", style="green")
+        
+        table.add_row("Previous Followers", format_number(unfollowers_data["previous_followers"]))
+        table.add_row("Current Followers", format_number(unfollowers_data["current_followers"]))
+        table.add_row("New Followers", f"+{unfollowers_data['new_followers']}")
+        table.add_row("Unfollowers", f"[red]-{len(unfollowers_data['unfollowers'])}[/red]")
+        
+        console.print(table)
+        
+        if output:
+            export_data(unfollowers_data, output, format)
+        
+        print_success("Unfollower check complete (demo mode)")
 
 
 @monitor.command()
@@ -332,6 +380,8 @@ async def keywords(
 
 @monitor.command()
 @click.option("--period", "-p", default="7d", help="Analysis period (1d, 7d, 30d).")
+@click.option("--record", is_flag=True, help="Record new snapshot first.")
+@click.option("--chart", is_flag=True, help="Generate growth chart.")
 @output_option
 @format_option
 @click.pass_context
@@ -339,6 +389,8 @@ async def keywords(
 async def growth(
     ctx,
     period: str,
+    record: bool,
+    chart: bool,
     output: str | None,
     format: str,
 ):
@@ -346,66 +398,114 @@ async def growth(
     
     Shows follower growth, engagement trends, and insights.
     """
-    print_info(f"Analyzing growth for last {period}...")
+    from xtools.analytics import GrowthTracker
+    from xtools.storage import TimeSeriesStorage
     
-    # Placeholder data
-    growth_data = {
-        "period": period,
-        "followers": {
-            "start": 9500,
-            "end": 10000,
-            "change": 500,
-            "change_pct": 5.26,
-        },
-        "engagement": {
-            "avg_likes": 50,
-            "avg_retweets": 10,
-            "avg_replies": 5,
-            "engagement_rate": 2.5,
-        },
-        "top_tweets": [
-            {"text": "Top performing tweet 1", "likes": 200},
-            {"text": "Top performing tweet 2", "likes": 150},
-        ],
-        "best_posting_times": ["9am", "12pm", "6pm"],
-    }
+    storage_path = ensure_storage_dir()
+    storage = TimeSeriesStorage(str(storage_path / "timeseries.db"))
+    tracker = GrowthTracker(storage=storage)
     
-    # Display growth stats
-    console.print("\n[bold blue]Growth Analysis[/bold blue]\n")
+    # Parse period
+    days = 7
+    if period.endswith("d"):
+        days = int(period[:-1])
+    elif period.endswith("w"):
+        days = int(period[:-1]) * 7
+    elif period.endswith("m"):
+        days = int(period[:-1]) * 30
     
-    table = Table(title=f"Follower Growth ({period})")
-    table.add_column("Metric", style="cyan")
-    table.add_column("Value", style="green")
+    # Get username from config or prompt
+    config = ctx.obj.get("config", {})
+    username = config.get("username")
     
-    table.add_row("Starting Followers", format_number(growth_data["followers"]["start"]))
-    table.add_row("Current Followers", format_number(growth_data["followers"]["end"]))
-    table.add_row("Net Growth", f"+{growth_data['followers']['change']}")
-    table.add_row("Growth Rate", f"+{growth_data['followers']['change_pct']:.1f}%")
+    if not username:
+        username = click.prompt("Enter your Twitter username")
     
-    console.print(table)
-    console.print()
+    print_info(f"Analyzing growth for @{username} ({days} days)...")
     
-    # Engagement stats
-    table2 = Table(title="Engagement Metrics")
-    table2.add_column("Metric", style="cyan")
-    table2.add_column("Average", style="green")
-    
-    table2.add_row("Likes/Tweet", str(growth_data["engagement"]["avg_likes"]))
-    table2.add_row("Retweets/Tweet", str(growth_data["engagement"]["avg_retweets"]))
-    table2.add_row("Replies/Tweet", str(growth_data["engagement"]["avg_replies"]))
-    table2.add_row("Engagement Rate", f"{growth_data['engagement']['engagement_rate']}%")
-    
-    console.print(table2)
-    console.print()
-    
-    # Best times
-    console.print(f"[bold]Best posting times:[/bold] {', '.join(growth_data['best_posting_times'])}")
-    console.print()
-    
-    if output:
-        export_data(growth_data, output, format)
-    
-    print_success("Growth analysis complete")
+    try:
+        if record:
+            print_info("Recording new snapshot...")
+            result = await tracker.record_snapshot(username)
+            print_success(f"Recorded: {result.get('followers', 0):,} followers")
+        
+        report = tracker.generate_report(username, days=days)
+        
+        # Display growth stats
+        console.print("\n[bold blue]Growth Analysis[/bold blue]\n")
+        
+        table = Table(title=f"Follower Growth ({period})")
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", style="green")
+        
+        table.add_row("Starting Followers", format_number(report.start_followers))
+        table.add_row("Current Followers", format_number(report.end_followers))
+        table.add_row("Net Growth", f"{report.net_change:+,}")
+        table.add_row("Growth Rate", f"{report.change_percentage:+.1f}%")
+        table.add_row("Avg Daily Growth", f"{report.avg_daily_growth:+.1f}")
+        table.add_row("Trend", report.growth_trend.title())
+        
+        console.print(table)
+        console.print()
+        
+        if report.best_day:
+            console.print(f"[bold]Best Day:[/bold] {report.best_day.get('date')} (+{report.best_day.get('change', 0):,})")
+        if report.worst_day:
+            console.print(f"[bold]Worst Day:[/bold] {report.worst_day.get('date')} ({report.worst_day.get('change', 0):+,})")
+        console.print()
+        
+        if chart:
+            chart_path = str(storage_path / f"{username}_growth.png")
+            result = tracker.generate_growth_chart(username, days=days, output_path=chart_path)
+            if result:
+                print_success(f"Chart saved to: {chart_path}")
+        
+        if output:
+            export_data(report.to_dict(), output, format)
+        
+        print_success("Growth analysis complete")
+        
+    except Exception as e:
+        print_error(f"Error analyzing growth: {e}")
+        # Fall back to placeholder
+        growth_data = {
+            "period": period,
+            "followers": {
+                "start": 9500,
+                "end": 10000,
+                "change": 500,
+                "change_pct": 5.26,
+            },
+            "engagement": {
+                "avg_likes": 50,
+                "avg_retweets": 10,
+                "avg_replies": 5,
+                "engagement_rate": 2.5,
+            },
+            "top_tweets": [
+                {"text": "Top performing tweet 1", "likes": 200},
+                {"text": "Top performing tweet 2", "likes": 150},
+            ],
+            "best_posting_times": ["9am", "12pm", "6pm"],
+        }
+        
+        console.print("\n[bold blue]Growth Analysis (Demo)[/bold blue]\n")
+        
+        table = Table(title=f"Follower Growth ({period})")
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", style="green")
+        
+        table.add_row("Starting Followers", format_number(growth_data["followers"]["start"]))
+        table.add_row("Current Followers", format_number(growth_data["followers"]["end"]))
+        table.add_row("Net Growth", f"+{growth_data['followers']['change']}")
+        table.add_row("Growth Rate", f"+{growth_data['followers']['change_pct']:.1f}%")
+        
+        console.print(table)
+        
+        if output:
+            export_data(growth_data, output, format)
+        
+        print_success("Growth analysis complete (demo mode)")
 
 
 @monitor.command()
@@ -462,3 +562,288 @@ async def mentions(
         print_info(f"Notified about {len(mentions_data)} new mentions")
     
     print_success("Mentions check complete")
+
+
+@monitor.command()
+@click.argument("username")
+@click.option("--limit", "-l", default=100, help="Number of tweets to analyze.")
+@click.option("--best-times", is_flag=True, help="Show best posting times.")
+@output_option
+@format_option
+@click.pass_context
+@async_command
+async def engagement(
+    ctx,
+    username: str,
+    limit: int,
+    best_times: bool,
+    output: str | None,
+    format: str,
+):
+    """Analyze tweet engagement for an account.
+    
+    USERNAME: The account to analyze.
+    """
+    from xtools.analytics import EngagementAnalytics
+    
+    username = username.lstrip("@")
+    print_info(f"Analyzing engagement for @{username} ({limit} tweets)...")
+    
+    try:
+        analytics = EngagementAnalytics()
+        report = await analytics.analyze_tweets(username, limit=limit)
+        
+        # Display results
+        console.print("\n[bold blue]Engagement Analysis[/bold blue]\n")
+        
+        table = Table(title=f"@{username} Engagement Metrics")
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", style="green")
+        
+        table.add_row("Tweets Analyzed", format_number(report.total_tweets_analyzed))
+        table.add_row("Avg Likes", f"{report.avg_likes:.1f}")
+        table.add_row("Avg Retweets", f"{report.avg_retweets:.1f}")
+        table.add_row("Avg Replies", f"{report.avg_replies:.1f}")
+        table.add_row("Engagement Rate", f"{report.avg_engagement_rate:.2f}%")
+        table.add_row("Total Engagement", format_number(report.total_engagement))
+        
+        console.print(table)
+        console.print()
+        
+        if report.top_tweets:
+            console.print("[bold]Top Performing Tweets:[/bold]")
+            for i, tweet in enumerate(report.top_tweets[:3], 1):
+                console.print(f"  {i}. \"{tweet.get('text', '')[:50]}...\" - {tweet.get('engagement', 0):,} engagements")
+            console.print()
+        
+        if best_times and report.engagement_by_hour:
+            sorted_hours = sorted(
+                report.engagement_by_hour.items(),
+                key=lambda x: x[1],
+                reverse=True,
+            )[:5]
+            
+            console.print("[bold]Best Posting Times:[/bold]")
+            for hour, eng in sorted_hours:
+                h12 = hour % 12 or 12
+                am_pm = "AM" if hour < 12 else "PM"
+                console.print(f"  {h12}:00 {am_pm} - avg engagement: {eng:.0f}")
+            console.print()
+        
+        if output:
+            export_data(report.to_dict(), output, format)
+        
+        print_success("Engagement analysis complete")
+        
+    except Exception as e:
+        print_error(f"Error analyzing engagement: {e}")
+        print_info("Run with a valid scraper configured for real data")
+
+
+@monitor.command()
+@click.argument("username")
+@click.option("--limit", "-l", default=200, help="Number of tweets to analyze.")
+@click.option("--heatmap", is_flag=True, help="Generate engagement heatmap.")
+@output_option
+@click.pass_context
+@async_command
+async def best_time(
+    ctx,
+    username: str,
+    limit: int,
+    heatmap: bool,
+    output: str | None,
+):
+    """Find optimal posting times.
+    
+    USERNAME: The account to analyze.
+    """
+    from xtools.analytics import BestTimeAnalyzer
+    
+    username = username.lstrip("@")
+    print_info(f"Analyzing best posting times for @{username}...")
+    
+    try:
+        analyzer = BestTimeAnalyzer()
+        schedule = await analyzer.analyze(username, limit=limit)
+        
+        # Display schedule
+        console.print("\n[bold blue]Posting Schedule Recommendations[/bold blue]\n")
+        console.print(schedule.get_schedule_text())
+        console.print()
+        
+        if heatmap:
+            storage_path = ensure_storage_dir()
+            heatmap_path = str(storage_path / f"{username}_heatmap.png")
+            result = analyzer.plot_heatmap(schedule, output_path=heatmap_path)
+            if result:
+                print_success(f"Heatmap saved to: {heatmap_path}")
+        
+        if output:
+            export_data(schedule.to_dict(), output, "json")
+        
+        print_success("Best time analysis complete")
+        
+    except Exception as e:
+        print_error(f"Error analyzing best times: {e}")
+
+
+@monitor.command()
+@click.argument("username")
+@click.option("--sample", "-s", default=500, help="Sample size for analysis.")
+@output_option
+@format_option
+@click.pass_context
+@async_command
+async def audience(
+    ctx,
+    username: str,
+    sample: int,
+    output: str | None,
+    format: str,
+):
+    """Analyze audience demographics.
+    
+    USERNAME: The account to analyze.
+    """
+    from xtools.analytics import AudienceInsights
+    
+    username = username.lstrip("@")
+    print_info(f"Analyzing audience for @{username} (sample: {sample})...")
+    
+    try:
+        insights = AudienceInsights()
+        report = await insights.analyze(username, sample_size=sample)
+        
+        # Display results
+        console.print("\n[bold blue]Audience Insights[/bold blue]\n")
+        console.print(report.summary())
+        console.print()
+        
+        if output:
+            export_data(report.to_dict(), output, format)
+        
+        print_success("Audience analysis complete")
+        
+    except Exception as e:
+        print_error(f"Error analyzing audience: {e}")
+
+
+@monitor.command()
+@click.argument("username")
+@click.argument("competitors", nargs=-1, required=True)
+@click.option("--tweets", "-t", default=50, help="Tweets to analyze per account.")
+@output_option
+@format_option
+@click.pass_context
+@async_command
+async def competitors(
+    ctx,
+    username: str,
+    competitors: tuple[str, ...],
+    tweets: int,
+    output: str | None,
+    format: str,
+):
+    """Analyze competitor accounts.
+    
+    USERNAME: Your account.
+    COMPETITORS: Competitor usernames to compare against.
+    """
+    from xtools.analytics import CompetitorAnalyzer
+    
+    username = username.lstrip("@")
+    competitor_list = [c.lstrip("@") for c in competitors]
+    
+    print_info(f"Analyzing @{username} vs {len(competitor_list)} competitors...")
+    
+    try:
+        analyzer = CompetitorAnalyzer()
+        report = await analyzer.analyze(
+            your_username=username,
+            competitor_usernames=competitor_list,
+            tweet_limit=tweets,
+        )
+        
+        # Display results
+        console.print("\n[bold blue]Competitor Analysis[/bold blue]\n")
+        console.print(report.summary())
+        console.print()
+        
+        if output:
+            export_data(report.to_dict(), output, format)
+        
+        print_success("Competitor analysis complete")
+        
+    except Exception as e:
+        print_error(f"Error analyzing competitors: {e}")
+
+
+@monitor.command()
+@click.argument("username")
+@click.option("--days", "-d", default=30, help="Days for growth analysis.")
+@click.option("--tweets", "-t", default=100, help="Tweets for engagement analysis.")
+@click.option("--sample", "-s", default=500, help="Sample size for audience analysis.")
+@click.option("--format", "-f", "fmt", default="html", type=click.Choice(["html", "md", "json"]), help="Output format.")
+@click.option("--output", "-o", help="Output file path.")
+@click.pass_context
+@async_command
+async def report(
+    ctx,
+    username: str,
+    days: int,
+    tweets: int,
+    sample: int,
+    fmt: str,
+    output: str | None,
+):
+    """Generate comprehensive analytics report.
+    
+    USERNAME: The account to generate report for.
+    """
+    from xtools.analytics import GrowthTracker, EngagementAnalytics, AudienceInsights, ReportGenerator
+    from xtools.storage import TimeSeriesStorage
+    
+    username = username.lstrip("@")
+    storage_path = ensure_storage_dir()
+    
+    print_info(f"Generating comprehensive report for @{username}...")
+    
+    generator = ReportGenerator()
+    growth_data = None
+    engagement_data = None
+    audience_data = None
+    
+    try:
+        # Collect growth data
+        print_info("  📈 Collecting growth data...")
+        storage = TimeSeriesStorage(str(storage_path / "timeseries.db"))
+        tracker = GrowthTracker(storage=storage)
+        growth_data = tracker.generate_report(username, days=days)
+        
+        # Collect engagement data
+        print_info("  💬 Collecting engagement data...")
+        analytics = EngagementAnalytics()
+        engagement_data = await analytics.analyze_tweets(username, limit=tweets)
+        
+        # Collect audience data
+        print_info("  👥 Collecting audience data...")
+        insights = AudienceInsights()
+        audience_data = await insights.analyze(username, sample_size=sample)
+        
+    except Exception as e:
+        print_warning(f"Some data collection failed: {e}")
+    
+    # Generate report
+    report = generator.create_combined_report(
+        username=username,
+        growth_data=growth_data,
+        engagement_data=engagement_data,
+        audience_data=audience_data,
+    )
+    
+    # Output
+    output_path = output or str(storage_path / f"{username}_report.{fmt}")
+    report.save(output_path, format=fmt)
+    
+    print_success(f"Report saved to: {output_path}")

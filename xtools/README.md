@@ -256,11 +256,248 @@ xtools/
 │   ├── likes.py       # Likes scraper
 │   ├── lists.py       # Lists scraper
 │   └── search.py      # Search scraper
+├── monitoring/         # Account monitoring
+│   ├── unfollower_detector.py  # Track who unfollowed
+│   ├── follower_alerts.py      # Milestone alerts
+│   ├── account_monitor.py      # Track account changes
+│   ├── keyword_monitor.py      # Brand monitoring
+│   └── engagement_tracker.py   # Tweet performance
+├── analytics/          # Analytics and insights
+│   ├── growth_tracker.py       # Follower growth
+│   ├── engagement_analytics.py # Engagement metrics
+│   ├── best_time_to_post.py    # Optimal posting times
+│   ├── audience_insights.py    # Audience analysis
+│   ├── competitor_analysis.py  # Competitor comparison
+│   └── reports.py              # Report generation
+├── notifications/      # Multi-channel notifications
+│   ├── console.py     # Console output
+│   ├── email.py       # Email notifications
+│   ├── webhook.py     # Discord/Slack webhooks
+│   ├── telegram.py    # Telegram bot
+│   └── manager.py     # Unified notification manager
+├── storage/            # Data persistence
+│   ├── snapshots.py   # Snapshot storage
+│   └── timeseries.py  # Time series data
 ├── exporters/          # Export functionality
 │   ├── csv_exporter.py
 │   ├── json_exporter.py
 │   └── sqlite_exporter.py
 └── tests/              # Test suite
+```
+
+## 📊 Monitoring & Analytics
+
+XTools includes comprehensive monitoring and analytics features for tracking your account's performance.
+
+### Unfollower Detection
+
+Track who unfollowed you with efficient snapshot comparison:
+
+```python
+from xtools.monitoring import UnfollowerDetector
+from xtools.storage import SnapshotStorage
+from xtools.notifications import ConsoleNotifier, NotificationManager
+
+# Setup
+storage = SnapshotStorage("~/.xtools/snapshots.db")
+notifier = NotificationManager()
+notifier.add_channel("console", ConsoleNotifier())
+
+detector = UnfollowerDetector(storage=storage, notifier=notifier)
+
+# Detect unfollowers
+report = await detector.detect("yourusername")
+
+print(f"Unfollowers: {report.unfollowers}")
+print(f"New followers: {report.new_followers}")
+print(f"Net change: {report.net_change}")
+```
+
+### Growth Tracking
+
+Monitor follower growth over time with charts:
+
+```python
+from xtools.analytics import GrowthTracker
+from xtools.storage import TimeSeriesStorage
+
+storage = TimeSeriesStorage("~/.xtools/timeseries.db")
+tracker = GrowthTracker(storage=storage)
+
+# Record daily snapshot
+await tracker.record_snapshot("yourusername")
+
+# Generate growth report
+report = tracker.generate_report("yourusername", days=30)
+print(report.summary())
+
+# Generate growth chart
+tracker.generate_growth_chart("yourusername", days=30, output_path="growth.png")
+```
+
+### Engagement Analytics
+
+Analyze your tweet engagement patterns:
+
+```python
+from xtools.analytics import EngagementAnalytics
+
+analytics = EngagementAnalytics()
+
+# Analyze recent tweets
+report = await analytics.analyze_tweets("yourusername", limit=100)
+print(f"Avg likes: {report.avg_likes}")
+print(f"Avg engagement rate: {report.avg_engagement_rate}%")
+
+# Find best posting times
+best_times = await analytics.find_best_posting_time("yourusername")
+print(f"Best hours: {best_times['best_hours']}")
+print(f"Recommendation: {best_times['recommendation']}")
+```
+
+### Best Time to Post
+
+Find optimal posting times with heatmap visualization:
+
+```python
+from xtools.analytics import BestTimeAnalyzer
+
+analyzer = BestTimeAnalyzer()
+
+# Analyze your posting patterns
+schedule = await analyzer.analyze("yourusername", limit=200)
+print(schedule.get_schedule_text())
+
+# Generate heatmap
+analyzer.plot_heatmap(schedule, output_path="heatmap.png")
+
+# Get next best time
+next_slot = analyzer.get_next_best_time(schedule)
+print(f"Post next: {next_slot.day} at {next_slot.time_str}")
+```
+
+### Audience Insights
+
+Understand your follower demographics:
+
+```python
+from xtools.analytics import AudienceInsights
+
+insights = AudienceInsights()
+
+# Analyze audience
+report = await insights.analyze("yourusername", sample_size=500)
+print(report.summary())
+
+# Key insights
+print(f"Top locations: {report.locations}")
+print(f"Common interests: {report.common_bio_keywords[:10]}")
+print(f"Verified %: {report.verified_percentage}%")
+print(f"Likely bots %: {report.likely_bots_percentage}%")
+
+# Find influential followers
+influencers = await insights.find_influencers("yourusername", min_followers=10000)
+```
+
+### Competitor Analysis
+
+Compare your performance against competitors:
+
+```python
+from xtools.analytics import CompetitorAnalyzer
+
+analyzer = CompetitorAnalyzer()
+
+# Analyze against competitors
+report = await analyzer.analyze(
+    your_username="yourusername",
+    competitor_usernames=["competitor1", "competitor2"],
+)
+print(report.summary())
+
+# Key comparisons
+print(f"Your strengths: {report.your_strengths}")
+print(f"Opportunities: {report.opportunities}")
+```
+
+### Report Generation
+
+Generate comprehensive reports in multiple formats:
+
+```python
+from xtools.analytics import ReportGenerator, GrowthTracker, EngagementAnalytics
+
+generator = ReportGenerator()
+
+# Generate combined report
+report = generator.create_combined_report(
+    username="yourusername",
+    growth_data=growth_tracker.generate_report("yourusername"),
+    engagement_data=await analytics.analyze_tweets("yourusername"),
+)
+
+# Export in different formats
+report.save("report.html")  # HTML report
+report.save("report.md")    # Markdown report  
+report.save("report.json")  # JSON data
+```
+
+### Multi-Channel Notifications
+
+Get notified across multiple channels:
+
+```python
+from xtools.notifications import (
+    NotificationManager,
+    ConsoleNotifier,
+    WebhookNotifier,
+    TelegramNotifier,
+    TelegramConfig,
+)
+
+manager = NotificationManager()
+
+# Add channels
+manager.add_channel("console", ConsoleNotifier())
+manager.add_channel("discord", WebhookNotifier("https://discord.com/api/webhooks/..."))
+manager.add_channel("telegram", TelegramNotifier(TelegramConfig(
+    bot_token="your_bot_token",
+    chat_id="your_chat_id",
+)))
+
+# Send notification
+manager.notify(
+    title="🚨 Unfollower Alert",
+    message="5 users unfollowed you today",
+    level="warning",
+)
+```
+
+### CLI Commands
+
+Use monitoring from the command line:
+
+```bash
+# Check unfollowers
+xtools monitor unfollowers --notify
+
+# Track growth
+xtools monitor growth --period 30d --chart
+
+# Analyze engagement
+xtools monitor engagement yourusername --best-times
+
+# Find best posting times
+xtools monitor best-time yourusername --heatmap
+
+# Analyze audience
+xtools monitor audience yourusername --sample 500
+
+# Compare with competitors
+xtools monitor competitors yourusername competitor1 competitor2
+
+# Generate comprehensive report
+xtools monitor report yourusername --format html --output report.html
 ```
 
 ## ⚠️ Important Notes
