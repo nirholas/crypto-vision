@@ -181,6 +181,7 @@ nav:
       - Mass Operations: guides/actions/mass-operations.md
     - Monitoring:
       - guides/monitoring/index.md
+      - Unfollower Detection: guides/monitoring/unfollowers.md
     - Analytics:
       - guides/analytics/index.md
     - AI Features:
@@ -201,6 +202,7 @@ nav:
       - cookbook/data-science/index.md
       - Sentiment Dashboard: cookbook/data-science/sentiment-dashboard.md
       - Network Analysis: cookbook/data-science/network-analysis.md
+      - Trend Prediction: cookbook/data-science/trend-prediction.md
     - Business Intelligence:
       - cookbook/business/index.md
       - Competitor Intel: cookbook/business/competitor-intel.md
@@ -209,6 +211,7 @@ nav:
       
   - CLI Reference:
     - cli/index.md
+    - Command Reference: cli/commands/reference.md
       
   - API Reference:
     - api/index.md
