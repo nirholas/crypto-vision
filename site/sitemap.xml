@@ -49,6 +49,10 @@
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
+         <loc>https://xeepy.dev/migration/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
          <loc>https://xeepy.dev/why-xeepy/</loc>
          <lastmod>2026-01-25</lastmod>
     </url>
@@ -57,7 +61,15 @@
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
+         <loc>https://xeepy.dev/advanced/api-server/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
          <loc>https://xeepy.dev/advanced/architecture/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/advanced/custom-scrapers/</loc>
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
@@ -69,11 +81,19 @@
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
+         <loc>https://xeepy.dev/advanced/errors/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
          <loc>https://xeepy.dev/advanced/multi-account/</loc>
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
          <loc>https://xeepy.dev/advanced/performance/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/advanced/plugins/</loc>
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
@@ -85,11 +105,31 @@
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
+         <loc>https://xeepy.dev/advanced/scheduling/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
          <loc>https://xeepy.dev/advanced/stealth/</loc>
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
+         <loc>https://xeepy.dev/advanced/testing/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/advanced/webhooks/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
          <loc>https://xeepy.dev/api/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/api/graphql/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/api/server/</loc>
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
@@ -173,7 +213,7 @@
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
-         <loc>https://xeepy.dev/api/core/xtools/</loc>
+         <loc>https://xeepy.dev/api/core/xeepy/</loc>
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
@@ -202,6 +242,18 @@
     </url>
     <url>
          <loc>https://xeepy.dev/api/monitoring/unfollowers/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/api/notifications/discord/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/api/notifications/email/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/api/notifications/telegram/</loc>
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
@@ -313,7 +365,19 @@
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
+         <loc>https://xeepy.dev/cookbook/business/brand-monitoring/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
          <loc>https://xeepy.dev/cookbook/business/competitor-intel/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/cookbook/business/crisis-detection/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/cookbook/business/influencer-mapping/</loc>
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
@@ -338,6 +402,18 @@
     </url>
     <url>
          <loc>https://xeepy.dev/cookbook/growth/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/cookbook/growth/engagement-pods/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/cookbook/growth/hashtag-strategy/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/cookbook/growth/optimal-timing/</loc>
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
@@ -401,11 +477,51 @@
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
+         <loc>https://xeepy.dev/guides/ai/bot-detection/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
          <loc>https://xeepy.dev/guides/ai/content/</loc>
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
+         <loc>https://xeepy.dev/guides/ai/replies/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/ai/sentiment/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/ai/targeting/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
          <loc>https://xeepy.dev/guides/analytics/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/analytics/audience/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/analytics/best-time/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/analytics/competitors/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/analytics/engagement/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/analytics/growth/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/analytics/reports/</loc>
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
@@ -414,6 +530,22 @@
     </url>
     <url>
          <loc>https://xeepy.dev/guides/monitoring/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/monitoring/accounts/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/monitoring/engagement/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/monitoring/growth/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/monitoring/keywords/</loc>
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
@@ -433,11 +565,39 @@
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
+         <loc>https://xeepy.dev/guides/scraping/following/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/scraping/hashtags/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/scraping/lists/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/scraping/media/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
          <loc>https://xeepy.dev/guides/scraping/profiles/</loc>
          <lastmod>2026-01-25</lastmod>
     </url>
     <url>
          <loc>https://xeepy.dev/guides/scraping/replies/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/scraping/search/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/scraping/threads/</loc>
+         <lastmod>2026-01-25</lastmod>
+    </url>
+    <url>
+         <loc>https://xeepy.dev/guides/scraping/tweets/</loc>
          <lastmod>2026-01-25</lastmod>
     </url>
 </urlset>

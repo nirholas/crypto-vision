@@ -234,4 +234,5 @@ nav:
     - Examples: EXAMPLES.md
     - Comparison: COMPARISON.md
     - FAQ: FAQ.md
+    - Migration Guide: migration.md
     - Agent Development: AGENT_DEVELOPMENT.md

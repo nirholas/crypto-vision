@@ -294,7 +294,7 @@ X/Twitter might be loading slowly:
 3. Make your changes
 4. Submit a pull request
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md) for details.
+See [Contributing Guide](community/contributing.md) for details.
 
 ### How do I report a bug?
 
