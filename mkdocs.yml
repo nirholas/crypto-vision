@@ -156,7 +156,7 @@ nav:
     - index.md
     - Why XTools?: why-xtools.md
     - Changelog: changelog.md
-    - Roadmap: roadmap.md
+    - Roadmap: community/roadmap.md
     
   - Getting Started:
     - getting-started/index.md
@@ -221,30 +221,11 @@ nav:
       
   - Cookbook:
     - cookbook/index.md
-    - Growth Hacking:
-      - cookbook/growth/viral-content.md
-      - cookbook/growth/engagement-pods.md
-      - cookbook/growth/hashtag-strategy.md
-      - cookbook/growth/optimal-timing.md
-    - Automation Workflows:
-      - cookbook/automation/scheduled-posts.md
-      - cookbook/automation/auto-engagement.md
-      - cookbook/automation/follower-management.md
-      - cookbook/automation/content-curation.md
-    - Data Science:
-      - cookbook/data-science/sentiment-dashboard.md
-      - cookbook/data-science/network-analysis.md
-      - cookbook/data-science/trend-prediction.md
-      - cookbook/data-science/influencer-mapping.md
-    - Business Intelligence:
-      - cookbook/business/competitor-intel.md
-      - cookbook/business/brand-monitoring.md
-      - cookbook/business/lead-generation.md
-      - cookbook/business/crisis-detection.md
-    - Research:
-      - cookbook/research/academic-scraping.md
-      - cookbook/research/discourse-analysis.md
-      - cookbook/research/misinformation-tracking.md
+    - Growth Hacking: cookbook/growth/index.md
+    - Automation Workflows: cookbook/automation/index.md
+    - Data Science: cookbook/data-science/index.md
+    - Business Intelligence: cookbook/business/index.md
+    - Research & Analysis: cookbook/research/index.md
       
   - CLI Reference:
     - cli/index.md

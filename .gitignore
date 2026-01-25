@@ -99,3 +99,4 @@ output/
 exports/
 *.csv
 !replies_clean.csv  # Keep the example file
+.vercel
