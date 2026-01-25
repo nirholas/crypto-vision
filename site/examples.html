@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examples - XTools</title>
+    <meta name="description" content="Real-world code examples for XTools - X/Twitter automation toolkit">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/examples.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">XTools</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html#features">Features</a>
+                <a href="docs.html">Docs</a>
+                <a href="examples.html" class="active">Examples</a>
+                <a href="playground.html">Playground</a>
+                <a href="https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy" target="_blank" class="nav-github">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="examples-hero">
+        <div class="container">
+            <h1>Real-World Examples</h1>
+            <p class="lead">Copy-paste code snippets for common automation tasks</p>
+            
+            <div class="example-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="engagement">Engagement</button>
+                <button class="filter-btn" data-filter="scraping">Scraping</button>
+                <button class="filter-btn" data-filter="growth">Growth</button>
+                <button class="filter-btn" data-filter="analytics">Analytics</button>
+                <button class="filter-btn" data-filter="ai">AI</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Examples Grid -->
+    <section class="examples-section">
+        <div class="container">
+            <!-- Basic Examples -->
+            <div class="example-category">
+                <h2>🚀 Getting Started</h2>
+                
+                <div class="example-card" data-tags="engagement">
+                    <div class="example-header">
+                        <h3>Hello World - Like Your First Tweet</h3>
+                        <span class="difficulty easy">Easy</span>
+                    </div>
+                    <p>The simplest XTools script - authenticate and like a single tweet.</p>
+                    <pre><code class="language-python">import asyncio
+from xtools import XTools
+
+async def main():
+    async with XTools() as x:
+        # Like a specific tweet
+        result = await x.engage.like(
+            "https://x.com/elonmusk/status/1234567890"
+        )
+        
+        if result.success:
+            print("✅ Tweet liked successfully!")
+        else:
+            print(f"❌ Failed: {result.error}")
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+                    <div class="example-footer">
+                        <span class="tag">engagement</span>
+                        <button class="run-btn" data-file="hello_world.py">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            Run
+                        </button>
+                    </div>
+                </div>
+
+                <div class="example-card" data-tags="scraping">
+                    <div class="example-header">
+                        <h3>Scrape Tweet Replies</h3>
+                        <span class="difficulty easy">Easy</span>
+                    </div>
+                    <p>Get all replies to a tweet and export to CSV.</p>
+                    <pre><code class="language-python">import asyncio
+from xtools import XTools
+
+async def main():
+    async with XTools() as x:
+        # Scrape replies
+        replies = await x.scrape.replies(
+            "https://x.com/viral_tweet/status/123456",
+            limit=500,
+            sort="recent"  # or "top"
+        )
+        
+        print(f"Found {len(replies)} replies!")
+        
+        # Show top 5
+        for reply in replies[:5]:
+            print(f"@{reply.author.username}: {reply.text[:60]}...")
+            print(f"  ❤️ {reply.like_count} | 💬 {reply.reply_count}")
+        
+        # Export to CSV
+        x.export.to_csv(replies, "replies.csv")
+        print("\n✅ Exported to replies.csv")
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+                    <div class="example-footer">
+                        <span class="tag">scraping</span>
+                        <button class="run-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            Run
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Engagement Examples -->
+            <div class="example-category">
+                <h2>❤️ Engagement Automation</h2>
+                
+                <div class="example-card" data-tags="engagement">
+                    <div class="example-header">
+                        <h3>Auto-Like by Keyword</h3>
+                        <span class="difficulty medium">Medium</span>
+                    </div>
+                    <p>Automatically like tweets matching your target keywords with smart filtering.</p>
+                    <pre><code class="language-python">import asyncio
+from xtools import XTools
+from xtools.actions.types import LikeFilters
+
+async def main():
+    # Quality filters
+    filters = LikeFilters(
+        min_likes=10,            # Skip low-engagement tweets
+        min_followers=500,       # Quality threshold
+        max_followers=100000,    # Skip mega-accounts (unlikely to notice)
+        exclude_retweets=True,   # Only original content
+        exclude_replies=False,   # Include replies
+        language="en",           # English only
+        exclude_keywords=[       # Skip spam
+            "giveaway", "follow4follow", "dm me", 
+            "crypto airdrop", "free money"
+        ]
+    )
+    
+    async with XTools() as x:
+        print("🔍 Searching for Python tweets to like...\n")
+        
+        results = await x.engage.like_by_keyword(
+            keyword="Python programming tips",
+            limit=25,
+            filters=filters,
+            min_delay=30.0,    # Wait 30-90 seconds between likes
+            max_delay=90.0
+        )
+        
+        # Summary
+        successful = [r for r in results if r.success]
+        print(f"\n✅ Liked {len(successful)}/{len(results)} tweets")
+        
+        for result in successful[:5]:
+            print(f"  ❤️ @{result.author_username}: {result.tweet_text[:50]}...")
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+                    <div class="example-footer">
+                        <span class="tag">engagement</span>
+                        <button class="run-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            Run
+                        </button>
+                    </div>
+                </div>
+
+                <div class="example-card" data-tags="engagement ai">
+                    <div class="example-header">
+                        <h3>AI-Powered Auto-Commenter</h3>
+                        <span class="difficulty advanced">Advanced</span>
+                    </div>
+                    <p>Generate contextual, relevant comments using GPT-4 that actually add value to conversations.</p>
+                    <pre><code class="language-python">import asyncio
+import os
+from xtools import XTools
+from xtools.ai import ContentGenerator
+
+async def main():
+    # Initialize AI
+    ai = ContentGenerator(
+        provider="openai",
+        api_key=os.environ.get("OPENAI_API_KEY"),
+        model="gpt-4",
+        temperature=0.7  # Some creativity
+    )
+    
+    async with XTools() as x:
+        print("🤖 AI Auto-Commenter Started\n")
+        
+        # Find tweets to engage with
+        tweets = await x.scrape.search(
+            query="Python tutorial -filter:replies",
+            sort="latest",
+            limit=10
+        )
+        
+        for tweet in tweets:
+            # Generate contextual reply
+            reply = await ai.generate_reply(
+                tweet_text=tweet.text,
+                author_bio=tweet.author.bio,
+                tone="helpful",      # helpful, witty, professional
+                include_question=True,  # Adds engagement hook
+                max_length=200
+            )
+            
+            print(f"📝 Tweet: {tweet.text[:60]}...")
+            print(f"💬 Reply: {reply}")
+            
+            # Confirm before posting (safety first!)
+            confirm = input("\nPost this reply? (y/n/skip): ").lower()
+            
+            if confirm == 'y':
+                result = await x.engage.reply(tweet.url, reply)
+                if result.success:
+                    print("✅ Reply posted!\n")
+                else:
+                    print(f"❌ Failed: {result.error}\n")
+            elif confirm == 'skip':
+                break
+            else:
+                print("⏭️ Skipped\n")
+            
+            # Rate limiting
+            await asyncio.sleep(60)  # 1 minute between comments
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+                    <div class="example-footer">
+                        <span class="tag">engagement</span>
+                        <span class="tag">ai</span>
+                        <button class="run-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            Run
+                        </button>
+                    </div>
+                </div>
+
+                <div class="example-card" data-tags="engagement">
+                    <div class="example-header">
+                        <h3>Bookmark Manager</h3>
+                        <span class="difficulty easy">Easy</span>
+                    </div>
+                    <p>Export all your bookmarks to searchable formats or sync across accounts.</p>
+                    <pre><code class="language-python">import asyncio
+from xtools import XTools
+
+async def main():
+    async with XTools() as x:
+        print("📚 Exporting your bookmarks...\n")
+        
+        # Export to different formats
+        await x.engage.export_bookmarks(
+            "bookmarks.json",
+            format="json",
+            include_metrics=True,
+            include_author_info=True
+        )
+        
+        await x.engage.export_bookmarks(
+            "bookmarks.csv", 
+            format="csv"
+        )
+        
+        # Export to Notion-compatible format
+        await x.engage.export_bookmarks(
+            "bookmarks_notion.json",
+            format="notion"
+        )
+        
+        print("✅ Exported to:")
+        print("   - bookmarks.json (full data)")
+        print("   - bookmarks.csv (spreadsheet)")
+        print("   - bookmarks_notion.json (Notion import)")
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+                    <div class="example-footer">
+                        <span class="tag">engagement</span>
+                        <button class="run-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            Run
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Growth Examples -->
+            <div class="example-category">
+                <h2>📈 Growth Strategies</h2>
+                
+                <div class="example-card" data-tags="growth">
+                    <div class="example-header">
+                        <h3>Unfollow Non-Followers</h3>
+                        <span class="difficulty medium">Medium</span>
+                    </div>
+                    <p>Clean up your following list by removing accounts that don't follow back.</p>
+                    <pre><code class="language-python">import asyncio
+from xtools import XTools
+
+async def main():
+    # Important accounts to never unfollow
+    whitelist = [
+        "elonmusk",
+        "paulg", 
+        "naval",
+        "your_business_partner",
+        "your_best_friend"
+    ]
+    
+    async with XTools() as x:
+        print("🔍 Analyzing your following list...\n")
+        
+        # STEP 1: Preview first (DRY RUN)
+        result = await x.unfollow.non_followers(
+            dry_run=True,
+            whitelist=whitelist,
+            min_days_following=7  # Only if followed 7+ days ago
+        )
+        
+        print(f"📊 Analysis Complete:")
+        print(f"   Total following: {result.total_following}")
+        print(f"   Follow you back: {result.followers_back}")
+        print(f"   Don't follow back: {len(result.would_unfollow)}")
+        print(f"   Whitelisted: {result.whitelisted_count}")
+        
+        # Show who would be unfollowed
+        print(f"\n⚠️ Would unfollow {len(result.would_unfollow)} accounts:")
+        for user in result.would_unfollow[:10]:
+            print(f"   @{user.username} ({user.followers_count} followers)")
+        
+        if len(result.would_unfollow) > 10:
+            print(f"   ... and {len(result.would_unfollow) - 10} more")
+        
+        # STEP 2: Confirm and execute
+        confirm = input("\n🚨 Proceed with unfollowing? (yes/no): ")
+        
+        if confirm.lower() == "yes":
+            result = await x.unfollow.non_followers(
+                dry_run=False,
+                whitelist=whitelist,
+                max_unfollows=50,  # Limit per session
+                min_days_following=7
+            )
+            
+            print(f"\n✅ Unfollowed {len(result.unfollowed)} accounts")
+        else:
+            print("\n⏹️ Cancelled")
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+                    <div class="example-footer">
+                        <span class="tag">growth</span>
+                        <button class="run-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            Run
+                        </button>
+                    </div>
+                </div>
+
+                <div class="example-card" data-tags="growth">
+                    <div class="example-header">
+                        <h3>Strategic Following</h3>
+                        <span class="difficulty medium">Medium</span>
+                    </div>
+                    <p>Find and follow high-value accounts in your niche using engagement signals.</p>
+                    <pre><code class="language-python">import asyncio
+from xtools import XTools
+
+async def main():
+    async with XTools() as x:
+        print("🎯 Finding high-value accounts to follow...\n")
+        
+        # Strategy: Follow people who engage with thought leaders
+        thought_leaders = ["paulg", "naval", "levelsio", "sama"]
+        
+        for leader in thought_leaders:
+            print(f"📍 Analyzing @{leader}'s engaged followers...")
+            
+            # Get their recent viral tweets
+            tweets = await x.scrape.tweets(
+                leader, 
+                limit=10,
+                sort="engagement"  # Most engaging first
+            )
+            
+            for tweet in tweets[:3]:  # Top 3 tweets
+                # Get people who replied (high-intent engagement)
+                repliers = await x.scrape.repliers(
+                    tweet.url,
+                    limit=20
+                )
+                
+                for user in repliers:
+                    # Quality filters
+                    if (
+                        user.followers_count >= 500 and
+                        user.followers_count <= 50000 and
+                        user.following_count < user.followers_count * 2 and
+                        user.tweets_count >= 100 and
+                        not user.is_following  # Don't already follow
+                    ):
+                        print(f"  ✓ @{user.username} - {user.followers_count} followers")
+                        
+                        result = await x.follow.user(user.username)
+                        if result.success:
+                            print(f"    ✅ Followed!")
+                        
+                        # Rate limit: wait between follows
+                        await asyncio.sleep(45)
+        
+        print("\n✅ Done! Check your following list.")
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+                    <div class="example-footer">
+                        <span class="tag">growth</span>
+                        <button class="run-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            Run
+                        </button>
+                    </div>
+                </div>
+
+                <div class="example-card" data-tags="growth analytics">
+                    <div class="example-header">
+                        <h3>Unfollower Tracker</h3>
+                        <span class="difficulty easy">Easy</span>
+                    </div>
+                    <p>Track who unfollows you and get notified via Discord/Telegram.</p>
+                    <pre><code class="language-python">import asyncio
+import os
+from xtools import XTools
+from xtools.notifications import Discord, Telegram
+
+async def main():
+    # Set up notifications (optional)
+    discord = Discord(webhook_url=os.environ.get("DISCORD_WEBHOOK"))
+    telegram = Telegram(
+        bot_token=os.environ.get("TELEGRAM_BOT_TOKEN"),
+        chat_id=os.environ.get("TELEGRAM_CHAT_ID")
+    )
+    
+    async with XTools() as x:
+        print("🔍 Checking for unfollowers...\n")
+        
+        report = await x.monitor.unfollowers()
+        
+        # Print report
+        print(f"📊 Follower Report:")
+        print(f"   Current followers: {report.current_count}")
+        print(f"   Change: {report.change:+d}")
+        print(f"   New followers: {len(report.new_followers)}")
+        print(f"   Unfollowers: {len(report.unfollowers)}")
+        
+        if report.new_followers:
+            print(f"\n🎉 New followers:")
+            for user in report.new_followers[:5]:
+                print(f"   @{user.username} ({user.followers_count} followers)")
+        
+        if report.unfollowers:
+            print(f"\n👋 Unfollowers:")
+            for user in report.unfollowers:
+                print(f"   @{user.username}")
+            
+            # Send notifications
+            message = f"👋 Lost {len(report.unfollowers)} followers:\n"
+            message += "\n".join([f"@{u.username}" for u in report.unfollowers])
+            
+            if discord:
+                await discord.send(message)
+            if telegram:
+                await telegram.send(message)
+        
+        print("\n✅ Report complete!")
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+                    <div class="example-footer">
+                        <span class="tag">growth</span>
+                        <span class="tag">analytics</span>
+                        <button class="run-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            Run
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Analytics -->
+            <div class="example-category">
+                <h2>🧠 Advanced Analytics</h2>
+                
+                <div class="example-card" data-tags="analytics ai">
+                    <div class="example-header">
+                        <h3>Competitor Analysis</h3>
+                        <span class="difficulty advanced">Advanced</span>
+                    </div>
+                    <p>Deep-dive analysis of competitors' content strategy and engagement patterns.</p>
+                    <pre><code class="language-python">import asyncio
+from xtools import XTools
+from xtools.ai import ContentAnalyzer
+from datetime import datetime, timedelta
+
+async def main():
+    competitors = ["competitor1", "competitor2", "competitor3"]
+    analyzer = ContentAnalyzer()
+    
+    async with XTools() as x:
+        print("📊 Competitor Analysis Report\n")
+        print("=" * 60)
+        
+        for competitor in competitors:
+            print(f"\n🔍 Analyzing @{competitor}...")
+            
+            # Get profile
+            profile = await x.scrape.profile(competitor)
+            
+            # Get recent tweets
+            tweets = await x.scrape.tweets(
+                competitor,
+                limit=100,
+                since=datetime.now() - timedelta(days=30)
+            )
+            
+            # Analyze content
+            categories = {}
+            total_engagement = 0
+            best_tweet = None
+            best_engagement = 0
+            
+            posting_hours = {}
+            
+            for tweet in tweets:
+                # Categorize
+                cat = await analyzer.categorize(tweet.text)
+                categories[cat.primary] = categories.get(cat.primary, 0) + 1
+                
+                # Track engagement
+                engagement = tweet.like_count + tweet.retweet_count + tweet.reply_count
+                total_engagement += engagement
+                
+                if engagement > best_engagement:
+                    best_engagement = engagement
+                    best_tweet = tweet
+                
+                # Track posting times
+                hour = tweet.created_at.hour
+                posting_hours[hour] = posting_hours.get(hour, 0) + 1
+            
+            # Best posting time
+            best_hour = max(posting_hours.items(), key=lambda x: x[1])[0]
+            
+            # Print analysis
+            print(f"\n📈 @{competitor} Analysis:")
+            print(f"   Followers: {profile.followers_count:,}")
+            print(f"   Tweets (30d): {len(tweets)}")
+            print(f"   Avg engagement: {total_engagement / len(tweets):.0f}")
+            print(f"   Engagement rate: {(total_engagement / len(tweets)) / profile.followers_count * 100:.2f}%")
+            print(f"   Best posting time: {best_hour}:00")
+            
+            print(f"\n   📝 Content mix:")
+            for cat, count in sorted(categories.items(), key=lambda x: -x[1])[:5]:
+                print(f"      {cat}: {count} tweets ({count/len(tweets)*100:.0f}%)")
+            
+            if best_tweet:
+                print(f"\n   🔥 Top performing tweet:")
+                print(f"      '{best_tweet.text[:80]}...'")
+                print(f"      ❤️ {best_tweet.like_count} | 🔄 {best_tweet.retweet_count} | 💬 {best_tweet.reply_count}")
+        
+        print("\n" + "=" * 60)
+        print("✅ Analysis complete!")
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+                    <div class="example-footer">
+                        <span class="tag">analytics</span>
+                        <span class="tag">ai</span>
+                        <button class="run-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            Run
+                        </button>
+                    </div>
+                </div>
+
+                <div class="example-card" data-tags="analytics ai">
+                    <div class="example-header">
+                        <h3>Bot Detection</h3>
+                        <span class="difficulty medium">Medium</span>
+                    </div>
+                    <p>Identify bot accounts in your followers and clean up your audience.</p>
+                    <pre><code class="language-python">import asyncio
+from xtools import XTools
+from xtools.ai import BotDetector
+
+async def main():
+    detector = BotDetector()
+    
+    async with XTools() as x:
+        print("🤖 Bot Detection Scanner\n")
+        
+        # Scan your followers
+        followers = await x.scrape.followers("me", limit=500)
+        
+        bots = []
+        suspicious = []
+        
+        print(f"🔍 Scanning {len(followers)} followers...")
+        
+        for i, follower in enumerate(followers):
+            score = await detector.analyze(follower)
+            
+            if score.bot_probability > 0.8:
+                bots.append({
+                    "user": follower,
+                    "score": score
+                })
+            elif score.bot_probability > 0.5:
+                suspicious.append({
+                    "user": follower,
+                    "score": score
+                })
+            
+            # Progress
+            if (i + 1) % 50 == 0:
+                print(f"   Scanned {i + 1}/{len(followers)}...")
+        
+        # Report
+        print(f"\n📊 Results:")
+        print(f"   Total scanned: {len(followers)}")
+        print(f"   Likely bots: {len(bots)} ({len(bots)/len(followers)*100:.1f}%)")
+        print(f"   Suspicious: {len(suspicious)} ({len(suspicious)/len(followers)*100:.1f}%)")
+        
+        if bots:
+            print(f"\n🚨 Likely bots:")
+            for item in bots[:10]:
+                user = item["user"]
+                score = item["score"]
+                print(f"   @{user.username} ({score.bot_probability*100:.0f}% bot)")
+                print(f"      Reasons: {', '.join(score.reasons[:3])}")
+        
+        # Option to block
+        if bots:
+            confirm = input(f"\n🚫 Block {len(bots)} bot accounts? (yes/no): ")
+            if confirm.lower() == "yes":
+                for item in bots:
+                    await x.user.block(item["user"].username)
+                    await asyncio.sleep(2)
+                print("✅ Blocked all bot accounts")
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+                    <div class="example-footer">
+                        <span class="tag">analytics</span>
+                        <span class="tag">ai</span>
+                        <button class="run-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            Run
+                        </button>
+                    </div>
+                </div>
+
+                <div class="example-card" data-tags="analytics">
+                    <div class="example-header">
+                        <h3>Viral Potential Score</h3>
+                        <span class="difficulty advanced">Advanced</span>
+                    </div>
+                    <p>Identify tweets with high viral potential and engage early for maximum visibility.</p>
+                    <pre><code class="language-python">import asyncio
+from xtools import XTools
+from xtools.ai import ViralPredictor, ContentGenerator
+
+async def main():
+    predictor = ViralPredictor()
+    ai = ContentGenerator(provider="openai", model="gpt-4")
+    
+    async with XTools() as x:
+        print("🔥 Viral Tweet Hunter\n")
+        
+        # Keywords to monitor
+        keywords = ["AI breakthrough", "just launched", "mind-blowing"]
+        
+        for keyword in keywords:
+            print(f"🔍 Searching: '{keyword}'")
+            
+            tweets = await x.scrape.search(
+                query=f"{keyword} min_faves:50",
+                sort="latest",
+                limit=20
+            )
+            
+            for tweet in tweets:
+                # Skip if already engaged
+                if tweet.is_liked or tweet.is_retweeted:
+                    continue
+                
+                # Calculate viral potential
+                score = await predictor.predict(tweet)
+                
+                if score.viral_probability > 0.7:
+                    print(f"\n🔥 High viral potential ({score.viral_probability:.0%})!")
+                    print(f"   @{tweet.author.username}: {tweet.text[:60]}...")
+                    print(f"   Current: ❤️ {tweet.like_count} | 🔄 {tweet.retweet_count}")
+                    print(f"   Reasons: {', '.join(score.reasons)}")
+                    print(f"   Predicted final reach: {score.predicted_reach:,}")
+                    
+                    # Generate smart reply
+                    reply = await ai.generate_reply(
+                        tweet.text,
+                        tone="thoughtful",
+                        include_question=True
+                    )
+                    
+                    print(f"   💬 Suggested reply: {reply}")
+                    
+                    # Engage early
+                    await x.engage.like(tweet.url)
+                    print(f"   ✅ Liked!")
+                    
+                    # Optionally post reply
+                    if input("   Post reply? (y/n): ").lower() == 'y':
+                        await x.engage.reply(tweet.url, reply)
+                        print("   ✅ Reply posted!")
+                    
+                    await asyncio.sleep(30)
+        
+        print("\n✅ Hunting complete!")
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+                    <div class="example-footer">
+                        <span class="tag">analytics</span>
+                        <button class="run-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            Run
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scraping Examples -->
+            <div class="example-category">
+                <h2>🔍 Data Scraping</h2>
+                
+                <div class="example-card" data-tags="scraping">
+                    <div class="example-header">
+                        <h3>Thread Unroller</h3>
+                        <span class="difficulty easy">Easy</span>
+                    </div>
+                    <p>Convert Twitter threads into readable Markdown documents.</p>
+                    <pre><code class="language-python">import asyncio
+from xtools import XTools
+
+async def main():
+    thread_url = "https://x.com/naval/status/1002103360646823936"
+    
+    async with XTools() as x:
+        print("🧵 Unrolling thread...\n")
+        
+        thread = await x.scrape.thread(thread_url)
+        
+        print(f"Thread by @{thread.author.username}")
+        print(f"Total tweets: {len(thread.tweets)}")
+        print("-" * 40)
+        
+        # Generate Markdown
+        markdown = f"# Thread by @{thread.author.username}\n\n"
+        markdown += f"*{thread.tweets[0].created_at.strftime('%B %d, %Y')}*\n\n"
+        markdown += "---\n\n"
+        
+        for i, tweet in enumerate(thread.tweets, 1):
+            markdown += f"**{i}.** {tweet.text}\n\n"
+            
+            # Include images
+            if tweet.media:
+                for media in tweet.media:
+                    markdown += f"![Image]({media.url})\n\n"
+        
+        # Engagement stats
+        total_likes = sum(t.like_count for t in thread.tweets)
+        total_retweets = sum(t.retweet_count for t in thread.tweets)
+        
+        markdown += "---\n\n"
+        markdown += f"**Total engagement:** ❤️ {total_likes:,} likes, 🔄 {total_retweets:,} retweets\n"
+        
+        # Save to file
+        filename = f"thread_{thread.author.username}_{thread.tweets[0].id}.md"
+        with open(filename, "w") as f:
+            f.write(markdown)
+        
+        print(f"\n✅ Saved to {filename}")
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+                    <div class="example-footer">
+                        <span class="tag">scraping</span>
+                        <button class="run-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            Run
+                        </button>
+                    </div>
+                </div>
+
+                <div class="example-card" data-tags="scraping analytics">
+                    <div class="example-header">
+                        <h3>Follower Overlap Analysis</h3>
+                        <span class="difficulty advanced">Advanced</span>
+                    </div>
+                    <p>Find accounts followed by multiple thought leaders in your niche.</p>
+                    <pre><code class="language-python">import asyncio
+from collections import Counter
+from xtools import XTools
+
+async def main():
+    # Thought leaders in your niche
+    influencers = ["paulg", "naval", "levelsio", "patio11", "tferriss"]
+    
+    async with XTools() as x:
+        print("🔍 Finding overlap in following lists...\n")
+        
+        all_following = []
+        
+        for influencer in influencers:
+            print(f"   Fetching @{influencer}'s following list...")
+            following = await x.scrape.following(influencer, limit=500)
+            all_following.extend([u.username for u in following])
+        
+        # Count overlaps
+        counter = Counter(all_following)
+        
+        # Find accounts followed by multiple influencers
+        overlaps = [(username, count) for username, count in counter.items() 
+                   if count >= 3]  # Followed by at least 3
+        
+        overlaps.sort(key=lambda x: -x[1])
+        
+        print(f"\n📊 Accounts followed by multiple thought leaders:")
+        print("-" * 50)
+        
+        for username, count in overlaps[:30]:
+            profile = await x.scrape.profile(username)
+            print(f"@{username}")
+            print(f"   Followed by: {count}/{len(influencers)} influencers")
+            print(f"   Followers: {profile.followers_count:,}")
+            print(f"   Bio: {profile.bio[:60]}...")
+            print()
+        
+        # Export
+        x.export.to_csv(
+            [{"username": u, "followed_by_count": c} for u, c in overlaps],
+            "influencer_overlap.csv"
+        )
+        
+        print(f"✅ Found {len(overlaps)} overlapping accounts")
+        print("   Exported to influencer_overlap.csv")
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+                    <div class="example-footer">
+                        <span class="tag">scraping</span>
+                        <span class="tag">analytics</span>
+                        <button class="run-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            Run
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CLI Examples -->
+            <div class="example-category">
+                <h2>💻 CLI Quick Commands</h2>
+                
+                <div class="example-card cli-card" data-tags="engagement">
+                    <div class="example-header">
+                        <h3>CLI Cheat Sheet</h3>
+                        <span class="difficulty easy">Easy</span>
+                    </div>
+                    <p>Common XTools CLI commands for quick automation tasks.</p>
+                    <pre><code class="language-bash"># Authentication
+xtools auth login                          # Interactive browser login
+xtools auth status                         # Check login status
+xtools auth logout                         # Clear saved session
+
+# Like tweets
+xtools like tweet https://x.com/user/status/123
+xtools like keyword "Python tips" --max 20 --min-likes 10
+xtools like user @elonmusk --max 5 --skip-retweets
+xtools like hashtag Python --max 15
+
+# Comment on tweets
+xtools comment tweet https://x.com/user/status/123 --text "Great post!"
+xtools comment ai https://x.com/user/status/123 --provider openai --tone witty
+
+# Follow/Unfollow
+xtools follow user @username
+xtools follow keyword "startup founder" --max 20
+xtools unfollow non-followers --dry-run
+xtools unfollow non-followers --max 50 --whitelist friends.txt
+
+# Scraping
+xtools scrape replies https://x.com/user/status/123 --output replies.csv
+xtools scrape followers @username --max 1000 --output followers.json
+xtools scrape tweets @username --max 100 --output tweets.csv
+xtools scrape thread https://x.com/user/status/123 --output thread.md
+
+# Monitoring
+xtools monitor unfollowers
+xtools monitor unfollowers --notify discord
+xtools monitor keywords "my brand" --interval 15
+
+# Export
+xtools export bookmarks --format json
+xtools export followers --format csv
+
+# Utilities
+xtools doctor                              # Health check
+xtools config show                         # Show configuration
+xtools config set rate_limit.likes 25      # Change setting</code></pre>
+                    <div class="example-footer">
+                        <span class="tag">cli</span>
+                        <button class="copy-all-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            Copy All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="container">
+            <h2>Ready to build your own automation?</h2>
+            <p>Start with our interactive playground or dive into the documentation.</p>
+            <div class="cta-buttons">
+                <a href="playground.html" class="btn btn-primary">Try Playground</a>
+                <a href="docs.html" class="btn btn-secondary">Read the Docs</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">XTools</span>
+                    <p>X/Twitter automation for developers</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-col">
+                        <h4>Product</h4>
+                        <a href="index.html#features">Features</a>
+                        <a href="docs.html">Documentation</a>
+                        <a href="examples.html">Examples</a>
+                        <a href="playground.html">Playground</a>
+                    </div>
+                    <div class="footer-col">
+                        <h4>Resources</h4>
+                        <a href="docs.html#quickstart">Quick Start</a>
+                        <a href="docs.html#faq">FAQ</a>
+                        <a href="https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy/issues">Support</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 XTools. For educational purposes only.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/examples.js"></script>
+</body>
+</html>

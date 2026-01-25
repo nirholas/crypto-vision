@@ -12,6 +12,9 @@ Provides scrapers for various X/Twitter data:
 - Likes
 - Lists
 - Search results
+- Twitter Spaces (audio, transcripts, chat)
+- Media downloads
+- Trends and recommendations
 """
 
 from xtools.scrapers.base import BaseScraper
@@ -26,6 +29,9 @@ from xtools.scrapers.media import MediaScraper
 from xtools.scrapers.likes import LikesScraper
 from xtools.scrapers.lists import ListsScraper
 from xtools.scrapers.search import SearchScraper
+from xtools.scrapers.spaces import SpacesScraper, Space, SpaceCategory, SpaceState
+from xtools.scrapers.downloads import MediaDownloader, MediaItem
+from xtools.scrapers.recommendations import RecommendationsScraper, Trend, RecommendedUser
 
 __all__ = [
     "BaseScraper",
@@ -40,4 +46,15 @@ __all__ = [
     "LikesScraper",
     "ListsScraper",
     "SearchScraper",
+    # New scrapers
+    "SpacesScraper",
+    "Space",
+    "SpaceCategory",
+    "SpaceState",
+    "MediaDownloader",
+    "MediaItem",
+    "RecommendationsScraper",
+    "Trend",
+    "RecommendedUser",
 ]
+

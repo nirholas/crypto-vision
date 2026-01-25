@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation - XTools</title>
+    <meta name="description" content="Complete documentation for XTools - X/Twitter automation toolkit">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/docs.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body class="docs-page">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">XTools</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html#features">Features</a>
+                <a href="docs.html" class="active">Docs</a>
+                <a href="examples.html">Examples</a>
+                <a href="playground.html">Playground</a>
+                <a href="https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy" target="_blank" class="nav-github">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="docs-layout">
+        <!-- Sidebar -->
+        <aside class="docs-sidebar">
+            <div class="sidebar-search">
+                <input type="text" class="search-input" placeholder="Search docs...">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h4>Getting Started</h4>
+                    <a href="#installation">Installation</a>
+                    <a href="#quickstart">Quick Start</a>
+                    <a href="#authentication">Authentication</a>
+                    <a href="#configuration">Configuration</a>
+                </div>
+                
+                <div class="nav-section">
+                    <h4>Core Features</h4>
+                    <a href="#engagement">Engagement</a>
+                    <a href="#scraping">Scraping</a>
+                    <a href="#follow">Follow/Unfollow</a>
+                    <a href="#monitoring">Monitoring</a>
+                </div>
+                
+                <div class="nav-section">
+                    <h4>AI Features</h4>
+                    <a href="#ai-setup">AI Setup</a>
+                    <a href="#ai-comments">AI Comments</a>
+                    <a href="#ai-analysis">AI Analysis</a>
+                    <a href="#ai-targeting">Smart Targeting</a>
+                </div>
+                
+                <div class="nav-section">
+                    <h4>Advanced</h4>
+                    <a href="#templates">Comment Templates</a>
+                    <a href="#notifications">Notifications</a>
+                    <a href="#analytics">Analytics</a>
+                    <a href="#multi-account">Multi-Account</a>
+                </div>
+                
+                <div class="nav-section">
+                    <h4>CLI Reference</h4>
+                    <a href="#cli-overview">Overview</a>
+                    <a href="#cli-like">Like Commands</a>
+                    <a href="#cli-comment">Comment Commands</a>
+                    <a href="#cli-follow">Follow Commands</a>
+                </div>
+                
+                <div class="nav-section">
+                    <h4>API Reference</h4>
+                    <a href="#api-xtools">XTools Class</a>
+                    <a href="#api-engage">Engage Module</a>
+                    <a href="#api-scrape">Scrape Module</a>
+                    <a href="#api-types">Types & Models</a>
+                </div>
+                
+                <div class="nav-section">
+                    <h4>Safety</h4>
+                    <a href="#rate-limiting">Rate Limiting</a>
+                    <a href="#best-practices">Best Practices</a>
+                    <a href="#faq">FAQ</a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="docs-content">
+            <!-- Installation -->
+            <section id="installation" class="doc-section">
+                <h1>Installation</h1>
+                <p class="lead">Get XTools up and running in minutes.</p>
+                
+                <h2>Requirements</h2>
+                <ul>
+                    <li>Python 3.10 or higher</li>
+                    <li>pip (Python package manager)</li>
+                    <li>A modern browser (Chromium recommended)</li>
+                </ul>
+                
+                <h2>Install via pip</h2>
+                <pre><code class="language-bash"># Install XTools
+pip install xtools
+
+# Install Playwright browser
+playwright install chromium</code></pre>
+
+                <h2>Install from source</h2>
+                <pre><code class="language-bash"># Clone the repository
+git clone https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy.git
+cd Get-Tweet-Replies-With-Python-Tweepy/xtools
+
+# Install in development mode
+pip install -e .
+
+# Install browser
+playwright install chromium</code></pre>
+
+                <h2>Verify Installation</h2>
+                <pre><code class="language-bash"># Check version
+xtools --version
+
+# Run health check
+xtools doctor</code></pre>
+
+                <div class="callout callout-info">
+                    <strong>Note:</strong> XTools uses Playwright for browser automation. The first run may take longer as it downloads browser binaries.
+                </div>
+            </section>
+
+            <!-- Quick Start -->
+            <section id="quickstart" class="doc-section">
+                <h1>Quick Start</h1>
+                <p class="lead">Your first XTools automation in 5 minutes.</p>
+                
+                <h2>Step 1: Login</h2>
+                <pre><code class="language-bash"># Interactive login (opens browser window)
+xtools auth login
+
+# This saves your session for future use</code></pre>
+
+                <h2>Step 2: Your First Script</h2>
+                <pre><code class="language-python">import asyncio
+from xtools import XTools
+
+async def main():
+    async with XTools() as x:
+        # Like 10 tweets about Python
+        results = await x.engage.like_by_keyword(
+            keyword="Python programming",
+            limit=10
+        )
+        
+        print(f"Liked {len(results)} tweets!")
+        
+        for result in results:
+            print(f"  ✓ @{result.author_username}: {result.tweet_text[:50]}...")
+
+asyncio.run(main())</code></pre>
+
+                <h2>Step 3: Run It</h2>
+                <pre><code class="language-bash">python my_first_script.py</code></pre>
+
+                <div class="callout callout-success">
+                    <strong>Tip:</strong> Always start with <code>dry_run=True</code> to preview actions without actually performing them.
+                </div>
+
+                <h2>What's Next?</h2>
+                <div class="next-steps">
+                    <a href="#engagement" class="next-step">
+                        <span class="next-icon">❤️</span>
+                        <span class="next-text">Learn about engagement automation</span>
+                    </a>
+                    <a href="#scraping" class="next-step">
+                        <span class="next-icon">🔍</span>
+                        <span class="next-text">Scrape followers and tweets</span>
+                    </a>
+                    <a href="#ai-comments" class="next-step">
+                        <span class="next-icon">🧠</span>
+                        <span class="next-text">Set up AI-powered comments</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Authentication -->
+            <section id="authentication" class="doc-section">
+                <h1>Authentication</h1>
+                <p class="lead">XTools uses browser sessions - no API keys required.</p>
+                
+                <h2>Interactive Login</h2>
+                <p>The easiest way to authenticate:</p>
+                <pre><code class="language-bash"># Opens a browser window for login
+xtools auth login
+
+# Your session is saved to ~/.xtools/session.json</code></pre>
+
+                <h2>Import Existing Cookies</h2>
+                <p>If you have cookies exported from your browser:</p>
+                <pre><code class="language-python">from xtools import XTools
+
+async with XTools() as x:
+    # Import from JSON file (e.g., from browser extension)
+    await x.auth.import_cookies("twitter_cookies.json")
+    
+    # Import from Netscape format
+    await x.auth.import_cookies("cookies.txt", format="netscape")</code></pre>
+
+                <h2>Programmatic Login</h2>
+                <pre><code class="language-python">from xtools import XTools
+
+async with XTools(headless=False) as x:
+    # Manual login with timeout
+    await x.auth.login(timeout=120)  # 2 minutes to complete login
+    
+    # Save session for reuse
+    await x.auth.save_session("my_session.json")</code></pre>
+
+                <h2>Load Saved Session</h2>
+                <pre><code class="language-python">from xtools import XTools
+
+async with XTools() as x:
+    # Load previously saved session
+    await x.auth.load_session("my_session.json")
+    
+    # Verify authentication
+    if await x.auth.is_authenticated():
+        print("✓ Logged in!")
+    else:
+        print("✗ Session expired")</code></pre>
+
+                <div class="callout callout-warning">
+                    <strong>Security:</strong> Never share your session files. They contain authentication tokens that grant full access to your account.
+                </div>
+            </section>
+
+            <!-- Engagement -->
+            <section id="engagement" class="doc-section">
+                <h1>Engagement Automation</h1>
+                <p class="lead">Automate likes, comments, retweets, and bookmarks intelligently.</p>
+                
+                <h2>Like Operations</h2>
+                
+                <h3>Like a Single Tweet</h3>
+                <pre><code class="language-python">from xtools import XTools
+
+async with XTools() as x:
+    result = await x.engage.like("https://x.com/user/status/123456789")
+    
+    if result.success:
+        print("✓ Tweet liked!")
+    elif result.was_already_liked:
+        print("Already liked this tweet")</code></pre>
+
+                <h3>Like by Keyword</h3>
+                <pre><code class="language-python">from xtools import XTools
+from xtools.actions.types import LikeFilters
+
+# Set up filters
+filters = LikeFilters(
+    min_likes=10,           # Skip low-engagement tweets
+    min_followers=500,      # Quality threshold
+    max_followers=100000,   # Skip mega-accounts
+    exclude_retweets=True,  # Only original content
+    exclude_replies=False,  # Include replies
+    language="en",          # English only
+    exclude_keywords=["spam", "giveaway", "follow4follow"]
+)
+
+async with XTools() as x:
+    results = await x.engage.like_by_keyword(
+        keyword="machine learning",
+        limit=25,
+        filters=filters
+    )
+    
+    print(f"Liked {len([r for r in results if r.success])} tweets")</code></pre>
+
+                <h3>Like User's Recent Tweets</h3>
+                <pre><code class="language-python">async with XTools() as x:
+    results = await x.engage.like_by_user(
+        username="elonmusk",
+        limit=5,
+        skip_retweets=True,
+        skip_replies=True
+    )</code></pre>
+
+                <h3>Auto-Liker (Continuous)</h3>
+                <pre><code class="language-python">from xtools import XTools
+from xtools.actions.types import AutoLikeConfig, LikeFilters
+
+config = AutoLikeConfig(
+    keywords=["Python", "AI", "startups"],
+    max_likes_per_hour=30,      # Stay within safe limits
+    min_delay=45.0,              # Minimum seconds between actions
+    max_delay=180.0,             # Maximum seconds between actions
+    skip_retweets=True,
+    engagement_threshold=50,     # Min total engagement
+)
+
+filters = LikeFilters(
+    min_likes=20,
+    min_followers=1000,
+)
+
+async with XTools() as x:
+    liker = x.engage.create_auto_liker(config, filters)
+    
+    # Run for 2 hours
+    async for result in liker.run(duration_hours=2):
+        if result.success:
+            print(f"✓ Liked @{result.author_username}")
+        
+        # Check stats
+        stats = liker.get_stats()
+        print(f"  Total: {stats.total_liked} | Rate: {stats.likes_per_hour}/hr")</code></pre>
+
+                <h2>Comment Operations</h2>
+                
+                <h3>Reply to a Tweet</h3>
+                <pre><code class="language-python">async with XTools() as x:
+    result = await x.engage.reply(
+        tweet_url="https://x.com/user/status/123",
+        text="Great insight! Thanks for sharing 🙌"
+    )
+    
+    if result.success:
+        print(f"Reply posted: {result.reply_url}")</code></pre>
+
+                <h3>Using Comment Templates</h3>
+                <pre><code class="language-python">from xtools.actions.templates import CommentTemplates
+
+# Get contextual template based on tweet content
+tweet_text = "Just launched my new SaaS product!"
+comment = CommentTemplates.get_contextual(tweet_text)
+# Returns something like: "Love the product thinking here" (startup category)
+
+# Or get from specific category
+tech_comment = CommentTemplates.get_random("tech")
+# Returns something like: "Ship it! 🚀"
+
+# Available categories:
+categories = CommentTemplates.get_all_categories()
+# ['appreciation', 'engagement', 'agreement', 'disagreement', 'crypto',
+#  'tech', 'startup', 'learning', 'humor', 'supportive', 'networking',
+#  'questions', 'followup']
+
+# Format template with variables
+template = "Great insight on {topic}, @{author}!"
+comment = CommentTemplates.format_template(template, {
+    "topic": "machine learning",
+    "author": "sama"
+})
+# "Great insight on machine learning, @sama!"</code></pre>
+
+                <h3>Auto-Commenter</h3>
+                <pre><code class="language-python">from xtools import XTools
+from xtools.actions.types import AutoCommentConfig
+from xtools.actions.templates import CommentTemplates
+
+config = AutoCommentConfig(
+    keywords=["Python tips", "coding advice"],
+    templates=CommentTemplates.TECH + CommentTemplates.LEARNING,
+    max_comments_per_hour=5,    # Be conservative with comments
+    min_delay=120.0,            # At least 2 min between comments
+    max_delay=300.0,            # Up to 5 min
+    min_tweet_age_minutes=5,    # Don't reply to brand new tweets
+    max_tweet_age_hours=24,     # Don't reply to old tweets
+)
+
+async with XTools() as x:
+    commenter = x.engage.create_auto_commenter(config)
+    
+    async for result in commenter.run(duration_hours=4):
+        print(f"💬 Commented on @{result.author}: {result.comment_text}")</code></pre>
+
+                <h2>Retweet Operations</h2>
+                
+                <h3>Simple Retweet</h3>
+                <pre><code class="language-python">async with XTools() as x:
+    result = await x.engage.retweet("https://x.com/user/status/123")</code></pre>
+
+                <h3>Quote Tweet</h3>
+                <pre><code class="language-python">async with XTools() as x:
+    result = await x.engage.quote(
+        tweet_url="https://x.com/user/status/123",
+        text="This is an excellent thread on AI safety. Must read! 🧵"
+    )</code></pre>
+
+                <h2>Bookmark Operations</h2>
+                
+                <h3>Add/Remove Bookmarks</h3>
+                <pre><code class="language-python">async with XTools() as x:
+    # Add bookmark
+    await x.engage.bookmark("https://x.com/user/status/123")
+    
+    # Remove bookmark
+    await x.engage.remove_bookmark("https://x.com/user/status/123")
+    
+    # Bulk bookmark
+    urls = ["https://x.com/user/status/1", "https://x.com/user/status/2"]
+    results = await x.engage.bulk_bookmark(urls)</code></pre>
+
+                <h3>Export Bookmarks</h3>
+                <pre><code class="language-python">async with XTools() as x:
+    # Export to different formats
+    await x.engage.export_bookmarks("bookmarks.json", format="json")
+    await x.engage.export_bookmarks("bookmarks.csv", format="csv")
+    
+    # With metadata
+    await x.engage.export_bookmarks(
+        "bookmarks_full.json",
+        format="json",
+        include_metrics=True,
+        include_author_info=True
+    )</code></pre>
+            </section>
+
+            <!-- Scraping -->
+            <section id="scraping" class="doc-section">
+                <h1>Scraping</h1>
+                <p class="lead">Extract followers, tweets, replies, and more without API limits.</p>
+                
+                <h2>Scrape Followers</h2>
+                <pre><code class="language-python">from xtools import XTools
+
+async with XTools() as x:
+    # Get followers with full profile info
+    followers = await x.scrape.followers(
+        username="elonmusk",
+        limit=1000,
+        include_bio=True,
+        include_metrics=True
+    )
+    
+    for follower in followers:
+        print(f"@{follower.username}")
+        print(f"  Followers: {follower.followers_count}")
+        print(f"  Following: {follower.following_count}")
+        print(f"  Bio: {follower.bio[:50]}...")</code></pre>
+
+                <h2>Scrape Following</h2>
+                <pre><code class="language-python">async with XTools() as x:
+    following = await x.scrape.following(
+        username="sama",
+        limit=500
+    )
+    
+    # Export to CSV
+    x.export.to_csv(following, "sama_following.csv")</code></pre>
+
+                <h2>Scrape Tweet Replies</h2>
+                <pre><code class="language-python">async with XTools() as x:
+    replies = await x.scrape.replies(
+        tweet_url="https://x.com/elonmusk/status/123456789",
+        limit=200,
+        sort="recent"  # or "top"
+    )
+    
+    for reply in replies:
+        print(f"@{reply.author.username}: {reply.text}")
+        print(f"  Likes: {reply.like_count} | Replies: {reply.reply_count}")</code></pre>
+
+                <h2>Scrape User Tweets</h2>
+                <pre><code class="language-python">async with XTools() as x:
+    tweets = await x.scrape.tweets(
+        username="paulg",
+        limit=100,
+        include_retweets=False,
+        include_replies=False,
+        since="2024-01-01",
+        until="2024-12-31"
+    )
+    
+    # Find top performing tweets
+    top_tweets = sorted(tweets, key=lambda t: t.like_count, reverse=True)[:10]
+    
+    for tweet in top_tweets:
+        print(f"Likes: {tweet.like_count} | {tweet.text[:80]}...")</code></pre>
+
+                <h2>Search Tweets</h2>
+                <pre><code class="language-python">async with XTools() as x:
+    # Advanced search
+    results = await x.scrape.search(
+        query="Python tutorial",
+        sort="top",           # "top", "latest", "people", "photos", "videos"
+        min_likes=100,
+        min_retweets=10,
+        language="en",
+        since="2024-01-01",
+        limit=50
+    )
+    
+    # Search operators are supported
+    results = await x.scrape.search(
+        query='from:elonmusk "artificial intelligence" -filter:replies'
+    )</code></pre>
+
+                <h2>Scrape Thread</h2>
+                <pre><code class="language-python">async with XTools() as x:
+    thread = await x.scrape.thread(
+        "https://x.com/user/status/123"
+    )
+    
+    print(f"Thread by @{thread.author.username}")
+    print(f"Total tweets: {len(thread.tweets)}")
+    
+    for i, tweet in enumerate(thread.tweets, 1):
+        print(f"\n{i}. {tweet.text}")</code></pre>
+
+                <h2>Export Data</h2>
+                <pre><code class="language-python">from xtools import XTools
+
+async with XTools() as x:
+    followers = await x.scrape.followers("username", limit=1000)
+    
+    # Export to various formats
+    x.export.to_csv(followers, "followers.csv")
+    x.export.to_json(followers, "followers.json")
+    x.export.to_excel(followers, "followers.xlsx")
+    x.export.to_sqlite(followers, "data.db", table="followers")</code></pre>
+            </section>
+
+            <!-- Follow/Unfollow -->
+            <section id="follow" class="doc-section">
+                <h1>Follow/Unfollow Management</h1>
+                <p class="lead">Strategic follower growth with smart targeting.</p>
+                
+                <h2>Follow Operations</h2>
+                
+                <h3>Follow a User</h3>
+                <pre><code class="language-python">async with XTools() as x:
+    result = await x.follow.user("username")
+    
+    if result.success:
+        print("✓ Followed!")</code></pre>
+
+                <h3>Follow by Keyword</h3>
+                <pre><code class="language-python">async with XTools() as x:
+    # Follow users who tweet about Python
+    results = await x.follow.by_keyword(
+        keyword="Python developer",
+        limit=20,
+        min_followers=500,
+        max_followers=50000,
+        must_have_bio=True
+    )</code></pre>
+
+                <h3>Follow by Hashtag</h3>
+                <pre><code class="language-python">async with XTools() as x:
+    results = await x.follow.by_hashtag(
+        hashtag="#buildinpublic",
+        limit=15,
+        engagement_threshold=50
+    )</code></pre>
+
+                <h3>Follow Engagers</h3>
+                <pre><code class="language-python">async with XTools() as x:
+    # Follow people who engaged with a viral tweet
+    results = await x.follow.engagers(
+        tweet_url="https://x.com/user/status/123",
+        engagement_type="likers",  # or "retweeters", "repliers"
+        limit=30
+    )</code></pre>
+
+                <h2>Unfollow Operations</h2>
+                
+                <h3>Unfollow Non-Followers</h3>
+                <pre><code class="language-python">async with XTools() as x:
+    # Preview first
+    result = await x.unfollow.non_followers(
+        dry_run=True,
+        whitelist=["important_friend", "business_partner"],
+        min_days_following=7  # Only unfollow if followed 7+ days ago
+    )
+    
+    print(f"Would unfollow {len(result.would_unfollow)} users")
+    
+    # Actually unfollow
+    result = await x.unfollow.non_followers(
+        dry_run=False,
+        max_unfollows=50,  # Limit per session
+        whitelist=["important_friend"]
+    )</code></pre>
+
+                <h3>Smart Unfollow</h3>
+                <pre><code class="language-python">async with XTools() as x:
+    # Unfollow inactive or low-quality accounts
+    result = await x.unfollow.smart(
+        criteria={
+            "inactive_days": 90,        # No tweets in 90 days
+            "low_engagement": True,     # Low engagement rate
+            "no_profile_pic": True,     # Default avatar
+            "spam_keywords": ["crypto giveaway", "DM for collab"]
+        },
+        max_unfollows=30,
+        dry_run=True
+    )</code></pre>
+
+                <h3>Maintain Ratio</h3>
+                <pre><code class="language-python">async with XTools() as x:
+    # Keep following/follower ratio healthy
+    result = await x.unfollow.maintain_ratio(
+        target_ratio=0.8,  # Following should be 80% of followers
+        dry_run=True
+    )</code></pre>
+            </section>
+
+            <!-- AI Features -->
+            <section id="ai-setup" class="doc-section">
+                <h1>AI Features</h1>
+                <p class="lead">Supercharge your automation with AI-powered intelligence.</p>
+                
+                <h2>Setting Up AI Providers</h2>
+                
+                <h3>OpenAI (GPT-4)</h3>
+                <pre><code class="language-python">from xtools.ai import ContentGenerator
+
+ai = ContentGenerator(
+    provider="openai",
+    api_key="sk-...",  # Or use OPENAI_API_KEY env var
+    model="gpt-4",     # or "gpt-4-turbo", "gpt-3.5-turbo"
+    temperature=0.7,
+    max_tokens=200
+)</code></pre>
+
+                <h3>Anthropic (Claude)</h3>
+                <pre><code class="language-python">ai = ContentGenerator(
+    provider="anthropic",
+    api_key="sk-ant-...",  # Or ANTHROPIC_API_KEY env var
+    model="claude-3-opus-20240229",
+)</code></pre>
+
+                <h3>Local LLM (Ollama)</h3>
+                <pre><code class="language-python">ai = ContentGenerator(
+    provider="ollama",
+    model="llama2",        # or "mistral", "codellama", etc.
+    base_url="http://localhost:11434"
+)</code></pre>
+            </section>
+
+            <section id="ai-comments" class="doc-section">
+                <h2>AI-Powered Comments</h2>
+                
+                <h3>Generate Contextual Replies</h3>
+                <pre><code class="language-python">from xtools import XTools
+from xtools.ai import ContentGenerator
+
+ai = ContentGenerator(provider="openai", model="gpt-4")
+
+async with XTools() as x:
+    # Get a tweet
+    tweet = await x.scrape.tweet("https://x.com/user/status/123")
+    
+    # Generate a relevant reply
+    reply = await ai.generate_reply(
+        tweet_text=tweet.text,
+        author_bio=tweet.author.bio,
+        tone="professional",      # professional, casual, witty, supportive
+        include_question=True,    # Adds engagement hook
+        max_length=200
+    )
+    
+    print(f"Generated reply: {reply}")
+    
+    # Post if approved
+    if input("Post this reply? (y/n): ").lower() == "y":
+        await x.engage.reply(tweet.url, reply)</code></pre>
+
+                <h3>AI Auto-Commenter</h3>
+                <pre><code class="language-python">from xtools.actions.engagement.comment import AICommenter
+
+async with XTools() as x:
+    ai_commenter = AICommenter(
+        browser=x.browser,
+        rate_limiter=x.rate_limiter,
+        ai_provider="openai",
+        ai_model="gpt-4",
+        style="helpful",
+        max_comments_per_hour=5
+    )
+    
+    # Find tweets and generate contextual replies
+    async for result in ai_commenter.run(
+        keywords=["Python tutorial"],
+        duration_hours=2
+    ):
+        print(f"💬 AI replied to @{result.author}: {result.comment_text}")</code></pre>
+
+                <h3>Comment Style Presets</h3>
+                <pre><code class="language-python"># Available styles
+styles = {
+    "professional": "Formal, industry-appropriate language",
+    "casual": "Friendly, conversational tone", 
+    "witty": "Clever, humorous observations",
+    "supportive": "Encouraging and positive",
+    "thoughtful": "Deep, analytical responses",
+    "curious": "Asking follow-up questions",
+    "expert": "Authoritative, knowledgeable"
+}
+
+reply = await ai.generate_reply(
+    tweet_text="Just launched my first SaaS!",
+    tone="supportive"
+)
+# "Huge congrats on the launch! 🎉 What was the biggest challenge..."</code></pre>
+            </section>
+
+            <section id="ai-analysis" class="doc-section">
+                <h2>AI Analysis</h2>
+                
+                <h3>Sentiment Analysis</h3>
+                <pre><code class="language-python">from xtools.ai import SentimentAnalyzer
+
+analyzer = SentimentAnalyzer()
+
+async with XTools() as x:
+    tweets = await x.scrape.search("@yourcompany", limit=100)
+    
+    results = await analyzer.analyze_batch(tweets)
+    
+    print(f"Positive: {results.positive_count} ({results.positive_pct}%)")
+    print(f"Negative: {results.negative_count} ({results.negative_pct}%)")
+    print(f"Neutral: {results.neutral_count} ({results.neutral_pct}%)")
+    
+    # Get concerning tweets
+    for tweet in results.negative_tweets:
+        print(f"⚠️ @{tweet.author}: {tweet.text}")</code></pre>
+
+                <h3>Bot Detection</h3>
+                <pre><code class="language-python">from xtools.ai import BotDetector
+
+detector = BotDetector()
+
+async with XTools() as x:
+    followers = await x.scrape.followers("me", limit=500)
+    
+    bots = []
+    for follower in followers:
+        score = await detector.analyze(follower)
+        
+        if score.bot_probability > 0.8:
+            bots.append({
+                "username": follower.username,
+                "probability": score.bot_probability,
+                "reasons": score.reasons
+            })
+    
+    print(f"Found {len(bots)} likely bots")
+    
+    # Reasons might include:
+    # - "Default profile picture"
+    # - "Account created recently"
+    # - "No original tweets"
+    # - "Follows/follower ratio > 10"</code></pre>
+
+                <h3>Content Categorization</h3>
+                <pre><code class="language-python">from xtools.ai import ContentAnalyzer
+
+analyzer = ContentAnalyzer()
+
+tweet_text = "Just deployed our new ML model to production! 🚀"
+categories = await analyzer.categorize(tweet_text)
+
+print(categories)
+# {
+#     "primary": "tech",
+#     "secondary": ["ai", "startup"],
+#     "sentiment": "positive",
+#     "engagement_prediction": "high"
+# }</code></pre>
+            </section>
+
+            <section id="ai-targeting" class="doc-section">
+                <h2>Smart Targeting</h2>
+                
+                <h3>Find Ideal Followers</h3>
+                <pre><code class="language-python">from xtools.ai import SmartTargeting
+
+targeting = SmartTargeting(
+    niche="SaaS founders",
+    ideal_profile={
+        "interests": ["startups", "SaaS", "entrepreneurship"],
+        "follower_range": (1000, 50000),
+        "engagement_rate_min": 2.0,
+        "tweets_per_week_min": 3,
+        "account_age_months_min": 6,
+        "must_have_bio": True,
+        "bio_keywords": ["founder", "CEO", "building"]
+    }
+)
+
+async with XTools() as x:
+    # Find targets from seed accounts
+    targets = await targeting.find_targets(
+        seed_accounts=["@paborenstein", "@levelsio", "@marc_louvion"],
+        strategy="engaged_followers",  # People who reply
+        limit=50
+    )
+    
+    for target in targets:
+        print(f"@{target.username}")
+        print(f"  Match score: {target.match_score}%")
+        print(f"  Engagement rate: {target.engagement_rate}%")
+        print(f"  Best time to engage: {target.optimal_engagement_time}")</code></pre>
+
+                <h3>Viral Potential Prediction</h3>
+                <pre><code class="language-python">from xtools.ai import ViralPredictor
+
+predictor = ViralPredictor()
+
+async with XTools() as x:
+    tweets = await x.scrape.search("AI breakthrough", sort="latest", limit=20)
+    
+    for tweet in tweets:
+        score = await predictor.predict(tweet)
+        
+        if score.viral_probability > 0.7:
+            print(f"🔥 High viral potential ({score.viral_probability:.0%})")
+            print(f"   @{tweet.author.username}: {tweet.text[:60]}...")
+            print(f"   Reasons: {', '.join(score.reasons)}")
+            
+            # Engage early with potential viral content
+            await x.engage.like(tweet.url)
+            await x.engage.reply(
+                tweet.url,
+                await ai.generate_reply(tweet.text, tone="thoughtful")
+            )</code></pre>
+            </section>
+
+            <!-- Templates -->
+            <section id="templates" class="doc-section">
+                <h1>Comment Templates</h1>
+                <p class="lead">200+ pre-made templates for every situation.</p>
+                
+                <h2>Template Categories</h2>
+                <div class="template-categories">
+                    <div class="template-category">
+                        <h4>💖 Appreciation</h4>
+                        <ul>
+                            <li>"Great insight! 🙌"</li>
+                            <li>"This is so true! Thanks for sharing."</li>
+                            <li>"Really valuable thread 📌"</li>
+                        </ul>
+                    </div>
+                    <div class="template-category">
+                        <h4>🚀 Tech</h4>
+                        <ul>
+                            <li>"Ship it! 🚀"</li>
+                            <li>"What stack are you using?"</li>
+                            <li>"Is this open source?"</li>
+                        </ul>
+                    </div>
+                    <div class="template-category">
+                        <h4>💰 Crypto</h4>
+                        <ul>
+                            <li>"WAGMI 🚀"</li>
+                            <li>"This is the alpha 👀"</li>
+                            <li>"Few understand 🧠"</li>
+                        </ul>
+                    </div>
+                    <div class="template-category">
+                        <h4>📈 Startup</h4>
+                        <ul>
+                            <li>"Love the product thinking here"</li>
+                            <li>"Strong value prop 💪"</li>
+                            <li>"What's your distribution strategy?"</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h2>Using Templates</h2>
+                <pre><code class="language-python">from xtools.actions.templates import CommentTemplates
+
+# Random from category
+comment = CommentTemplates.get_random("tech")
+
+# Contextual (auto-detects category from tweet)
+comment = CommentTemplates.get_contextual(
+    tweet_text="Just deployed my Python API!",
+    hashtags=["#buildinpublic"]
+)
+# Returns a "tech" category template
+
+# Format with variables
+template = "Great work on {topic}, @{author}!"
+comment = CommentTemplates.format_template(template, {
+    "topic": "the new feature",
+    "author": "johndoe"
+})
+
+# Add emoji (with probability)
+comment = CommentTemplates.add_emoji("Great post", emoji_probability=0.5)
+
+# Make text more natural/varied
+comment = CommentTemplates.make_natural("This is great!")
+# Might return "this is great." or "This is great"</code></pre>
+
+                <h2>Custom Templates</h2>
+                <pre><code class="language-python"># Add your own templates
+my_templates = [
+    "Amazing work on {product}!",
+    "This solves {problem} perfectly",
+    "Been looking for something like this",
+]
+
+# Use with auto-commenter
+config = AutoCommentConfig(
+    keywords=["product launch"],
+    templates=my_templates + CommentTemplates.STARTUP,
+    max_comments_per_hour=5
+)</code></pre>
+            </section>
+
+            <!-- CLI Reference -->
+            <section id="cli-overview" class="doc-section">
+                <h1>CLI Reference</h1>
+                <p class="lead">Command-line interface for all XTools features.</p>
+                
+                <h2>Global Options</h2>
+                <pre><code class="language-bash">xtools [OPTIONS] COMMAND [ARGS]
+
+Options:
+  --version          Show version
+  --help             Show help
+  --config FILE      Config file path
+  --verbose, -v      Verbose output
+  --quiet, -q        Minimal output
+  --dry-run, -n      Preview without executing</code></pre>
+
+                <h2>Authentication</h2>
+                <pre><code class="language-bash"># Interactive login
+xtools auth login
+
+# Import cookies
+xtools auth import cookies.json
+
+# Check status
+xtools auth status
+
+# Logout
+xtools auth logout</code></pre>
+            </section>
+
+            <section id="cli-like" class="doc-section">
+                <h2>Like Commands</h2>
+                <pre><code class="language-bash"># Like single tweet
+xtools like tweet https://x.com/user/status/123
+
+# Like by keyword
+xtools like keyword "Python tutorial" --max 20 --min-likes 10
+
+# Like user's tweets
+xtools like user @elonmusk --max 10 --skip-retweets
+
+# Like by hashtag
+xtools like hashtag Python --max 15
+
+# Start auto-liker
+xtools like auto \
+  --keyword Python \
+  --keyword AI \
+  --rate 30 \
+  --duration 120</code></pre>
+            </section>
+
+            <section id="cli-comment" class="doc-section">
+                <h2>Comment Commands</h2>
+                <pre><code class="language-bash"># Reply to tweet
+xtools comment tweet https://x.com/user/status/123 --text "Great post!"
+
+# Reply using template
+xtools comment tweet https://x.com/user/status/123 --template tech
+
+# List template categories
+xtools comment templates
+
+# Show templates in category
+xtools comment templates tech
+
+# AI-generated comment
+xtools comment ai https://x.com/user/status/123 --provider openai --tone witty
+
+# Start auto-commenter
+xtools comment auto \
+  --keyword "Python tips" \
+  --category tech \
+  --rate 5 \
+  --duration 60</code></pre>
+            </section>
+
+            <section id="cli-follow" class="doc-section">
+                <h2>Follow Commands</h2>
+                <pre><code class="language-bash"># Follow user
+xtools follow user @username
+
+# Follow by keyword
+xtools follow keyword "startup founder" --max 20
+
+# Follow by hashtag
+xtools follow hashtag buildinpublic --max 15
+
+# Unfollow non-followers (preview)
+xtools unfollow non-followers --dry-run
+
+# Unfollow non-followers (execute)
+xtools unfollow non-followers --max 50 --whitelist friends.txt
+
+# Smart unfollow
+xtools unfollow smart --inactive-days 90 --max 30</code></pre>
+            </section>
+
+            <!-- Rate Limiting -->
+            <section id="rate-limiting" class="doc-section">
+                <h1>Rate Limiting & Safety</h1>
+                <p class="lead">Built-in protections to keep your account safe.</p>
+                
+                <h2>Default Rate Limits</h2>
+                <table class="docs-table">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Default Limit</th>
+                            <th>Recommended</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Likes</td>
+                            <td>30/hour</td>
+                            <td>20-30/hour</td>
+                        </tr>
+                        <tr>
+                            <td>Comments</td>
+                            <td>5/hour</td>
+                            <td>3-5/hour</td>
+                        </tr>
+                        <tr>
+                            <td>Retweets</td>
+                            <td>20/hour</td>
+                            <td>15-20/hour</td>
+                        </tr>
+                        <tr>
+                            <td>Follows</td>
+                            <td>20/hour</td>
+                            <td>15-20/hour</td>
+                        </tr>
+                        <tr>
+                            <td>Unfollows</td>
+                            <td>50/hour</td>
+                            <td>30-50/hour</td>
+                        </tr>
+                        <tr>
+                            <td>DMs</td>
+                            <td>10/hour</td>
+                            <td>5-10/hour</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Custom Rate Limits</h2>
+                <pre><code class="language-python">from xtools import XTools
+from xtools.core.rate_limiter import RateLimiter, RateLimitConfig
+
+# Custom rate limiter
+config = RateLimitConfig(
+    likes_per_hour=25,
+    comments_per_hour=3,
+    follows_per_hour=15,
+    min_action_delay=30,  # seconds
+    max_action_delay=180,
+    cooldown_on_error=300,  # 5 min cooldown on errors
+)
+
+async with XTools(rate_limit_config=config) as x:
+    # Your automation here
+    pass</code></pre>
+
+                <h2>Dry Run Mode</h2>
+                <pre><code class="language-python"># Always test with dry_run first!
+async with XTools() as x:
+    result = await x.engage.like_by_keyword(
+        keyword="Python",
+        limit=50,
+        dry_run=True  # No actual actions
+    )
+    
+    print(f"Would have liked {len(result)} tweets")
+    for r in result[:5]:
+        print(f"  - @{r.author}: {r.text[:50]}...")</code></pre>
+            </section>
+
+            <!-- Best Practices -->
+            <section id="best-practices" class="doc-section">
+                <h1>Best Practices</h1>
+                
+                <h2>Account Safety</h2>
+                <div class="best-practice">
+                    <h4>✓ Do</h4>
+                    <ul>
+                        <li>Start slow - begin with conservative rate limits</li>
+                        <li>Use dry_run mode to test new automations</li>
+                        <li>Maintain a healthy following/follower ratio</li>
+                        <li>Engage with relevant content in your niche</li>
+                        <li>Use human-like delays (random, not fixed)</li>
+                        <li>Take breaks - don't run 24/7</li>
+                    </ul>
+                </div>
+                <div class="best-practice warning">
+                    <h4>✗ Don't</h4>
+                    <ul>
+                        <li>Run aggressive automation on new accounts</li>
+                        <li>Like/follow hundreds of accounts per day</li>
+                        <li>Use identical comments repeatedly</li>
+                        <li>Ignore rate limit warnings</li>
+                        <li>Automate controversial or spam content</li>
+                    </ul>
+                </div>
+
+                <h2>Engagement Quality</h2>
+                <ul>
+                    <li><strong>Be selective:</strong> Use filters to engage with quality content only</li>
+                    <li><strong>Be relevant:</strong> Comment templates should match the tweet's context</li>
+                    <li><strong>Be genuine:</strong> AI comments should add value, not just exist</li>
+                    <li><strong>Be patient:</strong> Organic growth takes time, even with automation</li>
+                </ul>
+            </section>
+
+            <!-- FAQ -->
+            <section id="faq" class="doc-section">
+                <h1>FAQ</h1>
+                
+                <div class="faq-item">
+                    <h3>Is XTools against Twitter's Terms of Service?</h3>
+                    <p>XTools is designed for educational purposes. Any automation tool carries risk. Use responsibly and at your own risk. We recommend staying within reasonable rate limits and engaging authentically.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Do I need Twitter API access?</h3>
+                    <p>No! XTools uses browser automation, so you don't need to pay for Twitter API access. Just login with your regular account.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Will my account get banned?</h3>
+                    <p>Risk depends on usage. XTools includes safety features like rate limiting and human-like delays. Following best practices significantly reduces risk. New accounts are more vulnerable than established ones.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Can I use multiple accounts?</h3>
+                    <p>Yes, XTools supports multi-account management. Each account can have its own session and configuration.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>Does it work with X Premium?</h3>
+                    <p>Yes, XTools works with both free and premium accounts. Premium accounts may have different rate limits from X's side.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>How do I report bugs or request features?</h3>
+                    <p>Open an issue on our <a href="https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy/issues">GitHub repository</a>.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/docs.js"></script>
+</body>
+</html>

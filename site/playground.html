@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playground - XTools</title>
+    <meta name="description" content="Interactive playground for XTools - Build and test X/Twitter automation in your browser">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/playground.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body class="playground-page">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">XTools</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html#features">Features</a>
+                <a href="docs.html">Docs</a>
+                <a href="examples.html">Examples</a>
+                <a href="playground.html" class="active">Playground</a>
+                <a href="https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy" target="_blank" class="nav-github">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="playground-layout">
+        <!-- Left Sidebar - Tools -->
+        <aside class="tools-sidebar">
+            <div class="sidebar-header">
+                <h3>🛠️ Tools</h3>
+            </div>
+            
+            <div class="tool-category">
+                <h4>Quick Builders</h4>
+                <button class="tool-btn" data-tool="like-keyword">
+                    <span class="tool-icon">❤️</span>
+                    <span class="tool-name">Like by Keyword</span>
+                </button>
+                <button class="tool-btn" data-tool="auto-comment">
+                    <span class="tool-icon">💬</span>
+                    <span class="tool-name">Auto Commenter</span>
+                </button>
+                <button class="tool-btn" data-tool="unfollow">
+                    <span class="tool-icon">👋</span>
+                    <span class="tool-name">Unfollow Manager</span>
+                </button>
+                <button class="tool-btn" data-tool="scrape-replies">
+                    <span class="tool-icon">🔍</span>
+                    <span class="tool-name">Scrape Replies</span>
+                </button>
+            </div>
+            
+            <div class="tool-category">
+                <h4>AI Generators</h4>
+                <button class="tool-btn" data-tool="ai-reply">
+                    <span class="tool-icon">🤖</span>
+                    <span class="tool-name">AI Reply Generator</span>
+                </button>
+                <button class="tool-btn" data-tool="viral-predictor">
+                    <span class="tool-icon">🔥</span>
+                    <span class="tool-name">Viral Predictor</span>
+                </button>
+                <button class="tool-btn" data-tool="bot-detector">
+                    <span class="tool-icon">🛡️</span>
+                    <span class="tool-name">Bot Detector</span>
+                </button>
+            </div>
+            
+            <div class="tool-category">
+                <h4>Analytics</h4>
+                <button class="tool-btn" data-tool="competitor">
+                    <span class="tool-icon">📊</span>
+                    <span class="tool-name">Competitor Analysis</span>
+                </button>
+                <button class="tool-btn" data-tool="growth">
+                    <span class="tool-icon">📈</span>
+                    <span class="tool-name">Growth Tracker</span>
+                </button>
+            </div>
+            
+            <div class="tool-category">
+                <h4>Templates</h4>
+                <button class="tool-btn" data-tool="template-basic">
+                    <span class="tool-icon">📄</span>
+                    <span class="tool-name">Basic Script</span>
+                </button>
+                <button class="tool-btn" data-tool="template-full">
+                    <span class="tool-icon">📦</span>
+                    <span class="tool-name">Full Project</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content - Editor -->
+        <main class="editor-area">
+            <!-- Toolbar -->
+            <div class="editor-toolbar">
+                <div class="file-tabs">
+                    <button class="file-tab active" data-file="main.py">
+                        <span class="file-icon">🐍</span>
+                        main.py
+                    </button>
+                    <button class="file-tab" data-file="config.json">
+                        <span class="file-icon">⚙️</span>
+                        config.json
+                    </button>
+                    <button class="add-file-btn" title="Add file">+</button>
+                </div>
+                <div class="toolbar-actions">
+                    <button class="toolbar-btn" id="formatBtn" title="Format code (Ctrl+Shift+F)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+                    </button>
+                    <button class="toolbar-btn" id="copyBtn" title="Copy code">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                    <button class="toolbar-btn" id="downloadBtn" title="Download">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    </button>
+                    <button class="toolbar-btn run-btn" id="runBtn" title="Run (Ctrl+Enter)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        Run
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Editor -->
+            <div class="code-editor">
+                <div class="line-numbers" id="lineNumbers"></div>
+                <textarea id="codeEditor" spellcheck="false">import asyncio
+from xtools import XTools
+
+async def main():
+    """
+    Welcome to XTools Playground! 🚀
+    
+    Edit this code or use the tools on the left
+    to generate automation scripts.
+    
+    Click Run to see the generated terminal commands.
+    """
+    async with XTools() as x:
+        # Example: Like tweets about Python
+        results = await x.engage.like_by_keyword(
+            keyword="Python tutorial",
+            limit=10,
+            min_delay=30.0,
+            max_delay=90.0
+        )
+        
+        print(f"✅ Liked {len(results)} tweets!")
+        
+        for result in results:
+            if result.success:
+                print(f"  ❤️ @{result.author_username}")
+
+if __name__ == "__main__":
+    asyncio.run(main())</textarea>
+            </div>
+        </main>
+
+        <!-- Right Sidebar - Configuration / Output -->
+        <aside class="config-sidebar">
+            <div class="sidebar-tabs">
+                <button class="sidebar-tab active" data-panel="config">⚙️ Config</button>
+                <button class="sidebar-tab" data-panel="output">📟 Output</button>
+                <button class="sidebar-tab" data-panel="help">❓ Help</button>
+            </div>
+            
+            <!-- Config Panel -->
+            <div class="sidebar-panel active" id="configPanel">
+                <div class="config-section">
+                    <h4>Script Settings</h4>
+                    <div class="config-group">
+                        <label>Target Keyword</label>
+                        <input type="text" id="cfgKeyword" value="Python programming" placeholder="Enter keyword...">
+                    </div>
+                    <div class="config-group">
+                        <label>Action Limit</label>
+                        <input type="number" id="cfgLimit" value="25" min="1" max="100">
+                    </div>
+                    <div class="config-group">
+                        <label>Min Delay (seconds)</label>
+                        <input type="number" id="cfgMinDelay" value="30" min="10" max="300">
+                    </div>
+                    <div class="config-group">
+                        <label>Max Delay (seconds)</label>
+                        <input type="number" id="cfgMaxDelay" value="90" min="30" max="600">
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <h4>Filters</h4>
+                    <div class="config-group">
+                        <label>Min Likes</label>
+                        <input type="number" id="cfgMinLikes" value="10" min="0">
+                    </div>
+                    <div class="config-group">
+                        <label>Min Followers</label>
+                        <input type="number" id="cfgMinFollowers" value="500" min="0">
+                    </div>
+                    <div class="config-group checkbox">
+                        <input type="checkbox" id="cfgSkipRetweets" checked>
+                        <label for="cfgSkipRetweets">Skip Retweets</label>
+                    </div>
+                    <div class="config-group checkbox">
+                        <input type="checkbox" id="cfgDryRun">
+                        <label for="cfgDryRun">Dry Run (Preview Only)</label>
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <h4>AI Settings</h4>
+                    <div class="config-group">
+                        <label>AI Provider</label>
+                        <select id="cfgAIProvider">
+                            <option value="openai">OpenAI (GPT-4)</option>
+                            <option value="anthropic">Anthropic (Claude)</option>
+                            <option value="ollama">Ollama (Local)</option>
+                            <option value="none">None</option>
+                        </select>
+                    </div>
+                    <div class="config-group">
+                        <label>Comment Tone</label>
+                        <select id="cfgTone">
+                            <option value="professional">Professional</option>
+                            <option value="casual">Casual</option>
+                            <option value="witty">Witty</option>
+                            <option value="supportive">Supportive</option>
+                            <option value="curious">Curious</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="apply-config-btn" id="applyConfig">
+                    Apply to Code
+                </button>
+            </div>
+            
+            <!-- Output Panel -->
+            <div class="sidebar-panel" id="outputPanel">
+                <div class="output-header">
+                    <span>Terminal Output</span>
+                    <button class="clear-output-btn" id="clearOutput">Clear</button>
+                </div>
+                <div class="output-content" id="outputContent">
+                    <div class="output-placeholder">
+                        <span>🖥️</span>
+                        <p>Click "Run" to see terminal commands</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Help Panel -->
+            <div class="sidebar-panel" id="helpPanel">
+                <div class="help-content">
+                    <h4>⌨️ Keyboard Shortcuts</h4>
+                    <ul class="shortcuts-list">
+                        <li><kbd>Ctrl</kbd> + <kbd>Enter</kbd> - Run script</li>
+                        <li><kbd>Ctrl</kbd> + <kbd>S</kbd> - Save / Download</li>
+                        <li><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd> - Format code</li>
+                        <li><kbd>Tab</kbd> - Indent</li>
+                        <li><kbd>Shift</kbd> + <kbd>Tab</kbd> - Outdent</li>
+                    </ul>
+                    
+                    <h4>📚 Quick Reference</h4>
+                    <div class="reference-items">
+                        <div class="ref-item">
+                            <code>x.engage.like(url)</code>
+                            <span>Like a tweet</span>
+                        </div>
+                        <div class="ref-item">
+                            <code>x.engage.reply(url, text)</code>
+                            <span>Reply to tweet</span>
+                        </div>
+                        <div class="ref-item">
+                            <code>x.scrape.replies(url)</code>
+                            <span>Get tweet replies</span>
+                        </div>
+                        <div class="ref-item">
+                            <code>x.scrape.followers(user)</code>
+                            <span>Get followers list</span>
+                        </div>
+                        <div class="ref-item">
+                            <code>x.follow.user(username)</code>
+                            <span>Follow a user</span>
+                        </div>
+                        <div class="ref-item">
+                            <code>x.unfollow.non_followers()</code>
+                            <span>Unfollow non-followers</span>
+                        </div>
+                    </div>
+                    
+                    <h4>🔗 Resources</h4>
+                    <ul class="resource-links">
+                        <li><a href="docs.html">Full Documentation</a></li>
+                        <li><a href="examples.html">Code Examples</a></li>
+                        <li><a href="docs.html#api-xtools">API Reference</a></li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Script Templates (hidden) -->
+    <script type="text/template" id="template-like-keyword">
+import asyncio
+from xtools import XTools
+from xtools.actions.types import LikeFilters
+
+async def main():
+    # Quality filters
+    filters = LikeFilters(
+        min_likes={{MIN_LIKES}},
+        min_followers={{MIN_FOLLOWERS}},
+        exclude_retweets={{SKIP_RETWEETS}},
+        language="en"
+    )
+    
+    async with XTools() as x:
+        results = await x.engage.like_by_keyword(
+            keyword="{{KEYWORD}}",
+            limit={{LIMIT}},
+            filters=filters,
+            min_delay={{MIN_DELAY}},
+            max_delay={{MAX_DELAY}},
+            dry_run={{DRY_RUN}}
+        )
+        
+        successful = [r for r in results if r.success]
+        print(f"✅ Liked {len(successful)}/{len(results)} tweets")
+        
+        for result in successful:
+            print(f"  ❤️ @{result.author_username}: {result.tweet_text[:50]}...")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+</script>
+
+    <script type="text/template" id="template-auto-comment">
+import asyncio
+from xtools import XTools
+from xtools.ai import ContentGenerator
+
+async def main():
+    ai = ContentGenerator(
+        provider="{{AI_PROVIDER}}",
+        model="gpt-4"
+    )
+    
+    async with XTools() as x:
+        # Find tweets to engage with
+        tweets = await x.scrape.search(
+            query="{{KEYWORD}} -filter:replies",
+            limit={{LIMIT}}
+        )
+        
+        for tweet in tweets:
+            # Generate AI reply
+            reply = await ai.generate_reply(
+                tweet_text=tweet.text,
+                tone="{{TONE}}"
+            )
+            
+            print(f"📝 @{tweet.author.username}: {tweet.text[:60]}...")
+            print(f"💬 Reply: {reply}")
+            
+            {{#DRY_RUN}}
+            print("(Dry run - not posting)")
+            {{/DRY_RUN}}
+            {{^DRY_RUN}}
+            await x.engage.reply(tweet.url, reply)
+            print("✅ Posted!")
+            {{/DRY_RUN}}
+            
+            await asyncio.sleep({{MIN_DELAY}})
+
+if __name__ == "__main__":
+    asyncio.run(main())
+</script>
+
+    <script type="text/template" id="template-unfollow">
+import asyncio
+from xtools import XTools
+
+async def main():
+    whitelist = [
+        # Add usernames to never unfollow
+    ]
+    
+    async with XTools() as x:
+        result = await x.unfollow.non_followers(
+            dry_run={{DRY_RUN}},
+            max_unfollows={{LIMIT}},
+            whitelist=whitelist,
+            min_days_following=7
+        )
+        
+        if {{DRY_RUN}}:
+            print(f"Would unfollow {len(result.would_unfollow)} users")
+            for user in result.would_unfollow[:10]:
+                print(f"  @{user.username}")
+        else:
+            print(f"✅ Unfollowed {len(result.unfollowed)} users")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+</script>
+
+    <script type="text/template" id="template-scrape-replies">
+import asyncio
+from xtools import XTools
+
+async def main():
+    tweet_url = "https://x.com/user/status/123456789"  # Replace with actual URL
+    
+    async with XTools() as x:
+        replies = await x.scrape.replies(
+            tweet_url,
+            limit={{LIMIT}},
+            sort="recent"
+        )
+        
+        print(f"Found {len(replies)} replies!")
+        
+        for reply in replies[:10]:
+            print(f"@{reply.author.username}: {reply.text[:80]}...")
+            print(f"  ❤️ {reply.like_count} | 💬 {reply.reply_count}")
+        
+        # Export
+        x.export.to_csv(replies, "replies.csv")
+        print("\\n✅ Exported to replies.csv")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+</script>
+
+    <script type="text/template" id="template-ai-reply">
+import asyncio
+from xtools import XTools
+from xtools.ai import ContentGenerator
+
+async def main():
+    ai = ContentGenerator(
+        provider="{{AI_PROVIDER}}",
+        model="gpt-4",
+        temperature=0.7
+    )
+    
+    # Sample tweets to generate replies for
+    sample_tweets = [
+        "Just launched my new SaaS product!",
+        "Python is the best programming language",
+        "AI will change everything in the next 5 years"
+    ]
+    
+    for tweet in sample_tweets:
+        reply = await ai.generate_reply(
+            tweet_text=tweet,
+            tone="{{TONE}}",
+            include_question=True,
+            max_length=200
+        )
+        
+        print(f"📝 Tweet: {tweet}")
+        print(f"💬 AI Reply: {reply}")
+        print("-" * 50)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+</script>
+
+    <script type="text/template" id="template-viral-predictor">
+import asyncio
+from xtools import XTools
+from xtools.ai import ViralPredictor
+
+async def main():
+    predictor = ViralPredictor()
+    
+    async with XTools() as x:
+        # Search for recent tweets
+        tweets = await x.scrape.search(
+            query="{{KEYWORD}}",
+            sort="latest",
+            limit={{LIMIT}}
+        )
+        
+        print("🔥 Viral Potential Analysis\\n")
+        
+        for tweet in tweets:
+            score = await predictor.predict(tweet)
+            
+            if score.viral_probability > 0.5:
+                emoji = "🔥" if score.viral_probability > 0.7 else "✨"
+                print(f"{emoji} {score.viral_probability:.0%} viral potential")
+                print(f"   @{tweet.author.username}: {tweet.text[:60]}...")
+                print(f"   Reasons: {', '.join(score.reasons[:3])}")
+                print()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+</script>
+
+    <script type="text/template" id="template-bot-detector">
+import asyncio
+from xtools import XTools
+from xtools.ai import BotDetector
+
+async def main():
+    detector = BotDetector()
+    
+    async with XTools() as x:
+        followers = await x.scrape.followers("me", limit={{LIMIT}})
+        
+        bots = []
+        for follower in followers:
+            score = await detector.analyze(follower)
+            
+            if score.bot_probability > 0.7:
+                bots.append({
+                    "user": follower,
+                    "score": score
+                })
+        
+        print(f"🤖 Found {len(bots)} likely bots out of {len(followers)} followers")
+        
+        for item in bots[:10]:
+            print(f"  @{item['user'].username} ({item['score'].bot_probability:.0%})")
+            print(f"    Reasons: {', '.join(item['score'].reasons[:2])}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+</script>
+
+    <script type="text/template" id="template-competitor">
+import asyncio
+from xtools import XTools
+from datetime import datetime, timedelta
+
+async def main():
+    competitors = ["competitor1", "competitor2"]  # Replace with actual usernames
+    
+    async with XTools() as x:
+        for competitor in competitors:
+            profile = await x.scrape.profile(competitor)
+            tweets = await x.scrape.tweets(
+                competitor,
+                limit=50,
+                since=datetime.now() - timedelta(days=30)
+            )
+            
+            total_engagement = sum(
+                t.like_count + t.retweet_count + t.reply_count 
+                for t in tweets
+            )
+            avg_engagement = total_engagement / len(tweets) if tweets else 0
+            
+            print(f"📊 @{competitor}")
+            print(f"   Followers: {profile.followers_count:,}")
+            print(f"   Tweets (30d): {len(tweets)}")
+            print(f"   Avg engagement: {avg_engagement:.0f}")
+            print()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+</script>
+
+    <script type="text/template" id="template-growth">
+import asyncio
+from xtools import XTools
+
+async def main():
+    async with XTools() as x:
+        # Get current stats
+        profile = await x.scrape.profile("me")
+        
+        print("📈 Account Growth Report\\n")
+        print(f"Followers: {profile.followers_count:,}")
+        print(f"Following: {profile.following_count:,}")
+        print(f"Ratio: {profile.followers_count / profile.following_count:.2f}")
+        
+        # Check for unfollowers
+        report = await x.monitor.unfollowers()
+        
+        print(f"\\nChanges since last check:")
+        print(f"  New followers: +{len(report.new_followers)}")
+        print(f"  Unfollowers: -{len(report.unfollowers)}")
+        print(f"  Net change: {report.change:+d}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+</script>
+
+    <script type="text/template" id="template-basic">
+import asyncio
+from xtools import XTools
+
+async def main():
+    """
+    XTools Basic Script Template
+    
+    Replace this with your automation logic.
+    """
+    async with XTools() as x:
+        # Your code here
+        pass
+
+if __name__ == "__main__":
+    asyncio.run(main())
+</script>
+
+    <script type="text/template" id="template-full">
+"""
+XTools Full Project Template
+
+This template includes:
+- Configuration management
+- Error handling
+- Logging
+- Rate limiting
+- Multiple automation tasks
+"""
+import asyncio
+import logging
+from datetime import datetime
+from xtools import XTools
+from xtools.core.config import Config
+from xtools.core.rate_limiter import RateLimiter
+
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Configuration
+config = Config({
+    "keywords": ["{{KEYWORD}}"],
+    "limits": {
+        "likes_per_hour": {{LIMIT}},
+        "comments_per_hour": 5,
+        "follows_per_hour": 15
+    },
+    "delays": {
+        "min": {{MIN_DELAY}},
+        "max": {{MAX_DELAY}}
+    },
+    "filters": {
+        "min_likes": {{MIN_LIKES}},
+        "min_followers": {{MIN_FOLLOWERS}},
+        "skip_retweets": {{SKIP_RETWEETS}}
+    }
+})
+
+async def run_engagement_automation(x: XTools):
+    """Run engagement automation tasks."""
+    logger.info("Starting engagement automation...")
+    
+    for keyword in config.keywords:
+        try:
+            results = await x.engage.like_by_keyword(
+                keyword=keyword,
+                limit=config.limits["likes_per_hour"],
+                min_delay=config.delays["min"],
+                max_delay=config.delays["max"]
+            )
+            
+            successful = len([r for r in results if r.success])
+            logger.info(f"Liked {successful} tweets for '{keyword}'")
+            
+        except Exception as e:
+            logger.error(f"Error with keyword '{keyword}': {e}")
+
+async def run_growth_tasks(x: XTools):
+    """Run growth-related tasks."""
+    logger.info("Running growth tasks...")
+    
+    # Check unfollowers
+    report = await x.monitor.unfollowers()
+    logger.info(f"Follower change: {report.change:+d}")
+    
+    # Clean up non-followers (optional)
+    if False:  # Set to True to enable
+        await x.unfollow.non_followers(
+            max_unfollows=10,
+            dry_run={{DRY_RUN}}
+        )
+
+async def main():
+    """Main entry point."""
+    logger.info(f"Starting XTools at {datetime.now()}")
+    
+    try:
+        async with XTools() as x:
+            await run_engagement_automation(x)
+            await run_growth_tasks(x)
+            
+    except Exception as e:
+        logger.error(f"Fatal error: {e}")
+        raise
+    
+    logger.info("Automation complete!")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+</script>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/playground.js"></script>
+</body>
+</html>
