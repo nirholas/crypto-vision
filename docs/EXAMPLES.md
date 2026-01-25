@@ -1,6 +1,6 @@
 # 📚 Code Examples
 
-Complete, copy-paste-ready examples for every XTools feature.
+Complete, copy-paste-ready examples for every Xeepy feature.
 
 ---
 
@@ -26,10 +26,10 @@ Get all replies to a specific tweet.
 This is what the original repo was meant to do!
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def get_replies():
-    async with XTools() as x:
+    async with Xeepy() as x:
         replies = await x.scrape.replies(
             tweet_url="https://x.com/elonmusk/status/1234567890",
             limit=200
@@ -56,10 +56,10 @@ asyncio.run(get_replies())
 Get detailed profile information for any user.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def get_profile():
-    async with XTools() as x:
+    async with Xeepy() as x:
         profile = await x.scrape.profile("elonmusk")
         
         print(f"Name: {profile.display_name}")
@@ -85,10 +85,10 @@ asyncio.run(get_profile())
 Get a user's complete followers list.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def get_followers():
-    async with XTools() as x:
+    async with Xeepy() as x:
         followers = await x.scrape.followers(
             username="python",
             limit=500,
@@ -118,10 +118,10 @@ asyncio.run(get_followers())
 Get tweets from a user's timeline.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def get_tweets():
-    async with XTools() as x:
+    async with Xeepy() as x:
         tweets = await x.scrape.tweets(
             username="python",
             limit=100,
@@ -149,10 +149,10 @@ asyncio.run(get_tweets())
 Search for tweets matching a query.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def search_tweets():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Basic search
         results = await x.scrape.search(
             query="Python tutorial",
@@ -181,10 +181,10 @@ asyncio.run(search_tweets())
 Get tweets containing a specific hashtag.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def scrape_hashtag():
-    async with XTools() as x:
+    async with Xeepy() as x:
         tweets = await x.scrape.hashtag(
             hashtag="Python",
             limit=100,
@@ -210,10 +210,10 @@ asyncio.run(scrape_hashtag())
 Unroll and extract a complete thread.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def scrape_thread():
-    async with XTools() as x:
+    async with Xeepy() as x:
         thread = await x.scrape.thread(
             "https://x.com/user/status/1234567890"
         )
@@ -240,10 +240,10 @@ Unfollow everyone who doesn't follow you back.
 The most requested feature!
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def unfollow_non_followers():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Step 1: Preview (dry run)
         preview = await x.unfollow.non_followers(
             max_unfollows=100,
@@ -287,10 +287,10 @@ asyncio.run(unfollow_non_followers())
 Use with extreme caution.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def unfollow_everyone():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # ALWAYS do dry run first
         preview = await x.unfollow.everyone(
             max_unfollows=500,
@@ -316,10 +316,10 @@ asyncio.run(unfollow_everyone())
 Unfollow users who didn't follow back within X days.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def smart_unfollow():
-    async with XTools() as x:
+    async with Xeepy() as x:
         result = await x.unfollow.smart(
             days_threshold=3,  # Unfollow if no follow-back in 3 days
             max_unfollows=25,
@@ -347,11 +347,11 @@ asyncio.run(smart_unfollow())
 Follow users who tweet about specific topics.
 """
 import asyncio
-from xtools import XTools
-from xtools.actions.follow import FollowFilters
+from xeepy import Xeepy
+from xeepy.actions.follow import FollowFilters
 
 async def follow_by_keyword():
-    async with XTools() as x:
+    async with Xeepy() as x:
         result = await x.follow.by_keyword(
             keywords=["Python", "machine learning", "data science"],
             max_follows=25,
@@ -380,10 +380,10 @@ asyncio.run(follow_by_keyword())
 Follow the followers of a competitor/influencer.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def follow_competitors_followers():
-    async with XTools() as x:
+    async with Xeepy() as x:
         result = await x.follow.followers_of(
             target_username="python",  # Follow @python's followers
             max_follows=30,
@@ -408,10 +408,10 @@ Follow users who engaged with specific tweets.
 These are highly relevant users!
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def follow_engagers():
-    async with XTools() as x:
+    async with Xeepy() as x:
         result = await x.follow.engagers(
             tweet_urls=[
                 "https://x.com/user/status/123",
@@ -437,11 +437,11 @@ asyncio.run(follow_engagers())
 Automatically like tweets containing specific keywords.
 """
 import asyncio
-from xtools import XTools
-from xtools.actions.engagement import AutoLikeConfig
+from xeepy import Xeepy
+from xeepy.actions.engagement import AutoLikeConfig
 
 async def auto_like():
-    async with XTools() as x:
+    async with Xeepy() as x:
         result = await x.engage.auto_like(
             config=AutoLikeConfig(
                 keywords=["Python", "coding", "developer"],
@@ -466,10 +466,10 @@ asyncio.run(auto_like())
 Like all recent tweets from specific users.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def like_user_tweets():
-    async with XTools() as x:
+    async with Xeepy() as x:
         for username in ["friend1", "mentor", "favorite_account"]:
             result = await x.engage.like_user(
                 username=username,
@@ -487,12 +487,12 @@ asyncio.run(like_user_tweets())
 Automatically comment using templates.
 """
 import asyncio
-from xtools import XTools
-from xtools.actions.engagement import AutoCommentConfig
-from xtools.templates import CommentTemplates
+from xeepy import Xeepy
+from xeepy.actions.engagement import AutoCommentConfig
+from xeepy.templates import CommentTemplates
 
 async def auto_comment():
-    async with XTools() as x:
+    async with Xeepy() as x:
         result = await x.engage.auto_comment(
             config=AutoCommentConfig(
                 keywords=["shipped", "launched", "released"],
@@ -513,10 +513,10 @@ asyncio.run(auto_comment())
 Manage your bookmarks - add, remove, export.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def manage_bookmarks():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Add bookmark
         await x.engage.bookmark("https://x.com/user/status/123")
         
@@ -544,10 +544,10 @@ asyncio.run(manage_bookmarks())
 Find out who unfollowed you.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def detect_unfollowers():
-    async with XTools() as x:
+    async with Xeepy() as x:
         report = await x.monitor.unfollowers()
         
         print(f"📊 Follower Report")
@@ -575,10 +575,10 @@ asyncio.run(detect_unfollowers())
 Monitor any account for changes.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def monitor_account():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # One-time check
         changes = await x.monitor.account_changes(
             username="competitor",
@@ -605,14 +605,14 @@ asyncio.run(monitor_account())
 Monitor X for specific keywords in real-time.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def on_match(tweet):
     print(f"🔔 Match found!")
     print(f"   @{tweet.author.username}: {tweet.text[:80]}...")
 
 async def monitor_keywords():
-    async with XTools() as x:
+    async with Xeepy() as x:
         await x.monitor.keywords(
             keywords=["your_brand", "your_product"],
             hashtags=["YourHashtag"],
@@ -630,10 +630,10 @@ asyncio.run(monitor_keywords())
 Track your follower growth over time.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def track_growth():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Record today's snapshot
         await x.analytics.record_snapshot()
         
@@ -662,11 +662,11 @@ asyncio.run(track_growth())
 Generate contextual replies using AI.
 """
 import asyncio
-from xtools import XTools
-from xtools.ai import ContentGenerator
+from xeepy import Xeepy
+from xeepy.ai import ContentGenerator
 
 async def ai_replies():
-    async with XTools() as x:
+    async with Xeepy() as x:
         ai = ContentGenerator(provider="openai", api_key="sk-...")
         
         # Get recent tweets to reply to
@@ -692,11 +692,11 @@ asyncio.run(ai_replies())
 Analyze sentiment of your mentions.
 """
 import asyncio
-from xtools import XTools
-from xtools.ai import SentimentAnalyzer
+from xeepy import Xeepy
+from xeepy.ai import SentimentAnalyzer
 
 async def sentiment_dashboard():
-    async with XTools() as x:
+    async with Xeepy() as x:
         analyzer = SentimentAnalyzer()
         
         # Get your mentions
@@ -735,11 +735,11 @@ asyncio.run(sentiment_dashboard())
 All-in-one growth automation.
 """
 import asyncio
-from xtools import XTools
-from xtools.ai import SmartTargeting
+from xeepy import Xeepy
+from xeepy.ai import SmartTargeting
 
 async def growth_suite():
-    async with XTools() as x:
+    async with Xeepy() as x:
         targeting = SmartTargeting(provider="openai", api_key="sk-...")
         
         print("🚀 Starting Growth Suite")
@@ -792,10 +792,10 @@ Run automations on a schedule.
 """
 import asyncio
 from datetime import datetime
-from xtools import XTools
+from xeepy import Xeepy
 
 async def daily_routine():
-    async with XTools() as x:
+    async with Xeepy() as x:
         now = datetime.now()
         
         # Morning: Check unfollowers
@@ -828,10 +828,10 @@ asyncio.run(daily_routine())
 Full data export for backup/analysis.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def full_export():
-    async with XTools() as x:
+    async with Xeepy() as x:
         username = "your_username"
         
         print("📦 Exporting all data...")
@@ -869,8 +869,8 @@ asyncio.run(full_export())
 Proper error handling pattern.
 """
 import asyncio
-from xtools import XTools
-from xtools.core.exceptions import (
+from xeepy import Xeepy
+from xeepy.core.exceptions import (
     AuthenticationError,
     RateLimitError,
     ElementNotFoundError
@@ -878,7 +878,7 @@ from xtools.core.exceptions import (
 
 async def safe_automation():
     try:
-        async with XTools() as x:
+        async with Xeepy() as x:
             result = await x.unfollow.non_followers()
             
     except AuthenticationError:

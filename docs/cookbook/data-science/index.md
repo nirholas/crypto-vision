@@ -6,7 +6,7 @@ Advanced data science recipes for X/Twitter analytics. Transform raw social data
 
 ```python
 # Install data science dependencies
-pip install "xtools[data]"  # Includes pandas, numpy, matplotlib, seaborn, scikit-learn
+pip install "xeepy[data]"  # Includes pandas, numpy, matplotlib, seaborn, scikit-learn
 ```
 
 ## Comprehensive Twitter Dataset Builder
@@ -22,7 +22,7 @@ Create comprehensive datasets for data science analysis.
 import asyncio
 import pandas as pd
 from datetime import datetime
-from xtools import XTools
+from xeepy import Xeepy
 
 
 class TwitterDatasetBuilder:
@@ -34,7 +34,7 @@ class TwitterDatasetBuilder:
     
     async def build(self, include_network: bool = True) -> dict:
         """Build complete dataset"""
-        async with XTools() as x:
+        async with Xeepy() as x:
             print(f"📊 Building dataset for @{self.username}...")
             
             # 1. Profile data
@@ -331,9 +331,9 @@ class EngagementPredictor:
 
 # Usage
 async def main():
-    from xtools import XTools
+    from xeepy import Xeepy
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get training data
         tweets = await x.scrape.tweets("your_username", limit=500)
         df = pd.DataFrame([tweet_to_dict(t) for t in tweets])
@@ -544,9 +544,9 @@ class AudienceSegmenter:
 
 # Usage
 async def main():
-    from xtools import XTools
+    from xeepy import Xeepy
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get followers
         followers = await x.scrape.followers("your_username", limit=1000)
         df = pd.DataFrame([user_to_dict(u) for u in followers])
@@ -735,9 +735,9 @@ class GrowthForecaster:
 
 # Usage
 async def main():
-    from xtools import XTools
+    from xeepy import Xeepy
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get historical data
         growth_data = await x.analytics.growth_history(period="90d")
         
@@ -777,8 +777,8 @@ Track sentiment trends over time.
 import pandas as pd
 import asyncio
 from datetime import datetime, timedelta
-from xtools import XTools
-from xtools.ai import SentimentAnalyzer
+from xeepy import Xeepy
+from xeepy.ai import SentimentAnalyzer
 
 
 class SentimentDashboard:
@@ -790,7 +790,7 @@ class SentimentDashboard:
     
     async def analyze_mentions(self, username: str, period: str = "24h"):
         """Analyze sentiment of mentions"""
-        async with XTools() as x:
+        async with Xeepy() as x:
             mentions = await x.scrape.mentions(username, limit=200)
             
             for mention in mentions:

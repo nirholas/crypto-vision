@@ -51,8 +51,8 @@ class DataCollectionLog:
 class AcademicResearcher:
     """Framework for ethical Twitter research."""
     
-    def __init__(self, xtools, metadata: ResearchMetadata):
-        self.x = xtools
+    def __init__(self, xeepy, metadata: ResearchMetadata):
+        self.x = xeepy
         self.metadata = metadata
         self.collection_logs: list[DataCollectionLog] = []
         
@@ -293,7 +293,7 @@ class AcademicResearcher:
 
 # Usage
 async def run_research():
-    from xtools import XTools
+    from xeepy import Xeepy
     
     metadata = ResearchMetadata(
         study_id="twitter_discourse_2024",
@@ -312,7 +312,7 @@ async def run_research():
         data_processing_notes=[]
     )
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         researcher = AcademicResearcher(x, metadata)
         
         # Collect data
@@ -348,8 +348,8 @@ import re
 class DiscourseAnalyzer:
     """Analyze Twitter discourse patterns."""
     
-    def __init__(self, xtools):
-        self.x = xtools
+    def __init__(self, xeepy):
+        self.x = xeepy
     
     async def analyze_framing(
         self,
@@ -515,9 +515,9 @@ class DiscourseAnalyzer:
 
 # Usage
 async def analyze_discourse():
-    from xtools import XTools
+    from xeepy import Xeepy
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         analyzer = DiscourseAnalyzer(x)
         
         # Analyze framing
@@ -577,8 +577,8 @@ class NetworkNode:
 class NetworkAnalyzer:
     """Analyze Twitter social networks."""
     
-    def __init__(self, xtools):
-        self.x = xtools
+    def __init__(self, xeepy):
+        self.x = xeepy
         self.nodes: dict[str, NetworkNode] = {}
         self.edges: list[tuple] = []
     
@@ -738,9 +738,9 @@ class NetworkAnalyzer:
 
 # Usage
 async def analyze_network():
-    from xtools import XTools
+    from xeepy import Xeepy
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         analyzer = NetworkAnalyzer(x)
         
         # Build network
@@ -787,8 +787,8 @@ import re
 class TrendDetector:
     """Detect emerging trends on Twitter."""
     
-    def __init__(self, xtools):
-        self.x = xtools
+    def __init__(self, xeepy):
+        self.x = xeepy
         self.baseline_terms = Counter()
         self.current_terms = Counter()
         self.trend_history = []
@@ -949,9 +949,9 @@ class TrendDetector:
 
 # Usage
 async def detect_trends():
-    from xtools import XTools
+    from xeepy import Xeepy
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         detector = TrendDetector(x)
         
         # Capture baseline

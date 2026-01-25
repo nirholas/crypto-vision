@@ -1,12 +1,12 @@
-# XTools API Reference
+# Xeepy API Reference
 
-> Complete API documentation for all XTools classes and methods.
+> Complete API documentation for all Xeepy classes and methods.
 
 ---
 
 ## Table of Contents
 
-- [XTools (Main Class)](#xtools-main-class)
+- [Xeepy (Main Class)](#xeepy-main-class)
 - [Scrapers](#scrapers)
 - [Follow/Unfollow Actions](#followunfollow-actions)
 - [Engagement Actions](#engagement-actions)
@@ -17,17 +17,17 @@
 
 ---
 
-## XTools (Main Class)
+## Xeepy (Main Class)
 
-The main entry point for all XTools functionality.
+The main entry point for all Xeepy functionality.
 
 ### Constructor
 
 ```python
-XTools(
+Xeepy(
     headless: bool = True,
     session_path: str | None = None,
-    config: XToolsConfig | None = None,
+    config: XeepyConfig | None = None,
     rate_limit: bool = True
 )
 ```
@@ -38,21 +38,21 @@ XTools(
 |-----------|------|---------|-------------|
 | `headless` | `bool` | `True` | Run browser in headless mode |
 | `session_path` | `str` | `None` | Path to saved session file |
-| `config` | `XToolsConfig` | `None` | Configuration object |
+| `config` | `XeepyConfig` | `None` | Configuration object |
 | `rate_limit` | `bool` | `True` | Enable rate limiting |
 
 ### Usage
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
 # Basic usage
-async with XTools() as x:
+async with Xeepy() as x:
     # Access all features via x.scrape, x.follow, etc.
     pass
 
 # With options
-async with XTools(headless=False, session_path="session.json") as x:
+async with Xeepy(headless=False, session_path="session.json") as x:
     pass
 ```
 
@@ -483,7 +483,7 @@ async def keywords(
 AI-powered content generation.
 
 ```python
-from xtools.ai import ContentGenerator
+from xeepy.ai import ContentGenerator
 
 ai = ContentGenerator(
     provider: str = "openai",  # "openai", "anthropic", "ollama"
@@ -654,11 +654,11 @@ class EngagementResult:
 
 ## Configuration
 
-### `XToolsConfig`
+### `XeepyConfig`
 
 ```python
 @dataclass
-class XToolsConfig:
+class XeepyConfig:
     # Browser settings
     headless: bool = True
     slow_mo: int = 0
@@ -677,8 +677,8 @@ class XToolsConfig:
     max_comments_per_day: int = 50
     
     # Storage
-    database_path: str = "~/.xtools/data.db"
-    session_path: str = "~/.xtools/session.json"
+    database_path: str = "~/.xeepy/data.db"
+    session_path: str = "~/.xeepy/session.json"
 ```
 
 ---
@@ -688,8 +688,8 @@ class XToolsConfig:
 ### Exceptions
 
 ```python
-from xtools.exceptions import (
-    XToolsError,           # Base exception
+from xeepy.exceptions import (
+    XeepyError,           # Base exception
     AuthenticationError,   # Login/session issues
     RateLimitError,        # Rate limit exceeded
     ScraperError,          # Scraping failed
@@ -701,10 +701,10 @@ from xtools.exceptions import (
 ### Example
 
 ```python
-from xtools import XTools
-from xtools.exceptions import AuthenticationError, RateLimitError
+from xeepy import Xeepy
+from xeepy.exceptions import AuthenticationError, RateLimitError
 
-async with XTools() as x:
+async with Xeepy() as x:
     try:
         await x.follow.user("username")
     except AuthenticationError:

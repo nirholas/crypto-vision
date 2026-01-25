@@ -6,7 +6,7 @@ Map influence networks, find key connectors, and understand community structure.
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 from dataclasses import dataclass
 from collections import defaultdict
 import json
@@ -40,7 +40,7 @@ class InfluenceNetwork:
         depth=2: Friends of friends
         """
         
-        async with XTools() as x:
+        async with Xeepy() as x:
             to_process = [(u, 0) for u in seed_users]
             processed = set()
             
@@ -298,7 +298,7 @@ async def find_ideal_audience_network(
     4. Discover similar users
     """
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Step 1: Map ideal profiles
         common_follows = defaultdict(list)  # Who do ideal customers follow?
         
@@ -363,7 +363,7 @@ async def competitive_network_analysis(your_username: str, competitor: str):
     Analyze network overlap and unique advantages vs competitor.
     """
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         print(f"Comparing @{your_username} vs @{competitor}")
         
         # Get followers
@@ -413,7 +413,7 @@ async def engagement_network(tweet_url: str):
     Useful for understanding viral spread patterns.
     """
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         print(f"Analyzing engagement network for:\n{tweet_url}\n")
         
         # Get engagers

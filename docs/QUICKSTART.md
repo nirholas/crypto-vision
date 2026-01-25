@@ -1,6 +1,6 @@
 # ⚡ Quick Start Guide
 
-Get up and running with XTools in under 5 minutes.
+Get up and running with Xeepy in under 5 minutes.
 
 ---
 
@@ -9,7 +9,7 @@ Get up and running with XTools in under 5 minutes.
 ### Option 1: pip (Recommended)
 
 ```bash
-pip install xtools
+pip install xeepy
 ```
 
 ### Option 2: From Source
@@ -23,14 +23,14 @@ pip install -e .
 ### Option 3: With AI Features
 
 ```bash
-pip install xtools[ai]  # Includes OpenAI, Anthropic clients
+pip install xeepy[ai]  # Includes OpenAI, Anthropic clients
 ```
 
 ---
 
 ## 🔐 Authentication
 
-XTools uses cookie-based authentication (no API keys needed!).
+Xeepy uses cookie-based authentication (no API keys needed!).
 
 ### Step 1: Get Your Session Cookie
 
@@ -39,25 +39,25 @@ XTools uses cookie-based authentication (no API keys needed!).
 3. Go to **Application** → **Cookies** → **x.com**
 4. Find the `auth_token` cookie and copy its value
 
-### Step 2: Configure XTools
+### Step 2: Configure Xeepy
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
 # Option A: Pass directly
-async with XTools(auth_token="your_auth_token_here") as x:
+async with Xeepy(auth_token="your_auth_token_here") as x:
     ...
 
 # Option B: Environment variable (recommended)
-# export XTOOLS_AUTH_TOKEN=your_auth_token_here
-async with XTools() as x:
+# export XEEPY_AUTH_TOKEN=your_auth_token_here
+async with Xeepy() as x:
     ...
 
 # Option C: Config file
-# Create ~/.xtools/config.yaml
+# Create ~/.xeepy/config.yaml
 ```
 
-**~/.xtools/config.yaml:**
+**~/.xeepy/config.yaml:**
 ```yaml
 auth:
   auth_token: "your_auth_token_here"
@@ -77,10 +77,10 @@ The original purpose of this repo - finally working!
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def main():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get replies to any tweet
         replies = await x.scrape.replies(
             "https://x.com/elonmusk/status/1234567890",
@@ -104,10 +104,10 @@ The most requested feature!
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def main():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # First, do a dry run to see who would be unfollowed
         preview = await x.unfollow.non_followers(
             max_unfollows=50,
@@ -129,10 +129,10 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def main():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Auto-like tweets containing keywords
         result = await x.engage.auto_like(
             keywords=["python", "machinelearning", "AI"],
@@ -149,10 +149,10 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def main():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Check who unfollowed you
         report = await x.monitor.unfollowers()
         
@@ -173,11 +173,11 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from xtools import XTools
-from xtools.ai import ContentGenerator
+from xeepy import Xeepy
+from xeepy.ai import ContentGenerator
 
 async def main():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Initialize AI (requires API key)
         ai = ContentGenerator(
             provider="openai",
@@ -204,19 +204,19 @@ asyncio.run(main())
 
 ```bash
 # Setup authentication
-xtools auth login
+xeepy auth login
 
 # Get tweet replies
-xtools scrape replies https://x.com/user/status/123 -o replies.csv
+xeepy scrape replies https://x.com/user/status/123 -o replies.csv
 
 # Unfollow non-followers (dry run)
-xtools unfollow non-followers --dry-run
+xeepy unfollow non-followers --dry-run
 
 # Auto-like by keyword
-xtools engage auto-like "python" --max 25
+xeepy engage auto-like "python" --max 25
 
 # Check unfollowers
-xtools monitor unfollowers
+xeepy monitor unfollowers
 ```
 
 ---
@@ -239,10 +239,10 @@ my_twitter_project/
 **main.py:**
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def main():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Your automation code here
         pass
 
@@ -252,7 +252,7 @@ if __name__ == "__main__":
 
 **.env:**
 ```
-XTOOLS_AUTH_TOKEN=your_auth_token
+XEEPY_AUTH_TOKEN=your_auth_token
 OPENAI_API_KEY=sk-...  # Optional, for AI features
 ```
 
@@ -261,7 +261,7 @@ OPENAI_API_KEY=sk-...  # Optional, for AI features
 ## ⚠️ Important Notes
 
 ### Rate Limits
-XTools automatically handles rate limiting, but be aware:
+Xeepy automatically handles rate limiting, but be aware:
 - Don't run multiple instances simultaneously
 - Start with small numbers (10-25 actions)
 - Wait between sessions (15-30 minutes)
@@ -272,10 +272,10 @@ Your auth_token may expire. If you get authentication errors:
 2. Update your configuration
 
 ### Headless Mode
-By default, XTools runs headless (no visible browser). To see what's happening:
+By default, Xeepy runs headless (no visible browser). To see what's happening:
 
 ```python
-async with XTools(headless=False) as x:
+async with Xeepy(headless=False) as x:
     # Browser window will be visible
     pass
 ```
@@ -299,7 +299,7 @@ async with XTools(headless=False) as x:
 
 ### "Element not found"
 - X/Twitter may have updated their UI
-- Check for XTools updates: `pip install --upgrade xtools`
+- Check for Xeepy updates: `pip install --upgrade xeepy`
 
 ### "Rate limited"
 - You're making too many requests

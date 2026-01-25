@@ -59,8 +59,8 @@ class Lead:
 class LeadGenerator:
     """Generate and qualify leads from Twitter."""
     
-    def __init__(self, xtools, config: dict):
-        self.x = xtools
+    def __init__(self, xeepy, config: dict):
+        self.x = xeepy
         self.config = config
         
         # Define your Ideal Customer Profile (ICP)
@@ -306,9 +306,9 @@ class LeadGenerator:
 
 # Usage
 async def main():
-    from xtools import XTools
+    from xeepy import Xeepy
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         generator = LeadGenerator(x, {
             "icp": {
                 "keywords": ["founder", "ceo", "startup", "saas", "building"],
@@ -391,8 +391,8 @@ class CompetitorProfile:
 class CompetitorIntelligence:
     """Monitor and analyze competitors."""
     
-    def __init__(self, xtools, competitors: list[str]):
-        self.x = xtools
+    def __init__(self, xeepy, competitors: list[str]):
+        self.x = xeepy
         self.competitors = competitors
         self.profiles: dict[str, CompetitorProfile] = {}
         self.baseline: dict = {}
@@ -583,9 +583,9 @@ class CompetitorIntelligence:
 
 # Usage
 async def run_competitor_monitoring():
-    from xtools import XTools
+    from xeepy import Xeepy
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         intel = CompetitorIntelligence(x, [
             "competitor1",
             "competitor2",
@@ -649,8 +649,8 @@ class Conversion:
 class TwitterROI:
     """Track and measure Twitter marketing ROI."""
     
-    def __init__(self, xtools, config: dict):
-        self.x = xtools
+    def __init__(self, xeepy, config: dict):
+        self.x = xeepy
         self.config = config
         self.conversions: list[Conversion] = []
         self.campaigns: dict = {}
@@ -891,9 +891,9 @@ class TwitterROI:
 
 # Usage
 async def track_marketing_roi():
-    from xtools import XTools
+    from xeepy import Xeepy
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         roi = TwitterROI(x, {"username": "your_account"})
         
         # Start a campaign
@@ -985,8 +985,8 @@ class SupportTicket:
 class SupportMonitor:
     """Monitor Twitter for support requests."""
     
-    def __init__(self, xtools, config: dict):
-        self.x = xtools
+    def __init__(self, xeepy, config: dict):
+        self.x = xeepy
         self.config = config
         self.tickets: dict[str, SupportTicket] = {}
         
@@ -1089,9 +1089,9 @@ class SupportMonitor:
 
 # Usage
 async def monitor_support():
-    from xtools import XTools
+    from xeepy import Xeepy
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         monitor = SupportMonitor(x, {
             "brand_username": "your_brand",
             "support_keywords": ["help", "broken", "issue", "bug", "not working"],
@@ -1131,8 +1131,8 @@ import httpx  # For API calls
 class TwitterCRMSync:
     """Sync Twitter interactions to CRM."""
     
-    def __init__(self, xtools, crm_config: dict):
-        self.x = xtools
+    def __init__(self, xeepy, crm_config: dict):
+        self.x = xeepy
         self.crm_config = crm_config
         self.crm_api = crm_config.get("api_url")
         self.api_key = crm_config.get("api_key")
@@ -1193,9 +1193,9 @@ class TwitterCRMSync:
 
 # Usage example
 async def sync_to_crm():
-    from xtools import XTools
+    from xeepy import Xeepy
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         crm = TwitterCRMSync(x, {
             "api_url": "https://api.yourcrm.com/v1",
             "api_key": "your_api_key"

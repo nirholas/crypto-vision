@@ -5,9 +5,9 @@ Get detailed user profile information including bios, stats, and metadata.
 ## Basic Profile Scraping
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Get single profile
     profile = await x.scrape.profile("elonmusk")
     
@@ -52,7 +52,7 @@ class UserProfile:
 async def scrape_multiple_profiles(usernames: list):
     """Scrape profiles for multiple users"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         profiles = []
         
         for username in usernames:
@@ -81,7 +81,7 @@ profiles = await scrape_multiple_profiles(usernames)
 async def analyze_profile_quality(username: str):
     """Calculate engagement and influence metrics"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         profile = await x.scrape.profile(username)
         
         # Follower/following ratio
@@ -120,7 +120,7 @@ print(f"Quality Score: {analysis['quality_score']}")
 async def detect_suspicious_profile(username: str):
     """Flag potentially fake or bot accounts"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         profile = await x.scrape.profile(username)
         
         red_flags = []
@@ -166,7 +166,7 @@ async def detect_suspicious_profile(username: str):
 
 # Check a list of users
 async def audit_followers(username: str):
-    async with XTools() as x:
+    async with Xeepy() as x:
         followers = await x.scrape.followers(username, limit=100)
         
         suspicious = []
@@ -185,7 +185,7 @@ async def audit_followers(username: str):
 async def compare_profiles(usernames: list):
     """Compare multiple profiles side by side"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         profiles = []
         
         for username in usernames:
@@ -223,7 +223,7 @@ async def track_profile_changes(username: str, history_file: str = None):
     
     history_file = history_file or f"{username}_history.json"
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         profile = await x.scrape.profile(username)
         
         current = {
@@ -280,7 +280,7 @@ await track_profile_changes("competitor")
 ## Export Options
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     profiles = []
     for user in ["user1", "user2", "user3"]:
         profiles.append(await x.scrape.profile(user))

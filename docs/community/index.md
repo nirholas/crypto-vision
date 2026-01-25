@@ -1,6 +1,6 @@
 # Community
 
-Welcome to the XTools community! Whether you need help, want to contribute, or just want to connect with other users, you're in the right place.
+Welcome to the Xeepy community! Whether you need help, want to contribute, or just want to connect with other users, you're in the right place.
 
 ## Get Help
 
@@ -10,15 +10,15 @@ Welcome to the XTools community! Whether you need help, want to contribute, or j
     
     Find answers to common questions
 
--   :material-github:{ .lg .middle } **[GitHub Issues](https://github.com/xtools/xtools/issues)**
+-   :material-github:{ .lg .middle } **[GitHub Issues](https://github.com/xeepy/xeepy/issues)**
     
     Report bugs or request features
 
--   :material-discord:{ .lg .middle } **[Discord](https://discord.gg/xtools)**
+-   :material-discord:{ .lg .middle } **[Discord](https://discord.gg/xeepy)**
     
     Chat with the community
 
--   :material-stack-overflow:{ .lg .middle } **[Stack Overflow](https://stackoverflow.com/questions/tagged/xtools)**
+-   :material-stack-overflow:{ .lg .middle } **[Stack Overflow](https://stackoverflow.com/questions/tagged/xeepy)**
     
     Ask technical questions
 
@@ -30,8 +30,8 @@ We welcome contributions of all kinds!
 
 ### Ways to Contribute
 
-- 🐛 **Report bugs** - Found an issue? [Open a GitHub issue](https://github.com/xtools/xtools/issues/new)
-- 💡 **Suggest features** - Have an idea? [Start a discussion](https://github.com/xtools/xtools/discussions)
+- 🐛 **Report bugs** - Found an issue? [Open a GitHub issue](https://github.com/xeepy/xeepy/issues/new)
+- 💡 **Suggest features** - Have an idea? [Start a discussion](https://github.com/xeepy/xeepy/discussions)
 - 📖 **Improve docs** - Fix typos, add examples, clarify explanations
 - 🔧 **Submit PRs** - Fix bugs or implement features
 - 🌐 **Translate** - Help translate docs to other languages
@@ -41,8 +41,8 @@ We welcome contributions of all kinds!
 
 ```bash
 # Clone the repo
-git clone https://github.com/xtools/xtools.git
-cd xtools
+git clone https://github.com/xeepy/xeepy.git
+cd xeepy
 
 # Create virtual environment
 python -m venv .venv
@@ -86,7 +86,7 @@ See our [Code of Conduct](code-of-conduct.md) for community standards.
 
 ## Showcase
 
-Projects built with XTools:
+Projects built with Xeepy:
 
 <div class="grid cards" markdown>
 
@@ -116,7 +116,7 @@ Projects built with XTools:
 
 </div>
 
-**Built something cool?** [Submit your project](https://github.com/xtools/xtools/discussions/new?category=showcase)!
+**Built something cool?** [Submit your project](https://github.com/xeepy/xeepy/discussions/new?category=showcase)!
 
 ## Maintainers
 
@@ -128,7 +128,7 @@ Projects built with XTools:
 
 ## Sponsors
 
-XTools is free and open-source. If you find it valuable, consider supporting development:
+Xeepy is free and open-source. If you find it valuable, consider supporting development:
 
 <div class="grid cards" markdown>
 
@@ -136,13 +136,13 @@ XTools is free and open-source. If you find it valuable, consider supporting dev
     
     Support ongoing development
     
-    [Sponsor →](https://github.com/sponsors/xtools)
+    [Sponsor →](https://github.com/sponsors/xeepy)
 
 -   :material-coffee:{ .lg .middle } **Buy Me a Coffee**
     
     One-time support
     
-    [Donate →](https://buymeacoffee.com/xtools)
+    [Donate →](https://buymeacoffee.com/xeepy)
 
 </div>
 
@@ -156,17 +156,17 @@ Thank you to our generous sponsors:
 
 ## Stay Updated
 
-- ⭐ [Star us on GitHub](https://github.com/xtools/xtools)
-- 🐦 [Follow @xtools on X](https://x.com/xtools)
-- 📧 [Newsletter](https://xtools.dev/newsletter)
-- 📰 [Blog](https://xtools.dev/blog)
+- ⭐ [Star us on GitHub](https://github.com/xeepy/xeepy)
+- 🐦 [Follow @xeepy on X](https://x.com/xeepy)
+- 📧 [Newsletter](https://xeepy.dev/newsletter)
+- 📰 [Blog](https://xeepy.dev/blog)
 
 ## Resources
 
 - [Roadmap](roadmap.md) - See what's coming next
 - [Changelog](../changelog.md) - Version history
-- [License](https://github.com/xtools/xtools/blob/main/LICENSE) - MIT License
+- [License](https://github.com/xeepy/xeepy/blob/main/LICENSE) - MIT License
 
 ---
 
-Thank you for being part of the XTools community! 🙏
+Thank you for being part of the Xeepy community! 🙏

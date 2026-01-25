@@ -1,6 +1,6 @@
-# Contributing to XTools
+# Contributing to Xeepy
 
-First off, thank you for considering contributing to XTools! 🎉
+First off, thank you for considering contributing to Xeepy! 🎉
 
 This document provides guidelines and steps for contributing.
 
@@ -107,7 +107,7 @@ pre-commit install
 ### Project Structure
 
 ```
-xtools/
+xeepy/
 ├── core/           # Core functionality (browser, auth, config)
 ├── scrapers/       # Data scrapers (replies, followers, etc.)
 ├── actions/        # Actions (follow, unfollow, engage)
@@ -236,7 +236,7 @@ def scrape_followers(self, username: str, limit: int = 1000) -> list[User]:
 pytest
 
 # Run with coverage
-pytest --cov=xtools --cov-report=html
+pytest --cov=xeepy --cov-report=html
 
 # Run specific test file
 pytest tests/test_scrapers.py
@@ -249,18 +249,18 @@ pytest tests/test_scrapers.py::test_reply_scraper
 
 ```python
 import pytest
-from xtools import XTools
+from xeepy import Xeepy
 
 @pytest.fixture
-async def xtools():
-    """Create XTools instance for testing."""
-    async with XTools(headless=True) as x:
+async def xeepy():
+    """Create Xeepy instance for testing."""
+    async with Xeepy(headless=True) as x:
         yield x
 
 @pytest.mark.asyncio
-async def test_reply_scraper(xtools):
+async def test_reply_scraper(xeepy):
     """Test that reply scraper returns valid data."""
-    replies = await xtools.scrape.replies(
+    replies = await xeepy.scrape.replies(
         "https://x.com/test/status/123",
         limit=10
     )

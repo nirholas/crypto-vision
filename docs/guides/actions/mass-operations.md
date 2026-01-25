@@ -18,8 +18,8 @@ Mass operations require careful planning to avoid account restrictions:
 Follow thousands over multiple days:
 
 ```python
-from xtools import XTools
-from xtools.actions.base import MassOperationConfig
+from xeepy import Xeepy
+from xeepy.actions.base import MassOperationConfig
 import asyncio
 
 config = MassOperationConfig(
@@ -35,7 +35,7 @@ config = MassOperationConfig(
 async def mass_follow_campaign():
     """Execute a large-scale follow campaign over multiple days"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         keywords = ["python developer", "tech founder", "startup"]
         completed = 0
         
@@ -77,12 +77,12 @@ asyncio.run(mass_follow_campaign())
 Clean up thousands of non-followers:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
 async def mass_unfollow_cleanup():
     """Unfollow non-followers over multiple days"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # First, get total count
         preview = await x.unfollow.non_followers(
             max_unfollows=10000,
@@ -132,13 +132,13 @@ asyncio.run(mass_unfollow_cleanup())
 Handle interruptions gracefully:
 
 ```python
-from xtools import XTools
-from xtools.storage import FollowTracker
+from xeepy import Xeepy
+from xeepy.storage import FollowTracker
 
 async def resumable_follow_campaign(campaign_name: str):
     """Campaign that can be resumed after interruption"""
     
-    tracker = FollowTracker("xtools.db")
+    tracker = FollowTracker("xeepy.db")
     
     # Check for existing session
     session = tracker.get_pending_session(campaign_name)
@@ -152,7 +152,7 @@ async def resumable_follow_campaign(campaign_name: str):
             tracker.complete_session(session['id'])
             session = None
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         if not session:
             # Create new campaign
             print("🆕 Creating new campaign...")
@@ -202,7 +202,7 @@ async def resumable_follow_campaign(campaign_name: str):
 Speed up read-only operations:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 import asyncio
 
 async def parallel_scrape(usernames: list, max_concurrent: int = 5):
@@ -219,7 +219,7 @@ async def parallel_scrape(usernames: list, max_concurrent: int = 5):
             except Exception as e:
                 return {"username": username, "error": str(e)}
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         tasks = [scrape_one(x, u) for u in usernames]
         results = await asyncio.gather(*tasks)
     
@@ -243,12 +243,12 @@ results = asyncio.run(parallel_scrape(usernames, max_concurrent=5))
 Process in controlled batches:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
 async def batch_operation(items: list, batch_size: int = 25):
     """Process items in batches with delays"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         total = len(items)
         
         for i in range(0, total, batch_size):
@@ -275,14 +275,14 @@ async def batch_operation(items: list, batch_size: int = 25):
 Track and display progress:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 from tqdm import tqdm
 import time
 
 async def tracked_mass_operation():
     """Mass operation with progress bar"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get targets
         targets = await x.scrape.followers("competitor", limit=500)
         
@@ -310,7 +310,7 @@ async def tracked_mass_operation():
 Handle errors without losing progress:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 import json
 
 async def resilient_mass_operation():
@@ -325,7 +325,7 @@ async def resilient_mass_operation():
     except FileNotFoundError:
         progress = {"completed": [], "failed": [], "pending": []}
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get targets (or use pending from progress)
         if not progress["pending"]:
             targets = await x.scrape.followers("competitor", limit=500)
@@ -366,8 +366,8 @@ async def resilient_mass_operation():
 Automatically handle rate limits:
 
 ```python
-from xtools import XTools
-from xtools.actions.base import RateLimitHandler
+from xeepy import Xeepy
+from xeepy.actions.base import RateLimitHandler
 
 handler = RateLimitHandler(
     initial_delay=3,
@@ -377,7 +377,7 @@ handler = RateLimitHandler(
 )
 
 async def rate_limited_operation():
-    async with XTools() as x:
+    async with Xeepy() as x:
         for username in usernames:
             success = False
             retries = 0
@@ -402,7 +402,7 @@ async def rate_limited_operation():
 Distribute load across accounts:
 
 ```python
-from xtools import XTools, AccountRotator
+from xeepy import Xeepy, AccountRotator
 
 async def multi_account_mass_follow():
     """Distribute follows across multiple accounts"""
@@ -422,7 +422,7 @@ async def multi_account_mass_follow():
         # Get next available account
         profile = rotator.get_next()
         
-        async with XTools(profile=profile) as x:
+        async with Xeepy(profile=profile) as x:
             await x.follow.user(target)
             print(f"[{profile}] Followed @{target}")
         
@@ -440,7 +440,7 @@ async def growth_campaign(days: int = 7):
     daily_follows = 100
     daily_unfollows = 50
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         for day in range(days):
             print(f"\n📅 Day {day + 1}/{days}")
             
@@ -479,7 +479,7 @@ async def growth_campaign(days: int = 7):
 async def cleanup_campaign():
     """Aggressive cleanup of low-quality follows"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Phase 1: Non-followers
         print("Phase 1: Non-followers")
         await x.unfollow.non_followers(max_unfollows=200)
@@ -529,7 +529,7 @@ Watch for account restrictions:
 async def check_account_health():
     """Monitor account for restriction signs"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         health = await x.account.health_check()
         
         if health.warnings:

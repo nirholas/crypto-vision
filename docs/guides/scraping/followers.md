@@ -5,9 +5,9 @@ Extract and analyze follower lists with filtering and export options.
 ## Basic Follower Scraping
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Get followers with limit
     followers = await x.scrape.followers("elonmusk", limit=1000)
     
@@ -38,7 +38,7 @@ class Follower:
 ### With Filtering
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Scrape all followers (no limit)
     all_followers = await x.scrape.followers("target_user")
     
@@ -62,7 +62,7 @@ async with XTools() as x:
 async def scrape_with_progress(username: str, target: int = 10000):
     """Scrape large follower lists with progress updates"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         followers = []
         cursor = None
         
@@ -106,7 +106,7 @@ async def resumable_follower_scrape(username: str, state_file: str = None):
         followers = []
         cursor = None
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         try:
             while True:
                 batch, cursor = await x.scrape.followers_batch(
@@ -148,7 +148,7 @@ async def resumable_follower_scrape(username: str, state_file: str = None):
 async def segment_followers(username: str, limit: int = 1000):
     """Segment followers by size and characteristics"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         followers = await x.scrape.followers(username, limit=limit)
         
         segments = {
@@ -198,7 +198,7 @@ from collections import Counter
 async def analyze_follower_locations(username: str, limit: int = 1000):
     """Analyze follower locations from their bios"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         followers = await x.scrape.followers(username, limit=limit)
         
         # Common location patterns
@@ -249,7 +249,7 @@ async def analyze_follower_interests(username: str, limit: int = 500):
         "writing": ["writer", "author", "blogger", "journalist", "content creator"],
     }
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         followers = await x.scrape.followers(username, limit=limit)
         
         interest_counts = Counter()
@@ -280,7 +280,7 @@ async def analyze_follower_interests(username: str, limit: int = 500):
 async def find_mutual_followers(user1: str, user2: str, limit: int = 1000):
     """Find users who follow both accounts"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         followers1 = await x.scrape.followers(user1, limit=limit)
         followers2 = await x.scrape.followers(user2, limit=limit)
         
@@ -311,7 +311,7 @@ async def find_mutual_followers(user1: str, user2: str, limit: int = 1000):
 async def find_influential_shared_followers(accounts: list, limit: int = 500):
     """Find influential users who follow multiple accounts"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         all_followers = {}
         
         for account in accounts:
@@ -350,7 +350,7 @@ async def find_influential_shared_followers(accounts: list, limit: int = 500):
 ## Export Options
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     followers = await x.scrape.followers("target_user", limit=1000)
     
     # Basic export

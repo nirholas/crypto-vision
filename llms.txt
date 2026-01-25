@@ -1,12 +1,12 @@
-# llms.txt - AI Discovery File for XTools
+# llms.txt - AI Discovery File for Xeepy
 # https://llmstxt.org/
 
-# XTools - Python X/Twitter Automation Toolkit
+# Xeepy - Python X/Twitter Automation Toolkit
 # Educational toolkit for X/Twitter automation using browser automation
 
 ## Overview
 
-XTools is a comprehensive Python toolkit for X/Twitter automation. It uses 
+Xeepy is a comprehensive Python toolkit for X/Twitter automation. It uses 
 Playwright browser automation instead of the expensive Twitter API ($100-5000/month).
 
 ### Key Features
@@ -20,9 +20,9 @@ Playwright browser automation instead of the expensive Twitter API ($100-5000/mo
 ### Quick Start
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Get tweet replies
     replies = await x.scrape.replies("https://x.com/user/status/123")
     
@@ -39,18 +39,18 @@ async with XTools() as x:
 ### Installation
 
 ```bash
-pip install xtools
+pip install xeepy
 playwright install chromium
 ```
 
 ### CLI Usage
 
 ```bash
-xtools auth login
-xtools scrape replies <url>
-xtools unfollow non-followers
-xtools engage auto-like "keyword"
-xtools monitor unfollowers
+xeepy auth login
+xeepy scrape replies <url>
+xeepy unfollow non-followers
+xeepy engage auto-like "keyword"
+xeepy monitor unfollowers
 ```
 
 ## API Reference

@@ -6,8 +6,8 @@ Build a real-time sentiment monitoring system for any topic, brand, or keyword.
 
 ```python
 import asyncio
-from xtools import XTools
-from xtools.ai import SentimentAnalyzer
+from xeepy import Xeepy
+from xeepy.ai import SentimentAnalyzer
 from dataclasses import dataclass
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -36,7 +36,7 @@ class SentimentDashboard:
     async def collect_and_analyze(self, limit: int = 100):
         """Collect tweets and analyze sentiment"""
         
-        async with XTools() as x:
+        async with Xeepy() as x:
             for keyword in self.keywords:
                 tweets = await x.scrape.search(
                     keyword,
@@ -219,9 +219,9 @@ asyncio.run(run_sentiment_dashboard())
 
 ```python
 import asyncio
-from xtools import XTools
-from xtools.ai import SentimentAnalyzer
-from xtools.notifications import DiscordWebhook
+from xeepy import Xeepy
+from xeepy.ai import SentimentAnalyzer
+from xeepy.notifications import DiscordWebhook
 
 async def realtime_sentiment_monitor(
     keywords: list,
@@ -241,7 +241,7 @@ async def realtime_sentiment_monitor(
     # Rolling window for trend detection
     rolling_sentiments = []
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         print(f"🔍 Monitoring: {', '.join(keywords)}")
         print(f"   Alert threshold: {alert_threshold*100}% negative")
         
@@ -323,7 +323,7 @@ Compare sentiment between you and competitors:
 async def comparative_sentiment(your_brand: str, competitors: list):
     """Compare sentiment across brands"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         analyzer = SentimentAnalyzer(provider="openai")
         
         brands = [your_brand] + competitors
@@ -367,7 +367,7 @@ Automatically respond based on sentiment:
 async def sentiment_based_engagement():
     """Engage differently based on sentiment"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         analyzer = SentimentAnalyzer(provider="openai")
         ai = ContentGenerator(provider="openai")
         
@@ -420,7 +420,7 @@ async def sentiment_history(keyword: str, days: int = 30):
     
     from collections import defaultdict
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         analyzer = SentimentAnalyzer(provider="openai")
         
         daily_sentiments = defaultdict(lambda: {"positive": 0, "negative": 0, "neutral": 0, "total": 0})

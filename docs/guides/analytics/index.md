@@ -1,6 +1,6 @@
 # Analytics Guide
 
-XTools provides deep analytics to understand your X/Twitter performance, audience, and optimal strategies.
+Xeepy provides deep analytics to understand your X/Twitter performance, audience, and optimal strategies.
 
 ## Overview
 
@@ -35,9 +35,9 @@ XTools provides deep analytics to understand your X/Twitter performance, audienc
 ## Quick Start
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Get comprehensive analytics
     analytics = await x.analytics.dashboard()
     
@@ -60,7 +60,7 @@ async with XTools() as x:
 ### Track Growth Over Time
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     growth = await x.analytics.track_growth(period="30d")
     
     print(f"""
@@ -81,7 +81,7 @@ async with XTools() as x:
 ### Growth Projections
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     projection = await x.analytics.growth_projection(
         based_on="90d",  # Historical data to use
         project_to="1y"   # Project 1 year ahead
@@ -100,7 +100,7 @@ async with XTools() as x:
 ### Analyze Your Engagement
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     engagement = await x.analytics.engagement_analysis(period="30d")
     
     print(f"""
@@ -124,7 +124,7 @@ async with XTools() as x:
 ### Content Performance by Type
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     by_type = await x.analytics.engagement_by_type()
     
     print("📝 Content Type Performance:")
@@ -142,7 +142,7 @@ async with XTools() as x:
 ### Hashtag Performance
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     hashtags = await x.analytics.hashtag_performance(period="90d")
     
     print("# Hashtag Performance:")
@@ -155,7 +155,7 @@ async with XTools() as x:
 ### Find Optimal Posting Times
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     best_times = await x.analytics.best_time_to_post()
     
     print(f"""
@@ -175,7 +175,7 @@ async with XTools() as x:
 ### Heatmap Data
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     heatmap = await x.analytics.engagement_heatmap()
     
     # Get engagement score for each hour of each day
@@ -191,7 +191,7 @@ async with XTools() as x:
 ### Understand Your Audience
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     audience = await x.analytics.audience_insights(sample_size=1000)
     
     print(f"""
@@ -219,7 +219,7 @@ async with XTools() as x:
 ### Influencer Analysis
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     influencers = await x.analytics.follower_influencers(min_followers=10000)
     
     print("🌟 Your Most Influential Followers:")
@@ -234,7 +234,7 @@ async with XTools() as x:
 ### Compare to Competitors
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     comparison = await x.analytics.competitor_analysis(
         competitors=["competitor1", "competitor2", "competitor3"],
         metrics=["followers", "engagement", "posting_frequency"]
@@ -256,7 +256,7 @@ async with XTools() as x:
 ### Content Gap Analysis
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     gaps = await x.analytics.content_gaps(competitors=["comp1", "comp2"])
     
     print("💡 Content Opportunities:")
@@ -270,7 +270,7 @@ async with XTools() as x:
 ### Weekly Report
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     report = await x.analytics.generate_report(
         period="7d",
         format="markdown",
@@ -287,7 +287,7 @@ async with XTools() as x:
 ### PDF Report
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     report = await x.analytics.generate_report(
         period="30d",
         format="pdf",
@@ -300,7 +300,7 @@ async with XTools() as x:
 ### Scheduled Reports
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Configure automatic reports
     await x.analytics.schedule_report(
         frequency="weekly",
@@ -315,28 +315,28 @@ async with XTools() as x:
 
 ```bash
 # Growth analytics
-xtools analytics growth --period 30d
+xeepy analytics growth --period 30d
 
 # Engagement analysis
-xtools analytics engagement --period 7d
+xeepy analytics engagement --period 7d
 
 # Best time to post
-xtools analytics best-time
+xeepy analytics best-time
 
 # Audience insights
-xtools analytics audience --sample 1000
+xeepy analytics audience --sample 1000
 
 # Competitor analysis
-xtools analytics competitors comp1,comp2,comp3
+xeepy analytics competitors comp1,comp2,comp3
 
 # Generate report
-xtools analytics report --period 30d --format pdf --output report.pdf
+xeepy analytics report --period 30d --format pdf --output report.pdf
 ```
 
 ## Data Export
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Export raw analytics data
     growth_data = await x.analytics.track_growth("90d")
     x.export.to_csv(growth_data.daily_data, "growth_data.csv")

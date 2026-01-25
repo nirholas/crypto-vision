@@ -5,9 +5,9 @@ Learn how to scrape all replies to any tweet, with filtering, threading, and exp
 ## Basic Usage
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     replies = await x.scrape.replies(
         "https://x.com/elonmusk/status/1234567890"
     )
@@ -34,7 +34,7 @@ replies = await x.scrape.replies(
 ### Get All Replies (No Limit)
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Warning: Can be slow for viral tweets
     replies = await x.scrape.replies(
         tweet_url,
@@ -45,7 +45,7 @@ async with XTools() as x:
 ### Filter High-Engagement Replies
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     replies = await x.scrape.replies(
         tweet_url,
         limit=500,
@@ -57,7 +57,7 @@ async with XTools() as x:
 ### Stream Replies in Real-Time
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     async for reply in x.scrape.replies_stream(tweet_url):
         print(f"New reply: {reply.text[:50]}...")
         
@@ -69,7 +69,7 @@ async with XTools() as x:
 ### Get Reply Threads
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Get replies with their nested replies
     replies = await x.scrape.replies(
         tweet_url,
@@ -86,10 +86,10 @@ async with XTools() as x:
 ### Analyze Sentiment of Replies
 
 ```python
-from xtools import XTools
-from xtools.ai import ContentGenerator
+from xeepy import Xeepy
+from xeepy.ai import ContentGenerator
 
-async with XTools() as x:
+async with Xeepy() as x:
     replies = await x.scrape.replies(tweet_url, limit=100)
     
     ai = ContentGenerator(provider="openai")
@@ -106,7 +106,7 @@ async with XTools() as x:
 ## Export Replies
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     replies = await x.scrape.replies(tweet_url, limit=500)
     
     # CSV with all fields
@@ -122,7 +122,7 @@ async with XTools() as x:
 ### Customize Export Fields
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     replies = await x.scrape.replies(tweet_url)
     
     # Export specific fields only
@@ -137,17 +137,17 @@ async with XTools() as x:
 
 ```bash
 # Basic scrape
-xtools scrape replies https://x.com/user/status/123
+xeepy scrape replies https://x.com/user/status/123
 
 # With options
-xtools scrape replies https://x.com/user/status/123 \
+xeepy scrape replies https://x.com/user/status/123 \
     --limit 500 \
     --min-likes 5 \
     --sort top \
     --output replies.csv
 
 # JSON output
-xtools scrape replies https://x.com/user/status/123 \
+xeepy scrape replies https://x.com/user/status/123 \
     --format json \
     --output replies.json
 ```
@@ -179,7 +179,7 @@ class Reply:
 ### Find Questions to Answer
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     replies = await x.scrape.replies(my_tweet_url)
     
     questions = [r for r in replies if "?" in r.text]
@@ -192,7 +192,7 @@ async with XTools() as x:
 ### Identify Influencer Replies
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     replies = await x.scrape.replies(tweet_url, limit=500)
     
     # Find replies from accounts with 10k+ followers
@@ -209,7 +209,7 @@ async with XTools() as x:
 ### Build Community List from Engagers
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Get people who engage with your content
     replies = await x.scrape.replies(my_tweet_url)
     

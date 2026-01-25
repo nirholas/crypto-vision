@@ -1,6 +1,6 @@
 # Data Export Guide
 
-XTools makes it easy to export your scraped data and analytics to various formats for analysis, backup, or integration with other tools.
+Xeepy makes it easy to export your scraped data and analytics to various formats for analysis, backup, or integration with other tools.
 
 ## Overview
 
@@ -31,9 +31,9 @@ XTools makes it easy to export your scraped data and analytics to various format
 ## Quick Start
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Scrape data
     followers = await x.scrape.followers("username", limit=1000)
     
@@ -48,7 +48,7 @@ async with XTools() as x:
 ### Basic Export
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     tweets = await x.scrape.tweets("username", limit=100)
     
     # Simple export
@@ -86,7 +86,7 @@ x.export.to_csv(
 ### Append to Existing File
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # First batch
     batch1 = await x.scrape.followers("user1", limit=500)
     x.export.to_csv(batch1, "all_followers.csv")
@@ -115,7 +115,7 @@ x.export.to_csv(
 ### Basic Export
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     profile = await x.scrape.profile("username")
     x.export.to_json(profile, "profile.json")
 ```
@@ -160,7 +160,7 @@ x.export.to_json(data, "output.json", default=custom_serializer)
 ### Basic Export
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     followers = await x.scrape.followers("username", limit=1000)
     x.export.to_excel(followers, "followers.xlsx")
 ```
@@ -168,7 +168,7 @@ async with XTools() as x:
 ### Multiple Sheets
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     followers = await x.scrape.followers("username")
     following = await x.scrape.following("username")
     tweets = await x.scrape.tweets("username", limit=100)
@@ -218,13 +218,13 @@ x.export.to_excel_with_chart(
 ### SQLite
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     tweets = await x.scrape.tweets("username", limit=1000)
     
     # Export to SQLite
     await x.export.to_database(
         tweets,
-        "sqlite:///xtools.db",
+        "sqlite:///xeepy.db",
         table="tweets"
     )
 ```
@@ -255,7 +255,7 @@ await x.export.to_database(
 ```python
 await x.export.to_database(
     tweets,
-    "sqlite:///xtools.db",
+    "sqlite:///xeepy.db",
     table="tweets",
     dtype={
         "id": "VARCHAR(50) PRIMARY KEY",
@@ -269,11 +269,11 @@ await x.export.to_database(
 ### Incremental Updates
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Only insert new records
     await x.export.to_database(
         new_followers,
-        "sqlite:///xtools.db",
+        "sqlite:///xeepy.db",
         table="followers",
         if_exists="append",
         unique_columns=["id"]  # Skip duplicates
@@ -285,7 +285,7 @@ async with XTools() as x:
 For data science workflows:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     tweets = await x.scrape.tweets("username", limit=10000)
     
     # Export to Parquet (efficient columnar format)
@@ -317,7 +317,7 @@ x.export.to_parquet(
 For large datasets, export as you scrape:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Initialize export
     exporter = x.export.create_stream("followers.csv", format="csv")
     
@@ -362,7 +362,7 @@ with open("table.html", "w") as f:
 ### Filter Before Export
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     followers = await x.scrape.followers("username", limit=5000)
     
     # Export only verified users
@@ -373,7 +373,7 @@ async with XTools() as x:
 ### Transform Data
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     tweets = await x.scrape.tweets("username", limit=100)
     
     # Transform before export
@@ -395,22 +395,22 @@ async with XTools() as x:
 ### Default Settings
 
 ```toml
-# xtools.toml
-[xtools.export]
+# xeepy.toml
+[xeepy.export]
 default_format = "csv"
 output_dir = "./exports"
 timestamp_filenames = true  # Add timestamp to filenames
 encoding = "utf-8"
 
-[xtools.export.csv]
+[xeepy.export.csv]
 delimiter = ","
 include_header = true
 
-[xtools.export.json]
+[xeepy.export.json]
 indent = 2
 sort_keys = false
 
-[xtools.export.excel]
+[xeepy.export.excel]
 freeze_header = true
 auto_width = true
 ```
@@ -419,21 +419,21 @@ auto_width = true
 
 ```bash
 # Export from scrape command
-xtools scrape followers username --limit 1000 --output followers.csv
-xtools scrape tweets username --output tweets.json --format json
+xeepy scrape followers username --limit 1000 --output followers.csv
+xeepy scrape tweets username --output tweets.json --format json
 
 # Convert formats
-xtools export convert data.csv data.json
-xtools export convert data.json data.xlsx
+xeepy export convert data.csv data.json
+xeepy export convert data.json data.xlsx
 
 # Export to database
-xtools export database data.csv sqlite:///data.db --table tweets
+xeepy export database data.csv sqlite:///data.db --table tweets
 ```
 
 ## Integration with pandas
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     tweets = await x.scrape.tweets("username", limit=1000)
     
     # Convert to DataFrame

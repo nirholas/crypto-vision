@@ -17,11 +17,11 @@ The Foundation Phase: Build your profile, find your niche, start engaging.
 Goal: 0 → 1,000 followers
 """
 import asyncio
-from xtools import XTools
-from xtools.ai import ContentGenerator
+from xeepy import Xeepy
+from xeepy.ai import ContentGenerator
 
 async def foundation_phase():
-    async with XTools() as x:
+    async with Xeepy() as x:
         ai = ContentGenerator(provider="openai")
         
         # Step 1: Identify your niche's top accounts
@@ -97,11 +97,11 @@ Goal: 1,000 → 5,000 followers
 """
 import asyncio
 from datetime import datetime, timedelta
-from xtools import XTools
-from xtools.ai import ContentGenerator
+from xeepy import Xeepy
+from xeepy.ai import ContentGenerator
 
 async def content_engine_phase():
-    async with XTools() as x:
+    async with Xeepy() as x:
         ai = ContentGenerator(provider="openai")
         
         # Step 1: Find your best posting times
@@ -186,11 +186,11 @@ The Scale Phase: Leverage systems and automation.
 Goal: 5,000 → 10,000 followers
 """
 import asyncio
-from xtools import XTools
-from xtools.ai import ContentGenerator
+from xeepy import Xeepy
+from xeepy.ai import ContentGenerator
 
 async def scale_phase():
-    async with XTools() as x:
+    async with Xeepy() as x:
         ai = ContentGenerator(provider="openai")
         
         # Step 1: Optimize your content based on data
@@ -279,13 +279,13 @@ A system to maximize engagement on every tweet you post.
 The Engagement Multiplier: Get more eyes on every tweet.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def engagement_multiplier(tweet_url: str):
     """
     Run this after posting an important tweet to maximize its reach.
     """
-    async with XTools() as x:
+    async with Xeepy() as x:
         print(f"🚀 Amplifying tweet: {tweet_url}")
         
         # Step 1: Engage with accounts that typically share your content
@@ -331,10 +331,10 @@ Leverage network effects for exponential growth.
 Network Effect Hacking: Turn followers into recruiters.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def network_effect_hack():
-    async with XTools() as x:
+    async with Xeepy() as x:
         ai = ContentGenerator(provider="openai")
         
         # Strategy 1: The Shoutout Chain
@@ -426,7 +426,7 @@ Templates for content that spreads.
 """
 Viral Content Framework: Patterns that get shared.
 """
-from xtools.ai import ContentGenerator
+from xeepy.ai import ContentGenerator
 
 async def generate_viral_content():
     ai = ContentGenerator(provider="openai")
@@ -504,10 +504,10 @@ Track the metrics that actually predict growth.
 Growth Metrics Dashboard: Focus on what matters.
 """
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def growth_metrics_dashboard():
-    async with XTools() as x:
+    async with Xeepy() as x:
         print("""
         ╔═══════════════════════════════════════════════════════╗
         ║           📊 GROWTH METRICS DASHBOARD                  ║
@@ -590,7 +590,7 @@ Growth Experiments: Test what works for YOUR audience.
 """
 import asyncio
 from datetime import datetime, timedelta
-from xtools import XTools
+from xeepy import Xeepy
 
 class GrowthExperiment:
     """Run controlled growth experiments"""
@@ -601,13 +601,13 @@ class GrowthExperiment:
         self.start_metrics = None
         self.end_metrics = None
     
-    async def start(self, x: XTools):
+    async def start(self, x: Xeepy):
         """Record starting metrics"""
         self.start_metrics = await x.analytics.snapshot()
         print(f"🧪 Experiment '{self.name}' started")
         print(f"   Starting followers: {self.start_metrics.followers}")
     
-    async def end(self, x: XTools):
+    async def end(self, x: Xeepy):
         """Record ending metrics and analyze"""
         self.end_metrics = await x.analytics.snapshot()
         
@@ -625,7 +625,7 @@ class GrowthExperiment:
 
 async def run_posting_time_experiment():
     """Test different posting times"""
-    async with XTools() as x:
+    async with Xeepy() as x:
         experiments = [
             GrowthExperiment("Morning Posts (6-9 AM)", 7),
             GrowthExperiment("Afternoon Posts (12-3 PM)", 7),
@@ -641,7 +641,7 @@ async def run_posting_time_experiment():
 
 async def run_content_type_experiment():
     """Test different content types"""
-    async with XTools() as x:
+    async with Xeepy() as x:
         content_types = [
             ("threads", "Post 1 thread per day"),
             ("single_tweets", "Post 5 single tweets per day"),

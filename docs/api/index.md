@@ -1,12 +1,12 @@
 # API Reference
 
-Complete API documentation for XTools modules.
+Complete API documentation for Xeepy modules.
 
 ## Module Overview
 
 ```
-xtools/
-├── __init__.py          # XTools main class
+xeepy/
+├── __init__.py          # Xeepy main class
 ├── core/                # Core functionality
 │   ├── browser.py       # Browser management
 │   ├── auth.py          # Authentication
@@ -28,9 +28,9 @@ xtools/
 ### Main Class
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools(
+async with Xeepy(
     headless: bool = True,
     timeout: int = 30000,
     config_file: str = None,
@@ -50,14 +50,14 @@ async with XTools(
 
 ## Core Modules
 
-### [XTools](core/xtools.md)
+### [Xeepy](core/xeepy.md)
 
 Main entry point and orchestrator.
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     profile = await x.scrape.profile("username")
 ```
 
@@ -66,7 +66,7 @@ async with XTools() as x:
 Playwright browser management.
 
 ```python
-from xtools.core.browser import BrowserManager
+from xeepy.core.browser import BrowserManager
 
 browser = BrowserManager(headless=True)
 await browser.start()
@@ -78,7 +78,7 @@ page = await browser.new_page()
 Authentication and session handling.
 
 ```python
-from xtools.core.auth import AuthManager
+from xeepy.core.auth import AuthManager
 
 auth = AuthManager(browser_manager)
 await auth.login()
@@ -90,7 +90,7 @@ await auth.save_cookies("session.json")
 Rate limiting to protect accounts.
 
 ```python
-from xtools.core.rate_limiter import RateLimiter
+from xeepy.core.rate_limiter import RateLimiter
 
 limiter = RateLimiter(requests_per_minute=20)
 await limiter.wait()
@@ -101,9 +101,9 @@ await limiter.wait()
 Configuration management.
 
 ```python
-from xtools.core.config import Config
+from xeepy.core.config import Config
 
-config = Config.load("xtools.toml")
+config = Config.load("xeepy.toml")
 config.rate_limit.requests_per_minute = 15
 ```
 
@@ -226,7 +226,7 @@ print(f"Best hour: {best_times.best_hour}")
 ### Example: AI
 
 ```python
-from xtools.ai import ContentGenerator
+from xeepy.ai import ContentGenerator
 
 ai = ContentGenerator(provider="openai", api_key="...")
 
@@ -250,7 +250,7 @@ sentiment = await ai.analyze_sentiment(tweets)
 ### Example: GraphQL
 
 ```python
-from xtools.api.graphql import GraphQLClient
+from xeepy.api.graphql import GraphQLClient
 
 gql = GraphQLClient(cookies="session.json")
 
@@ -272,7 +272,7 @@ await gql.close()
 ### Example: Models
 
 ```python
-from xtools.models import Tweet, User
+from xeepy.models import Tweet, User
 
 # Models are dataclasses with type hints
 tweet = Tweet(
@@ -311,7 +311,7 @@ x.export.to_database(data, "sqlite:///data.db")
 ### Example: Notifications
 
 ```python
-from xtools.notifications import NotificationManager
+from xeepy.notifications import NotificationManager
 
 notifier = NotificationManager()
 notifier.add_discord("https://discord.com/api/webhooks/...")
@@ -355,8 +355,8 @@ class ActionResult:
 ## Exception Reference
 
 ```python
-from xtools.exceptions import (
-    XToolsError,           # Base exception
+from xeepy.exceptions import (
+    XeepyError,           # Base exception
     AuthenticationError,   # Auth failures
     RateLimitError,        # Rate limited
     NotFoundError,         # Resource not found

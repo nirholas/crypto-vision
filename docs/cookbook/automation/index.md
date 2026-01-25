@@ -24,8 +24,8 @@ from datetime import datetime, timedelta
 from typing import Callable, List
 from dataclasses import dataclass, field
 
-from xtools import XTools
-from xtools.notifications import DiscordNotifier
+from xeepy import Xeepy
+from xeepy.notifications import DiscordNotifier
 
 # Setup logging
 logging.basicConfig(
@@ -36,7 +36,7 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger('xtools.automation')
+logger = logging.getLogger('xeepy.automation')
 
 
 @dataclass
@@ -60,7 +60,7 @@ class AutomationStack:
     def __init__(self, notify_webhook: str = None):
         self.tasks: List[ScheduledTask] = []
         self.running = False
-        self.xtools: XTools = None
+        self.xeepy: Xeepy = None
         self.notifier = DiscordNotifier(webhook_url=notify_webhook) if notify_webhook else None
         
         # Handle graceful shutdown
@@ -91,11 +91,11 @@ class AutomationStack:
         self.running = True
         logger.info("🚀 Automation stack starting...")
         
-        async with XTools() as x:
-            self.xtools = x
+        async with Xeepy() as x:
+            self.xeepy = x
             
             if self.notifier:
-                await self.notifier.send("🟢 XTools automation started")
+                await self.notifier.send("🟢 Xeepy automation started")
             
             while self.running:
                 for task in self.tasks:
@@ -124,7 +124,7 @@ class AutomationStack:
         logger.info(f"Running task: {task.name}")
         
         try:
-            await task.func(self.xtools)
+            await task.func(self.xeepy)
             task.last_run = datetime.now()
             task.error_count = 0
             logger.info(f"✓ Task completed: {task.name}")
@@ -158,7 +158,7 @@ class AutomationStack:
 # AUTOMATION TASKS
 # ============================================
 
-async def task_unfollower_check(x: XTools):
+async def task_unfollower_check(x: Xeepy):
     """Check for new unfollowers"""
     report = await x.monitor.unfollowers()
     
@@ -168,7 +168,7 @@ async def task_unfollower_check(x: XTools):
     logger.info(f"Follower change: {report.net_change:+d}")
 
 
-async def task_engagement_routine(x: XTools):
+async def task_engagement_routine(x: Xeepy):
     """Daily engagement routine"""
     # Like tweets from your network
     timeline = await x.scrape.home_timeline(limit=50)
@@ -185,7 +185,7 @@ async def task_engagement_routine(x: XTools):
     logger.info(f"Liked {liked} tweets")
 
 
-async def task_cleanup_following(x: XTools):
+async def task_cleanup_following(x: Xeepy):
     """Unfollow non-followers"""
     result = await x.unfollow.non_followers(
         max_unfollows=25,
@@ -196,7 +196,7 @@ async def task_cleanup_following(x: XTools):
     logger.info(f"Unfollowed {result.unfollowed_count} non-followers")
 
 
-async def task_growth_tracking(x: XTools):
+async def task_growth_tracking(x: Xeepy):
     """Track and log growth metrics"""
     growth = await x.analytics.track_growth("24h")
     
@@ -209,7 +209,7 @@ async def task_growth_tracking(x: XTools):
     """)
 
 
-async def task_mention_monitoring(x: XTools):
+async def task_mention_monitoring(x: Xeepy):
     """Monitor and respond to mentions"""
     mentions = await x.scrape.mentions("your_username", limit=20, since="1h")
     
@@ -256,8 +256,8 @@ Smart Engagement Bot
 Engages thoughtfully based on content relevance and quality.
 """
 import asyncio
-from xtools import XTools
-from xtools.ai import ContentGenerator, SentimentAnalyzer
+from xeepy import Xeepy
+from xeepy.ai import ContentGenerator, SentimentAnalyzer
 
 class SmartEngagementBot:
     """
@@ -279,7 +279,7 @@ class SmartEngagementBot:
         self.engaged_today = set()  # Track engaged tweets
     
     async def run(self):
-        async with XTools() as x:
+        async with Xeepy() as x:
             ai = ContentGenerator(provider="openai")
             sentiment = SentimentAnalyzer(provider="openai")
             
@@ -410,8 +410,8 @@ from datetime import datetime, timedelta
 from dataclasses import dataclass
 from typing import List, Optional
 
-from xtools import XTools
-from xtools.ai import ContentGenerator
+from xeepy import Xeepy
+from xeepy.ai import ContentGenerator
 
 
 @dataclass
@@ -441,7 +441,7 @@ class ContentPipeline:
         self.published: List[ContentItem] = []
     
     async def run(self):
-        async with XTools() as x:
+        async with Xeepy() as x:
             ai = ContentGenerator(provider="openai")
             
             while True:
@@ -458,7 +458,7 @@ class ContentPipeline:
                 
                 await asyncio.sleep(300)  # 5 minutes
     
-    async def _generate_content(self, x: XTools, ai: ContentGenerator):
+    async def _generate_content(self, x: Xeepy, ai: ContentGenerator):
         """Generate new content based on trends and best practices"""
         print("📝 Generating new content...")
         
@@ -508,7 +508,7 @@ class ContentPipeline:
         
         print(f"✅ Generated {len(self.queue)} new items")
     
-    async def _schedule_content(self, x: XTools):
+    async def _schedule_content(self, x: Xeepy):
         """Schedule content for optimal posting times"""
         best_times = await x.analytics.best_time_to_post()
         
@@ -525,7 +525,7 @@ class ContentPipeline:
             
             print(f"  Scheduled: {content.id} for {slot}")
     
-    async def _publish_scheduled(self, x: XTools):
+    async def _publish_scheduled(self, x: Xeepy):
         """Publish content that's due"""
         now = datetime.now()
         
@@ -551,7 +551,7 @@ class ContentPipeline:
         # Remove published from queue
         self.queue = [c for c in self.queue if c.status not in ["published", "failed"]]
     
-    async def _track_performance(self, x: XTools):
+    async def _track_performance(self, x: Xeepy):
         """Track performance of published content"""
         for content in self.published[-10:]:  # Last 10 items
             if content.published_url:
@@ -597,8 +597,8 @@ from datetime import datetime, timedelta
 from typing import List, Callable
 from enum import Enum
 
-from xtools import XTools
-from xtools.notifications import NotificationManager
+from xeepy import Xeepy
+from xeepy.notifications import NotificationManager
 
 
 class AlertLevel(Enum):
@@ -634,7 +634,7 @@ class MonitoringSystem:
         self.notifications = NotificationManager()
     
     async def run(self):
-        async with XTools() as x:
+        async with Xeepy() as x:
             while True:
                 # Collect metrics
                 metrics = await self._collect_metrics(x)
@@ -654,7 +654,7 @@ class MonitoringSystem:
                 
                 await asyncio.sleep(300)  # 5 minutes
     
-    async def _collect_metrics(self, x: XTools):
+    async def _collect_metrics(self, x: Xeepy):
         """Collect all relevant metrics"""
         profile = await x.scrape.profile(self.config["username"])
         engagement = await x.analytics.engagement_analysis("1h")
@@ -709,7 +709,7 @@ class MonitoringSystem:
                 message=f"Engagement rate dropped to {metrics['engagement_rate']:.2%} (avg: {avg_rate:.2%})"
             ))
     
-    async def _check_rate_limits(self, x: XTools):
+    async def _check_rate_limits(self, x: Xeepy):
         """Monitor rate limit usage"""
         limits = await x.get_rate_limit_status()
         
@@ -723,7 +723,7 @@ class MonitoringSystem:
                     message=f"{endpoint}: {usage_pct:.0%} of limit used"
                 ))
     
-    async def _check_system_health(self, x: XTools):
+    async def _check_system_health(self, x: Xeepy):
         """Check system health"""
         try:
             # Test basic functionality
@@ -801,7 +801,7 @@ CMD ["python", "automation_stack.py"]
 version: '3.8'
 
 services:
-  xtools-automation:
+  xeepy-automation:
     build: .
     restart: unless-stopped
     environment:

@@ -54,10 +54,10 @@ Copy-paste scripts for immediate results:
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def quick_cleanup():
-    async with XTools() as x:
+    async with Xeepy() as x:
         result = await x.unfollow.non_followers(
             max_unfollows=50,
             min_following_days=7,
@@ -73,10 +73,10 @@ asyncio.run(quick_cleanup())
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def daily_growth():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Follow 50 users in your niche
         await x.follow.by_keyword(
             ["your", "niche", "keywords"],
@@ -100,10 +100,10 @@ asyncio.run(daily_growth())
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def analyze_competitor(username: str):
-    async with XTools() as x:
+    async with Xeepy() as x:
         profile = await x.scrape.profile(username)
         tweets = await x.scrape.tweets(username, limit=100)
         
@@ -134,13 +134,13 @@ Find and remove followers who never engage:
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 from collections import defaultdict
 
 async def detect_ghost_followers():
     """Find followers who never engage with your content"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get your recent tweets
         my_tweets = await x.scrape.tweets("me", limit=50)
         
@@ -176,14 +176,14 @@ Post when your audience is most active:
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 from collections import Counter
 from datetime import datetime
 
 async def find_optimal_post_times():
     """Analyze when your audience engages most"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get your followers' recent activity
         followers = await x.scrape.followers("me", limit=200)
         
@@ -217,7 +217,7 @@ asyncio.run(find_optimal_post_times())
 
 ## Advanced Patterns
 
-These recipes combine multiple XTools features:
+These recipes combine multiple Xeepy features:
 
 - [Viral Content Detector](growth/viral-content.md) - Find trends before they peak
 - [Engagement Pod Automation](growth/engagement-pods.md) - Coordinate with allies

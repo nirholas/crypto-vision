@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/44K+-Lines_of_Code-purple?style=for-the-badge" alt="44K+ Lines"/>
 </p>
 
-<h1 align="center">🐦 XTools</h1>
+<h1 align="center">🐦 Xeepy</h1>
 <h3 align="center">The Most Comprehensive Python Toolkit for X/Twitter Automation</h3>
 
 <p align="center">
@@ -38,7 +38,7 @@
 <details>
 <summary>Click to expand full table of contents</summary>
 
-- [Why XTools?](#-why-xtools)
+- [Why Xeepy?](#-why-xeepy)
 - [Installation](#-installation)
   - [Quick Install](#quick-install)
   - [Development Install](#development-install)
@@ -156,7 +156,7 @@
 
 ---
 
-## 🔥 Why XTools?
+## 🔥 Why Xeepy?
 
 ### The Problem
 
@@ -168,9 +168,9 @@
 | No AI integration in existing tools | Missing modern features |
 | Complex setup and authentication | Frustrating developer experience |
 
-### The Solution: XTools
+### The Solution: Xeepy
 
-| Feature | XTools | Tweepy | Snscrape | Twint |
+| Feature | Xeepy | Tweepy | Snscrape | Twint |
 |---------|--------|--------|----------|-------|
 | **No API Required** | ✅ | ❌ | ✅ | ✅ |
 | **Currently Working (2024+)** | ✅ | ⚠️ | ❌ | ❌ |
@@ -191,8 +191,8 @@
 ### Quick Install
 
 ```bash
-# Install XTools
-pip install xtools
+# Install Xeepy
+pip install xeepy
 
 # Install browser (required)
 playwright install chromium
@@ -231,8 +231,8 @@ make build      # Build package
 # Install Python 3.10+ if needed
 brew install python@3.11
 
-# Install XTools
-pip3 install xtools
+# Install Xeepy
+pip3 install xeepy
 playwright install chromium
 ```
 </details>
@@ -244,8 +244,8 @@ playwright install chromium
 # Install Python from python.org or:
 winget install Python.Python.3.11
 
-# Install XTools
-pip install xtools
+# Install Xeepy
+pip install xeepy
 playwright install chromium
 ```
 </details>
@@ -257,7 +257,7 @@ playwright install chromium
 sudo apt update
 sudo apt install python3.11 python3-pip
 
-pip3 install xtools
+pip3 install xeepy
 playwright install chromium
 playwright install-deps chromium
 ```
@@ -272,7 +272,7 @@ WORKDIR /app
 COPY . .
 RUN pip install .
 RUN playwright install chromium
-ENTRYPOINT ["xtools"]
+ENTRYPOINT ["xeepy"]
 ```
 </details>
 
@@ -283,10 +283,10 @@ ENTRYPOINT ["xtools"]
 ### Basic Usage Pattern
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
 async def main():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # All operations go here
         pass
 
@@ -298,9 +298,9 @@ asyncio.run(main())
 ### Get Tweet Replies (Fixes Original Repo!)
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # This is what the original repo was supposed to do!
     replies = await x.scrape.replies(
         "https://x.com/elonmusk/status/1234567890",
@@ -318,9 +318,9 @@ async with XTools() as x:
 ### Unfollow Non-Followers
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Preview first (dry run)
     result = await x.unfollow.non_followers(
         max_unfollows=100,
@@ -341,9 +341,9 @@ async with XTools() as x:
 ### Auto-Like by Keywords
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     result = await x.engage.auto_like(
         keywords=["python", "javascript", "typescript"],
         limit=50,
@@ -355,10 +355,10 @@ async with XTools() as x:
 ### Generate AI Reply
 
 ```python
-from xtools import XTools
-from xtools.ai import ContentGenerator
+from xeepy import Xeepy
+from xeepy.ai import ContentGenerator
 
-async with XTools() as x:
+async with Xeepy() as x:
     ai = ContentGenerator(provider="openai", api_key="sk-...")
     
     reply = await ai.generate_reply(
@@ -379,7 +379,7 @@ async with XTools() as x:
 The `BrowserManager` handles all Playwright browser operations.
 
 ```python
-from xtools.core import BrowserManager
+from xeepy.core import BrowserManager
 
 async with BrowserManager(headless=True) as browser:
     # Get a new page
@@ -406,9 +406,9 @@ async with BrowserManager(headless=True) as browser:
 ### Authentication
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Method 1: Interactive login (opens browser)
     await x.auth.login()
     
@@ -436,10 +436,10 @@ async with XTools() as x:
 
 ### Rate Limiting
 
-XTools includes intelligent rate limiting to protect your account.
+Xeepy includes intelligent rate limiting to protect your account.
 
 ```python
-from xtools.core import RateLimiter, ActionRateLimiter
+from xeepy.core import RateLimiter, ActionRateLimiter
 
 # Generic rate limiter
 limiter = RateLimiter(
@@ -470,10 +470,10 @@ if await action_limiter.can_perform("follow"):
 ### Configuration
 
 ```python
-from xtools import XTools
-from xtools.config import XToolsConfig
+from xeepy import Xeepy
+from xeepy.config import XeepyConfig
 
-config = XToolsConfig(
+config = XeepyConfig(
     # Browser settings
     headless=True,
     slow_mo=0,
@@ -490,8 +490,8 @@ config = XToolsConfig(
     max_likes_per_day=500,
     
     # Storage
-    database_path="~/.xtools/data.db",
-    session_path="~/.xtools/session.json",
+    database_path="~/.xeepy/data.db",
+    session_path="~/.xeepy/session.json",
     
     # AI
     openai_api_key="sk-...",
@@ -503,8 +503,8 @@ config = XToolsConfig(
     telegram_chat_id="..."
 )
 
-async with XTools(config=config) as x:
-    # Use configured XTools
+async with Xeepy(config=config) as x:
+    # Use configured Xeepy
     pass
 ```
 
@@ -512,8 +512,8 @@ async with XTools(config=config) as x:
 
 ```bash
 # .env file
-XTOOLS_HEADLESS=true
-XTOOLS_DATABASE_PATH=~/.xtools/data.db
+XEEPY_HEADLESS=true
+XEEPY_DATABASE_PATH=~/.xeepy/data.db
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 DISCORD_WEBHOOK=https://...
@@ -525,16 +525,16 @@ TELEGRAM_CHAT_ID=...
 
 ## 🔍 Scrapers
 
-XTools includes **16 specialized scrapers** for extracting data from X/Twitter.
+Xeepy includes **16 specialized scrapers** for extracting data from X/Twitter.
 
 ### 1. Replies Scraper
 
 Scrape all replies to a tweet.
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     replies = await x.scrape.replies(
         url="https://x.com/elonmusk/status/1234567890",
         limit=500,
@@ -577,7 +577,7 @@ class Tweet:
 Get detailed user profile information.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     user = await x.scrape.profile("elonmusk")
     
     print(f"Name: {user.name}")
@@ -625,7 +625,7 @@ class User:
 Scrape a user's followers with full details.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     followers = await x.scrape.followers(
         username="elonmusk",
         limit=1000
@@ -649,7 +649,7 @@ async with XTools() as x:
 Scrape who a user is following.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     following = await x.scrape.following(
         username="elonmusk",
         limit=500
@@ -664,7 +664,7 @@ async with XTools() as x:
 Scrape a user's tweet history.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     tweets = await x.scrape.tweets(
         username="elonmusk",
         limit=200,
@@ -687,7 +687,7 @@ async with XTools() as x:
 Scrape tweets containing a hashtag.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Top tweets
     top_tweets = await x.scrape.hashtag(
         tag="#Python",
@@ -711,7 +711,7 @@ async with XTools() as x:
 Multi-type search supporting tweets, people, and media.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Search tweets
     tweets = await x.scrape.search(
         query="python programming",
@@ -761,7 +761,7 @@ async with XTools() as x:
 Scrape a user's liked tweets.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     likes = await x.scrape.likes(
         username="elonmusk",
         limit=100
@@ -778,7 +778,7 @@ async with XTools() as x:
 Scrape members of a Twitter list.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     members = await x.scrape.list_members(
         list_id="1234567890",
         limit=500
@@ -798,7 +798,7 @@ async with XTools() as x:
 Scrape complete tweet threads.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     thread = await x.scrape.thread(
         url="https://x.com/user/status/1234567890"
     )
@@ -814,7 +814,7 @@ async with XTools() as x:
 Scrape a user's media posts (images and videos).
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     media_tweets = await x.scrape.media(
         username="elonmusk",
         limit=50
@@ -834,7 +834,7 @@ async with XTools() as x:
 Download media (images/videos) from tweets.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Download single tweet media
     files = await x.scrape.download_media(
         url="https://x.com/user/status/1234567890",
@@ -858,7 +858,7 @@ async with XTools() as x:
 Scrape trending topics and recommended users.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Get trending topics
     trends = await x.scrape.trends()
     
@@ -880,7 +880,7 @@ async with XTools() as x:
 Scrape Twitter Spaces (audio rooms).
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Get live spaces
     live_spaces = await x.scrape.spaces(
         query="tech",
@@ -907,7 +907,7 @@ async with XTools() as x:
 Scrape mentions of a user.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     mentions = await x.scrape.mentions(
         username="elonmusk",
         limit=100
@@ -923,7 +923,7 @@ async with XTools() as x:
 Scrape your bookmarked tweets.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     bookmarks = await x.scrape.bookmarks(limit=200)
     
     print(f"You have {len(bookmarks)} bookmarks")
@@ -941,7 +941,7 @@ async with XTools() as x:
 Follow a single user.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Simple follow
     success = await x.follow.user("username")
     
@@ -959,7 +959,7 @@ async with XTools() as x:
 Automated following with rules and scheduling.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     result = await x.follow.auto(
         # Source strategies
         strategies=[
@@ -1000,7 +1000,7 @@ async with XTools() as x:
 Follow users who tweet with specific hashtags.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     result = await x.follow.by_hashtag(
         hashtag="#Python",
         limit=50,
@@ -1017,7 +1017,7 @@ async with XTools() as x:
 Follow users from search results.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     result = await x.follow.by_keyword(
         keyword="data scientist",
         limit=30,
@@ -1031,7 +1031,7 @@ async with XTools() as x:
 Follow users who engaged with a specific tweet.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     result = await x.follow.engagers(
         tweet_url="https://x.com/user/status/1234567890",
         engagement_types=["like", "retweet", "reply"],
@@ -1046,7 +1046,7 @@ async with XTools() as x:
 Follow the followers or following of a target account.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Follow a competitor's followers
     result = await x.follow.followers_of(
         username="competitor_account",
@@ -1071,7 +1071,7 @@ async with XTools() as x:
 Unfollow users who don't follow you back.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Preview first (ALWAYS do this!)
     result = await x.unfollow.non_followers(
         dry_run=True
@@ -1102,7 +1102,7 @@ async with XTools() as x:
 ⚠️ **Nuclear option** - unfollows everyone.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # ALWAYS preview first!
     result = await x.unfollow.everyone(
         dry_run=True
@@ -1126,7 +1126,7 @@ async with XTools() as x:
 Intelligent unfollow based on tracking data and engagement.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     result = await x.unfollow.smart(
         # Time-based criteria
         no_followback_days=14,  # Didn't follow back in 14 days
@@ -1150,7 +1150,7 @@ async with XTools() as x:
 Custom criteria-based unfollowing.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     result = await x.unfollow.by_criteria(
         # Follower count criteria
         min_followers=None,
@@ -1179,7 +1179,7 @@ async with XTools() as x:
 ### Like Operations
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Like single tweet
     await x.engage.like("https://x.com/user/status/1234567890")
     
@@ -1214,7 +1214,7 @@ async with XTools() as x:
 ### Comment Operations
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Simple comment
     await x.engage.comment(
         url="https://x.com/user/status/1234567890",
@@ -1252,7 +1252,7 @@ async with XTools() as x:
 ### Retweet Operations
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Simple retweet
     await x.engage.retweet("https://x.com/user/status/1234567890")
     
@@ -1271,7 +1271,7 @@ async with XTools() as x:
 ### Quote Tweet
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Quote tweet
     await x.engage.quote(
         url="https://x.com/user/status/1234567890",
@@ -1289,7 +1289,7 @@ async with XTools() as x:
 ### Bookmark Operations
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Add bookmark
     await x.engage.bookmark("https://x.com/user/status/1234567890")
     
@@ -1319,7 +1319,7 @@ async with XTools() as x:
 Full DM operations support.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Send DM
     await x.dm.send(
         username="friend",
@@ -1368,7 +1368,7 @@ async with XTools() as x:
 Schedule tweets and manage drafts.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Schedule a tweet
     scheduled = await x.schedule.tweet(
         text="Good morning everyone! ☀️",
@@ -1425,7 +1425,7 @@ async with XTools() as x:
 Create and interact with polls.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Create poll
     poll = await x.poll.create(
         question="What's your favorite programming language?",
@@ -1456,14 +1456,14 @@ async with XTools() as x:
 
 ## 🤖 AI Features
 
-XTools includes comprehensive AI integration for intelligent automation.
+Xeepy includes comprehensive AI integration for intelligent automation.
 
 ### Content Generator
 
 Generate tweets, replies, and threads with AI.
 
 ```python
-from xtools.ai import ContentGenerator
+from xeepy.ai import ContentGenerator
 
 # Initialize with OpenAI
 ai = ContentGenerator(
@@ -1573,7 +1573,7 @@ print(hashtags)
 Analyze sentiment and detect toxicity.
 
 ```python
-from xtools.ai import SentimentAnalyzer
+from xeepy.ai import SentimentAnalyzer
 
 analyzer = SentimentAnalyzer(provider="openai", api_key="sk-...")
 
@@ -1609,7 +1609,7 @@ print(f"Scores: {toxicity.scores}")
 Detect bots, spam, and fake accounts.
 
 ```python
-from xtools.ai import SpamDetector
+from xeepy.ai import SpamDetector
 
 detector = SpamDetector(provider="openai", api_key="sk-...")
 
@@ -1646,7 +1646,7 @@ print(f"Patterns detected: {behavior.patterns}")
 AI-powered targeting recommendations.
 
 ```python
-from xtools.ai import SmartTargeting
+from xeepy.ai import SmartTargeting
 
 targeting = SmartTargeting(provider="openai", api_key="sk-...")
 
@@ -1693,7 +1693,7 @@ for rec in recs:
 Specialized AI for crypto Twitter analysis.
 
 ```python
-from xtools.ai import CryptoAnalyzer
+from xeepy.ai import CryptoAnalyzer
 
 crypto = CryptoAnalyzer(provider="openai", api_key="sk-...")
 
@@ -1742,7 +1742,7 @@ for inf in influencers:
 Find and analyze influencers by niche.
 
 ```python
-from xtools.ai import InfluencerFinder
+from xeepy.ai import InfluencerFinder
 
 finder = InfluencerFinder(provider="openai", api_key="sk-...")
 
@@ -1778,10 +1778,10 @@ print(f"Audience quality: {analysis.audience_quality}")
 
 ### AI Providers
 
-XTools supports multiple AI providers with a unified interface.
+Xeepy supports multiple AI providers with a unified interface.
 
 ```python
-from xtools.ai.providers import OpenAIProvider, AnthropicProvider, OllamaProvider
+from xeepy.ai.providers import OpenAIProvider, AnthropicProvider, OllamaProvider
 
 # OpenAI
 openai = OpenAIProvider(
@@ -1836,7 +1836,7 @@ print(result["hashtags"])
 Track who unfollows you.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Take initial snapshot
     await x.monitor.snapshot_followers()
     
@@ -1861,7 +1861,7 @@ async with XTools() as x:
 Real-time keyword and hashtag monitoring.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Start monitoring
     monitor = await x.monitor.keywords(
         keywords=["python", "javascript"],
@@ -1891,7 +1891,7 @@ async with XTools() as x:
 Track changes to any account.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Start monitoring
     changes = await x.monitor.account(
         username="competitor",
@@ -1918,7 +1918,7 @@ async with XTools() as x:
 Get notified of new followers and milestones.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Set up alerts
     await x.monitor.follower_alerts(
         on_new_follower=handle_new_follower,
@@ -1940,7 +1940,7 @@ async with XTools() as x:
 Track engagement metrics over time.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Track engagement on a tweet
     tracker = await x.monitor.track_engagement(
         tweet_url="https://x.com/user/status/1234567890",
@@ -1980,7 +1980,7 @@ async with XTools() as x:
 Analyze your engagement patterns.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     analytics = await x.analytics.engagement(
         username="your_username",
         days=30
@@ -2005,7 +2005,7 @@ async with XTools() as x:
 Track follower growth over time.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     growth = await x.analytics.growth(
         days=90
     )
@@ -2027,7 +2027,7 @@ async with XTools() as x:
 Find optimal posting times.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     best_times = await x.analytics.best_times(
         days=60
     )
@@ -2050,7 +2050,7 @@ async with XTools() as x:
 Analyze your audience demographics and interests.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     insights = await x.analytics.audience(
         sample_size=1000
     )
@@ -2076,7 +2076,7 @@ async with XTools() as x:
 Compare your metrics against competitors.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     comparison = await x.analytics.compare_competitors(
         competitors=["competitor1", "competitor2", "competitor3"]
     )
@@ -2103,7 +2103,7 @@ async with XTools() as x:
 ### Discord Webhook
 
 ```python
-from xtools.notifications import DiscordNotifier
+from xeepy.notifications import DiscordNotifier
 
 discord = DiscordNotifier(
     webhook_url="https://discord.com/api/webhooks/..."
@@ -2128,7 +2128,7 @@ await discord.send_embed(
 ### Telegram Bot
 
 ```python
-from xtools.notifications import TelegramNotifier
+from xeepy.notifications import TelegramNotifier
 
 telegram = TelegramNotifier(
     bot_token="...",
@@ -2150,7 +2150,7 @@ await telegram.send_formatted(
 ### Email Notifications
 
 ```python
-from xtools.notifications import EmailNotifier
+from xeepy.notifications import EmailNotifier
 
 email = EmailNotifier(
     smtp_host="smtp.gmail.com",
@@ -2177,7 +2177,7 @@ await email.send_html(
 ### Unified Notification Manager
 
 ```python
-from xtools.notifications import NotificationManager
+from xeepy.notifications import NotificationManager
 
 manager = NotificationManager()
 
@@ -2208,7 +2208,7 @@ await manager.notify("milestone", "Reached 10K followers! 🎉")
 ### CSV Export
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     followers = await x.scrape.followers("username", limit=1000)
     
     # Basic export
@@ -2231,7 +2231,7 @@ async with XTools() as x:
 ### JSON Export
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     tweets = await x.scrape.tweets("username", limit=100)
     
     # Pretty JSON
@@ -2250,7 +2250,7 @@ async with XTools() as x:
 ### SQLite Export
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     followers = await x.scrape.followers("username", limit=1000)
     
     # Export to SQLite
@@ -2282,12 +2282,12 @@ async with XTools() as x:
 
 ### Database
 
-XTools uses SQLite for local data storage.
+Xeepy uses SQLite for local data storage.
 
 ```python
-from xtools.storage import Database
+from xeepy.storage import Database
 
-db = Database("~/.xtools/data.db")
+db = Database("~/.xeepy/data.db")
 
 # Create tables
 await db.create_table("followers", {
@@ -2320,9 +2320,9 @@ await db.migrate("v1_to_v2", migration_sql)
 Track follow/unfollow history.
 
 ```python
-from xtools.storage import FollowTracker
+from xeepy.storage import FollowTracker
 
-tracker = FollowTracker("~/.xtools/follows.db")
+tracker = FollowTracker("~/.xeepy/follows.db")
 
 # Track follow
 await tracker.track_follow("username")
@@ -2349,9 +2349,9 @@ await tracker.export("follow_history.csv")
 Take and compare follower snapshots.
 
 ```python
-from xtools.storage import SnapshotManager
+from xeepy.storage import SnapshotManager
 
-snapshots = SnapshotManager("~/.xtools/snapshots/")
+snapshots = SnapshotManager("~/.xeepy/snapshots/")
 
 # Take snapshot
 await snapshots.take("followers", followers_list)
@@ -2372,174 +2372,174 @@ print(f"Changed: {diff.changed}")
 
 ## 🖥️ CLI Reference
 
-XTools includes a comprehensive CLI.
+Xeepy includes a comprehensive CLI.
 
 ### Installation
 
 ```bash
-pip install xtools
+pip install xeepy
 ```
 
 ### Authentication
 
 ```bash
 # Interactive login
-xtools auth login
+xeepy auth login
 
 # Check status
-xtools auth status
+xeepy auth status
 
 # Logout
-xtools auth logout
+xeepy auth logout
 ```
 
 ### Scraping Commands
 
 ```bash
 # Scrape replies
-xtools scrape replies https://x.com/user/status/123 --limit 100 --output replies.csv
+xeepy scrape replies https://x.com/user/status/123 --limit 100 --output replies.csv
 
 # Scrape followers
-xtools scrape followers username --limit 1000 --output followers.json
+xeepy scrape followers username --limit 1000 --output followers.json
 
 # Scrape following
-xtools scrape following username --limit 500
+xeepy scrape following username --limit 500
 
 # Scrape tweets
-xtools scrape tweets username --limit 200 --include-replies
+xeepy scrape tweets username --limit 200 --include-replies
 
 # Scrape hashtag
-xtools scrape hashtag "#Python" --limit 100 --mode latest
+xeepy scrape hashtag "#Python" --limit 100 --mode latest
 
 # Search
-xtools scrape search "python programming" --limit 50 --type tweets
+xeepy scrape search "python programming" --limit 50 --type tweets
 ```
 
 ### Follow Commands
 
 ```bash
 # Follow user
-xtools follow user username
+xeepy follow user username
 
 # Follow by hashtag
-xtools follow hashtag "#Python" --limit 30 --min-followers 100
+xeepy follow hashtag "#Python" --limit 30 --min-followers 100
 
 # Follow by keyword
-xtools follow keyword "data scientist" --limit 20
+xeepy follow keyword "data scientist" --limit 20
 
 # Auto-follow
-xtools follow auto --config auto_follow.yaml
+xeepy follow auto --config auto_follow.yaml
 ```
 
 ### Unfollow Commands
 
 ```bash
 # Unfollow non-followers (preview)
-xtools unfollow non-followers --dry-run
+xeepy unfollow non-followers --dry-run
 
 # Unfollow non-followers (execute)
-xtools unfollow non-followers --max 100 --whitelist friends.txt
+xeepy unfollow non-followers --max 100 --whitelist friends.txt
 
 # Smart unfollow
-xtools unfollow smart --days 14 --dry-run
+xeepy unfollow smart --days 14 --dry-run
 
 # Unfollow by criteria
-xtools unfollow criteria --no-bio --no-tweets --dry-run
+xeepy unfollow criteria --no-bio --no-tweets --dry-run
 ```
 
 ### Engagement Commands
 
 ```bash
 # Like tweet
-xtools engage like https://x.com/user/status/123
+xeepy engage like https://x.com/user/status/123
 
 # Auto-like
-xtools engage auto-like "python" --limit 50
+xeepy engage auto-like "python" --limit 50
 
 # Comment
-xtools engage comment https://x.com/user/status/123 "Great post!"
+xeepy engage comment https://x.com/user/status/123 "Great post!"
 
 # Retweet
-xtools engage retweet https://x.com/user/status/123
+xeepy engage retweet https://x.com/user/status/123
 
 # Bookmark
-xtools engage bookmark https://x.com/user/status/123
+xeepy engage bookmark https://x.com/user/status/123
 ```
 
 ### Monitoring Commands
 
 ```bash
 # Check unfollowers
-xtools monitor unfollowers
+xeepy monitor unfollowers
 
 # Monitor keywords
-xtools monitor keywords "python,javascript" --interval 60
+xeepy monitor keywords "python,javascript" --interval 60
 
 # Monitor account
-xtools monitor account competitor --watch bio,followers
+xeepy monitor account competitor --watch bio,followers
 ```
 
 ### AI Commands
 
 ```bash
 # Generate reply
-xtools ai reply "Just launched my startup!" --style supportive
+xeepy ai reply "Just launched my startup!" --style supportive
 
 # Generate tweet
-xtools ai tweet "Python tips" --hashtags
+xeepy ai tweet "Python tips" --hashtags
 
 # Analyze sentiment
-xtools ai sentiment "I love this product!"
+xeepy ai sentiment "I love this product!"
 
 # Check for bots
-xtools ai detect-bot username
+xeepy ai detect-bot username
 ```
 
 ### Analytics Commands
 
 ```bash
 # Engagement report
-xtools analytics engagement --days 30
+xeepy analytics engagement --days 30
 
 # Growth report
-xtools analytics growth --days 90
+xeepy analytics growth --days 90
 
 # Best times
-xtools analytics best-times
+xeepy analytics best-times
 
 # Audience insights
-xtools analytics audience --sample 1000
+xeepy analytics audience --sample 1000
 ```
 
 ### Configuration
 
 ```bash
 # Show config
-xtools config show
+xeepy config show
 
 # Set value
-xtools config set headless true
+xeepy config set headless true
 
 # Reset
-xtools config reset
+xeepy config reset
 ```
 
 ---
 
 ## 🌐 REST API Server
 
-XTools can run as a REST API server.
+Xeepy can run as a REST API server.
 
 ### Start Server
 
 ```bash
-xtools api serve --port 8000
+xeepy api serve --port 8000
 ```
 
 Or programmatically:
 
 ```python
-from xtools.api import create_app
+from xeepy.api import create_app
 import uvicorn
 
 app = create_app()
@@ -2613,10 +2613,10 @@ Visit `http://localhost:8000/docs` for interactive API documentation.
 
 ## 🔷 GraphQL API
 
-XTools also supports GraphQL for flexible querying.
+Xeepy also supports GraphQL for flexible querying.
 
 ```python
-from xtools.api import GraphQLClient
+from xeepy.api import GraphQLClient
 
 client = GraphQLClient()
 
@@ -2785,9 +2785,9 @@ class EngagementResult:
 ### Full Configuration Options
 
 ```python
-from xtools.config import XToolsConfig
+from xeepy.config import XeepyConfig
 
-config = XToolsConfig(
+config = XeepyConfig(
     # === Browser Settings ===
     headless=True,              # Run browser in headless mode
     slow_mo=0,                  # Slow down operations (ms)
@@ -2818,9 +2818,9 @@ config = XToolsConfig(
     max_comments_per_hour=10,
     
     # === Storage ===
-    data_dir="~/.xtools",
-    database_path="~/.xtools/data.db",
-    session_path="~/.xtools/session.json",
+    data_dir="~/.xeepy",
+    database_path="~/.xeepy/data.db",
+    session_path="~/.xeepy/session.json",
     
     # === AI ===
     openai_api_key=None,
@@ -2845,7 +2845,7 @@ config = XToolsConfig(
     
     # === Logging ===
     log_level="INFO",
-    log_file="~/.xtools/xtools.log",
+    log_file="~/.xeepy/xeepy.log",
     log_format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     
     # === Advanced ===
@@ -2863,22 +2863,22 @@ All configuration options can be set via environment variables:
 
 ```bash
 # Browser
-XTOOLS_HEADLESS=true
-XTOOLS_TIMEOUT=30000
-XTOOLS_PROXY=http://proxy:8080
+XEEPY_HEADLESS=true
+XEEPY_TIMEOUT=30000
+XEEPY_PROXY=http://proxy:8080
 
 # Rate limits
-XTOOLS_MAX_FOLLOWS_PER_DAY=100
-XTOOLS_MAX_LIKES_PER_DAY=500
+XEEPY_MAX_FOLLOWS_PER_DAY=100
+XEEPY_MAX_LIKES_PER_DAY=500
 
 # Storage
-XTOOLS_DATA_DIR=~/.xtools
-XTOOLS_DATABASE_PATH=~/.xtools/data.db
+XEEPY_DATA_DIR=~/.xeepy
+XEEPY_DATABASE_PATH=~/.xeepy/data.db
 
 # AI
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
-XTOOLS_DEFAULT_AI_PROVIDER=openai
+XEEPY_DEFAULT_AI_PROVIDER=openai
 
 # Notifications
 DISCORD_WEBHOOK=https://...
@@ -2886,13 +2886,13 @@ TELEGRAM_BOT_TOKEN=...
 TELEGRAM_CHAT_ID=...
 
 # Logging
-XTOOLS_LOG_LEVEL=INFO
-XTOOLS_DEBUG_MODE=false
+XEEPY_LOG_LEVEL=INFO
+XEEPY_DEBUG_MODE=false
 ```
 
 ### Configuration File
 
-Create `~/.xtools/config.yaml`:
+Create `~/.xeepy/config.yaml`:
 
 ```yaml
 browser:
@@ -2925,7 +2925,7 @@ notifications:
 
 ## 🛡️ Rate Limits
 
-XTools enforces rate limits to protect your account.
+Xeepy enforces rate limits to protect your account.
 
 ### Default Limits
 
@@ -2943,16 +2943,16 @@ XTools enforces rate limits to protect your account.
 ### Customizing Limits
 
 ```python
-from xtools import XTools
-from xtools.config import XToolsConfig
+from xeepy import Xeepy
+from xeepy.config import XeepyConfig
 
-config = XToolsConfig(
+config = XeepyConfig(
     max_follows_per_day=50,  # More conservative
     max_likes_per_day=200,
     follow_delay=(5, 12),    # Slower
 )
 
-async with XTools(config=config) as x:
+async with Xeepy(config=config) as x:
     # Uses custom limits
     pass
 ```
@@ -2962,7 +2962,7 @@ async with XTools(config=config) as x:
 ⚠️ **Not recommended** - may result in account suspension.
 
 ```python
-async with XTools(rate_limit=False) as x:
+async with Xeepy(rate_limit=False) as x:
     # No rate limiting (dangerous!)
     pass
 ```
@@ -2971,13 +2971,13 @@ async with XTools(rate_limit=False) as x:
 
 ## ❌ Error Handling
 
-XTools provides comprehensive error handling.
+Xeepy provides comprehensive error handling.
 
 ### Exception Types
 
 ```python
-from xtools.exceptions import (
-    XToolsError,           # Base exception
+from xeepy.exceptions import (
+    XeepyError,           # Base exception
     AuthenticationError,   # Login/session issues
     RateLimitError,        # Rate limit exceeded
     ScraperError,          # Scraping failed
@@ -2992,15 +2992,15 @@ from xtools.exceptions import (
 ### Handling Errors
 
 ```python
-from xtools import XTools
-from xtools.exceptions import (
+from xeepy import Xeepy
+from xeepy.exceptions import (
     AuthenticationError,
     RateLimitError,
     ScraperError,
     ActionError
 )
 
-async with XTools() as x:
+async with Xeepy() as x:
     try:
         await x.follow.user("username")
     
@@ -3020,14 +3020,14 @@ async with XTools() as x:
     except ScraperError as e:
         print(f"Scraping failed: {e}")
     
-    except XToolsError as e:
+    except XeepyError as e:
         print(f"General error: {e}")
 ```
 
 ### Retry Logic
 
 ```python
-from xtools.utils import retry
+from xeepy.utils import retry
 
 @retry(attempts=3, delay=5)
 async def follow_with_retry(x, username):
@@ -3047,18 +3047,18 @@ result = await retry(
 ## ❓ FAQ
 
 <details>
-<summary><strong>Does XTools require Twitter API keys?</strong></summary>
+<summary><strong>Does Xeepy require Twitter API keys?</strong></summary>
 
-No! XTools uses browser automation (Playwright) instead of the Twitter API. This means:
+No! Xeepy uses browser automation (Playwright) instead of the Twitter API. This means:
 - No API keys required
 - No monthly fees ($100-5000)
 - Access to data not available via API (like tweet replies)
 </details>
 
 <details>
-<summary><strong>Is XTools safe to use?</strong></summary>
+<summary><strong>Is Xeepy safe to use?</strong></summary>
 
-XTools includes built-in rate limiting to protect your account. However:
+Xeepy includes built-in rate limiting to protect your account. However:
 - This is for educational purposes only
 - Using automation may violate X/Twitter ToS
 - Use at your own risk
@@ -3066,9 +3066,9 @@ XTools includes built-in rate limiting to protect your account. However:
 </details>
 
 <details>
-<summary><strong>Why is XTools better than Tweepy?</strong></summary>
+<summary><strong>Why is Xeepy better than Tweepy?</strong></summary>
 
-| Feature | XTools | Tweepy |
+| Feature | Xeepy | Tweepy |
 |---------|--------|--------|
 | API Cost | $0 | $100-5000/month |
 | Get Replies | ✅ | ❌ |
@@ -3078,11 +3078,11 @@ XTools includes built-in rate limiting to protect your account. However:
 </details>
 
 <details>
-<summary><strong>Can I run XTools on a server?</strong></summary>
+<summary><strong>Can I run Xeepy on a server?</strong></summary>
 
 Yes! Use headless mode:
 ```python
-async with XTools(headless=True) as x:
+async with Xeepy(headless=True) as x:
     pass
 ```
 For Docker, use the official Playwright image.
@@ -3092,7 +3092,7 @@ For Docker, use the official Playwright image.
 <summary><strong>How do I save my login session?</strong></summary>
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Login
     await x.auth.login()
     
@@ -3100,7 +3100,7 @@ async with XTools() as x:
     await x.auth.save_session("session.json")
 
 # Later, load session
-async with XTools() as x:
+async with Xeepy() as x:
     await x.auth.load_session("session.json")
 ```
 </details>
@@ -3110,8 +3110,8 @@ async with XTools() as x:
 
 Yes:
 ```python
-config = XToolsConfig(proxy="http://proxy:8080")
-async with XTools(config=config) as x:
+config = XeepyConfig(proxy="http://proxy:8080")
+async with Xeepy(config=config) as x:
     pass
 ```
 </details>
@@ -3121,7 +3121,7 @@ async with XTools(config=config) as x:
 
 Use interactive login mode which opens a visible browser:
 ```python
-async with XTools(headless=False) as x:
+async with Xeepy(headless=False) as x:
     await x.auth.login()  # Complete 2FA manually
     await x.auth.save_session("session.json")  # Save for later
 ```
@@ -3145,7 +3145,7 @@ Yes! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## 🔄 Comparison with Alternatives
 
-| Feature | XTools | Tweepy | Snscrape | Twint | Nitter |
+| Feature | Xeepy | Tweepy | Snscrape | Twint | Nitter |
 |---------|--------|--------|----------|-------|--------|
 | No API Required | ✅ | ❌ | ✅ | ✅ | ✅ |
 | Currently Working | ✅ | ⚠️ | ❌ | ❌ | ⚠️ |
@@ -3212,15 +3212,15 @@ Real-world recipes and complete workflows for common use cases.
 Find and engage with viral content in your niche before it peaks.
 
 ```python
-from xtools import XTools
-from xtools.ai import ContentGenerator
+from xeepy import Xeepy
+from xeepy.ai import ContentGenerator
 
 async def detect_viral_content(niche_keywords: list[str], min_velocity: float = 2.0):
     """
     Detect tweets gaining traction faster than normal.
     Velocity = engagement gained per hour since posting.
     """
-    async with XTools() as x:
+    async with Xeepy() as x:
         viral_tweets = []
         
         for keyword in niche_keywords:
@@ -3274,7 +3274,7 @@ async def engagement_pod_workflow(
     Coordinate engagement from pod members on a target tweet.
     Staggers actions to appear natural.
     """
-    async with XTools() as x:
+    async with Xeepy() as x:
         ai = ContentGenerator(provider="openai", api_key="sk-...")
         
         # Get tweet details for context
@@ -3322,7 +3322,7 @@ async def follower_surge_campaign(
     Execute a multi-day follower growth campaign.
     Combines multiple strategies for maximum growth.
     """
-    async with XTools() as x:
+    async with Xeepy() as x:
         campaign_results = {
             "total_followed": 0,
             "total_followbacks": 0,
@@ -3399,7 +3399,7 @@ async def content_calendar_automation(
     content_queue format:
     [{"text": "...", "media": [...], "type": "tweet|thread"}]
     """
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get best posting times
         best_times = await x.analytics.best_times(days=60)
         optimal_slots = best_times.top_slots[:3]  # Top 3 time slots
@@ -3457,7 +3457,7 @@ async def smart_engagement_pipeline(
     """
     Smart engagement that tracks performance and optimizes.
     """
-    async with XTools() as x:
+    async with Xeepy() as x:
         ai = ContentGenerator(provider="openai", api_key="sk-...")
         
         # Track engagement performance
@@ -3548,8 +3548,8 @@ async def notification_driven_workflow():
     """
     React to Twitter events with automated workflows.
     """
-    async with XTools() as x:
-        from xtools.notifications import NotificationManager
+    async with Xeepy() as x:
+        from xeepy.notifications import NotificationManager
         
         notifier = NotificationManager()
         notifier.add_channel("discord", DiscordNotifier(webhook_url="..."))
@@ -3603,7 +3603,7 @@ async def account_cleanup_workflow(
     """
     Complete account cleanup: unfollow inactive, non-followers, and spam.
     """
-    async with XTools() as x:
+    async with Xeepy() as x:
         cleanup_report = {
             "unfollowed_inactive": 0,
             "unfollowed_non_followers": 0,
@@ -3663,8 +3663,8 @@ async def sentiment_dashboard(
     Track sentiment for keywords over time.
     Returns data suitable for visualization.
     """
-    async with XTools() as x:
-        from xtools.ai import SentimentAnalyzer
+    async with Xeepy() as x:
+        from xeepy.ai import SentimentAnalyzer
         
         analyzer = SentimentAnalyzer(provider="openai", api_key="sk-...")
         
@@ -3741,7 +3741,7 @@ async def network_analysis(
     Build and analyze a follower network graph.
     Identifies communities, influencers, and connection patterns.
     """
-    async with XTools() as x:
+    async with Xeepy() as x:
         import networkx as nx  # Requires: pip install networkx
         
         G = nx.DiGraph()
@@ -3831,7 +3831,7 @@ async def build_engagement_predictor(
     Analyze historical tweets to predict future engagement.
     Returns insights and a simple prediction function.
     """
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Fetch historical tweets
         tweets = await x.scrape.tweets(username, limit=training_tweets)
         
@@ -3912,7 +3912,7 @@ async def competitor_intelligence(
     """
     Comprehensive competitor monitoring and analysis.
     """
-    async with XTools() as x:
+    async with Xeepy() as x:
         ai = ContentGenerator(provider="openai", api_key="sk-...")
         
         intelligence = {}
@@ -4020,7 +4020,7 @@ async def lead_generation_pipeline(
         "min_engagement_rate": 0.02
     }
     """
-    async with XTools() as x:
+    async with Xeepy() as x:
         leads = []
         processed = set()
         
@@ -4132,7 +4132,7 @@ async def trend_analysis(
     """
     Deep analysis of trending topics and their evolution.
     """
-    async with XTools() as x:
+    async with Xeepy() as x:
         ai = ContentGenerator(provider="openai", api_key="sk-...")
         
         # Get current trends
@@ -4235,7 +4235,7 @@ async def research_data_collection(
     Collect and prepare data for academic research.
     Includes anonymization and ethical considerations.
     """
-    async with XTools() as x:
+    async with Xeepy() as x:
         dataset = {
             "metadata": {
                 "query": research_query,
@@ -4348,7 +4348,7 @@ def export_research_data(dataset: dict, base_filename: str):
 </p>
 
 <p align="center">
-  <sub>If XTools helped you, consider giving it a ⭐!</sub>
+  <sub>If Xeepy helped you, consider giving it a ⭐!</sub>
 </p>
 
 ---

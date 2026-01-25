@@ -9,9 +9,9 @@ Automatically like tweets matching your criteria:
 === "Python"
 
     ```python
-    from xtools import XTools
+    from xeepy import Xeepy
 
-    async with XTools() as x:
+    async with Xeepy() as x:
         result = await x.engage.auto_like(
             keywords=["python", "programming", "tech"],
             max_likes=50,
@@ -33,7 +33,7 @@ Automatically like tweets matching your criteria:
 === "CLI"
 
     ```bash
-    xtools engage like --keywords "python,programming" --max 50
+    xeepy engage like --keywords "python,programming" --max 50
     ```
 
 ### Smart Targeting
@@ -74,7 +74,7 @@ Like multiple tweets from same author for better visibility:
 ```python
 async def engagement_chain(username, count=5):
     """Like multiple tweets from one user"""
-    async with XTools() as x:
+    async with Xeepy() as x:
         tweets = await x.scrape.tweets(username, limit=count)
         
         for tweet in tweets:
@@ -89,9 +89,9 @@ async def engagement_chain(username, count=5):
 Amplify content while building relationships:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     result = await x.engage.auto_retweet(
         keywords=["python tips", "coding advice"],
         max_retweets=10,  # Be conservative with RTs
@@ -109,10 +109,10 @@ async with XTools() as x:
 Add intelligent comments to your retweets:
 
 ```python
-from xtools import XTools
-from xtools.ai import ContentGenerator
+from xeepy import Xeepy
+from xeepy.ai import ContentGenerator
 
-async with XTools() as x:
+async with Xeepy() as x:
     ai = ContentGenerator(provider="openai", model="gpt-4o-mini")
     
     # Find tweets to quote
@@ -144,10 +144,10 @@ async with XTools() as x:
 Reply to tweets automatically with AI-generated comments:
 
 ```python
-from xtools import XTools
-from xtools.ai import ContentGenerator
+from xeepy import Xeepy
+from xeepy.ai import ContentGenerator
 
-async with XTools() as x:
+async with Xeepy() as x:
     ai = ContentGenerator(
         provider="openai",
         model="gpt-4o-mini",
@@ -186,7 +186,7 @@ async with XTools() as x:
 Use templates for consistent engagement:
 
 ```python
-from xtools.engage import ReplyTemplates
+from xeepy.engage import ReplyTemplates
 
 templates = ReplyTemplates(
     greetings=["Great point!", "Love this!", "So true!"],
@@ -207,7 +207,7 @@ templates = ReplyTemplates(
     ]
 )
 
-async with XTools() as x:
+async with Xeepy() as x:
     result = await x.engage.auto_reply(
         keywords=["python tips"],
         templates=templates,
@@ -224,7 +224,7 @@ Engage in multi-turn conversations:
 async def conversation_bot():
     """Monitor and respond to replies to your tweets"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         ai = ContentGenerator(provider="openai")
         
         # Get replies to your tweets
@@ -257,7 +257,7 @@ async def conversation_bot():
 Organize content with smart bookmarking:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Auto-bookmark valuable content
     result = await x.engage.auto_bookmark(
         keywords=["python tutorial", "coding tips", "tech insights"],
@@ -280,7 +280,7 @@ async with XTools() as x:
 Organize bookmarks by category:
 
 ```python
-from xtools.storage import BookmarkManager
+from xeepy.storage import BookmarkManager
 
 bm = BookmarkManager("bookmarks.db")
 
@@ -292,7 +292,7 @@ categories = {
     "save_for_later": ["interesting", "read later"],
 }
 
-async with XTools() as x:
+async with Xeepy() as x:
     bookmarks = await x.scrape.bookmarks(limit=200)
     
     for bookmark in bookmarks:
@@ -311,7 +311,7 @@ async with XTools() as x:
 Coordinate engagement with a group (use ethically!):
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 import asyncio
 
 class EngagementPod:
@@ -330,7 +330,7 @@ class EngagementPod:
     
     async def run_pod_session(self):
         """Engage with all pod members"""
-        async with XTools() as x:
+        async with Xeepy() as x:
             for member in self.members:
                 if member != "my_username":  # Skip self
                     await self.engage_with_member(x, member)
@@ -346,7 +346,7 @@ asyncio.run(pod.run_pod_session())
 Track your engagement effectiveness:
 
 ```python
-from xtools.storage import EngagementTracker
+from xeepy.storage import EngagementTracker
 
 tracker = EngagementTracker("engagement.db")
 
@@ -373,8 +373,8 @@ print(f"  Best keywords: {effectiveness.best_keywords}")
 Run engagement at optimal times:
 
 ```python
-from xtools import XTools
-from xtools.scheduling import EngagementScheduler
+from xeepy import Xeepy
+from xeepy.scheduling import EngagementScheduler
 
 scheduler = EngagementScheduler(
     active_hours=(9, 22),  # 9 AM to 10 PM
@@ -382,7 +382,7 @@ scheduler = EngagementScheduler(
 )
 
 async def scheduled_engagement():
-    async with XTools() as x:
+    async with Xeepy() as x:
         schedule = scheduler.get_today_schedule(
             likes_per_day=50,
             replies_per_day=10,

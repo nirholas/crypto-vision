@@ -1,6 +1,6 @@
 # Getting Started
 
-Welcome to XTools! This guide will take you from zero to automating X/Twitter in under 5 minutes.
+Welcome to Xeepy! This guide will take you from zero to automating X/Twitter in under 5 minutes.
 
 ## What You'll Learn
 
@@ -10,7 +10,7 @@ Welcome to XTools! This guide will take you from zero to automating X/Twitter in
 
     ---
 
-    Install XTools and its dependencies with a single command
+    Install Xeepy and its dependencies with a single command
 
     [:octicons-arrow-right-24: Install Guide](installation.md)
 
@@ -34,7 +34,7 @@ Welcome to XTools! This guide will take you from zero to automating X/Twitter in
 
     ---
 
-    Customize XTools for your use case
+    Customize Xeepy for your use case
 
     [:octicons-arrow-right-24: Config Guide](configuration.md)
 
@@ -51,14 +51,14 @@ Welcome to XTools! This guide will take you from zero to automating X/Twitter in
 ## The 60-Second Version
 
 ```bash
-# Install XTools
-pip install xtools
+# Install Xeepy
+pip install xeepy
 
 # Install browser
 playwright install chromium
 
 # Run your first scrape
-xtools scrape replies https://x.com/elonmusk/status/123456789
+xeepy scrape replies https://x.com/elonmusk/status/123456789
 ```
 
 That's it! You're now scraping X/Twitter without paying for API access.
@@ -72,7 +72,7 @@ That's it! You're now scraping X/Twitter without paying for API access.
 | Chromium | Auto-installed | Browser for scraping |
 
 !!! tip "No API Keys Required"
-    Unlike Tweepy or the official Twitter API, XTools uses browser automation.
+    Unlike Tweepy or the official Twitter API, Xeepy uses browser automation.
     This means:
     
     - ✅ No $100/month API fees
@@ -98,7 +98,7 @@ graph LR
 
 ### Recommended Reading Order
 
-1. **[Installation](installation.md)** - Get XTools running (2 min)
+1. **[Installation](installation.md)** - Get Xeepy running (2 min)
 2. **[Authentication](authentication.md)** - Set up your session (3 min)
 3. **[Quick Start](quickstart.md)** - Run example scripts (5 min)
 4. **[First Script](first-script.md)** - Build something useful (10 min)
@@ -111,9 +111,9 @@ graph LR
     Perfect! Jump straight to the [Scraping Guide](../guides/scraping/index.md).
     
     ```python
-    from xtools import XTools
+    from xeepy import Xeepy
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get 1000 replies to any tweet
         replies = await x.scrape.replies(tweet_url, limit=1000)
         x.export.to_csv(replies, "replies.csv")
@@ -124,7 +124,7 @@ graph LR
     Check out our [Growth Automation Cookbook](../cookbook/growth/index.md).
     
     ```python
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Unfollow non-followers, follow by hashtag
         await x.unfollow.non_followers(max_unfollows=100)
         await x.follow.by_hashtag("#buildinpublic", limit=50)
@@ -135,7 +135,7 @@ graph LR
     Head to the [Analytics Guide](../guides/analytics/index.md).
     
     ```python
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Track growth, find best posting times
         growth = await x.analytics.track_growth("7d")
         best_times = await x.analytics.best_time_to_post()
@@ -146,7 +146,7 @@ graph LR
     Explore [AI Features](../guides/ai/index.md).
     
     ```python
-    from xtools.ai import ContentGenerator
+    from xeepy.ai import ContentGenerator
     
     ai = ContentGenerator(provider="openai")
     reply = await ai.generate_reply(tweet_text, style="witty")
@@ -155,10 +155,10 @@ graph LR
 ## Need Help?
 
 - :material-book: [FAQ](../community/faq.md) - Common questions answered
-- :material-github: [GitHub Issues](https://github.com/xtools/xtools/issues) - Bug reports
-- :material-discord: [Discord](https://discord.gg/xtools) - Community support
-- :material-email: [Email](mailto:support@xtools.dev) - Direct support
+- :material-github: [GitHub Issues](https://github.com/xeepy/xeepy/issues) - Bug reports
+- :material-discord: [Discord](https://discord.gg/xeepy) - Community support
+- :material-email: [Email](mailto:support@xeepy.dev) - Direct support
 
 ---
 
-Ready? Let's [install XTools](installation.md) →
+Ready? Let's [install Xeepy](installation.md) →

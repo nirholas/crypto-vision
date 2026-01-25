@@ -1,6 +1,6 @@
 # Rate Limiting
 
-Intelligent rate limiting is crucial for account safety. XTools provides sophisticated rate limiting that protects your accounts while maximizing throughput.
+Intelligent rate limiting is crucial for account safety. Xeepy provides sophisticated rate limiting that protects your accounts while maximizing throughput.
 
 ## Understanding Twitter Rate Limits
 
@@ -17,32 +17,32 @@ Twitter enforces various rate limits:
 | Search | 180/15min | 15 minutes |
 
 !!! warning "Limits Change"
-    Twitter frequently updates rate limits without notice. XTools monitors for rate limit responses and adapts accordingly.
+    Twitter frequently updates rate limits without notice. Xeepy monitors for rate limit responses and adapts accordingly.
 
 ## Rate Limit Profiles
 
 ### Built-in Profiles
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
 # Conservative - safest, slowest
-async with XTools(rate_limit_profile="conservative") as x:
+async with Xeepy(rate_limit_profile="conservative") as x:
     # 5-10 second delays, 50% of limits
     pass
 
 # Normal - balanced approach (default)
-async with XTools(rate_limit_profile="normal") as x:
+async with Xeepy(rate_limit_profile="normal") as x:
     # 2-5 second delays, 70% of limits
     pass
 
 # Aggressive - faster, riskier
-async with XTools(rate_limit_profile="aggressive") as x:
+async with Xeepy(rate_limit_profile="aggressive") as x:
     # 1-2 second delays, 90% of limits
     pass
 
 # Stealth - human-like patterns
-async with XTools(rate_limit_profile="stealth") as x:
+async with Xeepy(rate_limit_profile="stealth") as x:
     # Variable delays, activity bursts, breaks
     pass
 ```
@@ -92,8 +92,8 @@ PROFILES = {
 ### Creating Custom Profiles
 
 ```python
-from xtools import XTools
-from xtools.core.rate_limiter import RateLimitProfile
+from xeepy import Xeepy
+from xeepy.core.rate_limiter import RateLimitProfile
 
 # Define custom profile
 custom_profile = RateLimitProfile(
@@ -121,14 +121,14 @@ custom_profile = RateLimitProfile(
     }
 )
 
-async with XTools(rate_limit_profile=custom_profile) as x:
+async with Xeepy(rate_limit_profile=custom_profile) as x:
     pass
 ```
 
 ### Runtime Configuration
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Adjust limits at runtime
     x.rate_limiter.set_delay("follow", (10, 20))
     x.rate_limiter.set_daily_limit("follow", 50)
@@ -146,8 +146,8 @@ async with XTools() as x:
 The stealth profile mimics human behavior patterns:
 
 ```python
-from xtools import XTools
-from xtools.core.rate_limiter import StealthConfig
+from xeepy import Xeepy
+from xeepy.core.rate_limiter import StealthConfig
 
 stealth_config = StealthConfig(
     # Activity windows (24-hour format)
@@ -170,7 +170,7 @@ stealth_config = StealthConfig(
     timezone="America/New_York",
 )
 
-async with XTools(stealth_config=stealth_config) as x:
+async with Xeepy(stealth_config=stealth_config) as x:
     # Actions follow human-like patterns
     await x.engage.auto_like(keywords=["python"], limit=100)
 ```
@@ -219,8 +219,8 @@ class HumanPatterns:
 ### Automatic Retry
 
 ```python
-from xtools import XTools
-from xtools.core.rate_limiter import RetryConfig
+from xeepy import Xeepy
+from xeepy.core.rate_limiter import RetryConfig
 
 retry_config = RetryConfig(
     max_retries=3,
@@ -229,7 +229,7 @@ retry_config = RetryConfig(
     max_delay=900,     # Max 15 minutes
 )
 
-async with XTools(retry_config=retry_config) as x:
+async with Xeepy(retry_config=retry_config) as x:
     # Automatically retries on rate limit
     await x.follow.user("username")
 ```
@@ -237,10 +237,10 @@ async with XTools(retry_config=retry_config) as x:
 ### Manual Handling
 
 ```python
-from xtools.exceptions import RateLimitError
+from xeepy.exceptions import RateLimitError
 import asyncio
 
-async with XTools() as x:
+async with Xeepy() as x:
     try:
         await x.follow.user("username")
     except RateLimitError as e:
@@ -261,7 +261,7 @@ async def on_rate_limit(action: str, retry_after: int):
         f"⚠️ Rate limited on {action}. Resuming in {retry_after}s"
     )
 
-async with XTools(on_rate_limit=on_rate_limit) as x:
+async with Xeepy(on_rate_limit=on_rate_limit) as x:
     await x.engage.auto_like(keywords=["crypto"], limit=500)
 ```
 
@@ -270,8 +270,8 @@ async with XTools(on_rate_limit=on_rate_limit) as x:
 When managing multiple accounts, distribute load:
 
 ```python
-from xtools import XTools
-from xtools.core.rate_limiter import GlobalRateLimiter
+from xeepy import Xeepy
+from xeepy.core.rate_limiter import GlobalRateLimiter
 
 # Shared rate limiter across accounts
 global_limiter = GlobalRateLimiter(
@@ -286,7 +286,7 @@ accounts = [
 ]
 
 async def process_account(account_config):
-    async with XTools(
+    async with Xeepy(
         cookies=account_config["cookies"],
         global_rate_limiter=global_limiter
     ) as x:
@@ -301,7 +301,7 @@ await asyncio.gather(*[process_account(a) for a in accounts])
 ### Real-time Statistics
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Get current stats
     stats = x.rate_limiter.get_stats()
     print(f"Today's follows: {stats['follow']['count']}/{stats['follow']['limit']}")
@@ -338,7 +338,7 @@ plt.savefig("activity_chart.png")
 
 ```python
 # New accounts should use conservative limits
-async with XTools(rate_limit_profile="conservative") as x:
+async with Xeepy(rate_limit_profile="conservative") as x:
     # Gradually increase over weeks
     pass
 ```
@@ -351,7 +351,7 @@ async def warmup_account(days: int = 7):
     for day in range(days):
         multiplier = (day + 1) / days  # 0.14 to 1.0
         
-        async with XTools() as x:
+        async with Xeepy() as x:
             x.rate_limiter.set_multiplier(multiplier)
             
             # Light activity
@@ -364,7 +364,7 @@ async def warmup_account(days: int = 7):
 ### 3. Monitor Account Health
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Check for warnings
     health = await x.account.health_check()
     
@@ -381,7 +381,7 @@ async with XTools() as x:
 
 ```python
 # Add randomness to delays
-from xtools.core.rate_limiter import add_jitter
+from xeepy.core.rate_limiter import add_jitter
 
 base_delay = 5
 actual_delay = add_jitter(base_delay, jitter_percent=30)

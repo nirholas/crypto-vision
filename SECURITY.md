@@ -9,7 +9,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in XTools, please report it responsibly:
+If you discover a security vulnerability in Xeepy, please report it responsibly:
 
 ### DO NOT
 
@@ -103,17 +103,17 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 ```bash
 # Verify package integrity
-pip install xtools --require-hashes
+pip install xeepy --require-hashes
 
 # Or check package checksums
-pip hash xtools
+pip hash xeepy
 ```
 
 ---
 
 ## Responsible Use
 
-XTools is for **educational purposes only**. Users must:
+Xeepy is for **educational purposes only**. Users must:
 
 1. Comply with X/Twitter Terms of Service
 2. Respect rate limits
@@ -123,4 +123,4 @@ XTools is for **educational purposes only**. Users must:
 
 ---
 
-Thank you for helping keep XTools secure! 🛡️
+Thank you for helping keep Xeepy secure! 🛡️

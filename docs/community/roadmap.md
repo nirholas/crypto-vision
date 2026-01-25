@@ -1,6 +1,6 @@
 # Roadmap
 
-Our vision for XTools' future development.
+Our vision for Xeepy' future development.
 
 ## Current Version: 1.0.0
 
@@ -69,11 +69,11 @@ Released January 2024 with core functionality.
 
 ## Q4 2024
 
-### v2.0.0 - XTools Cloud ☁️
+### v2.0.0 - Xeepy Cloud ☁️
 
 Major version with cloud capabilities:
 
-- [ ] **XTools Cloud** - Managed SaaS version
+- [ ] **Xeepy Cloud** - Managed SaaS version
 - [ ] **Web dashboard** - Browser-based interface
 - [ ] **Mobile app** - iOS/Android companion
 - [ ] **Real-time sync** - Cross-device synchronization
@@ -118,13 +118,13 @@ These are being explored but not yet scheduled:
 ## How to Influence the Roadmap
 
 ### Vote on Features
-Star and comment on [GitHub Issues](https://github.com/xtools/xtools/issues) to show interest.
+Star and comment on [GitHub Issues](https://github.com/xeepy/xeepy/issues) to show interest.
 
 ### Propose Features
-Open a [Discussion](https://github.com/xtools/xtools/discussions/new?category=ideas) with your idea.
+Open a [Discussion](https://github.com/xeepy/xeepy/discussions/new?category=ideas) with your idea.
 
 ### Sponsor Development
-[Sponsor](https://github.com/sponsors/xtools) to prioritize features you need.
+[Sponsor](https://github.com/sponsors/xeepy) to prioritize features you need.
 
 ### Contribute
 Implement features yourself - we love PRs!

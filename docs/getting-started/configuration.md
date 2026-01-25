@@ -1,14 +1,14 @@
 # Configuration
 
-XTools is highly configurable. This guide covers all configuration options and best practices.
+Xeepy is highly configurable. This guide covers all configuration options and best practices.
 
 ## Configuration Methods
 
-XTools supports multiple configuration methods (in order of precedence):
+Xeepy supports multiple configuration methods (in order of precedence):
 
 1. **Code** - Direct parameters in your script
 2. **Environment variables** - For secrets and deployment
-3. **Config file** - `xtools.toml` or `xtools.yaml`
+3. **Config file** - `xeepy.toml` or `xeepy.yaml`
 4. **Defaults** - Sensible built-in defaults
 
 ## Quick Configuration
@@ -16,9 +16,9 @@ XTools supports multiple configuration methods (in order of precedence):
 ### In Code
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools(
+async with Xeepy(
     headless=True,           # Run browser invisibly
     timeout=30000,           # 30 second timeout
     rate_limit=20,           # Max 20 requests/minute
@@ -32,17 +32,17 @@ async with XTools(
 
 ```bash
 # Authentication
-export XTOOLS_SESSION_FILE="/path/to/session.json"
+export XEEPY_SESSION_FILE="/path/to/session.json"
 
 # Browser
-export XTOOLS_HEADLESS=true
-export XTOOLS_TIMEOUT=30000
+export XEEPY_HEADLESS=true
+export XEEPY_TIMEOUT=30000
 
 # Rate limiting
-export XTOOLS_RATE_LIMIT=20
+export XEEPY_RATE_LIMIT=20
 
 # Proxy
-export XTOOLS_PROXY_URL="http://user:pass@proxy:8080"
+export XEEPY_PROXY_URL="http://user:pass@proxy:8080"
 
 # AI Features
 export OPENAI_API_KEY="sk-..."
@@ -56,10 +56,10 @@ export TELEGRAM_CHAT_ID="123456789"
 
 ### Config File
 
-Create `xtools.toml` in your project root:
+Create `xeepy.toml` in your project root:
 
 ```toml
-[xtools]
+[xeepy]
 # ============================================
 # CORE SETTINGS
 # ============================================
@@ -74,13 +74,13 @@ timeout = 30000
 slow_mo = 100
 
 # Default session file location
-session_file = "~/.config/xtools/session.json"
+session_file = "~/.config/xeepy/session.json"
 
 # ============================================
 # RATE LIMITING
 # ============================================
 
-[xtools.rate_limit]
+[xeepy.rate_limit]
 # Global rate limit (requests per minute)
 requests_per_minute = 20
 
@@ -97,7 +97,7 @@ cooldown_duration = 300
 # PROXY SETTINGS
 # ============================================
 
-[xtools.proxy]
+[xeepy.proxy]
 enabled = false
 url = "http://user:pass@proxy:8080"
 
@@ -109,7 +109,7 @@ proxy_file = "proxies.txt"
 # BROWSER FINGERPRINT
 # ============================================
 
-[xtools.browser]
+[xeepy.browser]
 # User agent (leave empty for default)
 user_agent = ""
 
@@ -125,24 +125,24 @@ timezone = "America/New_York"
 # STORAGE & CACHING
 # ============================================
 
-[xtools.storage]
+[xeepy.storage]
 # Enable caching
 cache_enabled = true
 
 # Cache location
-cache_dir = "~/.cache/xtools"
+cache_dir = "~/.cache/xeepy"
 
 # Cache TTL (seconds) - how long to keep cached data
 cache_ttl = 3600
 
 # Database for persistent storage
-database_url = "sqlite:///~/.local/share/xtools/data.db"
+database_url = "sqlite:///~/.local/share/xeepy/data.db"
 
 # ============================================
 # EXPORT DEFAULTS
 # ============================================
 
-[xtools.export]
+[xeepy.export]
 # Default format: csv, json, excel, parquet
 default_format = "csv"
 
@@ -156,22 +156,22 @@ timestamp_filenames = true
 # AI FEATURES
 # ============================================
 
-[xtools.ai]
+[xeepy.ai]
 # Default provider: openai, anthropic, ollama
 default_provider = "openai"
 
 # Model settings per provider
-[xtools.ai.openai]
+[xeepy.ai.openai]
 model = "gpt-4-turbo"
 temperature = 0.7
 max_tokens = 500
 
-[xtools.ai.anthropic]
+[xeepy.ai.anthropic]
 model = "claude-3-sonnet"
 temperature = 0.7
 max_tokens = 500
 
-[xtools.ai.ollama]
+[xeepy.ai.ollama]
 model = "llama3"
 base_url = "http://localhost:11434"
 
@@ -179,7 +179,7 @@ base_url = "http://localhost:11434"
 # NOTIFICATIONS
 # ============================================
 
-[xtools.notifications]
+[xeepy.notifications]
 # Enable notifications
 enabled = true
 
@@ -206,12 +206,12 @@ email_to = ""
 # LOGGING
 # ============================================
 
-[xtools.logging]
+[xeepy.logging]
 # Log level: DEBUG, INFO, WARNING, ERROR
 level = "INFO"
 
 # Log file (leave empty for console only)
-file = "~/.local/share/xtools/xtools.log"
+file = "~/.local/share/xeepy/xeepy.log"
 
 # Log format
 format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -224,7 +224,7 @@ backup_count = 5
 # SAFETY SETTINGS
 # ============================================
 
-[xtools.safety]
+[xeepy.safety]
 # Dry run mode (no actual actions)
 dry_run = false
 
@@ -244,13 +244,13 @@ whitelist_file = "whitelist.txt"
 
 ## YAML Format
 
-If you prefer YAML, create `xtools.yaml`:
+If you prefer YAML, create `xeepy.yaml`:
 
 ```yaml
-xtools:
+xeepy:
   headless: true
   timeout: 30000
-  session_file: ~/.config/xtools/session.json
+  session_file: ~/.config/xeepy/session.json
 
   rate_limit:
     requests_per_minute: 20
@@ -276,35 +276,35 @@ xtools:
 ### Development
 
 ```toml
-# xtools.dev.toml
-[xtools]
+# xeepy.dev.toml
+[xeepy]
 headless = false  # See the browser
 slow_mo = 500     # Slow for debugging
 rate_limit.requests_per_minute = 5  # Conservative
 
-[xtools.logging]
+[xeepy.logging]
 level = "DEBUG"
 
-[xtools.safety]
+[xeepy.safety]
 dry_run = true    # Don't actually perform actions
 ```
 
 ### Production
 
 ```toml
-# xtools.prod.toml
-[xtools]
+# xeepy.prod.toml
+[xeepy]
 headless = true
 slow_mo = 50
 
-[xtools.rate_limit]
+[xeepy.rate_limit]
 requests_per_minute = 30
 
-[xtools.logging]
+[xeepy.logging]
 level = "INFO"
-file = "/var/log/xtools/xtools.log"
+file = "/var/log/xeepy/xeepy.log"
 
-[xtools.notifications]
+[xeepy.notifications]
 enabled = true
 notify_on_error = true
 ```
@@ -313,13 +313,13 @@ notify_on_error = true
 
 ```python
 import os
-from xtools import XTools
+from xeepy import Xeepy
 
 # Load based on environment
-env = os.getenv("XTOOLS_ENV", "dev")
-config_file = f"xtools.{env}.toml"
+env = os.getenv("XEEPY_ENV", "dev")
+config_file = f"xeepy.{env}.toml"
 
-async with XTools(config_file=config_file) as x:
+async with Xeepy(config_file=config_file) as x:
     pass
 ```
 
@@ -328,8 +328,8 @@ async with XTools(config_file=config_file) as x:
 ### Using Config Class
 
 ```python
-from xtools import XTools
-from xtools.core.config import Config
+from xeepy import Xeepy
+from xeepy.core.config import Config
 
 # Create config programmatically
 config = Config(
@@ -344,14 +344,14 @@ config = Config(
     )
 )
 
-async with XTools(config=config) as x:
+async with Xeepy(config=config) as x:
     pass
 ```
 
 ### Runtime Configuration
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Change settings at runtime
     x.config.rate_limit.requests_per_minute = 10
     x.config.headless = False
@@ -368,30 +368,30 @@ async with XTools() as x:
 Manage multiple configurations:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
 # Development profile
-async with XTools(profile="dev") as x:
-    pass  # Uses xtools.dev.toml + session_dev.json
+async with Xeepy(profile="dev") as x:
+    pass  # Uses xeepy.dev.toml + session_dev.json
 
 # Production profile
-async with XTools(profile="prod") as x:
-    pass  # Uses xtools.prod.toml + session_prod.json
+async with Xeepy(profile="prod") as x:
+    pass  # Uses xeepy.prod.toml + session_prod.json
 
 # Custom profile
-async with XTools(profile="client_abc") as x:
-    pass  # Uses xtools.client_abc.toml
+async with Xeepy(profile="client_abc") as x:
+    pass  # Uses xeepy.client_abc.toml
 ```
 
 ## Configuration Validation
 
-XTools validates your configuration on startup:
+Xeepy validates your configuration on startup:
 
 ```python
-from xtools.core.config import Config, validate_config
+from xeepy.core.config import Config, validate_config
 
 # Validate config file
-errors = validate_config("xtools.toml")
+errors = validate_config("xeepy.toml")
 if errors:
     for error in errors:
         print(f"Config error: {error}")
@@ -404,12 +404,12 @@ else:
 ### Using Environment Variables
 
 ```toml
-# xtools.toml - Reference env vars
-[xtools.notifications]
+# xeepy.toml - Reference env vars
+[xeepy.notifications]
 discord_webhook = "${DISCORD_WEBHOOK}"
 telegram_bot_token = "${TELEGRAM_TOKEN}"
 
-[xtools.ai.openai]
+[xeepy.ai.openai]
 api_key = "${OPENAI_API_KEY}"
 ```
 
@@ -417,18 +417,18 @@ api_key = "${OPENAI_API_KEY}"
 
 ```bash
 # .env file
-XTOOLS_SESSION_FILE=/secure/path/session.json
+XEEPY_SESSION_FILE=/secure/path/session.json
 DISCORD_WEBHOOK=https://discord.com/api/webhooks/...
 OPENAI_API_KEY=sk-...
 ```
 
 ```python
 from dotenv import load_dotenv
-from xtools import XTools
+from xeepy import Xeepy
 
 load_dotenv()  # Load .env file
 
-async with XTools() as x:
+async with Xeepy() as x:
     pass  # Uses env vars automatically
 ```
 
@@ -436,7 +436,7 @@ async with XTools() as x:
 
 ```python
 import boto3
-from xtools import XTools
+from xeepy import Xeepy
 
 # AWS Secrets Manager example
 def get_secret(name):
@@ -444,9 +444,9 @@ def get_secret(name):
     response = client.get_secret_value(SecretId=name)
     return response['SecretString']
 
-async with XTools(
-    session_file=get_secret("xtools/session"),
-    proxy_url=get_secret("xtools/proxy")
+async with Xeepy(
+    session_file=get_secret("xeepy/session"),
+    proxy_url=get_secret("xeepy/proxy")
 ) as x:
     pass
 ```

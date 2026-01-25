@@ -1,12 +1,12 @@
-# 🚀 XTools vs Alternatives Comparison
+# 🚀 Xeepy vs Alternatives Comparison
 
-> Why XTools is the best Python toolkit for X/Twitter automation.
+> Why Xeepy is the best Python toolkit for X/Twitter automation.
 
 ---
 
 ## Feature Comparison Matrix
 
-| Feature | XTools | Tweepy | Snscrape | Twint | Nitter |
+| Feature | Xeepy | Tweepy | Snscrape | Twint | Nitter |
 |---------|--------|--------|----------|-------|--------|
 | **No API Required** | ✅ | ❌ | ✅ | ✅ | ✅ |
 | **Currently Working** | ✅ | ⚠️ Limited | ❌ Broken | ❌ Dead | ⚠️ Unstable |
@@ -76,15 +76,15 @@ import twint
 
 ---
 
-## XTools Advantages
+## Xeepy Advantages
 
 ### 1. Browser Automation = No API Needed
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
 # ✅ Works without API keys
-async with XTools() as x:
+async with Xeepy() as x:
     replies = await x.scrape.replies(tweet_url)
 ```
 
@@ -103,7 +103,7 @@ await x.monitor.unfollowers()
 
 ```python
 # ✅ Built-in AI support
-from xtools.ai import ContentGenerator
+from xeepy.ai import ContentGenerator
 
 ai = ContentGenerator(provider="openai")
 reply = await ai.generate_reply(tweet_text)
@@ -132,7 +132,7 @@ reply = await ai.generate_reply(tweet_text)
 
 | Solution | Monthly Cost | Features |
 |----------|-------------|----------|
-| **XTools** | **$0** | All features |
+| **Xeepy** | **$0** | All features |
 | Twitter API Basic | $100 | Limited endpoints |
 | Twitter API Pro | $5000 | Full access |
 | Enterprise | Custom ($) | Full access |
@@ -151,10 +151,10 @@ auth = tweepy.OAuthHandler(key, secret)
 api = tweepy.API(auth)
 tweets = api.search_tweets(q="python")
 
-# NEW (XTools)
-from xtools import XTools
+# NEW (Xeepy)
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     tweets = await x.scrape.search("python")
 ```
 
@@ -165,10 +165,10 @@ async with XTools() as x:
 import snscrape.modules.twitter as sntwitter
 tweets = sntwitter.TwitterSearchScraper("python").get_items()
 
-# NEW (XTools)
-from xtools import XTools
+# NEW (Xeepy)
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     tweets = await x.scrape.search("python")
 ```
 
@@ -176,15 +176,15 @@ async with XTools() as x:
 
 ## Conclusion
 
-XTools is the only Python toolkit that:
+Xeepy is the only Python toolkit that:
 - ✅ Actually works in 2024
 - ✅ Requires no API keys
 - ✅ Has full feature support
 - ✅ Includes AI integration
 - ✅ Is actively maintained
 
-**Stop fighting with broken tools. Use XTools.**
+**Stop fighting with broken tools. Use Xeepy.**
 
 ```bash
-pip install xtools
+pip install xeepy
 ```

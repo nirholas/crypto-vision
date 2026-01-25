@@ -1,4 +1,4 @@
-/* XTools Documentation JavaScript */
+/* Xeepy Documentation JavaScript */
 
 document.addEventListener('DOMContentLoaded', function() {
     // Copy button for code blocks
@@ -187,12 +187,12 @@ function addReadingProgress() {
 console.log(`
 ╔═══════════════════════════════════════════════════════╗
 ║                                                       ║
-║   🐦 XTools - X/Twitter Automation Toolkit           ║
+║   🐦 Xeepy - X/Twitter Automation Toolkit           ║
 ║                                                       ║
-║   Documentation: https://xtools.dev/docs             ║
-║   GitHub: https://github.com/xtools/xtools           ║
+║   Documentation: https://xeepy.dev/docs             ║
+║   GitHub: https://github.com/xeepy/xeepy           ║
 ║                                                       ║
-║   Made with ❤️ by the XTools team                    ║
+║   Made with ❤️ by the Xeepy team                    ║
 ║                                                       ║
 ╚═══════════════════════════════════════════════════════╝
 `);

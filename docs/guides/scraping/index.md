@@ -1,10 +1,10 @@
 # Scraping Guide
 
-XTools provides powerful, flexible scraping capabilities for X/Twitter. This guide covers all scraping features with detailed examples.
+Xeepy provides powerful, flexible scraping capabilities for X/Twitter. This guide covers all scraping features with detailed examples.
 
 ## Overview
 
-XTools can scrape virtually any public data from X/Twitter:
+Xeepy can scrape virtually any public data from X/Twitter:
 
 <div class="grid cards" markdown>
 
@@ -53,9 +53,9 @@ XTools can scrape virtually any public data from X/Twitter:
 ## Quick Start
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Scrape 100 replies to a tweet
     replies = await x.scrape.replies(
         "https://x.com/elonmusk/status/1234567890",
@@ -71,7 +71,7 @@ async with XTools() as x:
 ### Scrape with Progress
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     async for tweet in x.scrape.tweets_stream("username", limit=1000):
         print(f"Got tweet: {tweet.text[:50]}...")
         
@@ -82,7 +82,7 @@ async with XTools() as x:
 ### Scrape Multiple Users
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     users = ["user1", "user2", "user3"]
     
     for user in users:
@@ -93,7 +93,7 @@ async with XTools() as x:
 ### Handle Large Datasets
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Scrape in batches to avoid memory issues
     async for batch in x.scrape.followers_batched("popular_user", batch_size=100):
         # Process and save each batch
@@ -103,10 +103,10 @@ async with XTools() as x:
 
 ## Rate Limiting
 
-XTools automatically handles rate limiting to protect your account:
+Xeepy automatically handles rate limiting to protect your account:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Default: 20 requests/minute (safe)
     replies = await x.scrape.replies(url, limit=1000)
     
@@ -149,7 +149,7 @@ user.created_at
 Every scraping function integrates with export:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     data = await x.scrape.replies(url, limit=100)
     
     # Multiple export formats

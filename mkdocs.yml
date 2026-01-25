@@ -1,13 +1,13 @@
-site_name: XTools Documentation
+site_name: Xeepy Documentation
 site_description: The Ultimate X/Twitter Automation Toolkit - No API Keys Required
-site_author: XTools Team
-site_url: https://xtools.dev
+site_author: Xeepy Team
+site_url: https://xeepy.dev
 
 repo_name: nirholas/Get-Tweet-Replies-With-Python-Tweepy
 repo_url: https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy
 edit_uri: edit/master/docs/
 
-copyright: Copyright &copy; 2024-2026 XTools Team
+copyright: Copyright &copy; 2024-2026 Xeepy Team
 
 theme:
   name: material
@@ -125,11 +125,11 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy
     - icon: fontawesome/brands/x-twitter
-      link: https://x.com/xtools_dev
+      link: https://x.com/xeepy_dev
     - icon: fontawesome/brands/discord
-      link: https://discord.gg/xtools
+      link: https://discord.gg/xeepy
     - icon: fontawesome/brands/python
-      link: https://pypi.org/project/xtools/
+      link: https://pypi.org/project/xeepy/
   consent:
     title: Cookie consent
     description: >- 
@@ -154,7 +154,7 @@ extra_javascript:
 nav:
   - Home:
     - index.md
-    - Why XTools?: why-xtools.md
+    - Why Xeepy?: why-xeepy.md
     - Changelog: changelog.md
     - Roadmap: community/roadmap.md
     

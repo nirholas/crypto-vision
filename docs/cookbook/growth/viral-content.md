@@ -24,7 +24,7 @@ graph LR
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 
@@ -50,7 +50,7 @@ async def find_viral_candidates(keywords: list, min_velocity: float = 1.0):
     A 24-hour-old tweet with 200 likes = 0.14 velocity (normal)
     """
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         candidates = []
         
         for keyword in keywords:
@@ -120,7 +120,7 @@ Find tweets with high potential but low current engagement:
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def find_early_opportunities():
     """
@@ -128,7 +128,7 @@ async def find_early_opportunities():
     gotten engagement yet - perfect for early comments.
     """
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         opportunities = []
         
         # Search for recent tweets
@@ -188,7 +188,7 @@ Use engagement patterns to predict virality:
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 from datetime import datetime
 import statistics
 
@@ -203,7 +203,7 @@ async def predict_virality(tweet_url: str):
     4. Blue check engagement
     """
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         measurements = []
         
         print(f"📊 Monitoring: {tweet_url}")
@@ -289,14 +289,14 @@ Ride hashtag waves at the perfect moment:
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 from collections import defaultdict
 from datetime import datetime, timedelta
 
 async def find_rising_hashtags():
     """Find hashtags that are gaining momentum but haven't peaked"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get current trends
         trends = await x.trends()
         
@@ -362,13 +362,13 @@ Discover what content formats perform best:
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 import re
 
 async def analyze_viral_formats(niche_keywords: list):
     """Analyze what content formats go viral in your niche"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         format_stats = {
             "thread": {"count": 0, "avg_likes": 0, "total_likes": 0},
             "image": {"count": 0, "avg_likes": 0, "total_likes": 0},
@@ -437,8 +437,8 @@ Get notified when content in your niche goes viral:
 
 ```python
 import asyncio
-from xtools import XTools
-from xtools.notifications import DiscordWebhook
+from xeepy import Xeepy
+from xeepy.notifications import DiscordWebhook
 
 async def viral_alert_bot(keywords: list, webhook_url: str):
     """
@@ -449,7 +449,7 @@ async def viral_alert_bot(keywords: list, webhook_url: str):
     webhook = DiscordWebhook(webhook_url)
     seen_tweets = set()
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         while True:
             print(f"[{datetime.now()}] Scanning for viral content...")
             

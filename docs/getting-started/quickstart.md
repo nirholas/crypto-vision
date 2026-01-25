@@ -1,16 +1,16 @@
 # Quick Start
 
-Get productive with XTools in 5 minutes. This guide covers the most common use cases with copy-paste examples.
+Get productive with Xeepy in 5 minutes. This guide covers the most common use cases with copy-paste examples.
 
 ## Prerequisites
 
 ```bash
 # Make sure you've completed installation
-pip install xtools[all]
+pip install xeepy[all]
 playwright install chromium
 
 # And authenticated
-xtools auth login
+xeepy auth login
 ```
 
 ## Your First Scrape
@@ -19,10 +19,10 @@ Let's scrape replies to a tweet:
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def main():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Scrape replies to any tweet
         replies = await x.scrape.replies(
             "https://x.com/elonmusk/status/1234567890",
@@ -50,7 +50,7 @@ python scrape_replies.py
 ### 1. Scrape Any Data
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Get user profile
     profile = await x.scrape.profile("elonmusk")
     print(f"{profile.name} has {profile.followers_count:,} followers")
@@ -71,7 +71,7 @@ async with XTools() as x:
 ### 2. Follow & Unfollow
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Follow a user
     await x.follow.user("naval")
     
@@ -89,7 +89,7 @@ async with XTools() as x:
 ### 3. Monitor Your Account
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Check who unfollowed you
     report = await x.monitor.unfollowers()
     print(f"Lost {len(report.unfollowers)} followers since last check")
@@ -106,7 +106,7 @@ async with XTools() as x:
 ### 4. Engage with Content
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Like a tweet
     await x.engage.like("https://x.com/user/status/123")
     
@@ -129,7 +129,7 @@ async with XTools() as x:
 ### 5. Export Data
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     data = await x.scrape.followers("username", limit=1000)
     
     # Export options
@@ -138,7 +138,7 @@ async with XTools() as x:
     x.export.to_excel(data, "followers.xlsx")
     
     # Export to database
-    await x.export.to_database(data, "sqlite:///xtools.db")
+    await x.export.to_database(data, "sqlite:///xeepy.db")
 ```
 
 ## CLI Quick Reference
@@ -147,23 +147,23 @@ Don't want to write Python? Use the CLI:
 
 ```bash
 # Scrape replies
-xtools scrape replies https://x.com/user/status/123 -o replies.csv
+xeepy scrape replies https://x.com/user/status/123 -o replies.csv
 
 # Get profile info
-xtools scrape profile elonmusk
+xeepy scrape profile elonmusk
 
 # Unfollow non-followers (dry run first!)
-xtools unfollow non-followers --dry-run
-xtools unfollow non-followers --max 50
+xeepy unfollow non-followers --dry-run
+xeepy unfollow non-followers --max 50
 
 # Check unfollowers
-xtools monitor unfollowers
+xeepy monitor unfollowers
 
 # Search tweets
-xtools scrape search "python tips" --limit 100 -o results.csv
+xeepy scrape search "python tips" --limit 100 -o results.csv
 
 # Growth report
-xtools analytics growth --period 30d
+xeepy analytics growth --period 30d
 ```
 
 ## Real-World Examples
@@ -173,10 +173,10 @@ xtools analytics growth --period 30d
 ```python
 """Find which of your threads performed best"""
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def analyze_threads():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get your own tweets
         my_tweets = await x.scrape.tweets("yourusername", limit=200)
         
@@ -200,10 +200,10 @@ asyncio.run(analyze_threads())
 ```python
 """Analyze what content works for competitors"""
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def analyze_competitor():
-    async with XTools() as x:
+    async with Xeepy() as x:
         competitor = "competitor_handle"
         
         # Get their recent tweets
@@ -232,10 +232,10 @@ asyncio.run(analyze_competitor())
 ```python
 """Daily automation: clean up follows, engage, report"""
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def daily_routine():
-    async with XTools() as x:
+    async with Xeepy() as x:
         print("🌅 Starting daily routine...")
         
         # 1. Check for new unfollowers
@@ -270,10 +270,10 @@ asyncio.run(daily_routine())
 
 ## Configuration
 
-Create `xtools.toml` in your project:
+Create `xeepy.toml` in your project:
 
 ```toml
-[xtools]
+[xeepy]
 # Browser settings
 headless = true
 timeout = 30000
@@ -285,14 +285,14 @@ rate_limit = 20
 export_format = "csv"
 
 # Session file
-session_file = "~/.config/xtools/session.json"
+session_file = "~/.config/xeepy/session.json"
 
-[xtools.proxy]
+[xeepy.proxy]
 # Optional: Use proxy
 enabled = false
 url = "http://user:pass@proxy:8080"
 
-[xtools.notifications]
+[xeepy.notifications]
 # Get notified on errors
 discord_webhook = "https://discord.com/api/webhooks/..."
 ```

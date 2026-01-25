@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to XTools are documented here.
+All notable changes to Xeepy are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -108,7 +108,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Upgrading to 1.0.0
 
 ```bash
-pip install --upgrade xtools
+pip install --upgrade xeepy
 ```
 
 No breaking changes from 0.9.0.
@@ -121,6 +121,6 @@ None yet. We're committed to backwards compatibility.
 
 ## Links
 
-- [GitHub Releases](https://github.com/xtools/xtools/releases)
-- [PyPI](https://pypi.org/project/xtools/)
+- [GitHub Releases](https://github.com/xeepy/xeepy/releases)
+- [PyPI](https://pypi.org/project/xeepy/)
 - [Migration Guides](migration.md)

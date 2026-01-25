@@ -8,7 +8,7 @@ Real-time intelligence on competitor activity:
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -30,7 +30,7 @@ class CompetitorIntel:
 async def competitor_deep_dive(competitor: str, your_username: str = "me"):
     """Complete competitor analysis"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get competitor profile
         profile = await x.scrape.profile(competitor)
         
@@ -147,12 +147,12 @@ See what's working for competitors:
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def spy_on_competitor_content(competitor: str, days: int = 30):
     """Analyze competitor's best performing content"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         profile = await x.scrape.profile(competitor)
         tweets = await x.scrape.tweets(competitor, limit=200)
         
@@ -220,8 +220,8 @@ Systematically target competitor's audience:
 
 ```python
 import asyncio
-from xtools import XTools
-from xtools.actions.base import FollowFilters
+from xeepy import Xeepy
+from xeepy.actions.base import FollowFilters
 
 async def steal_competitor_audience(
     competitor: str,
@@ -235,7 +235,7 @@ async def steal_competitor_audience(
     (they're more likely to engage with similar content)
     """
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         print(f"🎯 Targeting @{competitor}'s engaged audience")
         
         # Get competitor's recent tweets
@@ -344,8 +344,8 @@ Get notified when competitors do something notable:
 
 ```python
 import asyncio
-from xtools import XTools
-from xtools.notifications import DiscordWebhook
+from xeepy import Xeepy
+from xeepy.notifications import DiscordWebhook
 from datetime import datetime, timedelta
 
 async def competitor_alert_bot(
@@ -368,7 +368,7 @@ async def competitor_alert_bot(
     last_followers = {c: None for c in competitors}
     known_hashtags = {c: set() for c in competitors}
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Initialize state
         for competitor in competitors:
             profile = await x.scrape.profile(competitor)
@@ -475,7 +475,7 @@ See how competitors engage with their audience:
 async def analyze_competitor_engagement_style(competitor: str):
     """Analyze how a competitor engages with their audience"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get competitor's replies to others
         # (This requires scraping their profile for replies)
         tweets = await x.scrape.tweets(

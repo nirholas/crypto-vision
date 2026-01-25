@@ -62,7 +62,7 @@ Examples include:
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement at:
 
-📧 **conduct@xtools.dev**
+📧 **conduct@xeepy.dev**
 
 All complaints will be reviewed and investigated promptly and fairly.
 
@@ -128,6 +128,6 @@ Community Impact Guidelines were inspired by
 
 If you have questions about this Code of Conduct, please reach out:
 
-- 📧 Email: conduct@xtools.dev
+- 📧 Email: conduct@xeepy.dev
 - 💬 Discord: Ask a moderator
 - 🐙 GitHub: Open a discussion

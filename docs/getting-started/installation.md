@@ -1,38 +1,38 @@
 # Installation
 
-Get XTools up and running in under 2 minutes.
+Get Xeepy up and running in under 2 minutes.
 
 ## Quick Install
 
 === "pip (Recommended)"
 
     ```bash
-    pip install xtools
+    pip install xeepy
     ```
 
 === "pipx (Isolated)"
 
     ```bash
-    pipx install xtools
+    pipx install xeepy
     ```
 
 === "Poetry"
 
     ```bash
-    poetry add xtools
+    poetry add xeepy
     ```
 
 === "From Source"
 
     ```bash
-    git clone https://github.com/xtools/xtools.git
-    cd xtools
+    git clone https://github.com/xeepy/xeepy.git
+    cd xeepy
     pip install -e .
     ```
 
 ## Install Browser
 
-XTools uses Playwright for browser automation. Install the browser:
+Xeepy uses Playwright for browser automation. Install the browser:
 
 ```bash
 playwright install chromium
@@ -45,15 +45,15 @@ playwright install chromium
 
 ```bash
 # Check version
-xtools --version
+xeepy --version
 
 # Run diagnostics
-xtools doctor
+xeepy doctor
 ```
 
 Expected output:
 ```
-XTools v1.0.0
+Xeepy v1.0.0
 ✓ Python 3.10+
 ✓ Playwright installed
 ✓ Chromium browser ready
@@ -67,7 +67,7 @@ Install additional features based on your needs:
 === "AI Features"
 
     ```bash
-    pip install "xtools[ai]"
+    pip install "xeepy[ai]"
     ```
     
     Includes: OpenAI, Anthropic, and Ollama integrations
@@ -75,7 +75,7 @@ Install additional features based on your needs:
 === "Data Science"
 
     ```bash
-    pip install "xtools[data]"
+    pip install "xeepy[data]"
     ```
     
     Includes: pandas, numpy, matplotlib for analytics
@@ -83,7 +83,7 @@ Install additional features based on your needs:
 === "Notifications"
 
     ```bash
-    pip install "xtools[notify]"
+    pip install "xeepy[notify]"
     ```
     
     Includes: Discord, Telegram, email integrations
@@ -91,7 +91,7 @@ Install additional features based on your needs:
 === "All Features"
 
     ```bash
-    pip install "xtools[all]"
+    pip install "xeepy[all]"
     ```
     
     Includes everything above
@@ -125,8 +125,8 @@ Install additional features based on your needs:
     sudo apt-get update
     sudo apt-get install -y python3-pip
     
-    # Install XTools
-    pip3 install xtools
+    # Install Xeepy
+    pip3 install xeepy
     playwright install chromium
     
     # Install browser dependencies
@@ -134,7 +134,7 @@ Install additional features based on your needs:
     ```
     
     !!! tip "Headless servers"
-        XTools works perfectly on headless Linux servers.
+        Xeepy works perfectly on headless Linux servers.
         Use `headless=True` (default) in your scripts.
 
 === ":material-apple: macOS"
@@ -143,21 +143,21 @@ Install additional features based on your needs:
     # Using Homebrew Python
     brew install python@3.11
     
-    # Install XTools
-    pip3 install xtools
+    # Install Xeepy
+    pip3 install xeepy
     playwright install chromium
     ```
     
     !!! note "Apple Silicon"
-        XTools fully supports M1/M2/M3 Macs natively.
+        Xeepy fully supports M1/M2/M3 Macs natively.
 
 === ":material-microsoft-windows: Windows"
 
     ```powershell
     # Install Python from python.org first
     
-    # Install XTools
-    pip install xtools
+    # Install Xeepy
+    pip install xeepy
     playwright install chromium
     ```
     
@@ -169,7 +169,7 @@ Install additional features based on your needs:
     ```dockerfile
     FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
     
-    RUN pip install xtools[all]
+    RUN pip install xeepy[all]
     
     # Your script
     COPY script.py .
@@ -179,8 +179,8 @@ Install additional features based on your needs:
     Or use our pre-built image:
     
     ```bash
-    docker pull xtools/xtools:latest
-    docker run -it xtools/xtools python your_script.py
+    docker pull xeepy/xeepy:latest
+    docker run -it xeepy/xeepy python your_script.py
     ```
 
 ## Virtual Environment Setup
@@ -189,26 +189,26 @@ We recommend using a virtual environment:
 
 ```bash
 # Create virtual environment
-python -m venv xtools-env
+python -m venv xeepy-env
 
 # Activate it
-source xtools-env/bin/activate  # Linux/macOS
+source xeepy-env/bin/activate  # Linux/macOS
 # or
-xtools-env\Scripts\activate     # Windows
+xeepy-env\Scripts\activate     # Windows
 
-# Install XTools
-pip install xtools[all]
+# Install Xeepy
+pip install xeepy[all]
 playwright install chromium
 ```
 
 ## Development Installation
 
-For contributing or modifying XTools:
+For contributing or modifying Xeepy:
 
 ```bash
 # Clone the repository
-git clone https://github.com/xtools/xtools.git
-cd xtools
+git clone https://github.com/xeepy/xeepy.git
+cd xeepy
 
 # Create dev environment
 python -m venv .venv
@@ -246,7 +246,7 @@ pytest
     
     Use `--user` flag or a virtual environment:
     ```bash
-    pip install --user xtools
+    pip install --user xeepy
     ```
 
 ??? question "Slow installation on Linux"
@@ -261,14 +261,14 @@ pytest
     Ensure you're using the correct Python:
     ```bash
     which python  # Should show your venv
-    python -c "import xtools; print(xtools.__version__)"
+    python -c "import xeepy; print(xeepy.__version__)"
     ```
 
 ## Upgrading
 
 ```bash
-# Upgrade XTools
-pip install --upgrade xtools
+# Upgrade Xeepy
+pip install --upgrade xeepy
 
 # Upgrade browser (occasionally needed)
 playwright install chromium
@@ -277,8 +277,8 @@ playwright install chromium
 ## Uninstalling
 
 ```bash
-# Remove XTools
-pip uninstall xtools
+# Remove Xeepy
+pip uninstall xeepy
 
 # Remove browser (optional)
 rm -rf ~/.cache/ms-playwright

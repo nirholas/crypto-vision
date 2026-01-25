@@ -4,7 +4,7 @@ Master the art of strategic following to grow your X/Twitter presence.
 
 ## Overview
 
-XTools provides 6 powerful ways to follow users:
+Xeepy provides 6 powerful ways to follow users:
 
 | Method | Use Case | Follow-back Rate |
 |--------|----------|------------------|
@@ -22,9 +22,9 @@ The simplest operation - follow one user:
 === "Python"
 
     ```python
-    from xtools import XTools
+    from xeepy import Xeepy
 
-    async with XTools() as x:
+    async with Xeepy() as x:
         result = await x.follow.user("elonmusk")
         
         if result.success:
@@ -36,7 +36,7 @@ The simplest operation - follow one user:
 === "CLI"
 
     ```bash
-    xtools follow user elonmusk
+    xeepy follow user elonmusk
     ```
 
 ### Batch Follow
@@ -44,9 +44,9 @@ The simplest operation - follow one user:
 Follow multiple users efficiently:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     usernames = ["user1", "user2", "user3", "user4", "user5"]
     
     result = await x.follow.users(
@@ -67,10 +67,10 @@ async with XTools() as x:
 Find and follow users tweeting about topics you care about:
 
 ```python
-from xtools import XTools
-from xtools.actions.base import FollowFilters
+from xeepy import Xeepy
+from xeepy.actions.base import FollowFilters
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Quality filters are CRITICAL for good follow-back rates
     filters = FollowFilters(
         min_followers=100,        # Not too small
@@ -136,9 +136,9 @@ keywords_events = [
 Target specific communities through hashtags:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     result = await x.follow.by_hashtag(
         hashtags=[
             "#Python",
@@ -188,9 +188,9 @@ engagement_hashtags = [
 The **highest ROI strategy** - follow your competitor's audience:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Follow followers of a competitor/influencer
     result = await x.follow.target_followers(
         target="competitor_account",
@@ -232,9 +232,9 @@ for target in targets:
 **Highest quality leads** - follow users who engage with specific tweets:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Follow people who liked/retweeted a viral tweet in your niche
     result = await x.follow.engagers(
         tweet_urls=[
@@ -282,8 +282,8 @@ for tweet in tweets:
 Set up automated following with rules:
 
 ```python
-from xtools import XTools
-from xtools.actions.follow.auto_follow import (
+from xeepy import Xeepy
+from xeepy.actions.follow.auto_follow import (
     AutoFollowConfig,
     FollowRule,
     FollowStrategy
@@ -325,7 +325,7 @@ config = AutoFollowConfig(
     ]
 )
 
-async with XTools() as x:
+async with Xeepy() as x:
     action = AutoFollow(x.browser, x.rate_limiter, x.tracker, config)
     
     # Run for 8 hours
@@ -347,7 +347,7 @@ async with XTools() as x:
 Filters are **critical** for good follow-back rates:
 
 ```python
-from xtools.actions.base import FollowFilters
+from xeepy.actions.base import FollowFilters
 
 # Conservative (high quality, lower volume)
 conservative = FollowFilters(
@@ -405,9 +405,9 @@ print(f"Reason: {reason}")
 All follows are tracked automatically:
 
 ```python
-from xtools.storage import FollowTracker
+from xeepy.storage import FollowTracker
 
-tracker = FollowTracker("xtools.db")
+tracker = FollowTracker("xeepy.db")
 
 # Get stats
 stats = tracker.get_stats()

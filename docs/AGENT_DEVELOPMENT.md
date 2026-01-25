@@ -1,8 +1,8 @@
-# 🤖 AI Agent Prompts for Building XTools
+# 🤖 AI Agent Prompts for Building Xeepy
 
 > Complete prompts used to build this toolkit with AI coding agents.
 
-This file documents the prompts used to build XTools using multiple AI agents working in parallel. These prompts can be used to:
+This file documents the prompts used to build Xeepy using multiple AI agents working in parallel. These prompts can be used to:
 1. Understand the architecture decisions
 2. Extend the toolkit with new features
 3. Learn about AI-assisted development
@@ -11,7 +11,7 @@ This file documents the prompts used to build XTools using multiple AI agents wo
 
 ## Architecture Overview
 
-XTools was built using 5 specialized AI agents working in parallel:
+Xeepy was built using 5 specialized AI agents working in parallel:
 
 | Agent | Responsibility | Files |
 |-------|----------------|-------|
@@ -34,25 +34,25 @@ You are building the core infrastructure for a Python X/Twitter automation toolk
 
 Create these foundational modules:
 
-1. xtools/core/browser.py - Playwright browser management
+1. xeepy/core/browser.py - Playwright browser management
    - BrowserManager class with async context manager
    - Support headless and headed modes
    - Handle browser lifecycle (launch, close, restart)
    - Implement page pool for parallel operations
 
-2. xtools/core/auth.py - Authentication
+2. xeepy/core/auth.py - Authentication
    - Session management with cookie persistence
    - Manual login flow (opens browser)
    - Cookie import/export (JSON format)
    - Session validation
 
-3. xtools/core/rate_limiter.py - Rate limiting
+3. xeepy/core/rate_limiter.py - Rate limiting
    - Token bucket algorithm
    - Configurable limits per action type
    - Automatic delay injection
    - Rate limit state persistence
 
-4. xtools/core/config.py - Configuration
+4. xeepy/core/config.py - Configuration
    - Pydantic settings model
    - Environment variable support
    - YAML/JSON config file loading
@@ -111,7 +111,7 @@ Data models needed:
 ```
 Build follow/unfollow operations for the X/Twitter automation toolkit.
 
-FOLLOW OPERATIONS (xtools/actions/follow/):
+FOLLOW OPERATIONS (xeepy/actions/follow/):
 
 1. follow_user.py - Follow a single user
    - Navigate to profile, click follow button
@@ -140,7 +140,7 @@ FOLLOW OPERATIONS (xtools/actions/follow/):
    - Get likers/retweeters of a tweet
    - Follow them as they're likely interested
 
-UNFOLLOW OPERATIONS (xtools/actions/unfollow/):
+UNFOLLOW OPERATIONS (xeepy/actions/unfollow/):
 
 1. unfollow_user.py - Unfollow single user
    - Navigate to profile
@@ -190,7 +190,7 @@ All operations must:
 ```
 Build engagement automation for the X/Twitter toolkit.
 
-LIKE OPERATIONS (xtools/actions/engagement/like/):
+LIKE OPERATIONS (xeepy/actions/engagement/like/):
 
 1. like_tweet.py - Like a single tweet
    - Navigate to tweet
@@ -210,7 +210,7 @@ LIKE OPERATIONS (xtools/actions/engagement/like/):
    - Like up to limit
    - Smart selection (not too old)
 
-COMMENT OPERATIONS (xtools/actions/engagement/comment/):
+COMMENT OPERATIONS (xeepy/actions/engagement/comment/):
 
 1. comment.py - Post a comment
    - Navigate to tweet
@@ -230,13 +230,13 @@ COMMENT OPERATIONS (xtools/actions/engagement/comment/):
    - Random selection
    - Variable support ({username}, {topic}, etc.)
 
-RETWEET OPERATIONS (xtools/actions/engagement/retweet/):
+RETWEET OPERATIONS (xeepy/actions/engagement/retweet/):
 
 1. retweet.py - Retweet a tweet
 2. quote_tweet.py - Quote tweet with comment
 3. undo_retweet.py - Remove retweet
 
-BOOKMARK OPERATIONS (xtools/actions/engagement/bookmark/):
+BOOKMARK OPERATIONS (xeepy/actions/engagement/bookmark/):
 
 1. bookmark_tweet.py - Add bookmark
 2. remove_bookmark.py - Remove bookmark
@@ -261,7 +261,7 @@ All engagement must:
 ```
 Build monitoring and analytics for the X/Twitter toolkit.
 
-MONITORING (xtools/monitoring/):
+MONITORING (xeepy/monitoring/):
 
 1. unfollower_tracker.py - Detect unfollowers
    - Take snapshots of followers
@@ -288,7 +288,7 @@ MONITORING (xtools/monitoring/):
    - Engagement rate
    - Best performing content
 
-ANALYTICS (xtools/monitoring/analytics.py):
+ANALYTICS (xeepy/monitoring/analytics.py):
 
 1. EngagementAnalytics
    - Calculate engagement rate
@@ -301,7 +301,7 @@ ANALYTICS (xtools/monitoring/analytics.py):
    - Projection modeling
    - Trend analysis
 
-NOTIFICATIONS (xtools/notifications/):
+NOTIFICATIONS (xeepy/notifications/):
 
 1. discord.py - Discord webhooks
    - Send notifications
@@ -321,7 +321,7 @@ NOTIFICATIONS (xtools/notifications/):
    - Event filtering
    - Rate limiting notifications
 
-Storage needs (xtools/storage/):
+Storage needs (xeepy/storage/):
 1. database.py - SQLite for local data
 2. snapshots.py - Follower snapshots
 3. timeseries.py - Time-series data
@@ -338,7 +338,7 @@ Storage needs (xtools/storage/):
 ```
 Build AI integration for the X/Twitter toolkit.
 
-AI PROVIDERS (xtools/ai/providers.py):
+AI PROVIDERS (xeepy/ai/providers.py):
 
 Create abstraction layer supporting:
 1. OpenAI (GPT-4, GPT-3.5)
@@ -352,7 +352,7 @@ Base class:
 - Handle rate limits
 - Retry logic
 
-CONTENT GENERATION (xtools/ai/content.py):
+CONTENT GENERATION (xeepy/ai/content.py):
 
 1. ContentGenerator class
    - generate_reply(tweet_text, style, context)
@@ -368,7 +368,7 @@ Styles:
    - Personality consistency
    - Hashtag suggestions
 
-ANALYSIS (xtools/ai/analysis.py):
+ANALYSIS (xeepy/ai/analysis.py):
 
 1. SentimentAnalyzer
    - analyze_tweet(tweet) -> sentiment score
@@ -385,7 +385,7 @@ ANALYSIS (xtools/ai/analysis.py):
    - Detect spam/promotional
    - Identify opportunities
 
-SMART FEATURES (xtools/ai/smart.py):
+SMART FEATURES (xeepy/ai/smart.py):
 
 1. SmartTargeting
    - Suggest accounts to follow
@@ -398,7 +398,7 @@ SMART FEATURES (xtools/ai/smart.py):
    - Content opportunity detection
 
 Configuration:
-- xtools/ai/config.py - AI provider settings
+- xeepy/ai/config.py - AI provider settings
 - Support for API keys via environment
 - Model selection
 - Cost tracking
@@ -410,7 +410,7 @@ Configuration:
 
 ### For Development
 
-Copy the relevant prompt and give it to your AI coding assistant (Copilot, Cursor, Claude, etc.) to extend XTools.
+Copy the relevant prompt and give it to your AI coding assistant (Copilot, Cursor, Claude, etc.) to extend Xeepy.
 
 ### For Learning
 
@@ -444,4 +444,4 @@ Each agent was given these universal requirements:
 
 ---
 
-*This documentation is part of XTools - the most comprehensive Python toolkit for X/Twitter automation.*
+*This documentation is part of Xeepy - the most comprehensive Python toolkit for X/Twitter automation.*

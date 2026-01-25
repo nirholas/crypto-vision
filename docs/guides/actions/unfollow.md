@@ -23,9 +23,9 @@ A healthy ratio improves:
 === "Python"
 
     ```python
-    from xtools import XTools
+    from xeepy import Xeepy
 
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Always preview first!
         preview = await x.unfollow.non_followers(
             max_unfollows=100,
@@ -58,10 +58,10 @@ A healthy ratio improves:
 
     ```bash
     # Preview first
-    xtools unfollow non-followers --max 100 --grace-days 7 --exclude-verified --dry-run
+    xeepy unfollow non-followers --max 100 --grace-days 7 --exclude-verified --dry-run
     
     # Execute
-    xtools unfollow non-followers --max 100 --grace-days 7 --exclude-verified
+    xeepy unfollow non-followers --max 100 --grace-days 7 --exclude-verified
     ```
 
 ### Statistics Callback
@@ -91,9 +91,9 @@ result = await x.unfollow.non_followers(
 Protect important accounts:
 
 ```python
-from xtools.storage import FollowTracker
+from xeepy.storage import FollowTracker
 
-tracker = FollowTracker("xtools.db")
+tracker = FollowTracker("xeepy.db")
 
 # Add to whitelist
 tracker.add_to_whitelist("best_friend", reason="Personal friend")
@@ -119,16 +119,16 @@ CLI whitelist management:
 
 ```bash
 # Add
-xtools whitelist add friend1 friend2 --reason "Friends"
+xeepy whitelist add friend1 friend2 --reason "Friends"
 
 # List
-xtools whitelist list
+xeepy whitelist list
 
 # Remove  
-xtools whitelist remove old_friend
+xeepy whitelist remove old_friend
 
 # Import from file
-xtools whitelist import whitelist.txt
+xeepy whitelist import whitelist.txt
 ```
 
 ## Smart Unfollow
@@ -136,9 +136,9 @@ xtools whitelist import whitelist.txt
 Uses tracking data to make intelligent decisions:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Check eligibility
     eligible = await x.unfollow.smart_eligible(days_threshold=7)
     print(f"{eligible} users haven't followed back in 7+ days")
@@ -198,8 +198,8 @@ result = await x.unfollow.smart(
 Flexible unfollowing based on custom criteria:
 
 ```python
-from xtools import XTools
-from xtools.actions.unfollow.unfollow_by_criteria import UnfollowCriteria
+from xeepy import Xeepy
+from xeepy.actions.unfollow.unfollow_by_criteria import UnfollowCriteria
 
 # Define criteria
 criteria = UnfollowCriteria(
@@ -213,7 +213,7 @@ criteria = UnfollowCriteria(
     from_source="keyword:crypto",  # Only from this source
 )
 
-async with XTools() as x:
+async with Xeepy() as x:
     result = await x.unfollow.by_criteria(
         criteria=criteria,
         max_unfollows=50,
@@ -264,9 +264,9 @@ campaign_cleanup = UnfollowCriteria(
 Unfollow everyone (use with caution!):
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     def confirm(count):
         print(f"\n⚠️  WARNING: About to unfollow {count} users!")
         return input("Type 'CONFIRM' to proceed: ") == "CONFIRM"
@@ -296,7 +296,7 @@ async with XTools() as x:
 Simple single-user unfollow:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     result = await x.unfollow.user("someuser")
     
     if result.success:
@@ -320,14 +320,14 @@ result = await x.unfollow.users(
 Spread unfollows over time:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 import asyncio
 from datetime import datetime, timedelta
 
 async def scheduled_cleanup():
     """Run unfollow in batches over multiple days"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get total non-followers
         preview = await x.unfollow.non_followers(
             max_unfollows=1000,
@@ -366,9 +366,9 @@ asyncio.run(scheduled_cleanup())
 Track your unfollow campaigns:
 
 ```python
-from xtools.storage import FollowTracker
+from xeepy.storage import FollowTracker
 
-tracker = FollowTracker("xtools.db")
+tracker = FollowTracker("xeepy.db")
 
 # Get unfollow stats
 stats = tracker.get_stats()
@@ -388,7 +388,7 @@ tracker.export_unfollowed("unfollowed_users.csv")
 
 ```python
 async def daily_report():
-    tracker = FollowTracker("xtools.db")
+    tracker = FollowTracker("xeepy.db")
     
     stats = tracker.get_daily_stats()
     
@@ -458,7 +458,7 @@ Top Unfollow Reasons:
     Check whitelist is loaded:
     
     ```python
-    tracker = FollowTracker("xtools.db")
+    tracker = FollowTracker("xeepy.db")
     print(tracker.get_whitelist())  # Should show your protected users
     ```
 

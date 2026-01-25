@@ -5,9 +5,9 @@ Track exactly who unfollowed you, when, and get insights on why.
 ## Basic Unfollower Check
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Get unfollower report
     report = await x.monitor.unfollowers()
     
@@ -16,7 +16,7 @@ async with XTools() as x:
     print(f"📊 Net Change: {report.net_change:+d}")
 
 # Detailed unfollower info
-async with XTools() as x:
+async with Xeepy() as x:
     report = await x.monitor.unfollowers(detailed=True)
     
     for user in report.unfollowers:
@@ -28,7 +28,7 @@ async with XTools() as x:
 
 ## How It Works
 
-XTools tracks your followers by:
+Xeepy tracks your followers by:
 
 1. **First Run**: Saves complete follower list as baseline
 2. **Subsequent Runs**: Compares current followers to baseline
@@ -37,13 +37,13 @@ XTools tracks your followers by:
 
 ```python
 # First run creates baseline
-async with XTools() as x:
+async with Xeepy() as x:
     report = await x.monitor.unfollowers()
     # report.unfollowers = []  (no baseline yet)
     # report.message = "Baseline created with 5,432 followers"
 
 # Second run (24 hours later)
-async with XTools() as x:
+async with Xeepy() as x:
     report = await x.monitor.unfollowers()
     # report.unfollowers = [user1, user2, user3]  # Detected!
     # report.new_followers = [user4, user5]
@@ -54,28 +54,28 @@ async with XTools() as x:
 ### File-Based (Default)
 
 ```python
-# Stores in ~/.xtools/followers_baseline.json
-async with XTools() as x:
+# Stores in ~/.xeepy/followers_baseline.json
+async with Xeepy() as x:
     report = await x.monitor.unfollowers()
 ```
 
 ### Custom Storage Location
 
 ```python
-async with XTools(storage_path="/custom/path") as x:
+async with Xeepy(storage_path="/custom/path") as x:
     report = await x.monitor.unfollowers()
 ```
 
 ### SQLite Database
 
 ```python
-from xtools import XTools
-from xtools.storage import SQLiteStorage
+from xeepy import Xeepy
+from xeepy.storage import SQLiteStorage
 
 # Use SQLite for better querying
 storage = SQLiteStorage("followers.db")
 
-async with XTools(storage=storage) as x:
+async with Xeepy(storage=storage) as x:
     report = await x.monitor.unfollowers()
     
     # Query historical data
@@ -91,7 +91,7 @@ async with XTools(storage=storage) as x:
 async def analyze_unfollower_patterns():
     """Understand why people unfollow"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         report = await x.monitor.unfollowers(detailed=True)
         
         # Categorize unfollowers
@@ -139,7 +139,7 @@ async def analyze_unfollower_patterns():
 async def alert_vip_unfollowers(min_followers: int = 10000):
     """Alert when important people unfollow"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         report = await x.monitor.unfollowers()
         
         vips = [u for u in report.unfollowers if u.followers_count >= min_followers]
@@ -176,10 +176,10 @@ async def alert_vip_unfollowers(min_followers: int = 10000):
 
 import asyncio
 from datetime import datetime
-from xtools import XTools
+from xeepy import Xeepy
 
 async def main():
-    async with XTools() as x:
+    async with Xeepy() as x:
         report = await x.monitor.unfollowers()
         
         # Format report
@@ -236,7 +236,7 @@ if __name__ == "__main__":
 async def unfollower_winback(days: int = 7, message_template: str = None):
     """Attempt to win back recent unfollowers"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get recent unfollowers from database
         recent_unfollowers = await x.monitor.get_unfollower_history(days=days)
         
@@ -275,7 +275,7 @@ import matplotlib.pyplot as plt
 async def plot_unfollower_trends(days: int = 30):
     """Visualize unfollower patterns"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         history = await x.monitor.get_unfollower_history(days=days)
         
         # Group by date
@@ -316,7 +316,7 @@ async def plot_unfollower_trends(days: int = 30):
 async def correlate_unfollows_with_content():
     """Find if specific content causes unfollows"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get unfollower timestamps
         unfollowers = await x.monitor.get_unfollower_history(days=30)
         
@@ -356,7 +356,7 @@ async def correlate_unfollows_with_content():
 async def export_unfollower_report(format: str = "all"):
     """Export detailed unfollower reports"""
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         report = await x.monitor.unfollowers(detailed=True)
         history = await x.monitor.get_unfollower_history(days=30)
         
@@ -402,7 +402,7 @@ async def export_unfollower_report(format: str = "all"):
 !!! info "Database Recommendation"
     For serious monitoring, use SQLite storage:
     ```python
-    from xtools.storage import SQLiteStorage
+    from xeepy.storage import SQLiteStorage
     storage = SQLiteStorage("followers.db")
     ```
     This enables historical queries and trend analysis.

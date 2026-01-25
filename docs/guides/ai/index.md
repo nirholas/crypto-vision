@@ -1,6 +1,6 @@
 # AI Features Guide
 
-XTools integrates with leading AI providers to supercharge your X/Twitter automation with intelligent content generation, analysis, and insights.
+Xeepy integrates with leading AI providers to supercharge your X/Twitter automation with intelligent content generation, analysis, and insights.
 
 ## Overview
 
@@ -39,7 +39,7 @@ XTools integrates with leading AI providers to supercharge your X/Twitter automa
 ## Quick Start
 
 ```python
-from xtools.ai import ContentGenerator
+from xeepy.ai import ContentGenerator
 
 # Initialize with your preferred provider
 ai = ContentGenerator(
@@ -61,7 +61,7 @@ print(reply)  # "Congrats on the launch! 🎉 What problem does it solve?"
 ### Generate Tweets
 
 ```python
-from xtools.ai import ContentGenerator
+from xeepy.ai import ContentGenerator
 
 ai = ContentGenerator(provider="openai")
 
@@ -137,10 +137,10 @@ tweet_witty = await ai.generate_tweet(topic, style="witty")
 ### Context-Aware Replies
 
 ```python
-from xtools import XTools
-from xtools.ai import ContentGenerator
+from xeepy import Xeepy
+from xeepy.ai import ContentGenerator
 
-async with XTools() as x:
+async with Xeepy() as x:
     ai = ContentGenerator(provider="openai")
     
     # Get a tweet to reply to
@@ -175,7 +175,7 @@ for i, reply in enumerate(replies, 1):
 ### Auto-Reply System
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     ai = ContentGenerator(provider="openai")
     
     # Get mentions
@@ -205,7 +205,7 @@ async with XTools() as x:
 ### Analyze Tweet Sentiment
 
 ```python
-from xtools.ai import SentimentAnalyzer
+from xeepy.ai import SentimentAnalyzer
 
 analyzer = SentimentAnalyzer(provider="openai")
 
@@ -226,7 +226,7 @@ for tweet, result in zip(tweets, results):
 ### Monitor Sentiment Trends
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     analyzer = SentimentAnalyzer(provider="openai")
     
     # Get replies to your tweet
@@ -252,7 +252,7 @@ async with XTools() as x:
 ### Detect Bot Accounts
 
 ```python
-from xtools.ai import BotDetector
+from xeepy.ai import BotDetector
 
 detector = BotDetector(provider="openai")
 
@@ -275,7 +275,7 @@ else:
 ### Filter Bot Followers
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     detector = BotDetector(provider="openai")
     
     # Get followers
@@ -302,7 +302,7 @@ async with XTools() as x:
 ### Find Ideal Accounts to Engage
 
 ```python
-from xtools.ai import SmartTargeting
+from xeepy.ai import SmartTargeting
 
 targeting = SmartTargeting(provider="openai")
 
@@ -354,7 +354,7 @@ ollama pull mistral
 ```
 
 ```python
-from xtools.ai import ContentGenerator
+from xeepy.ai import ContentGenerator
 
 # Use local Ollama
 ai = ContentGenerator(
@@ -388,7 +388,7 @@ export OLLAMA_BASE_URL="http://localhost:11434"
 ### In Code
 
 ```python
-from xtools.ai import ContentGenerator
+from xeepy.ai import ContentGenerator
 
 # Full configuration
 ai = ContentGenerator(
@@ -404,20 +404,20 @@ ai = ContentGenerator(
 ### Config File
 
 ```toml
-# xtools.toml
-[xtools.ai]
+# xeepy.toml
+[xeepy.ai]
 default_provider = "openai"
 
-[xtools.ai.openai]
+[xeepy.ai.openai]
 model = "gpt-4-turbo"
 temperature = 0.7
 max_tokens = 500
 
-[xtools.ai.anthropic]
+[xeepy.ai.anthropic]
 model = "claude-3-sonnet"
 temperature = 0.7
 
-[xtools.ai.ollama]
+[xeepy.ai.ollama]
 model = "llama3"
 base_url = "http://localhost:11434"
 ```
@@ -426,19 +426,19 @@ base_url = "http://localhost:11434"
 
 ```bash
 # Generate tweet
-xtools ai tweet "Python tips" --style educational
+xeepy ai tweet "Python tips" --style educational
 
 # Generate thread
-xtools ai thread "My startup journey" --length 5
+xeepy ai thread "My startup journey" --length 5
 
 # Generate reply
-xtools ai reply "https://x.com/user/status/123" --style supportive
+xeepy ai reply "https://x.com/user/status/123" --style supportive
 
 # Analyze sentiment
-xtools ai sentiment "This is amazing!"
+xeepy ai sentiment "This is amazing!"
 
 # Detect bot
-xtools ai bot-check suspicious_username
+xeepy ai bot-check suspicious_username
 ```
 
 ## Best Practices

@@ -1,10 +1,10 @@
 # Authentication
 
-XTools uses browser-based authentication—no API keys required. This guide covers all authentication methods.
+Xeepy uses browser-based authentication—no API keys required. This guide covers all authentication methods.
 
 ## Why Browser Auth?
 
-| Traditional API | XTools Browser Auth |
+| Traditional API | Xeepy Browser Auth |
 |-----------------|---------------------|
 | $100+/month fees | Free |
 | Rate limited | Natural pacing |
@@ -18,19 +18,19 @@ The fastest way to authenticate:
 
 ```bash
 # Interactive login (opens browser)
-xtools auth login
+xeepy auth login
 ```
 
-This opens a browser window where you log in normally. XTools saves your session for future use.
+This opens a browser window where you log in normally. Xeepy saves your session for future use.
 
 ## Authentication Methods
 
 ### Method 1: Interactive Login (Recommended)
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Opens browser for manual login
     await x.auth.login()
     
@@ -43,9 +43,9 @@ async with XTools() as x:
 ### Method 2: Load Saved Session
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Load previously saved session
     await x.auth.load_session()
     
@@ -60,9 +60,9 @@ async with XTools() as x:
 Export cookies from your browser and import them:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Import from exported cookie file
     await x.auth.import_cookies("cookies.json")
     
@@ -76,14 +76,14 @@ async with XTools() as x:
 
 ```bash
 # Set in your environment
-export XTOOLS_SESSION_FILE="/path/to/session.json"
+export XEEPY_SESSION_FILE="/path/to/session.json"
 ```
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
-    # Automatically loads from XTOOLS_SESSION_FILE
+async with Xeepy() as x:
+    # Automatically loads from XEEPY_SESSION_FILE
     await x.auth.auto_login()
 ```
 
@@ -94,7 +94,7 @@ async with XTools() as x:
 ### Save Session
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     await x.auth.login()
     
     # Save for later use
@@ -107,14 +107,14 @@ Default locations:
 
 | OS | Path |
 |----|------|
-| Linux | `~/.config/xtools/session.json` |
-| macOS | `~/Library/Application Support/xtools/session.json` |
-| Windows | `%APPDATA%\xtools\session.json` |
+| Linux | `~/.config/xeepy/session.json` |
+| macOS | `~/Library/Application Support/xeepy/session.json` |
+| Windows | `%APPDATA%\xeepy\session.json` |
 
 ### Check Session Status
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Check if session is valid
     if await x.auth.is_authenticated():
         print("✓ Logged in")
@@ -129,7 +129,7 @@ async with XTools() as x:
 Sessions can expire. Refresh them:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Try to use existing session, refresh if needed
     await x.auth.ensure_authenticated()
 ```
@@ -139,25 +139,25 @@ async with XTools() as x:
 Manage multiple X/Twitter accounts:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
 # Account 1
-async with XTools(profile="personal") as x:
+async with Xeepy(profile="personal") as x:
     await x.auth.login()  # Login as personal account
 
 # Account 2
-async with XTools(profile="business") as x:
+async with Xeepy(profile="business") as x:
     await x.auth.login()  # Login as business account
 
 # Later, switch between them
-async with XTools(profile="personal") as x:
+async with Xeepy(profile="personal") as x:
     await x.auth.load_session()  # Loads personal session
 ```
 
 ### Account Profiles
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
 # Create named profiles
 profiles = {
@@ -167,7 +167,7 @@ profiles = {
 }
 
 async def use_account(profile_name: str):
-    async with XTools() as x:
+    async with Xeepy() as x:
         await x.auth.load_session(profiles[profile_name])
         return x
 ```
@@ -178,20 +178,20 @@ async def use_account(profile_name: str):
 
 ```bash
 # Interactive login (default)
-xtools auth login
+xeepy auth login
 
 # Login with specific profile
-xtools auth login --profile business
+xeepy auth login --profile business
 
 # Login with browser visible (debugging)
-xtools auth login --headful
+xeepy auth login --headful
 ```
 
 ### Status
 
 ```bash
 # Check current auth status
-xtools auth status
+xeepy auth status
 
 # Output:
 # ✓ Authenticated
@@ -204,26 +204,26 @@ xtools auth status
 
 ```bash
 # Clear saved session
-xtools auth logout
+xeepy auth logout
 
 # Clear specific profile
-xtools auth logout --profile business
+xeepy auth logout --profile business
 
 # Clear all sessions
-xtools auth logout --all
+xeepy auth logout --all
 ```
 
 ### Export/Import
 
 ```bash
 # Export session for backup
-xtools auth export backup_session.json
+xeepy auth export backup_session.json
 
 # Import from backup
-xtools auth import backup_session.json
+xeepy auth import backup_session.json
 
 # Import from browser cookie export
-xtools auth import cookies.txt --format netscape
+xeepy auth import cookies.txt --format netscape
 ```
 
 ## Exporting Cookies from Browser
@@ -264,7 +264,7 @@ copy(document.cookie.split('; ').map(c => {
 2. **Encrypt session files** at rest
 3. **Rotate sessions** periodically
 4. **Use separate accounts** for automation vs personal use
-5. **Enable 2FA** on your X account (XTools handles it)
+5. **Enable 2FA** on your X account (Xeepy handles it)
 
 ### Secure Session Storage
 
@@ -276,7 +276,7 @@ from cryptography.fernet import Fernet
 key = Fernet.generate_key()
 cipher = Fernet(key)
 
-async with XTools() as x:
+async with Xeepy() as x:
     await x.auth.login()
     
     # Get session data
@@ -293,7 +293,7 @@ async with XTools() as x:
 Add to your `.gitignore`:
 
 ```gitignore
-# XTools sessions
+# Xeepy sessions
 *.session.json
 session.json
 sessions/
@@ -303,10 +303,10 @@ cookies.json
 
 ## Two-Factor Authentication (2FA)
 
-XTools handles 2FA during interactive login:
+Xeepy handles 2FA during interactive login:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # If 2FA is enabled, you'll be prompted in the browser
     await x.auth.login()  # Complete 2FA in browser window
 ```
@@ -314,7 +314,7 @@ async with XTools() as x:
 For automated 2FA (advanced):
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     await x.auth.login(
         totp_secret="YOUR_2FA_SECRET"  # From authenticator setup
     )
@@ -326,7 +326,7 @@ async with XTools() as x:
     
     Sessions typically last 30 days. To auto-refresh:
     ```python
-    async with XTools(auto_refresh_session=True) as x:
+    async with Xeepy(auto_refresh_session=True) as x:
         await x.auth.load_session()
     ```
 
@@ -334,15 +334,15 @@ async with XTools() as x:
     
     Try clearing browser state:
     ```bash
-    xtools auth logout --clear-browser
-    xtools auth login --headful
+    xeepy auth logout --clear-browser
+    xeepy auth login --headful
     ```
 
 ??? question "Captcha during login"
     
     Use headful mode to solve manually:
     ```python
-    async with XTools(headless=False) as x:
+    async with Xeepy(headless=False) as x:
         await x.auth.login()  # Solve captcha in browser
     ```
 
@@ -360,7 +360,7 @@ async with XTools() as x:
 
 ## API Reference
 
-::: xtools.core.auth.Auth
+::: xeepy.core.auth.Auth
     options:
       show_source: false
       members:

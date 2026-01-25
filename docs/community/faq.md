@@ -1,29 +1,29 @@
 # Frequently Asked Questions
 
-Common questions and answers about XTools.
+Common questions and answers about Xeepy.
 
 ## General
 
-### What is XTools?
+### What is Xeepy?
 
-XTools is a Python toolkit for X/Twitter automation. It uses browser automation (Playwright) instead of the Twitter API, which means:
+Xeepy is a Python toolkit for X/Twitter automation. It uses browser automation (Playwright) instead of the Twitter API, which means:
 
 - ✅ No API fees ($0/month vs $100+/month)
 - ✅ No rate limit anxiety
 - ✅ No approval process
 - ✅ Access to all features
 
-### Is XTools free?
+### Is Xeepy free?
 
-Yes! XTools is open-source and free under the MIT license.
+Yes! Xeepy is open-source and free under the MIT license.
 
-### Is XTools legal?
+### Is Xeepy legal?
 
-XTools is for educational purposes only. While browser automation isn't explicitly forbidden, automated access to X/Twitter may violate their Terms of Service. Use responsibly and at your own risk.
+Xeepy is for educational purposes only. While browser automation isn't explicitly forbidden, automated access to X/Twitter may violate their Terms of Service. Use responsibly and at your own risk.
 
-### Does XTools require Twitter API keys?
+### Does Xeepy require Twitter API keys?
 
-No. XTools uses browser automation, so you don't need:
+No. Xeepy uses browser automation, so you don't need:
 
 - Twitter Developer Account
 - API keys or tokens
@@ -41,10 +41,10 @@ Python 3.10 or higher is required.
 python --version  # Should be 3.10+
 ```
 
-### How do I install XTools?
+### How do I install Xeepy?
 
 ```bash
-pip install xtools
+pip install xeepy
 playwright install chromium
 ```
 
@@ -65,10 +65,10 @@ The browser download can be slow. Try using a CDN:
 PLAYWRIGHT_DOWNLOAD_HOST=https://playwright.azureedge.net playwright install chromium
 ```
 
-### How do I update XTools?
+### How do I update Xeepy?
 
 ```bash
-pip install --upgrade xtools
+pip install --upgrade xeepy
 playwright install chromium  # Update browser too
 ```
 
@@ -77,13 +77,13 @@ playwright install chromium  # Update browser too
 ### How do I authenticate?
 
 ```bash
-xtools auth login  # Opens browser for manual login
+xeepy auth login  # Opens browser for manual login
 ```
 
 Or in Python:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     await x.auth.login()
 ```
 
@@ -93,16 +93,16 @@ Default locations:
 
 | OS | Path |
 |----|------|
-| Linux | `~/.config/xtools/session.json` |
-| macOS | `~/Library/Application Support/xtools/session.json` |
-| Windows | `%APPDATA%\xtools\session.json` |
+| Linux | `~/.config/xeepy/session.json` |
+| macOS | `~/Library/Application Support/xeepy/session.json` |
+| Windows | `%APPDATA%\xeepy\session.json` |
 
 ### My session expired. What do I do?
 
 Re-authenticate:
 
 ```bash
-xtools auth login
+xeepy auth login
 ```
 
 Sessions typically last 30 days.
@@ -112,11 +112,11 @@ Sessions typically last 30 days.
 Yes! Use profiles:
 
 ```bash
-xtools auth login --profile personal
-xtools auth login --profile business
+xeepy auth login --profile personal
+xeepy auth login --profile business
 
 # Use specific profile
-xtools --profile business scrape replies URL
+xeepy --profile business scrape replies URL
 ```
 
 ### Can I run on a headless server?
@@ -125,22 +125,22 @@ Yes, but you'll need to authenticate first:
 
 1. Authenticate on a machine with a display:
    ```bash
-   xtools auth login
-   xtools auth export session.json
+   xeepy auth login
+   xeepy auth export session.json
    ```
 
 2. Copy `session.json` to your server
 
 3. Import on server:
    ```bash
-   xtools auth import session.json
+   xeepy auth import session.json
    ```
 
 ## Scraping
 
 ### How many tweets/followers can I scrape?
 
-There's no hard limit in XTools, but X/Twitter may impose limits:
+There's no hard limit in Xeepy, but X/Twitter may impose limits:
 
 - Start with small amounts (100-500)
 - Increase gradually
@@ -168,8 +168,8 @@ x.config.rate_limit.requests_per_minute = 10
 Or use proxies:
 
 ```toml
-# xtools.toml
-[xtools.proxy]
+# xeepy.toml
+[xeepy.proxy]
 enabled = true
 url = "http://user:pass@proxy:8080"
 ```
@@ -180,7 +180,7 @@ Only if:
 1. You follow the account
 2. They follow you back (for some data)
 
-XTools respects privacy settings.
+Xeepy respects privacy settings.
 
 ### How do I export data?
 
@@ -193,7 +193,7 @@ x.export.to_excel(data, "output.xlsx")
 Or via CLI:
 
 ```bash
-xtools scrape tweets username --limit 100 -o tweets.csv
+xeepy scrape tweets username --limit 100 -o tweets.csv
 ```
 
 ## Follow/Unfollow
@@ -208,7 +208,7 @@ Conservative limits:
 | Unfollows | 50-100/day |
 | Likes | 100-200/day |
 
-XTools has built-in limits. Don't disable them.
+Xeepy has built-in limits. Don't disable them.
 
 ### I accidentally unfollowed someone important!
 
@@ -268,7 +268,7 @@ ollama pull llama3
 ```
 
 ```python
-from xtools.ai import ContentGenerator
+from xeepy.ai import ContentGenerator
 
 ai = ContentGenerator(
     provider="ollama",
@@ -308,13 +308,13 @@ playwright install-deps chromium
 
 ### "Element not found" errors
 
-X/Twitter's UI changed. Update XTools:
+X/Twitter's UI changed. Update Xeepy:
 
 ```bash
-pip install --upgrade xtools
+pip install --upgrade xeepy
 ```
 
-If still broken, [report the issue](https://github.com/xtools/xtools/issues).
+If still broken, [report the issue](https://github.com/xeepy/xeepy/issues).
 
 ### High memory usage
 
@@ -330,7 +330,7 @@ async for batch in x.scrape.followers_batched("user", batch_size=100):
 Increase timeout:
 
 ```python
-async with XTools(timeout=60000) as x:  # 60 seconds
+async with Xeepy(timeout=60000) as x:  # 60 seconds
     ...
 ```
 
@@ -340,7 +340,7 @@ This means X/Twitter detected automation:
 
 1. Use headful mode to solve manually:
    ```python
-   async with XTools(headless=False) as x:
+   async with Xeepy(headless=False) as x:
        await x.auth.login()
    ```
 
@@ -350,7 +350,7 @@ This means X/Twitter detected automation:
 
 ## Best Practices
 
-### What's the safest way to use XTools?
+### What's the safest way to use Xeepy?
 
 1. **Start slow** - Begin with low limits
 2. **Use delays** - Don't rapid-fire requests
@@ -373,6 +373,6 @@ For heavy automation, yes. Don't risk your main account.
 ## More Questions?
 
 - 📖 [Full Documentation](../index.md)
-- 💬 [Discord Community](https://discord.gg/xtools)
-- 🐛 [Report Issues](https://github.com/xtools/xtools/issues)
-- 📧 [Email Support](mailto:support@xtools.dev)
+- 💬 [Discord Community](https://discord.gg/xeepy)
+- 🐛 [Report Issues](https://github.com/xeepy/xeepy/issues)
+- 📧 [Email Support](mailto:support@xeepy.dev)

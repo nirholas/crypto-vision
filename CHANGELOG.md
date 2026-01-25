@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to XTools will be documented in this file.
+All notable changes to Xeepy will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Replaced Tweepy API dependency with Playwright browser automation
 - Moved from sync to async architecture
-- New project structure under `xtools/` directory
+- New project structure under `xeepy/` directory
 
 ### Removed
 - Deprecated Tweepy-based code (original `twitter_reply.py`)
@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Migration Guide
 
-### From Original Version to XTools
+### From Original Version to Xeepy
 
 The original version used Tweepy and required Twitter API keys:
 
@@ -68,10 +68,10 @@ api.search(q="to:username")  # Deprecated!
 The new version uses browser automation:
 
 ```python
-# NEW (XTools - Works!)
-from xtools import XTools
+# NEW (Xeepy - Works!)
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     replies = await x.scrape.replies("https://x.com/user/status/123")
 ```
 
@@ -91,7 +91,7 @@ async with XTools() as x:
 
 1. Install new dependencies:
    ```bash
-   pip install xtools
+   pip install xeepy
    playwright install chromium
    ```
 
@@ -99,10 +99,10 @@ async with XTools() as x:
    ```python
    # Replace imports
    # OLD: import tweepy
-   # NEW: from xtools import XTools
+   # NEW: from xeepy import Xeepy
    
    # Wrap in async
-   async with XTools() as x:
+   async with Xeepy() as x:
        replies = await x.scrape.replies(tweet_url)
    ```
 

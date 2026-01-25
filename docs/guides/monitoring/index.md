@@ -1,6 +1,6 @@
 # Monitoring Guide
 
-XTools provides comprehensive monitoring capabilities to track your account, detect changes, and stay informed about your X/Twitter presence.
+Xeepy provides comprehensive monitoring capabilities to track your account, detect changes, and stay informed about your X/Twitter presence.
 
 ## Overview
 
@@ -31,9 +31,9 @@ XTools provides comprehensive monitoring capabilities to track your account, det
 ## Quick Start
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Check who unfollowed you
     report = await x.monitor.unfollowers()
     
@@ -49,7 +49,7 @@ async with XTools() as x:
 Track when users unfollow you:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Basic unfollower check
     report = await x.monitor.unfollowers()
     
@@ -72,7 +72,7 @@ async with XTools() as x:
 ### Detailed Unfollower Info
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     report = await x.monitor.unfollowers(include_details=True)
     
     for unfollower in report.unfollowers_detailed:
@@ -87,11 +87,11 @@ async with XTools() as x:
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def monitor_unfollowers():
     """Check for unfollowers every hour"""
-    async with XTools() as x:
+    async with Xeepy() as x:
         while True:
             report = await x.monitor.unfollowers()
             
@@ -110,7 +110,7 @@ async def monitor_unfollowers():
 Monitor your account growth over time:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Track growth for different periods
     growth_day = await x.monitor.growth(period="24h")
     growth_week = await x.monitor.growth(period="7d")
@@ -131,7 +131,7 @@ async with XTools() as x:
 ### Growth Trends
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     trends = await x.monitor.growth_trends(period="30d")
     
     # Daily breakdown
@@ -148,7 +148,7 @@ async with XTools() as x:
 Watch specific accounts for changes:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Monitor competitor accounts
     competitors = ["competitor1", "competitor2"]
     
@@ -168,7 +168,7 @@ async with XTools() as x:
 ### Watch for Specific Events
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Get notified when account posts
     await x.monitor.watch_account(
         "target_user",
@@ -182,7 +182,7 @@ async with XTools() as x:
 Track mentions of keywords across X:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Monitor keywords in real-time
     await x.monitor.keywords(
         keywords=["your_brand", "your_product", "@yourusername"],
@@ -201,7 +201,7 @@ async def handle_mention(tweet):
 ### Scheduled Keyword Search
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Search for keywords periodically
     results = await x.monitor.keyword_search(
         keywords=["python tips", "learn python"],
@@ -218,7 +218,7 @@ async with XTools() as x:
 Track engagement on your tweets:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Monitor engagement on recent tweets
     engagement = await x.monitor.my_engagement(period="7d")
     
@@ -240,7 +240,7 @@ async with XTools() as x:
 ### Per-Tweet Monitoring
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Watch a specific tweet's performance
     tweet_url = "https://x.com/you/status/123456789"
     
@@ -259,10 +259,10 @@ async with XTools() as x:
 Connect monitoring to notifications:
 
 ```python
-from xtools import XTools
-from xtools.notifications import DiscordNotifier, TelegramNotifier
+from xeepy import Xeepy
+from xeepy.notifications import DiscordNotifier, TelegramNotifier
 
-async with XTools() as x:
+async with Xeepy() as x:
     discord = DiscordNotifier(webhook_url="...")
     telegram = TelegramNotifier(token="...", chat_id="...")
     
@@ -279,19 +279,19 @@ async with XTools() as x:
 
 ```bash
 # Check unfollowers
-xtools monitor unfollowers
+xeepy monitor unfollowers
 
 # Track growth
-xtools monitor growth --period 7d
+xeepy monitor growth --period 7d
 
 # Watch keywords
-xtools monitor keywords "python,automation" --notify discord
+xeepy monitor keywords "python,automation" --notify discord
 
 # Monitor account
-xtools monitor account competitor_username --watch
+xeepy monitor account competitor_username --watch
 
 # Full monitoring daemon
-xtools monitor start --config monitoring.yaml
+xeepy monitor start --config monitoring.yaml
 ```
 
 ## Monitoring Configuration
@@ -357,7 +357,7 @@ monitoring:
 Monitoring data is stored automatically:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Access historical data
     history = await x.monitor.get_history(
         metric="followers",

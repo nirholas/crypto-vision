@@ -1,35 +1,35 @@
 # ❓ Frequently Asked Questions
 
-Common questions about XTools answered.
+Common questions about Xeepy answered.
 
 ---
 
 ## General Questions
 
-### What is XTools?
+### What is Xeepy?
 
-XTools is a Python toolkit for X/Twitter automation. It provides:
+Xeepy is a Python toolkit for X/Twitter automation. It provides:
 - 12 different scrapers (replies, followers, tweets, etc.)
 - Follow/unfollow automation
 - Engagement tools (auto-like, auto-comment)
 - Monitoring (unfollower detection, account tracking)
 - AI integration (GPT, Claude, Ollama)
 
-### Is XTools free?
+### Is Xeepy free?
 
-Yes! XTools is completely free and open-source (MIT License).
+Yes! Xeepy is completely free and open-source (MIT License).
 
 ### Do I need a Twitter API key?
 
-**No.** XTools uses browser automation instead of the Twitter API. This means:
+**No.** Xeepy uses browser automation instead of the Twitter API. This means:
 - No API costs ($100-5000/month saved)
 - No rate limit restrictions
 - No application approval needed
 - Works with any X/Twitter account
 
-### Is XTools safe to use?
+### Is Xeepy safe to use?
 
-XTools includes:
+Xeepy includes:
 - Built-in rate limiting
 - Random delays between actions
 - Stealth browser settings
@@ -40,10 +40,10 @@ However, any automation may risk account restrictions. Use responsibly and start
 
 ## Installation Questions
 
-### How do I install XTools?
+### How do I install Xeepy?
 
 ```bash
-pip install xtools
+pip install xeepy
 ```
 
 Or from source:
@@ -71,7 +71,7 @@ AI dependencies (optional):
 
 Install all with:
 ```bash
-pip install xtools[ai]
+pip install xeepy[ai]
 ```
 
 ### Browser installation failed?
@@ -91,16 +91,16 @@ playwright install chromium
 2. Open Developer Tools (F12)
 3. Go to Application → Cookies → x.com
 4. Copy the `auth_token` value
-5. Set it in XTools:
+5. Set it in Xeepy:
 
 ```python
-async with XTools(auth_token="your_token") as x:
+async with Xeepy(auth_token="your_token") as x:
     ...
 ```
 
 Or via environment variable:
 ```bash
-export XTOOLS_AUTH_TOKEN=your_token
+export XEEPY_AUTH_TOKEN=your_token
 ```
 
 ### My authentication expired. What do I do?
@@ -112,10 +112,10 @@ Re-fetch your `auth_token` from the browser. Tokens typically expire after a few
 Yes, pass different auth tokens:
 
 ```python
-async with XTools(auth_token="account1_token") as x1:
+async with Xeepy(auth_token="account1_token") as x1:
     ...
 
-async with XTools(auth_token="account2_token") as x2:
+async with Xeepy(auth_token="account2_token") as x2:
     ...
 ```
 
@@ -125,10 +125,10 @@ async with XTools(auth_token="account2_token") as x2:
 
 ### Does the tweet reply scraper work?
 
-Yes! This is the main fix for the original repo. The original used Tweepy's deprecated search API. XTools uses browser automation which works reliably.
+Yes! This is the main fix for the original repo. The original used Tweepy's deprecated search API. Xeepy uses browser automation which works reliably.
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     replies = await x.scrape.replies("https://x.com/user/status/123")
 ```
 
@@ -137,7 +137,7 @@ async with XTools() as x:
 Yes, this is the most popular feature:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     await x.unfollow.non_followers(max_unfollows=100)
 ```
 
@@ -146,7 +146,7 @@ async with XTools() as x:
 Yes:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     report = await x.monitor.unfollowers()
     print(report.unfollowers)
 ```
@@ -156,7 +156,7 @@ async with XTools() as x:
 Yes:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     await x.engage.auto_like(keywords=["Python"], max_likes=25)
 ```
 
@@ -165,7 +165,7 @@ async with XTools() as x:
 Yes, with OpenAI, Claude, or local models:
 
 ```python
-from xtools.ai import ContentGenerator
+from xeepy.ai import ContentGenerator
 
 ai = ContentGenerator(provider="openai", api_key="sk-...")
 reply = await ai.generate_reply("Great tweet!", style="supportive")
@@ -177,7 +177,7 @@ reply = await ai.generate_reply("Great tweet!", style="supportive")
 
 ### What are the rate limits?
 
-XTools includes conservative defaults:
+Xeepy includes conservative defaults:
 
 | Action | Per Hour | Per Day | Delay |
 |--------|----------|---------|-------|
@@ -191,7 +191,7 @@ XTools includes conservative defaults:
 Yes:
 
 ```python
-from xtools.core.rate_limiter import RateLimiter
+from xeepy.core.rate_limiter import RateLimiter
 
 limiter = RateLimiter()
 limiter.set_limit("follow", per_hour=10, delay=(5, 10))
@@ -208,7 +208,7 @@ Risk depends on your usage. To minimize risk:
 
 ### What if I hit a rate limit?
 
-XTools will automatically wait and retry. You'll see:
+Xeepy will automatically wait and retry. You'll see:
 
 ```
 ⏳ Rate limited. Waiting 60 seconds...
@@ -227,14 +227,14 @@ XTools will automatically wait and retry. You'll see:
 ### "Element not found"
 
 X/Twitter may have updated their UI. Solutions:
-1. Update XTools: `pip install --upgrade xtools`
+1. Update Xeepy: `pip install --upgrade xeepy`
 2. Check for open issues on GitHub
 3. Try running with `headless=False` to see what's happening
 
 ### "Browser crashed"
 
 1. Make sure Playwright is installed: `playwright install chromium`
-2. Try running non-headless: `XTools(headless=False)`
+2. Try running non-headless: `Xeepy(headless=False)`
 3. Check available memory
 
 ### "Timeout waiting for element"
@@ -254,9 +254,9 @@ X/Twitter might be loading slowly:
 
 ## Comparison Questions
 
-### XTools vs Tweepy?
+### Xeepy vs Tweepy?
 
-| Feature | XTools | Tweepy |
+| Feature | Xeepy | Tweepy |
 |---------|--------|--------|
 | API Required | ❌ No | ✅ Yes |
 | Cost | Free | $100-5000/mo |
@@ -264,18 +264,18 @@ X/Twitter might be loading slowly:
 | Rate Limits | Flexible | Strict |
 | Setup | Easy | Complex |
 
-### XTools vs Twitter API v2?
+### Xeepy vs Twitter API v2?
 
-| Feature | XTools | API v2 |
+| Feature | Xeepy | API v2 |
 |---------|--------|--------|
 | Cost | Free | $100-5000/mo |
 | Approval | Not needed | Required |
 | Rate Limits | No hard limits | 500k tweets/mo (Enterprise) |
 | Real-time | Near real-time | Yes (streaming) |
 
-### XTools vs Hypefury/Tweethunter?
+### Xeepy vs Hypefury/Tweethunter?
 
-| Feature | XTools | Hypefury/TweetHunter |
+| Feature | Xeepy | Hypefury/TweetHunter |
 |---------|--------|----------------------|
 | Cost | Free | $29-99/mo |
 | Open Source | ✅ Yes | ❌ No |
@@ -302,7 +302,7 @@ Open an issue on GitHub with:
 1. Description of the bug
 2. Steps to reproduce
 3. Expected vs actual behavior
-4. XTools version
+4. Xeepy version
 5. Python version
 
 ### How do I request a feature?
@@ -325,7 +325,7 @@ Web scraping public data is generally legal, but:
 - Check local laws
 - Review X/Twitter ToS
 
-### Can I use XTools commercially?
+### Can I use Xeepy commercially?
 
 Yes, under the MIT License. However:
 - Automation may violate X/Twitter ToS
@@ -334,7 +334,7 @@ Yes, under the MIT License. However:
 
 ### Who is responsible if I get banned?
 
-You are. XTools is provided "as-is" for educational purposes. The authors are not responsible for any account restrictions.
+You are. Xeepy is provided "as-is" for educational purposes. The authors are not responsible for any account restrictions.
 
 ---
 

@@ -1,22 +1,22 @@
-# Contributing to XTools
+# Contributing to Xeepy
 
-Thank you for your interest in contributing to XTools! This guide will help you get started.
+Thank you for your interest in contributing to Xeepy! This guide will help you get started.
 
 ## Ways to Contribute
 
 ### 🐛 Report Bugs
 
-Found a bug? [Open an issue](https://github.com/xtools/xtools/issues/new?template=bug_report.md) with:
+Found a bug? [Open an issue](https://github.com/xeepy/xeepy/issues/new?template=bug_report.md) with:
 
 - Clear description of the problem
 - Steps to reproduce
 - Expected vs actual behavior
-- XTools version and Python version
+- Xeepy version and Python version
 - OS and browser information
 
 ### 💡 Suggest Features
 
-Have an idea? [Start a discussion](https://github.com/xtools/xtools/discussions/new?category=ideas) with:
+Have an idea? [Start a discussion](https://github.com/xeepy/xeepy/discussions/new?category=ideas) with:
 
 - Clear description of the feature
 - Use case and motivation
@@ -49,8 +49,8 @@ Ready to code? Follow the process below.
 
 ```bash
 # Fork the repo on GitHub, then clone your fork
-git clone https://github.com/YOUR_USERNAME/xtools.git
-cd xtools
+git clone https://github.com/YOUR_USERNAME/xeepy.git
+cd xeepy
 
 # Create virtual environment
 python -m venv .venv
@@ -77,7 +77,7 @@ pytest
 ruff check .
 
 # Run type checker
-mypy xtools
+mypy xeepy
 
 # Build docs
 mkdocs serve
@@ -174,7 +174,7 @@ def function(arg1: str, arg2: int) -> bool:
 ## Project Structure
 
 ```
-xtools/
+xeepy/
 ├── __init__.py          # Public exports
 ├── core/                # Core functionality
 │   ├── browser.py       # Browser management
@@ -216,7 +216,7 @@ pytest
 pytest tests/unit/test_scrapers.py
 
 # With coverage
-pytest --cov=xtools --cov-report=html
+pytest --cov=xeepy --cov-report=html
 
 # Only unit tests (fast)
 pytest tests/unit
@@ -230,7 +230,7 @@ pytest tests/integration
 ```python
 # tests/unit/test_scrapers/test_replies.py
 import pytest
-from xtools.scrapers.replies import RepliesScraper
+from xeepy.scrapers.replies import RepliesScraper
 
 class TestRepliesScraper:
     """Tests for RepliesScraper."""
@@ -279,8 +279,8 @@ def sample_tweet():
     ...
 
 @pytest.fixture
-async def authenticated_xtools():
-    """XTools instance with authentication."""
+async def authenticated_xeepy():
+    """Xeepy instance with authentication."""
     ...
 ```
 
@@ -382,9 +382,9 @@ Maintainers handle releases:
 
 ## Getting Help
 
-- 💬 [Discord](https://discord.gg/xtools) - Chat with maintainers
-- 🐛 [Issues](https://github.com/xtools/xtools/issues) - Bug reports
-- 💡 [Discussions](https://github.com/xtools/xtools/discussions) - Questions
+- 💬 [Discord](https://discord.gg/xeepy) - Chat with maintainers
+- 🐛 [Issues](https://github.com/xeepy/xeepy/issues) - Bug reports
+- 💡 [Discussions](https://github.com/xeepy/xeepy/discussions) - Questions
 
 ## Recognition
 
@@ -393,4 +393,4 @@ Contributors are:
 - Mentioned in release notes
 - Thanked in community channels
 
-Thank you for contributing to XTools! 🙏
+Thank you for contributing to Xeepy! 🙏

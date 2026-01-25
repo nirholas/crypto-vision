@@ -11,8 +11,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: XTools Version
-      description: What version of XTools are you using?
+      label: Xeepy Version
+      description: What version of Xeepy are you using?
       placeholder: ex. 1.0.0
     validations:
       required: true
@@ -92,9 +92,9 @@ body:
       description: Minimal code to reproduce
       render: python
       placeholder: |
-        from xtools import XTools
+        from xeepy import Xeepy
         
-        async with XTools() as x:
+        async with Xeepy() as x:
             # Your code here
 
   - type: textarea

@@ -1,6 +1,6 @@
 # Follow & Unfollow Actions
 
-XTools provides smart, safe follow and unfollow operations with built-in rate limiting and protection features.
+Xeepy provides smart, safe follow and unfollow operations with built-in rate limiting and protection features.
 
 ## Overview
 
@@ -25,9 +25,9 @@ XTools provides smart, safe follow and unfollow operations with built-in rate li
 ### Follow a Single User
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Follow by username
     await x.follow.user("naval")
     
@@ -43,7 +43,7 @@ async with XTools() as x:
 Find and follow users who tweet about specific topics:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Follow people tweeting about #buildinpublic
     result = await x.follow.by_hashtag(
         "#buildinpublic",
@@ -62,7 +62,7 @@ async with XTools() as x:
 ### Follow from Search
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Follow users from search results
     result = await x.follow.from_search(
         query="python developer",
@@ -78,7 +78,7 @@ async with XTools() as x:
 ### Follow Followers of Account
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Follow followers of a similar account
     result = await x.follow.followers_of(
         "competitor_account",
@@ -94,7 +94,7 @@ async with XTools() as x:
 ### Follow List Members
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Follow members of a curated list
     result = await x.follow.list_members(
         "username/list-name",
@@ -109,7 +109,7 @@ async with XTools() as x:
 The most popular feature—clean up accounts that don't follow you back:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Preview first (recommended!)
     preview = await x.unfollow.non_followers(dry_run=True)
     print(f"Would unfollow {len(preview.would_unfollow)} users")
@@ -126,7 +126,7 @@ async with XTools() as x:
 ### Unfollow with Whitelist File
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     result = await x.unfollow.non_followers(
         max_unfollows=100,
         whitelist_file="whitelist.txt"  # One username per line
@@ -146,7 +146,7 @@ important_client
 Unfollow based on multiple criteria:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     result = await x.unfollow.smart(
         max_unfollows=50,
         criteria={
@@ -165,7 +165,7 @@ async with XTools() as x:
 Nuclear option—unfollow all accounts:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # ALWAYS dry run first!
     preview = await x.unfollow.everyone(dry_run=True)
     print(f"Would unfollow {preview.total_count} users")
@@ -182,7 +182,7 @@ async with XTools() as x:
 ### Unfollow Inactive Accounts
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     result = await x.unfollow.inactive(
         inactive_days=180,  # No tweets in 6 months
         max_unfollows=30,
@@ -193,7 +193,7 @@ async with XTools() as x:
 ### Unfollow by Criteria
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Unfollow based on custom filters
     result = await x.unfollow.by_criteria(
         criteria={
@@ -212,7 +212,7 @@ async with XTools() as x:
 Always preview before executing:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # See what would happen without doing it
     result = await x.unfollow.non_followers(dry_run=True)
     
@@ -227,7 +227,7 @@ async with XTools() as x:
 ### Whitelist Protection
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Method 1: Inline list
     result = await x.unfollow.non_followers(
         whitelist=["vip1", "vip2", "friend"]
@@ -247,7 +247,7 @@ async with XTools() as x:
 ### Daily Limits
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Configure safety limits
     x.config.safety.max_follows_per_day = 50
     x.config.safety.max_unfollows_per_day = 100
@@ -260,7 +260,7 @@ async with XTools() as x:
 ### Rate Limiting
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Default: 30 follows/hour, 50 unfollows/hour
     # Customize if needed
     x.config.rate_limit.follows_per_hour = 20
@@ -273,35 +273,35 @@ async with XTools() as x:
 
 ```bash
 # Follow a user
-xtools follow user naval
+xeepy follow user naval
 
 # Follow by hashtag
-xtools follow hashtag "#buildinpublic" --limit 20 --min-followers 100
+xeepy follow hashtag "#buildinpublic" --limit 20 --min-followers 100
 
 # Follow from search
-xtools follow search "python developer" --limit 15
+xeepy follow search "python developer" --limit 15
 
 # Follow followers of account
-xtools follow followers-of elonmusk --limit 30
+xeepy follow followers-of elonmusk --limit 30
 ```
 
 ### Unfollow Commands
 
 ```bash
 # Preview non-followers (dry run)
-xtools unfollow non-followers --dry-run
+xeepy unfollow non-followers --dry-run
 
 # Unfollow non-followers
-xtools unfollow non-followers --max 50 --whitelist-file whitelist.txt
+xeepy unfollow non-followers --max 50 --whitelist-file whitelist.txt
 
 # Unfollow inactive
-xtools unfollow inactive --days 180 --max 30
+xeepy unfollow inactive --days 180 --max 30
 
 # Smart unfollow
-xtools unfollow smart --criteria inactive,no-bio,not-following --max 25
+xeepy unfollow smart --criteria inactive,no-bio,not-following --max 25
 
 # Nuclear option (be careful!)
-xtools unfollow everyone --whitelist-file whitelist.txt --confirm
+xeepy unfollow everyone --whitelist-file whitelist.txt --confirm
 ```
 
 ## Scheduling Follow/Unfollow
@@ -311,11 +311,11 @@ xtools unfollow everyone --whitelist-file whitelist.txt --confirm
 ```python
 import asyncio
 from datetime import datetime
-from xtools import XTools
+from xeepy import Xeepy
 
 async def daily_cleanup():
     """Run daily to maintain healthy following list"""
-    async with XTools() as x:
+    async with Xeepy() as x:
         print(f"🧹 Daily cleanup - {datetime.now()}")
         
         # 1. Unfollow non-followers (conservative)
@@ -346,7 +346,7 @@ async def growth_campaign(target_hashtags: list, days: int = 7):
     """Run a multi-day growth campaign"""
     from datetime import datetime, timedelta
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         end_date = datetime.now() + timedelta(days=days)
         
         while datetime.now() < end_date:

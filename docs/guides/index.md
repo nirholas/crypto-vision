@@ -1,6 +1,6 @@
 # Guides
 
-Comprehensive guides for every XTools feature.
+Comprehensive guides for every Xeepy feature.
 
 <div class="grid cards" markdown>
 

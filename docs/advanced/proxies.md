@@ -1,6 +1,6 @@
 # Proxy Configuration
 
-Proxies help distribute requests across multiple IPs, avoiding rate limits and detection. XTools provides comprehensive proxy support.
+Proxies help distribute requests across multiple IPs, avoiding rate limits and detection. Xeepy provides comprehensive proxy support.
 
 ## Why Use Proxies?
 
@@ -14,14 +14,14 @@ Proxies help distribute requests across multiple IPs, avoiding rate limits and d
 ### Single Proxy
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
 # HTTP proxy
-async with XTools(proxy="http://user:pass@proxy.example.com:8080") as x:
+async with Xeepy(proxy="http://user:pass@proxy.example.com:8080") as x:
     await x.scrape.profile("username")
 
 # SOCKS5 proxy
-async with XTools(proxy="socks5://user:pass@proxy.example.com:1080") as x:
+async with Xeepy(proxy="socks5://user:pass@proxy.example.com:1080") as x:
     await x.scrape.profile("username")
 ```
 
@@ -29,12 +29,12 @@ async with XTools(proxy="socks5://user:pass@proxy.example.com:1080") as x:
 
 ```bash
 # Set environment variable
-export XTOOLS_PROXY="http://user:pass@proxy.example.com:8080"
+export XEEPY_PROXY="http://user:pass@proxy.example.com:8080"
 ```
 
 ```python
-# Automatically uses XTOOLS_PROXY
-async with XTools() as x:
+# Automatically uses XEEPY_PROXY
+async with Xeepy() as x:
     pass
 ```
 
@@ -43,8 +43,8 @@ async with XTools() as x:
 ### Round Robin
 
 ```python
-from xtools import XTools
-from xtools.core.proxy import ProxyRotator, RotationStrategy
+from xeepy import Xeepy
+from xeepy.core.proxy import ProxyRotator, RotationStrategy
 
 proxies = [
     "http://proxy1.example.com:8080",
@@ -57,7 +57,7 @@ rotator = ProxyRotator(
     strategy=RotationStrategy.ROUND_ROBIN
 )
 
-async with XTools(proxy_rotator=rotator) as x:
+async with Xeepy(proxy_rotator=rotator) as x:
     # Each request uses next proxy in list
     for user in users:
         await x.scrape.profile(user)
@@ -115,8 +115,8 @@ Residential proxies are highly recommended for Twitter automation:
 ### BrightData Integration
 
 ```python
-from xtools import XTools
-from xtools.core.proxy import BrightDataProxy
+from xeepy import Xeepy
+from xeepy.core.proxy import BrightDataProxy
 
 proxy = BrightDataProxy(
     username="your_username",
@@ -125,14 +125,14 @@ proxy = BrightDataProxy(
     session_type="rotating"  # or "sticky"
 )
 
-async with XTools(proxy=proxy) as x:
+async with Xeepy(proxy=proxy) as x:
     pass
 ```
 
 ### SmartProxy Integration
 
 ```python
-from xtools.core.proxy import SmartProxy
+from xeepy.core.proxy import SmartProxy
 
 proxy = SmartProxy(
     username="your_username",
@@ -144,7 +144,7 @@ proxy = SmartProxy(
 ### Generic Residential Provider
 
 ```python
-from xtools.core.proxy import ResidentialProxy
+from xeepy.core.proxy import ResidentialProxy
 
 proxy = ResidentialProxy(
     endpoint="http://proxy.provider.com:8080",
@@ -174,7 +174,7 @@ rotator = ProxyRotator(
 ### Manual Health Check
 
 ```python
-async with XTools(proxy_rotator=rotator) as x:
+async with Xeepy(proxy_rotator=rotator) as x:
     # Check all proxies
     health = await rotator.check_health()
     
@@ -235,11 +235,11 @@ failover:
 ```
 
 ```python
-from xtools.core.proxy import ProxyRotator
+from xeepy.core.proxy import ProxyRotator
 
 rotator = ProxyRotator.from_file("proxies.yaml")
 
-async with XTools(proxy_rotator=rotator) as x:
+async with Xeepy(proxy_rotator=rotator) as x:
     pass
 ```
 
@@ -248,8 +248,8 @@ async with XTools(proxy_rotator=rotator) as x:
 ### Dedicated Proxies per Account
 
 ```python
-from xtools import XTools
-from xtools.core.proxy import AccountProxyManager
+from xeepy import Xeepy
+from xeepy.core.proxy import AccountProxyManager
 
 # Assign dedicated proxies to accounts
 manager = AccountProxyManager({
@@ -259,7 +259,7 @@ manager = AccountProxyManager({
 })
 
 # Each account always uses its assigned proxy
-async with XTools(cookies="account1.json", proxy_manager=manager) as x:
+async with Xeepy(cookies="account1.json", proxy_manager=manager) as x:
     # Uses proxy1 automatically
     pass
 ```
@@ -267,7 +267,7 @@ async with XTools(cookies="account1.json", proxy_manager=manager) as x:
 ### Sticky Sessions
 
 ```python
-from xtools.core.proxy import StickySessionManager
+from xeepy.core.proxy import StickySessionManager
 
 # Maintain same IP for session duration
 manager = StickySessionManager(
@@ -275,7 +275,7 @@ manager = StickySessionManager(
     session_duration=3600,  # 1 hour per IP
 )
 
-async with XTools(proxy_manager=manager) as x:
+async with Xeepy(proxy_manager=manager) as x:
     # Same proxy for 1 hour
     pass
 ```
@@ -285,7 +285,7 @@ async with XTools(proxy_manager=manager) as x:
 ### Country-Specific Proxies
 
 ```python
-from xtools.core.proxy import GeoProxyRouter
+from xeepy.core.proxy import GeoProxyRouter
 
 router = GeoProxyRouter({
     "US": ["http://us-proxy1.com:8080", "http://us-proxy2.com:8080"],
@@ -293,7 +293,7 @@ router = GeoProxyRouter({
     "DE": ["http://de-proxy1.com:8080"],
 })
 
-async with XTools(proxy_router=router, target_country="US") as x:
+async with Xeepy(proxy_router=router, target_country="US") as x:
     # Uses US proxy
     pass
 ```
@@ -301,7 +301,7 @@ async with XTools(proxy_router=router, target_country="US") as x:
 ### Dynamic Geo Selection
 
 ```python
-async with XTools(proxy_router=router) as x:
+async with Xeepy(proxy_router=router) as x:
     # Get content as seen from UK
     x.set_geo("UK")
     uk_trends = await x.trends()
@@ -316,7 +316,7 @@ async with XTools(proxy_router=router) as x:
 ### Automatic Failover
 
 ```python
-from xtools.core.proxy import FailoverConfig
+from xeepy.core.proxy import FailoverConfig
 
 failover = FailoverConfig(
     max_retries=3,
@@ -350,7 +350,7 @@ rotator = ProxyRotator(
 ### Verify Proxy Works
 
 ```python
-from xtools.core.proxy import test_proxy
+from xeepy.core.proxy import test_proxy
 
 result = await test_proxy(
     "http://proxy.example.com:8080",
@@ -367,7 +367,7 @@ else:
 ### Bulk Testing
 
 ```python
-from xtools.core.proxy import test_proxies
+from xeepy.core.proxy import test_proxies
 
 results = await test_proxies(
     proxies,
@@ -390,7 +390,7 @@ scrape_proxies = ["http://dc-proxy1.com:8080", ...]
 # Residential proxies for actions (safer)
 action_proxies = ["http://res-proxy1.com:8080", ...]
 
-async with XTools(
+async with Xeepy(
     scrape_proxy_rotator=ProxyRotator(scrape_proxies),
     action_proxy_rotator=ProxyRotator(action_proxies)
 ) as x:
@@ -409,7 +409,7 @@ uk_account = {"cookies": "uk_account.json", "proxy": "http://uk-proxy.com:8080"}
 
 ```python
 # Log proxy performance
-async with XTools(proxy_rotator=rotator) as x:
+async with Xeepy(proxy_rotator=rotator) as x:
     x.on("request_complete", lambda r: log_proxy_stats(r.proxy, r.latency))
 ```
 

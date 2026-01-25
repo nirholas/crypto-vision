@@ -1,5 +1,5 @@
 ---
-title: XTools - The Ultimate X/Twitter Automation Toolkit
+title: Xeepy - The Ultimate X/Twitter Automation Toolkit
 description: No API keys. No rate limits. No compromises. Automate X/Twitter with Python using browser automation.
 ---
 
@@ -11,7 +11,7 @@ description: No API keys. No rate limits. No compromises. Automate X/Twitter wit
 
 <div align="center" markdown>
 
-# 🚀 XTools
+# 🚀 Xeepy
 
 ## The Ultimate X/Twitter Automation Toolkit
 
@@ -24,9 +24,9 @@ description: No API keys. No rate limits. No compromises. Automate X/Twitter wit
 
 ---
 
-## ✨ What is XTools?
+## ✨ What is Xeepy?
 
-XTools is a **professional-grade Python toolkit** for automating X (formerly Twitter) using browser automation. Unlike traditional API-based solutions that require expensive API access or face strict rate limits, XTools operates through Playwright browser automation—giving you the same capabilities as a real user.
+Xeepy is a **professional-grade Python toolkit** for automating X (formerly Twitter) using browser automation. Unlike traditional API-based solutions that require expensive API access or face strict rate limits, Xeepy operates through Playwright browser automation—giving you the same capabilities as a real user.
 
 <div class="grid cards" markdown>
 
@@ -34,7 +34,7 @@ XTools is a **professional-grade Python toolkit** for automating X (formerly Twi
 
     ---
 
-    Forget the $100/month Twitter API. XTools uses browser automation to work without any API credentials.
+    Forget the $100/month Twitter API. Xeepy uses browser automation to work without any API credentials.
 
 -   :material-speedometer:{ .lg .middle } __No Rate Limits__
 
@@ -66,10 +66,10 @@ Scrape anything from X/Twitter with simple Python code:
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 async def main():
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get tweet replies (the original mission!)
         replies = await x.scrape.replies("https://x.com/elonmusk/status/123456")
         
@@ -93,7 +93,7 @@ asyncio.run(main())
 Grow your account intelligently:
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Unfollow non-followers (the #1 requested feature!)
     result = await x.unfollow.non_followers(
         max_unfollows=100,
@@ -114,7 +114,7 @@ async with XTools() as x:
 Track your account and competitors:
 
 ```python
-from xtools import UnfollowerDetector, GrowthTracker
+from xeepy import UnfollowerDetector, GrowthTracker
 
 # Detect who unfollowed you
 detector = UnfollowerDetector(storage=storage, notifier=notifier)
@@ -132,7 +132,7 @@ print(f"Gained {growth.net_change} followers this month! 🚀")
 Let AI do the heavy lifting:
 
 ```python
-from xtools.ai import ContentGenerator, SentimentAnalyzer
+from xeepy.ai import ContentGenerator, SentimentAnalyzer
 
 # Generate viral content
 generator = ContentGenerator(provider="openai")
@@ -153,7 +153,7 @@ print(f"Overall sentiment: {result.overall_sentiment}")
 Get notified everywhere:
 
 ```python
-from xtools.notifications import NotificationManager
+from xeepy.notifications import NotificationManager
 
 manager = NotificationManager()
 manager.add_channel("discord", WebhookNotifier(discord_url))
@@ -170,11 +170,11 @@ await manager.notify(
 
 ---
 
-## 🏆 Why XTools?
+## 🏆 Why Xeepy?
 
 <div class="grid" markdown>
 
-| Feature | Twitter API | Tweepy | XTools |
+| Feature | Twitter API | Tweepy | Xeepy |
 |---------|-------------|--------|--------|
 | **Cost** | $100+/month | Free (limited) | **Free** |
 | **Rate Limits** | 100-500/15min | Strict | **Flexible** |
@@ -193,14 +193,14 @@ await manager.notify(
 === "pip"
 
     ```bash
-    pip install xtools
+    pip install xeepy
     playwright install chromium
     ```
 
 === "pipx"
 
     ```bash
-    pipx install xtools
+    pipx install xeepy
     playwright install chromium
     ```
 
@@ -223,7 +223,7 @@ await manager.notify(
 
     ---
 
-    New to XTools? Start here with installation and your first script.
+    New to Xeepy? Start here with installation and your first script.
 
     [:octicons-arrow-right-24: Quick Start](getting-started/quickstart.md)
 
@@ -265,13 +265,13 @@ await manager.notify(
 
     Join 5,000+ members discussing X automation, sharing scripts, and getting help.
 
-    [:octicons-arrow-right-24: Join Discord](https://discord.gg/xtools)
+    [:octicons-arrow-right-24: Join Discord](https://discord.gg/xeepy)
 
 -   :fontawesome-brands-github:{ .lg .middle } __GitHub__
 
     ---
 
-    Star the repo, report issues, and contribute to XTools.
+    Star the repo, report issues, and contribute to Xeepy.
 
     [:octicons-arrow-right-24: GitHub](https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy)
 
@@ -281,7 +281,7 @@ await manager.notify(
 
     Follow us for updates, tips, and automation tricks.
 
-    [:octicons-arrow-right-24: @xtools_dev](https://x.com/xtools_dev)
+    [:octicons-arrow-right-24: @xeepy_dev](https://x.com/xeepy_dev)
 
 </div>
 
@@ -291,7 +291,7 @@ await manager.notify(
 
 !!! warning "Educational Purposes Only"
 
-    XTools is designed for **educational and research purposes only**. 
+    Xeepy is designed for **educational and research purposes only**. 
     
     - Automating X/Twitter may violate their Terms of Service
     - Use responsibly and at your own risk
@@ -302,7 +302,7 @@ await manager.notify(
 
 <div align="center" markdown>
 
-**Made with ❤️ by the XTools Team**
+**Made with ❤️ by the Xeepy Team**
 
 [Star on GitHub :star:](https://github.com/nirholas/Get-Tweet-Replies-With-Python-Tweepy){ .md-button }
 

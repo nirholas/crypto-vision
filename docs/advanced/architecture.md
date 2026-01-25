@@ -1,6 +1,6 @@
 # Architecture Overview
 
-Understanding XTools' internal architecture helps you extend, customize, and optimize it for your use cases.
+Understanding Xeepy' internal architecture helps you extend, customize, and optimize it for your use cases.
 
 ## System Architecture
 
@@ -13,7 +13,7 @@ graph TB
     end
     
     subgraph "Core Layer"
-        XTools[XTools Class]
+        Xeepy[Xeepy Class]
         Auth[Auth Manager]
         Browser[Browser Manager]
         RateLimiter[Rate Limiter]
@@ -34,13 +34,13 @@ graph TB
         GraphQL[GraphQL Client]
     end
     
-    CLI --> XTools
-    API --> XTools
-    SDK --> XTools
+    CLI --> Xeepy
+    API --> Xeepy
+    SDK --> Xeepy
     
-    XTools --> Auth
-    XTools --> Browser
-    XTools --> RateLimiter
+    Xeepy --> Auth
+    Xeepy --> Browser
+    Xeepy --> RateLimiter
     
     Browser --> Scrapers
     Browser --> Actions
@@ -60,14 +60,14 @@ graph TB
 
 ### Core Components
 
-#### XTools Class
+#### Xeepy Class
 
 The main entry point that orchestrates all functionality:
 
 ```python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools(
+async with Xeepy(
     headless=True,
     proxy="http://proxy:8080",
     rate_limit_profile="conservative"
@@ -87,7 +87,7 @@ async with XTools(
 Manages Playwright browser instances:
 
 ```python
-from xtools.core.browser import BrowserManager
+from xeepy.core.browser import BrowserManager
 
 class BrowserManager:
     """
@@ -112,7 +112,7 @@ class BrowserManager:
 Handles authentication and session management:
 
 ```python
-from xtools.core.auth import AuthManager
+from xeepy.core.auth import AuthManager
 
 class AuthManager:
     """
@@ -131,7 +131,7 @@ class AuthManager:
 Protects accounts with intelligent rate limiting:
 
 ```python
-from xtools.core.rate_limiter import RateLimiter
+from xeepy.core.rate_limiter import RateLimiter
 
 class RateLimiter:
     """
@@ -152,7 +152,7 @@ class RateLimiter:
 All scrapers inherit from `BaseScraper`:
 
 ```python
-from xtools.scrapers.base import BaseScraper
+from xeepy.scrapers.base import BaseScraper
 
 class BaseScraper:
     """Base class for all scrapers."""
@@ -193,7 +193,7 @@ BaseScraper
 Actions perform mutations on Twitter:
 
 ```python
-from xtools.actions.base import BaseAction
+from xeepy.actions.base import BaseAction
 
 class BaseAction:
     """Base class for all actions."""
@@ -213,29 +213,29 @@ class BaseAction:
 ```mermaid
 sequenceDiagram
     participant User
-    participant XTools
+    participant Xeepy
     participant RateLimiter
     participant Browser
     participant Twitter
     participant Storage
     
-    User->>XTools: scrape.followers("user")
-    XTools->>RateLimiter: check_rate_limit("scrape")
-    RateLimiter-->>XTools: OK
-    XTools->>Browser: new_page()
+    User->>Xeepy: scrape.followers("user")
+    Xeepy->>RateLimiter: check_rate_limit("scrape")
+    RateLimiter-->>Xeepy: OK
+    Xeepy->>Browser: new_page()
     Browser->>Twitter: GET /user/followers
     Twitter-->>Browser: HTML Response
-    Browser->>XTools: Parsed Data
-    XTools->>Storage: cache_result()
-    XTools-->>User: FollowersList
+    Browser->>Xeepy: Parsed Data
+    Xeepy->>Storage: cache_result()
+    Xeepy-->>User: FollowersList
 ```
 
 ## Plugin System
 
-XTools supports plugins for extending functionality:
+Xeepy supports plugins for extending functionality:
 
 ```python
-from xtools.plugins import Plugin, hook
+from xeepy.plugins import Plugin, hook
 
 class MyPlugin(Plugin):
     """Custom plugin example."""
@@ -270,18 +270,18 @@ x.plugins.register(MyPlugin())
 
 ## Configuration System
 
-XTools uses a layered configuration system:
+Xeepy uses a layered configuration system:
 
 ```
 Priority (highest to lowest):
 1. Runtime arguments
 2. Environment variables
-3. Config file (~/.xtools/config.yaml)
+3. Config file (~/.xeepy/config.yaml)
 4. Default values
 ```
 
 ```yaml
-# ~/.xtools/config.yaml
+# ~/.xeepy/config.yaml
 browser:
   headless: true
   timeout: 30000
@@ -301,7 +301,7 @@ proxy:
     - http://proxy2:8080
 
 storage:
-  database: sqlite:///~/.xtools/data.db
+  database: sqlite:///~/.xeepy/data.db
   cache_ttl: 3600
 
 notifications:
@@ -311,11 +311,11 @@ notifications:
 
 ## Error Handling
 
-XTools implements a hierarchical error system:
+Xeepy implements a hierarchical error system:
 
 ```python
-from xtools.exceptions import (
-    XToolsError,           # Base exception
+from xeepy.exceptions import (
+    XeepyError,           # Base exception
     AuthenticationError,   # Login/session issues
     RateLimitError,        # Rate limit exceeded
     NetworkError,          # Connection issues
@@ -331,13 +331,13 @@ except RateLimitError as e:
     print(f"Rate limited. Wait {e.retry_after} seconds")
 except AuthenticationError:
     await x.auth.refresh_session()
-except XToolsError as e:
-    print(f"XTools error: {e}")
+except XeepyError as e:
+    print(f"Xeepy error: {e}")
 ```
 
 ## Memory Management
 
-XTools optimizes memory for large-scale operations:
+Xeepy optimizes memory for large-scale operations:
 
 ```python
 # Streaming mode for large datasets
@@ -352,7 +352,7 @@ x.cache.set_max_size(1000)  # Max cached items
 
 ## Concurrency Model
 
-XTools uses asyncio for concurrent operations:
+Xeepy uses asyncio for concurrent operations:
 
 ```python
 import asyncio
@@ -380,11 +380,11 @@ async def follow_users(users: list):
 
 ```python
 # ✅ Good
-async with XTools() as x:
+async with Xeepy() as x:
     await x.scrape.profile("user")
 
 # ❌ Bad - resources may leak
-x = XTools()
+x = Xeepy()
 await x.scrape.profile("user")
 # Browser never closed!
 ```
@@ -404,17 +404,17 @@ except RateLimitError:
 
 ```python
 # For important accounts
-async with XTools(rate_limit_profile="conservative") as x:
+async with Xeepy(rate_limit_profile="conservative") as x:
     pass
 
 # For disposable/test accounts
-async with XTools(rate_limit_profile="aggressive") as x:
+async with Xeepy(rate_limit_profile="aggressive") as x:
     pass
 ```
 
 ## Next Steps
 
 - [Custom Scrapers](custom-scrapers.md) - Build your own scrapers
-- [Plugins](plugins.md) - Extend XTools functionality
+- [Plugins](plugins.md) - Extend Xeepy functionality
 - [Performance](performance.md) - Optimize for scale
 - [Distributed](distributed.md) - Multi-machine setups

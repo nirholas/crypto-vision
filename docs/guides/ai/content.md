@@ -5,7 +5,7 @@ Generate high-quality tweets, threads, and content with AI.
 ## Setup
 
 ```python
-from xtools.ai import ContentGenerator
+from xeepy.ai import ContentGenerator
 
 # OpenAI
 ai = ContentGenerator(
@@ -106,7 +106,7 @@ for i, tweet in enumerate(thread, 1):
     print(f"{i}. {tweet}")
 
 # Post the thread
-async with XTools() as x:
+async with Xeepy() as x:
     await x.post.thread(thread)
 ```
 
@@ -208,7 +208,7 @@ ai.train_voice(
 )
 
 # Or load from your timeline
-async with XTools() as x:
+async with Xeepy() as x:
     my_tweets = await x.scrape.tweets("your_username", limit=50)
     ai.train_voice(example_tweets=[t.text for t in my_tweets])
 ```
@@ -383,7 +383,7 @@ bulk_content = await local_ai.generate_batch(topics, count=100)
 ## Integration with Posting
 
 ```python
-async with XTools() as x:
+async with Xeepy() as x:
     # Generate and post
     tweet = await ai.generate_tweet("Python tip of the day")
     await x.post.tweet(tweet)

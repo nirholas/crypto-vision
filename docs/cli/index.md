@@ -1,24 +1,24 @@
 # CLI Reference
 
-XTools provides a powerful command-line interface for common operations without writing code.
+Xeepy provides a powerful command-line interface for common operations without writing code.
 
 ## Installation
 
-The CLI is included with XTools:
+The CLI is included with Xeepy:
 
 ```bash
-pip install xtools
+pip install xeepy
 ```
 
 ## Basic Usage
 
 ```bash
-xtools [COMMAND] [SUBCOMMAND] [OPTIONS]
+xeepy [COMMAND] [SUBCOMMAND] [OPTIONS]
 
 # Get help
-xtools --help
-xtools scrape --help
-xtools scrape replies --help
+xeepy --help
+xeepy scrape --help
+xeepy scrape replies --help
 ```
 
 ## Commands Overview
@@ -42,20 +42,20 @@ xtools scrape replies --help
 
 ```bash
 # Interactive login (opens browser)
-xtools auth login
+xeepy auth login
 
 # Login with specific profile
-xtools auth login --profile business
+xeepy auth login --profile business
 
 # Login with browser visible
-xtools auth login --headful
+xeepy auth login --headful
 ```
 
 ### Status
 
 ```bash
 # Check authentication status
-xtools auth status
+xeepy auth status
 
 # Output:
 # ✓ Authenticated as @username
@@ -66,23 +66,23 @@ xtools auth status
 
 ```bash
 # Clear session
-xtools auth logout
+xeepy auth logout
 
 # Clear all sessions
-xtools auth logout --all
+xeepy auth logout --all
 ```
 
 ### Import/Export
 
 ```bash
 # Export session for backup
-xtools auth export session_backup.json
+xeepy auth export session_backup.json
 
 # Import session
-xtools auth import session_backup.json
+xeepy auth import session_backup.json
 
 # Import from browser cookies
-xtools auth import cookies.txt --format netscape
+xeepy auth import cookies.txt --format netscape
 ```
 
 ## Scrape Commands
@@ -91,15 +91,15 @@ xtools auth import cookies.txt --format netscape
 
 ```bash
 # Basic usage
-xtools scrape replies https://x.com/user/status/123456
+xeepy scrape replies https://x.com/user/status/123456
 
 # With options
-xtools scrape replies https://x.com/user/status/123456 \
+xeepy scrape replies https://x.com/user/status/123456 \
     --limit 500 \
     --output replies.csv
 
 # Filter options
-xtools scrape replies URL \
+xeepy scrape replies URL \
     --min-likes 10 \
     --verified-only \
     --sort top
@@ -109,75 +109,75 @@ xtools scrape replies URL \
 
 ```bash
 # Get profile info
-xtools scrape profile elonmusk
+xeepy scrape profile elonmusk
 
 # Output as JSON
-xtools scrape profile elonmusk --format json
+xeepy scrape profile elonmusk --format json
 
 # Multiple profiles
-xtools scrape profile user1 user2 user3 -o profiles.csv
+xeepy scrape profile user1 user2 user3 -o profiles.csv
 ```
 
 ### Scrape Tweets
 
 ```bash
 # User's tweets
-xtools scrape tweets username --limit 100
+xeepy scrape tweets username --limit 100
 
 # Include retweets and replies
-xtools scrape tweets username --include-retweets --include-replies
+xeepy scrape tweets username --include-retweets --include-replies
 
 # Date range
-xtools scrape tweets username --since 2024-01-01 --until 2024-02-01
+xeepy scrape tweets username --since 2024-01-01 --until 2024-02-01
 ```
 
 ### Scrape Followers
 
 ```bash
 # Basic
-xtools scrape followers username --limit 1000
+xeepy scrape followers username --limit 1000
 
 # Output to file
-xtools scrape followers username -o followers.csv
+xeepy scrape followers username -o followers.csv
 
 # With metadata
-xtools scrape followers username --include-bio --include-stats
+xeepy scrape followers username --include-bio --include-stats
 ```
 
 ### Scrape Following
 
 ```bash
-xtools scrape following username --limit 500 -o following.csv
+xeepy scrape following username --limit 500 -o following.csv
 ```
 
 ### Scrape Search
 
 ```bash
 # Basic search
-xtools scrape search "python programming" --limit 100
+xeepy scrape search "python programming" --limit 100
 
 # Advanced search
-xtools scrape search "python programming" \
+xeepy scrape search "python programming" \
     --min-likes 50 \
     --min-retweets 10 \
     --lang en \
     --since 2024-01-01
 
 # Search type
-xtools scrape search "keyword" --type latest  # or "top", "people"
+xeepy scrape search "keyword" --type latest  # or "top", "people"
 ```
 
 ### Scrape Hashtag
 
 ```bash
-xtools scrape hashtag "#buildinpublic" --limit 200 -o hashtag.csv
+xeepy scrape hashtag "#buildinpublic" --limit 200 -o hashtag.csv
 ```
 
 ### Scrape Thread
 
 ```bash
 # Unroll a thread
-xtools scrape thread https://x.com/user/status/123456 -o thread.json
+xeepy scrape thread https://x.com/user/status/123456 -o thread.json
 ```
 
 ## Follow Commands
@@ -186,16 +186,16 @@ xtools scrape thread https://x.com/user/status/123456 -o thread.json
 
 ```bash
 # Follow single user
-xtools follow user naval
+xeepy follow user naval
 
 # Follow multiple
-xtools follow user user1 user2 user3
+xeepy follow user user1 user2 user3
 ```
 
 ### Follow by Hashtag
 
 ```bash
-xtools follow hashtag "#buildinpublic" \
+xeepy follow hashtag "#buildinpublic" \
     --limit 20 \
     --min-followers 100 \
     --max-followers 50000
@@ -204,7 +204,7 @@ xtools follow hashtag "#buildinpublic" \
 ### Follow from Search
 
 ```bash
-xtools follow search "indie hacker" \
+xeepy follow search "indie hacker" \
     --limit 15 \
     --min-followers 500
 ```
@@ -212,7 +212,7 @@ xtools follow search "indie hacker" \
 ### Follow Followers Of
 
 ```bash
-xtools follow followers-of competitor_account \
+xeepy follow followers-of competitor_account \
     --limit 30 \
     --active-days 30
 ```
@@ -223,18 +223,18 @@ xtools follow followers-of competitor_account \
 
 ```bash
 # Dry run (preview)
-xtools unfollow non-followers --dry-run
+xeepy unfollow non-followers --dry-run
 
 # Execute
-xtools unfollow non-followers --max 50
+xeepy unfollow non-followers --max 50
 
 # With whitelist
-xtools unfollow non-followers \
+xeepy unfollow non-followers \
     --max 50 \
     --whitelist-file whitelist.txt
 
 # Inline whitelist
-xtools unfollow non-followers \
+xeepy unfollow non-followers \
     --max 50 \
     --whitelist user1,user2,user3
 ```
@@ -242,13 +242,13 @@ xtools unfollow non-followers \
 ### Unfollow Inactive
 
 ```bash
-xtools unfollow inactive --days 180 --max 30
+xeepy unfollow inactive --days 180 --max 30
 ```
 
 ### Smart Unfollow
 
 ```bash
-xtools unfollow smart \
+xeepy unfollow smart \
     --criteria inactive,no-bio,not-following \
     --max 25
 ```
@@ -257,7 +257,7 @@ xtools unfollow smart \
 
 ```bash
 # Requires confirmation
-xtools unfollow everyone \
+xeepy unfollow everyone \
     --whitelist-file whitelist.txt \
     --confirm
 ```
@@ -268,28 +268,28 @@ xtools unfollow everyone \
 
 ```bash
 # Like a tweet
-xtools engage like https://x.com/user/status/123456
+xeepy engage like https://x.com/user/status/123456
 
 # Like multiple
-xtools engage like URL1 URL2 URL3
+xeepy engage like URL1 URL2 URL3
 ```
 
 ### Retweet
 
 ```bash
-xtools engage retweet https://x.com/user/status/123456
+xeepy engage retweet https://x.com/user/status/123456
 ```
 
 ### Reply
 
 ```bash
-xtools engage reply https://x.com/user/status/123456 "Great thread!"
+xeepy engage reply https://x.com/user/status/123456 "Great thread!"
 ```
 
 ### Auto-Like
 
 ```bash
-xtools engage auto-like \
+xeepy engage auto-like \
     --keywords "python,automation" \
     --limit 20 \
     --min-likes 10
@@ -301,25 +301,25 @@ xtools engage auto-like \
 
 ```bash
 # One-time check
-xtools monitor unfollowers
+xeepy monitor unfollowers
 
 # With notification
-xtools monitor unfollowers --notify discord
+xeepy monitor unfollowers --notify discord
 
 # Continuous monitoring
-xtools monitor unfollowers --watch --interval 3600
+xeepy monitor unfollowers --watch --interval 3600
 ```
 
 ### Track Growth
 
 ```bash
-xtools monitor growth --period 7d
+xeepy monitor growth --period 7d
 ```
 
 ### Monitor Keywords
 
 ```bash
-xtools monitor keywords "your_brand,your_product" \
+xeepy monitor keywords "your_brand,your_product" \
     --notify telegram \
     --interval 300
 ```
@@ -328,7 +328,7 @@ xtools monitor keywords "your_brand,your_product" \
 
 ```bash
 # Start all monitors in background
-xtools monitor start --config monitoring.yaml --daemon
+xeepy monitor start --config monitoring.yaml --daemon
 ```
 
 ## Analytics Commands
@@ -336,19 +336,19 @@ xtools monitor start --config monitoring.yaml --daemon
 ### Growth Report
 
 ```bash
-xtools analytics growth --period 30d
+xeepy analytics growth --period 30d
 ```
 
 ### Engagement Analysis
 
 ```bash
-xtools analytics engagement --period 7d
+xeepy analytics engagement --period 7d
 ```
 
 ### Best Time to Post
 
 ```bash
-xtools analytics best-time
+xeepy analytics best-time
 
 # Output:
 # Best day: Tuesday
@@ -359,23 +359,23 @@ xtools analytics best-time
 ### Audience Insights
 
 ```bash
-xtools analytics audience --sample 1000
+xeepy analytics audience --sample 1000
 ```
 
 ### Competitor Analysis
 
 ```bash
-xtools analytics competitors comp1,comp2,comp3
+xeepy analytics competitors comp1,comp2,comp3
 ```
 
 ### Generate Report
 
 ```bash
 # Markdown report
-xtools analytics report --period 30d -o report.md
+xeepy analytics report --period 30d -o report.md
 
 # PDF report
-xtools analytics report --period 30d --format pdf -o report.pdf
+xeepy analytics report --period 30d --format pdf -o report.pdf
 ```
 
 ## AI Commands
@@ -383,34 +383,34 @@ xtools analytics report --period 30d --format pdf -o report.pdf
 ### Generate Tweet
 
 ```bash
-xtools ai tweet "Python tips" --style educational
+xeepy ai tweet "Python tips" --style educational
 ```
 
 ### Generate Thread
 
 ```bash
-xtools ai thread "My startup journey" --length 5
+xeepy ai thread "My startup journey" --length 5
 ```
 
 ### Generate Reply
 
 ```bash
-xtools ai reply https://x.com/user/status/123456 --style supportive
+xeepy ai reply https://x.com/user/status/123456 --style supportive
 ```
 
 ### Analyze Sentiment
 
 ```bash
-xtools ai sentiment "This is amazing!"
+xeepy ai sentiment "This is amazing!"
 
 # Analyze from file
-xtools ai sentiment --file tweets.txt
+xeepy ai sentiment --file tweets.txt
 ```
 
 ### Bot Detection
 
 ```bash
-xtools ai bot-check suspicious_username
+xeepy ai bot-check suspicious_username
 ```
 
 ## Export Commands
@@ -419,17 +419,17 @@ xtools ai bot-check suspicious_username
 
 ```bash
 # CSV to JSON
-xtools export convert data.csv data.json
+xeepy export convert data.csv data.json
 
 # JSON to Excel
-xtools export convert data.json data.xlsx
+xeepy export convert data.json data.xlsx
 ```
 
 ### Export to Database
 
 ```bash
-xtools export database data.csv sqlite:///data.db --table tweets
-xtools export database data.csv postgresql://user:pass@host/db --table tweets
+xeepy export database data.csv sqlite:///data.db --table tweets
+xeepy export database data.csv postgresql://user:pass@host/db --table tweets
 ```
 
 ## Configuration Commands
@@ -438,30 +438,30 @@ xtools export database data.csv postgresql://user:pass@host/db --table tweets
 
 ```bash
 # Show current configuration
-xtools config show
+xeepy config show
 
 # Show specific setting
-xtools config get rate_limit.requests_per_minute
+xeepy config get rate_limit.requests_per_minute
 ```
 
 ### Set Config
 
 ```bash
-xtools config set rate_limit.requests_per_minute 25
-xtools config set headless true
+xeepy config set rate_limit.requests_per_minute 25
+xeepy config set headless true
 ```
 
 ### Profiles
 
 ```bash
 # List profiles
-xtools config profiles
+xeepy config profiles
 
 # Create profile
-xtools config create-profile business
+xeepy config create-profile business
 
 # Use profile
-xtools --profile business scrape replies URL
+xeepy --profile business scrape replies URL
 ```
 
 ## Global Options
@@ -483,26 +483,26 @@ Available for all commands:
 
 ```bash
 # CSV (default)
-xtools scrape tweets user -o tweets.csv
+xeepy scrape tweets user -o tweets.csv
 
 # JSON
-xtools scrape tweets user -o tweets.json --format json
+xeepy scrape tweets user -o tweets.json --format json
 
 # Excel
-xtools scrape tweets user -o tweets.xlsx --format excel
+xeepy scrape tweets user -o tweets.xlsx --format excel
 
 # Pretty print to console
-xtools scrape profile user --format pretty
+xeepy scrape profile user --format pretty
 ```
 
 ## Environment Variables
 
 | Variable | Description |
 |----------|-------------|
-| `XTOOLS_SESSION_FILE` | Session file path |
-| `XTOOLS_CONFIG_FILE` | Config file path |
-| `XTOOLS_PROFILE` | Default profile |
-| `XTOOLS_HEADLESS` | Headless mode (true/false) |
+| `XEEPY_SESSION_FILE` | Session file path |
+| `XEEPY_CONFIG_FILE` | Config file path |
+| `XEEPY_PROFILE` | Default profile |
+| `XEEPY_HEADLESS` | Headless mode (true/false) |
 | `DISCORD_WEBHOOK` | Discord notification URL |
 | `TELEGRAM_BOT_TOKEN` | Telegram bot token |
 | `OPENAI_API_KEY` | OpenAI API key |
@@ -518,16 +518,16 @@ xtools scrape profile user --format pretty
 echo "🌅 Starting daily routine..."
 
 # Check unfollowers
-xtools monitor unfollowers --notify discord
+xeepy monitor unfollowers --notify discord
 
 # Unfollow non-followers
-xtools unfollow non-followers --max 25 --whitelist-file whitelist.txt
+xeepy unfollow non-followers --max 25 --whitelist-file whitelist.txt
 
 # Follow from target hashtag
-xtools follow hashtag "#buildinpublic" --limit 15 --min-followers 100
+xeepy follow hashtag "#buildinpublic" --limit 15 --min-followers 100
 
 # Generate growth report
-xtools analytics growth --period 24h --notify discord
+xeepy analytics growth --period 24h --notify discord
 
 echo "✅ Daily routine complete!"
 ```
@@ -544,9 +544,9 @@ mkdir -p $OUTPUT_DIR
 
 echo "📊 Collecting data for @$USERNAME..."
 
-xtools scrape profile $USERNAME -o "$OUTPUT_DIR/profile.json" --format json
-xtools scrape tweets $USERNAME --limit 500 -o "$OUTPUT_DIR/tweets.csv"
-xtools scrape followers $USERNAME --limit 1000 -o "$OUTPUT_DIR/followers.csv"
+xeepy scrape profile $USERNAME -o "$OUTPUT_DIR/profile.json" --format json
+xeepy scrape tweets $USERNAME --limit 500 -o "$OUTPUT_DIR/tweets.csv"
+xeepy scrape followers $USERNAME --limit 1000 -o "$OUTPUT_DIR/followers.csv"
 
 echo "✅ Data saved to $OUTPUT_DIR/"
 ```
@@ -561,8 +561,8 @@ COMPETITORS="comp1 comp2 comp3"
 
 for comp in $COMPETITORS; do
     echo "Analyzing @$comp..."
-    xtools scrape tweets $comp --limit 100 -o "analysis/$comp_tweets.csv"
+    xeepy scrape tweets $comp --limit 100 -o "analysis/$comp_tweets.csv"
 done
 
-xtools analytics competitors $COMPETITORS -o "analysis/comparison.md"
+xeepy analytics competitors $COMPETITORS -o "analysis/comparison.md"
 ```

@@ -1,14 +1,14 @@
-/* XTools Documentation Custom Styles */
+/* Xeepy Documentation Custom Styles */
 
 :root {
-    --xtools-primary: #1DA1F2;
-    --xtools-secondary: #14171A;
-    --xtools-accent: #657786;
+    --xeepy-primary: #1DA1F2;
+    --xeepy-secondary: #14171A;
+    --xeepy-accent: #657786;
 }
 
 /* Hero section styling */
 .hero {
-    background: linear-gradient(135deg, var(--xtools-primary) 0%, #0d8ecf 100%);
+    background: linear-gradient(135deg, var(--xeepy-primary) 0%, #0d8ecf 100%);
     padding: 3rem 2rem;
     border-radius: 12px;
     margin-bottom: 2rem;
@@ -51,7 +51,7 @@
 }
 
 .comparison-table th {
-    background: var(--xtools-primary);
+    background: var(--xeepy-primary);
     color: white;
     padding: 12px;
 }
@@ -91,7 +91,7 @@
 }
 
 .badge-info {
-    background: var(--xtools-primary);
+    background: var(--xeepy-primary);
     color: white;
 }
 
@@ -149,7 +149,7 @@
 
 .callout-info {
     background: rgba(29, 161, 242, 0.1);
-    border-left: 4px solid var(--xtools-primary);
+    border-left: 4px solid var(--xeepy-primary);
 }
 
 /* Grid improvements */
@@ -173,7 +173,7 @@
 }
 
 .md-button--primary {
-    background: var(--xtools-primary);
+    background: var(--xeepy-primary);
 }
 
 .md-button--primary:hover {
@@ -187,7 +187,7 @@
 
 /* Footer */
 .md-footer-meta {
-    background: var(--xtools-secondary);
+    background: var(--xeepy-secondary);
 }
 
 /* Responsive improvements */

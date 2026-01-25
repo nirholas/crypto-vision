@@ -1,6 +1,6 @@
 # Advanced Topics
 
-Deep dives into XTools internals and advanced usage patterns.
+Deep dives into Xeepy internals and advanced usage patterns.
 
 ## Architecture
 
@@ -8,11 +8,11 @@ Deep dives into XTools internals and advanced usage patterns.
 
 -   :material-sitemap:{ .lg .middle } **[System Architecture](architecture.md)**
     
-    Understand how XTools components work together
+    Understand how Xeepy components work together
 
 -   :material-puzzle:{ .lg .middle } **[Plugin System](plugins.md)**
     
-    Extend XTools with custom plugins
+    Extend Xeepy with custom plugins
 
 -   :material-code-braces:{ .lg .middle } **[Custom Scrapers](custom-scrapers.md)**
     
@@ -52,7 +52,7 @@ Deep dives into XTools internals and advanced usage patterns.
 
 -   :material-test-tube:{ .lg .middle } **[Testing Guide](testing.md)**
     
-    Test your XTools integrations
+    Test your Xeepy integrations
 
 -   :material-bug:{ .lg .middle } **[Error Handling](errors.md)**
     
@@ -64,7 +64,7 @@ Deep dives into XTools internals and advanced usage patterns.
 
 -   :material-api:{ .lg .middle } **[REST API Server](api-server.md)**
     
-    Run XTools as a service
+    Run Xeepy as a service
 
 </div>
 
@@ -87,7 +87,7 @@ Deep dives into XTools internals and advanced usage patterns.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         XTools                                   │
+│                         Xeepy                                   │
 ├─────────────────────────────────────────────────────────────────┤
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
 │  │ Scrapers │  │ Actions  │  │ Monitor  │  │ Analytics│        │
@@ -113,10 +113,10 @@ Deep dives into XTools internals and advanced usage patterns.
 
 ### Browser Management
 
-XTools uses Playwright for browser automation:
+Xeepy uses Playwright for browser automation:
 
 ```python
-from xtools.core.browser import BrowserManager
+from xeepy.core.browser import BrowserManager
 
 class BrowserManager:
     """Manages browser lifecycle and page pool."""
@@ -136,7 +136,7 @@ class BrowserManager:
 Intelligent rate limiting protects your account:
 
 ```python
-from xtools.core.rate_limiter import RateLimiter
+from xeepy.core.rate_limiter import RateLimiter
 
 class RateLimiter:
     """Adaptive rate limiter with backoff."""
@@ -157,12 +157,12 @@ class RateLimiter:
 
 ### Event System
 
-XTools emits events for monitoring:
+Xeepy emits events for monitoring:
 
 ```python
-from xtools.core.events import EventEmitter
+from xeepy.core.events import EventEmitter
 
-class XTools(EventEmitter):
+class Xeepy(EventEmitter):
     """Emits events during operations."""
     
     # Events:
@@ -181,21 +181,21 @@ x.on("rate_limit:warning", lambda: print("Slowing down..."))
 Configuration is loaded in this order (later overrides earlier):
 
 1. **Defaults** - Built-in defaults
-2. **System config** - `/etc/xtools/config.toml`
-3. **User config** - `~/.config/xtools/config.toml`
-4. **Project config** - `./xtools.toml`
-5. **Environment variables** - `XTOOLS_*`
+2. **System config** - `/etc/xeepy/config.toml`
+3. **User config** - `~/.config/xeepy/config.toml`
+4. **Project config** - `./xeepy.toml`
+5. **Environment variables** - `XEEPY_*`
 6. **CLI arguments** - `--option value`
 7. **Runtime** - `x.config.setting = value`
 
 ## Extension Points
 
-XTools is designed for extensibility:
+Xeepy is designed for extensibility:
 
 ### Custom Scrapers
 
 ```python
-from xtools.scrapers.base import BaseScraper
+from xeepy.scrapers.base import BaseScraper
 
 class MyScraper(BaseScraper):
     """Custom scraper implementation."""
@@ -208,7 +208,7 @@ class MyScraper(BaseScraper):
 ### Custom Actions
 
 ```python
-from xtools.actions.base import BaseAction
+from xeepy.actions.base import BaseAction
 
 class MyAction(BaseAction):
     """Custom action implementation."""
@@ -221,7 +221,7 @@ class MyAction(BaseAction):
 ### Custom Notifications
 
 ```python
-from xtools.notifications.base import BaseNotifier
+from xeepy.notifications.base import BaseNotifier
 
 class MyNotifier(BaseNotifier):
     """Custom notification channel."""

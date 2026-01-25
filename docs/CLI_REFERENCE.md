@@ -1,26 +1,26 @@
 # 🖥️ CLI Reference
 
-Complete command-line interface documentation for XTools.
+Complete command-line interface documentation for Xeepy.
 
 ---
 
 ## Installation
 
 ```bash
-pip install xtools
+pip install xeepy
 ```
 
-After installation, the `xtools` command is available globally.
+After installation, the `xeepy` command is available globally.
 
 ---
 
 ## Global Options
 
 ```bash
-xtools [OPTIONS] COMMAND [ARGS]
+xeepy [OPTIONS] COMMAND [ARGS]
 
 Options:
-  -c, --config PATH    Config file path (default: ~/.xtools/config.yaml)
+  -c, --config PATH    Config file path (default: ~/.xeepy/config.yaml)
   -v, --verbose        Enable verbose output
   --headless/--no-headless  Run browser headless (default: headless)
   --version            Show version
@@ -31,12 +31,12 @@ Options:
 
 ## Authentication Commands
 
-### `xtools auth login`
+### `xeepy auth login`
 
 Setup authentication with your X/Twitter session.
 
 ```bash
-xtools auth login [OPTIONS]
+xeepy auth login [OPTIONS]
 
 Options:
   --token TEXT    Your auth_token cookie value
@@ -47,26 +47,26 @@ Options:
 
 ```bash
 # Interactive login
-xtools auth login --interactive
+xeepy auth login --interactive
 
 # Direct token
-xtools auth login --token "your_auth_token_here"
+xeepy auth login --token "your_auth_token_here"
 ```
 
-### `xtools auth logout`
+### `xeepy auth logout`
 
 Remove saved authentication.
 
 ```bash
-xtools auth logout
+xeepy auth logout
 ```
 
-### `xtools auth status`
+### `xeepy auth status`
 
 Check authentication status.
 
 ```bash
-xtools auth status
+xeepy auth status
 
 # Output:
 # ✅ Authenticated as @your_username
@@ -77,12 +77,12 @@ xtools auth status
 
 ## Scraping Commands
 
-### `xtools scrape replies`
+### `xeepy scrape replies`
 
 Scrape replies to a tweet.
 
 ```bash
-xtools scrape replies URL [OPTIONS]
+xeepy scrape replies URL [OPTIONS]
 
 Arguments:
   URL    Tweet URL
@@ -97,21 +97,21 @@ Options:
 
 ```bash
 # Basic
-xtools scrape replies https://x.com/user/status/123
+xeepy scrape replies https://x.com/user/status/123
 
 # With options
-xtools scrape replies https://x.com/user/status/123 -l 200 -o replies.csv
+xeepy scrape replies https://x.com/user/status/123 -l 200 -o replies.csv
 
 # JSON output
-xtools scrape replies https://x.com/user/status/123 --format json -o replies.json
+xeepy scrape replies https://x.com/user/status/123 --format json -o replies.json
 ```
 
-### `xtools scrape profile`
+### `xeepy scrape profile`
 
 Scrape user profile information.
 
 ```bash
-xtools scrape profile USERNAME [OPTIONS]
+xeepy scrape profile USERNAME [OPTIONS]
 
 Arguments:
   USERNAME    X/Twitter username (without @)
@@ -123,16 +123,16 @@ Options:
 **Examples:**
 
 ```bash
-xtools scrape profile elonmusk
-xtools scrape profile python -o python_profile.json
+xeepy scrape profile elonmusk
+xeepy scrape profile python -o python_profile.json
 ```
 
-### `xtools scrape followers`
+### `xeepy scrape followers`
 
 Scrape a user's followers.
 
 ```bash
-xtools scrape followers USERNAME [OPTIONS]
+xeepy scrape followers USERNAME [OPTIONS]
 
 Arguments:
   USERNAME    X/Twitter username
@@ -146,15 +146,15 @@ Options:
 **Examples:**
 
 ```bash
-xtools scrape followers python -l 500 -o followers.csv
+xeepy scrape followers python -l 500 -o followers.csv
 ```
 
-### `xtools scrape following`
+### `xeepy scrape following`
 
 Scrape who a user follows.
 
 ```bash
-xtools scrape following USERNAME [OPTIONS]
+xeepy scrape following USERNAME [OPTIONS]
 
 Arguments:
   USERNAME    X/Twitter username
@@ -164,12 +164,12 @@ Options:
   -o, --output PATH    Output file
 ```
 
-### `xtools scrape tweets`
+### `xeepy scrape tweets`
 
 Scrape a user's tweets.
 
 ```bash
-xtools scrape tweets USERNAME [OPTIONS]
+xeepy scrape tweets USERNAME [OPTIONS]
 
 Arguments:
   USERNAME    X/Twitter username
@@ -184,16 +184,16 @@ Options:
 **Examples:**
 
 ```bash
-xtools scrape tweets python -l 200 -o tweets.json
-xtools scrape tweets python --include-replies
+xeepy scrape tweets python -l 200 -o tweets.json
+xeepy scrape tweets python --include-replies
 ```
 
-### `xtools scrape search`
+### `xeepy scrape search`
 
 Search for tweets.
 
 ```bash
-xtools scrape search QUERY [OPTIONS]
+xeepy scrape search QUERY [OPTIONS]
 
 Arguments:
   QUERY    Search query
@@ -207,16 +207,16 @@ Options:
 **Examples:**
 
 ```bash
-xtools scrape search "Python tutorial" -l 100 --filter latest
-xtools scrape search "from:python min_faves:100" -o popular.json
+xeepy scrape search "Python tutorial" -l 100 --filter latest
+xeepy scrape search "from:python min_faves:100" -o popular.json
 ```
 
-### `xtools scrape hashtag`
+### `xeepy scrape hashtag`
 
 Scrape tweets with a hashtag.
 
 ```bash
-xtools scrape hashtag TAG [OPTIONS]
+xeepy scrape hashtag TAG [OPTIONS]
 
 Arguments:
   TAG    Hashtag (without #)
@@ -230,15 +230,15 @@ Options:
 **Examples:**
 
 ```bash
-xtools scrape hashtag Python -l 200 -o python_hashtag.csv
+xeepy scrape hashtag Python -l 200 -o python_hashtag.csv
 ```
 
-### `xtools scrape thread`
+### `xeepy scrape thread`
 
 Unroll and scrape a thread.
 
 ```bash
-xtools scrape thread URL [OPTIONS]
+xeepy scrape thread URL [OPTIONS]
 
 Arguments:
   URL    Thread URL (first tweet)
@@ -247,12 +247,12 @@ Options:
   -o, --output PATH    Output file
 ```
 
-### `xtools scrape media`
+### `xeepy scrape media`
 
 Scrape a user's media posts.
 
 ```bash
-xtools scrape media USERNAME [OPTIONS]
+xeepy scrape media USERNAME [OPTIONS]
 
 Arguments:
   USERNAME    X/Twitter username
@@ -263,12 +263,12 @@ Options:
   --download           Download media files
 ```
 
-### `xtools scrape likes`
+### `xeepy scrape likes`
 
 Scrape who liked a tweet.
 
 ```bash
-xtools scrape likes URL [OPTIONS]
+xeepy scrape likes URL [OPTIONS]
 
 Arguments:
   URL    Tweet URL
@@ -282,12 +282,12 @@ Options:
 
 ## Unfollow Commands
 
-### `xtools unfollow non-followers`
+### `xeepy unfollow non-followers`
 
 Unfollow users who don't follow you back.
 
 ```bash
-xtools unfollow non-followers [OPTIONS]
+xeepy unfollow non-followers [OPTIONS]
 
 Options:
   -m, --max INT            Max unfollows (default: 100)
@@ -301,24 +301,24 @@ Options:
 
 ```bash
 # Dry run first!
-xtools unfollow non-followers --dry-run
+xeepy unfollow non-followers --dry-run
 
 # With whitelist
-xtools unfollow non-followers --max 50 -w friend1 -w friend2
+xeepy unfollow non-followers --max 50 -w friend1 -w friend2
 
 # Keep accounts with 10k+ followers
-xtools unfollow non-followers --min-followers 10000
+xeepy unfollow non-followers --min-followers 10000
 
 # Export list
-xtools unfollow non-followers -o unfollowed.txt
+xeepy unfollow non-followers -o unfollowed.txt
 ```
 
-### `xtools unfollow everyone`
+### `xeepy unfollow everyone`
 
 ⚠️ Unfollow ALL accounts.
 
 ```bash
-xtools unfollow everyone [OPTIONS]
+xeepy unfollow everyone [OPTIONS]
 
 Options:
   -m, --max INT        Max unfollows (default: 500)
@@ -331,18 +331,18 @@ Options:
 
 ```bash
 # Always dry run first!
-xtools unfollow everyone --dry-run
+xeepy unfollow everyone --dry-run
 
 # With backup
-xtools unfollow everyone --export-first -o following_backup.json
+xeepy unfollow everyone --export-first -o following_backup.json
 ```
 
-### `xtools unfollow smart`
+### `xeepy unfollow smart`
 
 Smart time-based unfollow.
 
 ```bash
-xtools unfollow smart [OPTIONS]
+xeepy unfollow smart [OPTIONS]
 
 Options:
   --days INT           Days to wait for follow-back (default: 3)
@@ -353,27 +353,27 @@ Options:
 **Examples:**
 
 ```bash
-xtools unfollow smart --days 5 --max 25
+xeepy unfollow smart --days 5 --max 25
 ```
 
 ---
 
 ## Follow Commands
 
-### `xtools follow user`
+### `xeepy follow user`
 
 Follow a specific user.
 
 ```bash
-xtools follow user USERNAME
+xeepy follow user USERNAME
 ```
 
-### `xtools follow by-keyword`
+### `xeepy follow by-keyword`
 
 Follow users tweeting about keywords.
 
 ```bash
-xtools follow by-keyword KEYWORDS... [OPTIONS]
+xeepy follow by-keyword KEYWORDS... [OPTIONS]
 
 Arguments:
   KEYWORDS    Keywords to search (space-separated)
@@ -387,16 +387,16 @@ Options:
 **Examples:**
 
 ```bash
-xtools follow by-keyword Python "machine learning" -m 25
-xtools follow by-keyword coding --min-followers 500
+xeepy follow by-keyword Python "machine learning" -m 25
+xeepy follow by-keyword coding --min-followers 500
 ```
 
-### `xtools follow by-hashtag`
+### `xeepy follow by-hashtag`
 
 Follow users using specific hashtags.
 
 ```bash
-xtools follow by-hashtag HASHTAGS... [OPTIONS]
+xeepy follow by-hashtag HASHTAGS... [OPTIONS]
 
 Arguments:
   HASHTAGS    Hashtags (without #)
@@ -405,12 +405,12 @@ Options:
   -m, --max INT    Max follows (default: 50)
 ```
 
-### `xtools follow followers-of`
+### `xeepy follow followers-of`
 
 Follow followers of a target account.
 
 ```bash
-xtools follow followers-of USERNAME [OPTIONS]
+xeepy follow followers-of USERNAME [OPTIONS]
 
 Arguments:
   USERNAME    Target account
@@ -423,16 +423,16 @@ Options:
 **Examples:**
 
 ```bash
-xtools follow followers-of python -m 30
-xtools follow followers-of competitor --mode following
+xeepy follow followers-of python -m 30
+xeepy follow followers-of competitor --mode following
 ```
 
-### `xtools follow engagers`
+### `xeepy follow engagers`
 
 Follow users who engaged with specific tweets.
 
 ```bash
-xtools follow engagers URLS... [OPTIONS]
+xeepy follow engagers URLS... [OPTIONS]
 
 Arguments:
   URLS    Tweet URLs
@@ -446,20 +446,20 @@ Options:
 
 ## Engagement Commands
 
-### `xtools engage like`
+### `xeepy engage like`
 
 Like a specific tweet.
 
 ```bash
-xtools engage like URL
+xeepy engage like URL
 ```
 
-### `xtools engage auto-like`
+### `xeepy engage auto-like`
 
 Auto-like tweets by criteria.
 
 ```bash
-xtools engage auto-like [OPTIONS]
+xeepy engage auto-like [OPTIONS]
 
 Options:
   -k, --keyword TEXT      Keywords to match (can repeat)
@@ -471,32 +471,32 @@ Options:
 **Examples:**
 
 ```bash
-xtools engage auto-like -k Python -k coding -m 25
-xtools engage auto-like -h 100DaysOfCode --duration 15
+xeepy engage auto-like -k Python -k coding -m 25
+xeepy engage auto-like -h 100DaysOfCode --duration 15
 ```
 
-### `xtools engage comment`
+### `xeepy engage comment`
 
 Post a comment on a tweet.
 
 ```bash
-xtools engage comment URL TEXT
+xeepy engage comment URL TEXT
 ```
 
-### `xtools engage bookmark`
+### `xeepy engage bookmark`
 
 Bookmark a tweet.
 
 ```bash
-xtools engage bookmark URL
+xeepy engage bookmark URL
 ```
 
-### `xtools engage export-bookmarks`
+### `xeepy engage export-bookmarks`
 
 Export all bookmarks.
 
 ```bash
-xtools engage export-bookmarks [OPTIONS]
+xeepy engage export-bookmarks [OPTIONS]
 
 Options:
   -o, --output PATH    Output file (default: bookmarks.json)
@@ -507,12 +507,12 @@ Options:
 
 ## Monitoring Commands
 
-### `xtools monitor unfollowers`
+### `xeepy monitor unfollowers`
 
 Detect who unfollowed you.
 
 ```bash
-xtools monitor unfollowers [OPTIONS]
+xeepy monitor unfollowers [OPTIONS]
 
 Options:
   --notify             Send notification
@@ -522,16 +522,16 @@ Options:
 **Examples:**
 
 ```bash
-xtools monitor unfollowers
-xtools monitor unfollowers --notify -o report.json
+xeepy monitor unfollowers
+xeepy monitor unfollowers --notify -o report.json
 ```
 
-### `xtools monitor account`
+### `xeepy monitor account`
 
 Monitor changes to an account.
 
 ```bash
-xtools monitor account USERNAME [OPTIONS]
+xeepy monitor account USERNAME [OPTIONS]
 
 Arguments:
   USERNAME    Account to monitor
@@ -540,12 +540,12 @@ Options:
   --since INT    Hours to look back (default: 24)
 ```
 
-### `xtools monitor keywords`
+### `xeepy monitor keywords`
 
 Monitor X for keywords in real-time.
 
 ```bash
-xtools monitor keywords KEYWORDS... [OPTIONS]
+xeepy monitor keywords KEYWORDS... [OPTIONS]
 
 Arguments:
   KEYWORDS    Keywords to monitor
@@ -559,34 +559,34 @@ Options:
 
 ## Analytics Commands
 
-### `xtools analytics growth`
+### `xeepy analytics growth`
 
 Show growth statistics.
 
 ```bash
-xtools analytics growth [OPTIONS]
+xeepy analytics growth [OPTIONS]
 
 Options:
   --days INT    Days of history (default: 30)
 ```
 
-### `xtools analytics engagement`
+### `xeepy analytics engagement`
 
 Analyze engagement on your tweets.
 
 ```bash
-xtools analytics engagement [OPTIONS]
+xeepy analytics engagement [OPTIONS]
 
 Options:
   --limit INT    Tweets to analyze (default: 100)
 ```
 
-### `xtools analytics best-time`
+### `xeepy analytics best-time`
 
 Find optimal posting times.
 
 ```bash
-xtools analytics best-time [OPTIONS]
+xeepy analytics best-time [OPTIONS]
 
 Options:
   --limit INT    Tweets to analyze (default: 200)
@@ -596,12 +596,12 @@ Options:
 
 ## AI Commands
 
-### `xtools ai reply`
+### `xeepy ai reply`
 
 Generate an AI reply.
 
 ```bash
-xtools ai reply TEXT [OPTIONS]
+xeepy ai reply TEXT [OPTIONS]
 
 Arguments:
   TEXT    Tweet text to reply to
@@ -614,51 +614,51 @@ Options:
 **Examples:**
 
 ```bash
-xtools ai reply "Just launched my startup!" --style supportive
-xtools ai reply "Python vs JavaScript?" --style witty
+xeepy ai reply "Just launched my startup!" --style supportive
+xeepy ai reply "Python vs JavaScript?" --style witty
 ```
 
-### `xtools ai sentiment`
+### `xeepy ai sentiment`
 
 Analyze sentiment of text.
 
 ```bash
-xtools ai sentiment TEXT
+xeepy ai sentiment TEXT
 ```
 
-### `xtools ai detect-bot`
+### `xeepy ai detect-bot`
 
 Analyze if an account is a bot.
 
 ```bash
-xtools ai detect-bot USERNAME
+xeepy ai detect-bot USERNAME
 ```
 
 ---
 
 ## Configuration Commands
 
-### `xtools config show`
+### `xeepy config show`
 
 Show current configuration.
 
 ```bash
-xtools config show
+xeepy config show
 ```
 
-### `xtools config set`
+### `xeepy config set`
 
 Set a configuration value.
 
 ```bash
-xtools config set KEY VALUE
+xeepy config set KEY VALUE
 ```
 
 **Examples:**
 
 ```bash
-xtools config set headless true
-xtools config set rate_limit.delay 5
+xeepy config set headless true
+xeepy config set rate_limit.delay 5
 ```
 
 ---
@@ -675,8 +675,8 @@ All scraping commands support these output formats:
 **Auto-detection:** Output format is detected from file extension.
 
 ```bash
-xtools scrape followers python -o followers.json  # JSON
-xtools scrape followers python -o followers.csv   # CSV
+xeepy scrape followers python -o followers.json  # JSON
+xeepy scrape followers python -o followers.csv   # CSV
 ```
 
 ---
@@ -697,8 +697,8 @@ xtools scrape followers python -o followers.csv   # CSV
 
 | Variable | Description |
 |----------|-------------|
-| `XTOOLS_AUTH_TOKEN` | X/Twitter auth token |
-| `XTOOLS_CONFIG` | Config file path |
+| `XEEPY_AUTH_TOKEN` | X/Twitter auth token |
+| `XEEPY_CONFIG` | Config file path |
 | `OPENAI_API_KEY` | OpenAI API key for AI features |
 | `ANTHROPIC_API_KEY` | Anthropic API key |
 
@@ -708,17 +708,17 @@ xtools scrape followers python -o followers.csv   # CSV
 
 ```bash
 # Daily unfollower check at 9 AM
-0 9 * * * xtools monitor unfollowers --notify
+0 9 * * * xeepy monitor unfollowers --notify
 
 # Weekly cleanup on Sundays
-0 20 * * 0 xtools unfollow non-followers --max 50
+0 20 * * 0 xeepy unfollow non-followers --max 50
 
 # Hourly engagement
-0 * * * * xtools engage auto-like -k Python --max 10 --duration 5
+0 * * * * xeepy engage auto-like -k Python --max 10 --duration 5
 ```
 
 ---
 
 <p align="center">
-  <strong>Need help? Run `xtools --help`</strong>
+  <strong>Need help? Run `xeepy --help`</strong>
 </p>

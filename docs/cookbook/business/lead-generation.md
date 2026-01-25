@@ -24,7 +24,7 @@ Find people actively looking for solutions:
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
@@ -59,7 +59,7 @@ async def discover_high_intent_leads(
     - Mentioning competitors negatively
     """
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         leads = []
         
         # Intent signal patterns
@@ -220,7 +220,7 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 
 @dataclass
 class QualifiedLead:
@@ -241,7 +241,7 @@ async def qualify_leads(leads: list, ideal_customer_profile: dict):
     - Urgency signals
     """
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         qualified = []
         
         # Decision maker keywords
@@ -382,14 +382,14 @@ asyncio.run(main())
 
 ```python
 import asyncio
-from xtools import XTools
-from xtools.ai import ContentGenerator
+from xeepy import Xeepy
+from xeepy.ai import ContentGenerator
 from datetime import datetime, timedelta
 
 class OutreachCampaign:
     """Automated multi-touch outreach campaign"""
     
-    def __init__(self, x: XTools, ai: ContentGenerator):
+    def __init__(self, x: Xeepy, ai: ContentGenerator):
         self.x = x
         self.ai = ai
         self.sequences = {}
@@ -503,7 +503,7 @@ class OutreachCampaign:
 
 # Usage
 async def run_outreach_campaign():
-    async with XTools() as x:
+    async with Xeepy() as x:
         ai = ContentGenerator(provider="openai")
         campaign = OutreachCampaign(x, ai)
         
@@ -541,7 +541,7 @@ asyncio.run(run_outreach_campaign())
 ## Lead Scoring Dashboard
 
 ```python
-from xtools.storage import Database
+from xeepy.storage import Database
 from datetime import datetime
 
 class LeadDatabase:

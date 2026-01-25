@@ -6,7 +6,7 @@ Use data analysis to predict emerging trends before they go mainstream.
 
 ```python
 import asyncio
-from xtools import XTools
+from xeepy import Xeepy
 from datetime import datetime, timedelta
 from collections import Counter, defaultdict
 import re
@@ -33,7 +33,7 @@ class TrendPredictor:
         3. Identify keywords with accelerating velocity
         """
         
-        async with XTools() as x:
+        async with Xeepy() as x:
             all_text = []
             
             # Gather recent content from niche
@@ -207,7 +207,7 @@ async def analyze_hashtag_trajectory(hashtag: str, days: int = 7):
     Analyze a hashtag's growth trajectory to predict if it will trend.
     """
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get historical data by searching different time periods
         time_series = []
         
@@ -286,7 +286,7 @@ async def predict_viral_potential(tweet_url: str):
     specific patterns in their first 1-2 hours.
     """
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         tweet = await x.scrape.tweet(tweet_url)
         author = await x.scrape.profile(tweet.author_username)
         
@@ -402,7 +402,7 @@ async def analyze_topic_lifecycle(topic: str):
     - Niche (stable but small)
     """
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         # Get tweets from different time periods
         now = datetime.now()
         periods = []
@@ -497,7 +497,7 @@ async def continuous_trend_monitor(
     
     predictor = TrendPredictor()
     
-    async with XTools() as x:
+    async with Xeepy() as x:
         while True:
             all_trends = {}
             

@@ -1,6 +1,6 @@
 # Documentation: Installation Guide
 
-> Complete installation guide for XTools on all platforms.
+> Complete installation guide for Xeepy on all platforms.
 
 ---
 
@@ -49,14 +49,14 @@ Optional dependencies:
 ### From PyPI (Recommended)
 
 ```bash
-# Install XTools
-pip install xtools
+# Install Xeepy
+pip install xeepy
 
 # Install browser (required)
 playwright install chromium
 
 # Verify installation
-xtools --version
+xeepy --version
 ```
 
 ### From Source
@@ -86,14 +86,14 @@ python3 --version
 # If not, install via Homebrew
 brew install python@3.11
 
-# Install XTools
-pip3 install xtools
+# Install Xeepy
+pip3 install xeepy
 
 # Install browser
 playwright install chromium
 
 # Verify
-xtools --version
+xeepy --version
 ```
 
 ### Windows
@@ -105,14 +105,14 @@ python --version
 # If not, download from python.org or use winget
 winget install Python.Python.3.11
 
-# Install XTools
-pip install xtools
+# Install Xeepy
+pip install xeepy
 
 # Install browser
 playwright install chromium
 
 # Verify
-xtools --version
+xeepy --version
 ```
 
 ### Linux (Ubuntu/Debian)
@@ -122,15 +122,15 @@ xtools --version
 sudo apt update
 sudo apt install python3.11 python3.11-venv python3-pip
 
-# Install XTools
-pip3 install xtools
+# Install Xeepy
+pip3 install xeepy
 
 # Install browser and dependencies
 playwright install chromium
 playwright install-deps chromium
 
 # Verify
-xtools --version
+xeepy --version
 ```
 
 ### Linux (Fedora/RHEL)
@@ -139,14 +139,14 @@ xtools --version
 # Install Python
 sudo dnf install python3.11 python3-pip
 
-# Install XTools
-pip3 install xtools
+# Install Xeepy
+pip3 install xeepy
 
 # Install browser
 playwright install chromium
 
 # Verify
-xtools --version
+xeepy --version
 ```
 
 ### Linux (Arch)
@@ -155,21 +155,21 @@ xtools --version
 # Install Python
 sudo pacman -S python python-pip
 
-# Install XTools
-pip install xtools
+# Install Xeepy
+pip install xeepy
 
 # Install browser
 playwright install chromium
 
 # Verify
-xtools --version
+xeepy --version
 ```
 
 ---
 
 ## Development Installation
 
-For contributing or modifying XTools:
+For contributing or modifying Xeepy:
 
 ```bash
 # Clone repository
@@ -193,7 +193,7 @@ pre-commit install
 pytest
 
 # Verify
-xtools --version
+xeepy --version
 ```
 
 ### Dev Dependencies
@@ -216,10 +216,10 @@ The `[dev]` extra includes:
 
 ```bash
 # Pull image (when available)
-docker pull nirholas/xtools:latest
+docker pull nirholas/xeepy:latest
 
 # Run with session volume
-docker run -it -v ~/.xtools:/root/.xtools nirholas/xtools
+docker run -it -v ~/.xeepy:/root/.xeepy nirholas/xeepy
 ```
 
 ### Building Locally
@@ -230,22 +230,22 @@ FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
 
 WORKDIR /app
 
-# Install XTools
+# Install Xeepy
 COPY . .
 RUN pip install .
 
 # Install browser
 RUN playwright install chromium
 
-ENTRYPOINT ["xtools"]
+ENTRYPOINT ["xeepy"]
 ```
 
 ```bash
 # Build
-docker build -t xtools .
+docker build -t xeepy .
 
 # Run
-docker run -it -v ~/.xtools:/root/.xtools xtools --help
+docker run -it -v ~/.xeepy:/root/.xeepy xeepy --help
 ```
 
 ### Docker Compose
@@ -254,10 +254,10 @@ docker run -it -v ~/.xtools:/root/.xtools xtools --help
 # docker-compose.yml
 version: '3.8'
 services:
-  xtools:
+  xeepy:
     build: .
     volumes:
-      - ~/.xtools:/root/.xtools
+      - ~/.xeepy:/root/.xeepy
       - ./data:/app/data
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
@@ -271,16 +271,16 @@ services:
 
 ```bash
 # Create environment
-python -m venv xtools-env
+python -m venv xeepy-env
 
 # Activate
 # macOS/Linux:
-source xtools-env/bin/activate
+source xeepy-env/bin/activate
 # Windows:
-xtools-env\Scripts\activate
+xeepy-env\Scripts\activate
 
 # Install
-pip install xtools
+pip install xeepy
 playwright install chromium
 
 # Deactivate when done
@@ -291,13 +291,13 @@ deactivate
 
 ```bash
 # Create environment
-conda create -n xtools python=3.11
+conda create -n xeepy python=3.11
 
 # Activate
-conda activate xtools
+conda activate xeepy
 
 # Install
-pip install xtools
+pip install xeepy
 playwright install chromium
 
 # Deactivate
@@ -310,11 +310,11 @@ conda deactivate
 # Install pipx if needed
 pip install pipx
 
-# Install XTools
-pipx install xtools
+# Install Xeepy
+pipx install xeepy
 
 # Inject playwright
-pipx inject xtools playwright
+pipx inject xeepy playwright
 playwright install chromium
 ```
 
@@ -326,7 +326,7 @@ playwright install chromium
 
 ```bash
 # Install with OpenAI support
-pip install "xtools[ai]"
+pip install "xeepy[ai]"
 
 # Or install openai separately
 pip install openai
@@ -339,7 +339,7 @@ export OPENAI_API_KEY="sk-..."
 
 ```bash
 # Install with AI support
-pip install "xtools[ai]"
+pip install "xeepy[ai]"
 
 # Or install anthropic separately
 pip install anthropic
@@ -357,7 +357,7 @@ curl https://ollama.ai/install.sh | sh
 # Pull a model
 ollama pull llama2
 
-# XTools will auto-detect local Ollama
+# Xeepy will auto-detect local Ollama
 ```
 
 ---
@@ -372,14 +372,14 @@ playwright install-deps chromium
 playwright install chromium
 
 # Or use system chromium
-pip install xtools[chromium]
+pip install xeepy[chromium]
 ```
 
 ### Permission Denied
 
 ```bash
 # Use user installation
-pip install --user xtools
+pip install --user xeepy
 
 # Or fix permissions
 sudo chown -R $USER ~/.cache/ms-playwright
@@ -403,8 +403,8 @@ which python
 python --version
 
 # Reinstall
-pip uninstall xtools
-pip install xtools
+pip uninstall xeepy
+pip install xeepy
 ```
 
 ### Playwright Errors
@@ -420,7 +420,7 @@ ls ~/.cache/ms-playwright/
 
 ### Rate Limit Errors
 
-XTools includes rate limiting. If you see rate limit errors:
+Xeepy includes rate limiting. If you see rate limit errors:
 
 1. Wait and retry
 2. Check your configuration
@@ -432,13 +432,13 @@ XTools includes rate limiting. If you see rate limit errors:
 
 ```bash
 # Check version
-xtools --version
+xeepy --version
 
 # Run test command
-xtools --help
+xeepy --help
 
 # Test Python import
-python -c "from xtools import XTools; print('OK')"
+python -c "from xeepy import Xeepy; print('OK')"
 ```
 
 ---
@@ -447,13 +447,13 @@ python -c "from xtools import XTools; print('OK')"
 
 ```bash
 # Remove package
-pip uninstall xtools
+pip uninstall xeepy
 
 # Remove browser (optional)
 playwright uninstall chromium
 
 # Remove configuration (optional)
-rm -rf ~/.xtools
+rm -rf ~/.xeepy
 ```
 
 ---

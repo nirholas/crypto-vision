@@ -1,6 +1,6 @@
 # 🤖 AI Features Guide
 
-XTools integrates with leading AI providers to enable intelligent automation. This guide covers all AI-powered features.
+Xeepy integrates with leading AI providers to enable intelligent automation. This guide covers all AI-powered features.
 
 ---
 
@@ -21,13 +21,13 @@ XTools integrates with leading AI providers to enable intelligent automation. Th
 ### Install AI Dependencies
 
 ```bash
-pip install xtools[ai]
+pip install xeepy[ai]
 ```
 
 ### Configure Providers
 
 ```python
-from xtools.ai import AIConfig
+from xeepy.ai import AIConfig
 
 # OpenAI
 config = AIConfig(
@@ -67,7 +67,7 @@ OLLAMA_BASE_URL=http://localhost:11434
 ### Generate Replies
 
 ```python
-from xtools.ai import ContentGenerator
+from xeepy.ai import ContentGenerator
 
 ai = ContentGenerator(provider="openai", api_key="...")
 
@@ -139,7 +139,7 @@ improved = await ai.improve_text(
 ### Analyze Single Tweet
 
 ```python
-from xtools.ai import SentimentAnalyzer
+from xeepy.ai import SentimentAnalyzer
 
 analyzer = SentimentAnalyzer()
 
@@ -192,7 +192,7 @@ print(f"Common praise: {report.positive_topics}")
 ### Analyze Single User
 
 ```python
-from xtools.ai import SpamDetector
+from xeepy.ai import SpamDetector
 
 detector = SpamDetector()
 
@@ -241,7 +241,7 @@ The bot detector analyzes:
 ### Find Accounts to Follow
 
 ```python
-from xtools.ai import SmartTargeting
+from xeepy.ai import SmartTargeting
 
 targeting = SmartTargeting(provider="openai", api_key="...")
 
@@ -279,7 +279,7 @@ print(f"Recommendation: {analysis.recommendation}")
 ### Token Sentiment
 
 ```python
-from xtools.ai import CryptoAnalyzer
+from xeepy.ai import CryptoAnalyzer
 
 crypto = CryptoAnalyzer(provider="openai", api_key="...")
 
@@ -331,10 +331,10 @@ print(f"Coordination patterns: {shills.patterns}")
 ### Auto-Comment with AI
 
 ```python
-from xtools import XTools
-from xtools.ai import ContentGenerator
+from xeepy import Xeepy
+from xeepy.ai import ContentGenerator
 
-async with XTools() as x:
+async with Xeepy() as x:
     ai = ContentGenerator(provider="openai", api_key="...")
     
     # Search for tweets to engage with
@@ -357,10 +357,10 @@ async with XTools() as x:
 ### Smart Unfollow with AI
 
 ```python
-from xtools import XTools
-from xtools.ai import SpamDetector
+from xeepy import Xeepy
+from xeepy.ai import SpamDetector
 
-async with XTools() as x:
+async with Xeepy() as x:
     detector = SpamDetector()
     
     # Get non-followers
@@ -385,10 +385,10 @@ async with XTools() as x:
 ### Growth Suite with AI
 
 ```python
-from xtools import XTools
-from xtools.ai import SmartTargeting, ContentGenerator
+from xeepy import Xeepy
+from xeepy.ai import SmartTargeting, ContentGenerator
 
-async with XTools() as x:
+async with Xeepy() as x:
     targeting = SmartTargeting(provider="openai", api_key="...")
     content = ContentGenerator(provider="openai", api_key="...")
     

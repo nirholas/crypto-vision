@@ -17,7 +17,7 @@ You are AIFeaturesAgent, a Python developer specializing in AI/ML integration. Y
 Build AI features and integration layer:
 
 ```
-xtools/
+xeepy/
 ├── ai/
 │   ├── __init__.py
 │   ├── content_generator.py        # AI-generated content
@@ -318,7 +318,7 @@ console = Console()
 @click.option('--verbose', '-v', is_flag=True, help='Verbose output')
 @click.pass_context
 def cli(ctx, config, verbose):
-    """XTools - X/Twitter Automation Toolkit"""
+    """Xeepy - X/Twitter Automation Toolkit"""
     ctx.ensure_object(dict)
     ctx.obj['config'] = load_config(config)
     ctx.obj['verbose'] = verbose
@@ -423,7 +423,7 @@ Create comprehensive documentation:
 
 #### README.md
 ```markdown
-# XTools - X/Twitter Automation Toolkit
+# Xeepy - X/Twitter Automation Toolkit
 
 > ⚠️ **EDUCATIONAL PURPOSES ONLY** - This toolkit demonstrates automation techniques
 > for research and learning. Do not run these scripts against X/Twitter.
@@ -439,34 +439,34 @@ Create comprehensive documentation:
 ## Installation
 
 \`\`\`bash
-pip install xtools
+pip install xeepy
 \`\`\`
 
 ## Quick Start
 
 \`\`\`bash
 # Login (save session)
-xtools auth login
+xeepy auth login
 
 # Scrape followers
-xtools scrape followers elonmusk --limit 100 --output followers.json
+xeepy scrape followers elonmusk --limit 100 --output followers.json
 
 # Unfollow non-followers (dry run)
-xtools unfollow non-followers --dry-run
+xeepy unfollow non-followers --dry-run
 
 # Auto-like by keyword
-xtools engage auto-like "python" "web3" --max 50
+xeepy engage auto-like "python" "web3" --max 50
 
 # Detect unfollowers
-xtools monitor unfollowers --notify
+xeepy monitor unfollowers --notify
 \`\`\`
 
 ## Python API
 
 \`\`\`python
-from xtools import XTools
+from xeepy import Xeepy
 
-async with XTools() as x:
+async with Xeepy() as x:
     # Scrape
     followers = await x.scrape.followers("username", limit=100)
     
@@ -521,16 +521,16 @@ All 5 agents should follow these coordination rules:
 # All agents must use these shared interfaces
 
 # From Agent 1 (Core)
-from xtools.core.browser import BrowserManager
-from xtools.core.rate_limiter import RateLimiter
-from xtools.core.auth import AuthManager
-from xtools.core.selectors import Selectors
+from xeepy.core.browser import BrowserManager
+from xeepy.core.rate_limiter import RateLimiter
+from xeepy.core.auth import AuthManager
+from xeepy.core.selectors import Selectors
 
 # Models shared across agents
-from xtools.models import User, Tweet
+from xeepy.models import User, Tweet
 
 # Result types
-from xtools.core.results import ActionResult, ScrapeResult
+from xeepy.core.results import ActionResult, ScrapeResult
 ```
 
 ### Directory Ownership
@@ -554,7 +554,7 @@ from xtools.core.results import ActionResult, ScrapeResult
 ## 📦 Final Project Structure
 
 ```
-xtools/
+xeepy/
 ├── __init__.py
 ├── core/                       # Agent 1
 │   ├── browser.py
