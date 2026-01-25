@@ -173,7 +173,7 @@
 | Feature | Xeepy | Tweepy | Snscrape | Twint |
 |---------|--------|--------|----------|-------|
 | **No API Required** | ✅ | ❌ | ✅ | ✅ |
-| **Currently Working (2024+)** | ✅ | ⚠️ | ❌ | ❌ |
+| **Currently Working (2026)** | ✅ | ⚠️ | ❌ | ❌ |
 | **Get Tweet Replies** | ✅ | ❌ | ❌ | ❌ |
 | **Async Support** | ✅ | ✅ | ❌ | ❌ |
 | **Mass Unfollow** | ✅ | ❌ | ❌ | ❌ |
