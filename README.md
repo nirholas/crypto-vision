@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10+"/>
-  <img src="https://img.shields.io/badge/Async-Native-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Async Native"/>
+  <img src="https://img.shields.io/badge/Async-Native-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Async Native"/> 
   <img src="https://img.shields.io/badge/AI-Powered-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white" alt="AI Powered"/>
   <img src="https://img.shields.io/badge/No_API-Required-success?style=for-the-badge" alt="No API Required"/> 
   <img src="https://img.shields.io/badge/154-Python_Files-blue?style=for-the-badge" alt="154 Python Files"/>
