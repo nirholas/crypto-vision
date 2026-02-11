@@ -111,3 +111,9 @@ xeepy monitor unfollowers
 
 Educational purposes only. Do not use to violate X/Twitter Terms of Service.
 MIT License.
+
+## Links
+
+- Repository: https://github.com/nirholas/xeepy
+- Author: https://github.com/nirholas
+- Full documentation: https://raw.githubusercontent.com/nirholas/xeepy/main/llms-full.txt
