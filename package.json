@@ -4,10 +4,10 @@
   "description": "The complete cryptocurrency intelligence API — cryptocurrency.cv",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch index.ts",
     "build": "tsc && tsc-alias",
     "start": "node dist/index.js",
-    "lint": "eslint src/",
+    "lint": "eslint lib/ routes/ sources/ index.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -1,0 +1,11 @@
+node_modules
+dist
+*.log
+.env
+.env.local
+.env.production
+upstream
+.DS_Store
+coverage
+.vscode
+*.tgz

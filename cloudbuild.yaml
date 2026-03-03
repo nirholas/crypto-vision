@@ -1,0 +1,65 @@
+# Crypto Vision — Cloud Build → Cloud Run
+#
+# Trigger: push to main branch
+# Usage:   gcloud builds submit --config cloudbuild.yaml .
+#
+# Substitutions (set in trigger or via --substitutions):
+#   _SERVICE_NAME   — Cloud Run service name (default: crypto-vision)
+#   _REGION         — GCP region (default: us-central1)
+#   _MEMORY         — Memory per instance (default: 1Gi)
+#   _CPU            — vCPUs per instance (default: 2)
+#   _MIN_INSTANCES  — Min instances to keep warm (default: 1)
+#   _MAX_INSTANCES  — Max instances (default: 20)
+
+substitutions:
+  _SERVICE_NAME: crypto-vision
+  _REGION: us-central1
+  _MEMORY: 1Gi
+  _CPU: "2"
+  _MIN_INSTANCES: "1"
+  _MAX_INSTANCES: "20"
+
+steps:
+  # Build container image
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$SHORT_SHA
+      - -t
+      - gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest
+      - .
+
+  # Push to Container Registry
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - --all-tags
+      - gcr.io/$PROJECT_ID/${_SERVICE_NAME}
+
+  # Deploy to Cloud Run
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE_NAME}
+      - --image=gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$SHORT_SHA
+      - --region=${_REGION}
+      - --platform=managed
+      - --allow-unauthenticated
+      - --port=8080
+      - --memory=${_MEMORY}
+      - --cpu=${_CPU}
+      - --min-instances=${_MIN_INSTANCES}
+      - --max-instances=${_MAX_INSTANCES}
+      - --set-env-vars=NODE_ENV=production
+      - --timeout=60s
+      - --concurrency=200
+
+images:
+  - gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$SHORT_SHA
+  - gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest
+
+options:
+  logging: CLOUD_LOGGING_ONLY

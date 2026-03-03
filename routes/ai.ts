@@ -16,7 +16,7 @@ import { cache } from "../lib/cache.js";
 import * as cg from "../sources/coingecko.js";
 import * as llama from "../sources/defillama.js";
 import * as alt from "../sources/alternative.js";
-import { logger as log } from "../lib/logger.js";
+import { log } from "../lib/logger.js";
 
 export const aiRoutes = new Hono();
 

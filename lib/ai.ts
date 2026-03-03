@@ -9,9 +9,9 @@
  * @see https://github.com/nirholas/free-crypto-news
  */
 
-import { fetchJSON, FetchOptions } from "./fetcher.js";
+import { fetchJSON } from "./fetcher.js";
 import { cache } from "./cache.js";
-import { logger as log } from "./logger.js";
+import { log } from "./logger.js";
 
 // ─── Provider Config ─────────────────────────────────────────
 
@@ -275,12 +275,7 @@ export async function aiComplete(
         temperature,
       );
 
-      const parsed = JSON.parse(init.body as string);
-      const response = await fetchJSON<any>(url, {
-        method: init.method as FetchOptions["method"],
-        headers: init.headers as Record<string, string>,
-        body: parsed,
-      });
+      const response = await fetchJSON<any>(url, init);
       const text = provider.extractText(response);
       const tokensUsed = provider.extractUsage(response);
 

@@ -5,7 +5,7 @@
     "moduleResolution": "bundler",
     "lib": ["ES2022"],
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -16,11 +16,11 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@/services/*": ["src/services/*"],
-      "@/lib/*": ["src/lib/*"]
+      "@/*": ["./*"],
+      "@/services/*": ["services/*"],
+      "@/lib/*": ["lib/*"]
     }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+  "include": ["*.ts", "lib/**/*", "routes/**/*", "sources/**/*"],
+  "exclude": ["node_modules", "dist", "upstream", "**/*.test.ts"]
 }
