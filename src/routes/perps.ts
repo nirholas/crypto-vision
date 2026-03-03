@@ -31,7 +31,7 @@ export const perpsRoutes = new Hono();
 
 perpsRoutes.get("/overview", async (c) => {
   const [bybitTickers, okxSwaps, hlData, dydxMarkets] = await Promise.all([
-    bybit.getLinearTickers().catch(() => []),
+    bybit.getTickers("linear").catch(() => []),
     okx.getSwapTickers().catch(() => []),
     hl.getMetaAndAssetCtxs().catch(() => null),
     dydx.getMarkets().catch(() => ({ markets: {} })),
@@ -42,7 +42,7 @@ perpsRoutes.get("/overview", async (c) => {
     okx: { count: okxSwaps.length, tickers: okxSwaps.slice(0, 20) },
     hyperliquid: hlData ? {
       count: hlData[0].universe.length,
-      markets: hlData[0].universe.map((u, i) => ({
+      markets: hlData[0].universe.map((u: Record<string, unknown>, i: number) => ({
         ...u,
         ...hlData[1][i],
       })).slice(0, 20),
@@ -59,7 +59,7 @@ perpsRoutes.get("/overview", async (c) => {
 
 perpsRoutes.get("/funding", async (c) => {
   const [bybitTickers, okxSwaps, hlData] = await Promise.all([
-    bybit.getLinearTickers().catch(() => []),
+    bybit.getTickers("linear").catch(() => []),
     okx.getSwapTickers().catch(() => []),
     hl.getMetaAndAssetCtxs().catch(() => null),
   ]);
@@ -73,10 +73,10 @@ perpsRoutes.get("/funding", async (c) => {
 
   // Collect unique symbols
   const symbols = new Set<string>();
-  bybitTickers.forEach((t) => symbols.add(t.symbol.replace("USDT", "")));
+  bybitTickers.forEach((t: bybit.BybitTicker) => symbols.add(t.symbol.replace("USDT", "")));
 
   for (const sym of symbols) {
-    const bt = bybitTickers.find((t) => t.symbol === `${sym}USDT`);
+    const bt = bybitTickers.find((t: bybit.BybitTicker) => t.symbol === `${sym}USDT`);
     const ot = okxSwaps.find((t) => t.instId === `${sym}-USDT-SWAP`);
     const hlIdx = hlData?.[0].universe.findIndex((u) => u.name === sym);
     const hlCtx = hlIdx !== undefined && hlIdx >= 0 ? hlData?.[1][hlIdx] : null;
@@ -107,7 +107,7 @@ perpsRoutes.get("/funding/:symbol", async (c) => {
   const sym = c.req.param("symbol").toUpperCase();
 
   const [bybitFunding, okxFunding, hlFunding, dydxFunding] = await Promise.all([
-    bybit.getFundingHistory(`${sym}USDT`).catch(() => []),
+    bybit.getFundingRateHistory("linear", `${sym}USDT`).catch(() => []),
     okx.getFundingHistory(`${sym}-USDT-SWAP`).catch(() => []),
     hl.getFundingHistory(sym).catch(() => []),
     dydx.getFundingRates(`${sym}-USD`).catch(() => ({ historicalFunding: [] })),
@@ -127,7 +127,7 @@ perpsRoutes.get("/funding/:symbol", async (c) => {
 
 perpsRoutes.get("/oi", async (c) => {
   const [bybitTickers, okxOI] = await Promise.all([
-    bybit.getLinearTickers().catch(() => []),
+    bybit.getTickers("linear").catch(() => []),
     okx.getOpenInterest().catch(() => []),
   ]);
 
@@ -137,7 +137,6 @@ perpsRoutes.get("/oi", async (c) => {
     .slice(0, 50)
     .map((t) => ({
       symbol: t.symbol,
-      openInterest: t.openInterest,
       openInterestValue: t.openInterestValue,
     }));
 
@@ -152,7 +151,7 @@ perpsRoutes.get("/oi/:symbol", async (c) => {
   const sym = c.req.param("symbol").toUpperCase();
 
   const [bybitOI, okxOI, dydxMarket] = await Promise.all([
-    bybit.getOpenInterest(`${sym}USDT`).catch(() => []),
+    bybit.getOpenInterest("linear", `${sym}USDT`, "5min").catch(() => []),
     okx.getOpenInterest().catch(() => []),
     dydx.getMarket(`${sym}-USD`).catch(() => null),
   ]);
@@ -187,7 +186,7 @@ perpsRoutes.get("/markets/dydx", async (c) => {
 });
 
 perpsRoutes.get("/markets/bybit", async (c) => {
-  const data = await bybit.getLinearTickers();
+  const data = await bybit.getTickers("linear");
   return c.json({ exchange: "bybit", count: data.length, data });
 });
 
@@ -202,10 +201,10 @@ perpsRoutes.get("/orderbook/:exchange/:symbol", async (c) => {
   const exchange = c.req.param("exchange").toLowerCase();
   const symbol = c.req.param("symbol").toUpperCase();
 
-  let data: any;
+  let data: unknown;
   switch (exchange) {
     case "bybit":
-      data = await bybit.getOrderbook(`${symbol}USDT`);
+      data = await bybit.getOrderBook("linear", `${symbol}USDT`);
       break;
     case "okx":
       data = await okx.getOrderbook(`${symbol}-USDT-SWAP`);
@@ -229,10 +228,10 @@ perpsRoutes.get("/trades/:exchange/:symbol", async (c) => {
   const exchange = c.req.param("exchange").toLowerCase();
   const symbol = c.req.param("symbol").toUpperCase();
 
-  let data: any;
+  let data: unknown;
   switch (exchange) {
     case "bybit":
-      data = await bybit.getRecentTrades(`${symbol}USDT`);
+      data = await bybit.getRecentTrades("linear", `${symbol}USDT`);
       break;
     case "dydx": {
       const res = await dydx.getTrades(`${symbol}-USD`);
@@ -257,10 +256,10 @@ perpsRoutes.get("/klines/:exchange/:symbol", async (c) => {
   const interval = c.req.query("interval") || "60";
   const limit = Number(c.req.query("limit") || "100");
 
-  let data: any;
+  let data: unknown;
   switch (exchange) {
     case "bybit":
-      data = await bybit.getKlines(`${symbol}USDT`, interval, limit);
+      data = await bybit.getKlines("linear", `${symbol}USDT`, interval, limit);
       break;
     case "okx":
       data = await okx.getCandles(`${symbol}-USDT-SWAP`, interval, limit);

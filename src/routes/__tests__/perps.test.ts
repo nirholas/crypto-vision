@@ -11,10 +11,10 @@ import { Hono } from "hono";
 // ─── Mock sources BEFORE importing routes ────────────────────
 
 vi.mock("../../sources/bybit.js", () => ({
-  getLinearTickers: vi.fn(),
-  getOrderbook: vi.fn(),
+  getTickers: vi.fn(),
+  getOrderBook: vi.fn(),
   getKlines: vi.fn(),
-  getFundingHistory: vi.fn(),
+  getFundingRateHistory: vi.fn(),
   getOpenInterest: vi.fn(),
   getRecentTrades: vi.fn(),
 }));
@@ -141,7 +141,7 @@ const mockDydxMarkets = {
 
 describe("GET /api/perps/overview", () => {
   it("returns multi-exchange overview data", async () => {
-    vi.mocked(bybit.getLinearTickers).mockResolvedValue(mockBybitTickers as any);
+    vi.mocked(bybit.getTickers).mockResolvedValue(mockBybitTickers as any);
     vi.mocked(okx.getSwapTickers).mockResolvedValue(mockOkxSwaps as any);
     vi.mocked(hl.getMetaAndAssetCtxs).mockResolvedValue(mockHlMeta as any);
     vi.mocked(dydx.getMarkets).mockResolvedValue(mockDydxMarkets as any);
@@ -158,7 +158,7 @@ describe("GET /api/perps/overview", () => {
   });
 
   it("handles partial failures gracefully", async () => {
-    vi.mocked(bybit.getLinearTickers).mockRejectedValue(new Error("timeout"));
+    vi.mocked(bybit.getTickers).mockRejectedValue(new Error("timeout"));
     vi.mocked(okx.getSwapTickers).mockRejectedValue(new Error("timeout"));
     vi.mocked(hl.getMetaAndAssetCtxs).mockRejectedValue(new Error("timeout"));
     vi.mocked(dydx.getMarkets).mockRejectedValue(new Error("timeout"));
@@ -181,7 +181,7 @@ describe("GET /api/perps/overview", () => {
 
 describe("GET /api/perps/funding", () => {
   it("returns cross-exchange funding rates sorted by absolute value", async () => {
-    vi.mocked(bybit.getLinearTickers).mockResolvedValue(mockBybitTickers as any);
+    vi.mocked(bybit.getTickers).mockResolvedValue(mockBybitTickers as any);
     vi.mocked(okx.getSwapTickers).mockResolvedValue(mockOkxSwaps as any);
     vi.mocked(hl.getMetaAndAssetCtxs).mockResolvedValue(mockHlMeta as any);
 
@@ -195,7 +195,7 @@ describe("GET /api/perps/funding", () => {
   });
 
   it("handles all sources failing gracefully", async () => {
-    vi.mocked(bybit.getLinearTickers).mockRejectedValue(new Error("fail"));
+    vi.mocked(bybit.getTickers).mockRejectedValue(new Error("fail"));
     vi.mocked(okx.getSwapTickers).mockRejectedValue(new Error("fail"));
     vi.mocked(hl.getMetaAndAssetCtxs).mockRejectedValue(new Error("fail"));
 
@@ -213,7 +213,7 @@ describe("GET /api/perps/funding", () => {
 
 describe("GET /api/perps/funding/:symbol", () => {
   it("returns funding history for a symbol across exchanges", async () => {
-    vi.mocked(bybit.getFundingHistory).mockResolvedValue([{ symbol: "BTCUSDT", fundingRate: "0.0001", fundingRateTimestamp: "1700000000000" }] as any);
+    vi.mocked(bybit.getFundingRateHistory).mockResolvedValue([{ symbol: "BTCUSDT", fundingRate: "0.0001", fundingRateTimestamp: "1700000000000" }] as any);
     vi.mocked(okx.getFundingHistory).mockResolvedValue([{ instId: "BTC-USDT-SWAP", fundingRate: "0.00012", fundingTime: "1700000000000" }] as any);
     vi.mocked(hl.getFundingHistory).mockResolvedValue([{ coin: "BTC", fundingRate: "0.00015", time: 1700000000000 }] as any);
     vi.mocked(dydx.getFundingRates).mockResolvedValue({ historicalFunding: [{ rate: "0.00008", effectiveAt: "2024-01-01T00:00:00Z" }] } as any);
@@ -230,7 +230,7 @@ describe("GET /api/perps/funding/:symbol", () => {
   });
 
   it("handles partial source failures gracefully", async () => {
-    vi.mocked(bybit.getFundingHistory).mockRejectedValue(new Error("fail"));
+    vi.mocked(bybit.getFundingRateHistory).mockRejectedValue(new Error("fail"));
     vi.mocked(okx.getFundingHistory).mockRejectedValue(new Error("fail"));
     vi.mocked(hl.getFundingHistory).mockRejectedValue(new Error("fail"));
     vi.mocked(dydx.getFundingRates).mockRejectedValue(new Error("fail"));
@@ -253,7 +253,7 @@ describe("GET /api/perps/funding/:symbol", () => {
 
 describe("GET /api/perps/oi", () => {
   it("returns open interest overview", async () => {
-    vi.mocked(bybit.getLinearTickers).mockResolvedValue(mockBybitTickers as any);
+    vi.mocked(bybit.getTickers).mockResolvedValue(mockBybitTickers as any);
     vi.mocked(okx.getOpenInterest).mockResolvedValue([
       { instId: "BTC-USDT-SWAP", oi: "800", oiCcy: "800" },
     ] as any);
@@ -269,7 +269,7 @@ describe("GET /api/perps/oi", () => {
   });
 
   it("handles source failures gracefully", async () => {
-    vi.mocked(bybit.getLinearTickers).mockRejectedValue(new Error("fail"));
+    vi.mocked(bybit.getTickers).mockRejectedValue(new Error("fail"));
     vi.mocked(okx.getOpenInterest).mockRejectedValue(new Error("fail"));
 
     const res = await app.request("/api/perps/oi");
@@ -372,7 +372,7 @@ describe("GET /api/perps/markets/dydx", () => {
 
 describe("GET /api/perps/markets/bybit", () => {
   it("returns Bybit linear markets", async () => {
-    vi.mocked(bybit.getLinearTickers).mockResolvedValue(mockBybitTickers as any);
+    vi.mocked(bybit.getTickers).mockResolvedValue(mockBybitTickers as any);
 
     const res = await app.request("/api/perps/markets/bybit");
     expect(res.status).toBe(200);
@@ -383,7 +383,7 @@ describe("GET /api/perps/markets/bybit", () => {
   });
 
   it("propagates source errors as 500", async () => {
-    vi.mocked(bybit.getLinearTickers).mockRejectedValue(new Error("fail"));
+    vi.mocked(bybit.getTickers).mockRejectedValue(new Error("fail"));
 
     const res = await app.request("/api/perps/markets/bybit");
     expect(res.status).toBe(500);
@@ -425,7 +425,7 @@ describe("GET /api/perps/orderbook/:exchange/:symbol", () => {
   };
 
   it("returns Bybit orderbook", async () => {
-    vi.mocked(bybit.getOrderbook).mockResolvedValue(mockOrderbook as any);
+    vi.mocked(bybit.getOrderBook).mockResolvedValue(mockOrderbook as any);
 
     const res = await app.request("/api/perps/orderbook/bybit/BTC");
     expect(res.status).toBe(200);

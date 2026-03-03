@@ -105,7 +105,7 @@ export function ingestDefiProtocols(protocols: Array<Record<string, unknown>>): 
     protocol_slug: String(p.slug || p.name),
     name: String(p.name),
     category: safeStr(p.category),
-    chain: safeStr(p.chain || p.chains?.[0]),
+    chain: safeStr(p.chain || (p.chains as string[] | undefined)?.[0]),
     tvl_usd: safeNum(p.tvl),
     change_1h: safeNum(p.change_1h),
     change_1d: safeNum(p.change_1d),

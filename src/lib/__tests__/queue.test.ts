@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { RequestQueue, QueueFullError, aiQueue, heavyFetchQueue } from "@/lib/queue.js";
+import { RequestQueue, QueueFullError, aiQueue, heavyFetchQueue } from "../queue.js";
 
 // ─── RequestQueue constructor defaults ───────────────────────
 

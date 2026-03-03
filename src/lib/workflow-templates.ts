@@ -61,7 +61,7 @@ export const WORKFLOW_TEMPLATES: Record<string, WorkflowTemplate> = {
       {
         agentId: "gas-optimization-expert",
         task: "Recommend the most cost-efficient chains and timing for deploying capital into the recommended yield opportunities. Compare gas costs across chains.",
-        dependsOn: ["defi-yield-farmer"],
+        dependsOn: ["impermanent-loss-calculator", "smart-contract-auditor"],
         priority: 3,
       },
     ],
@@ -79,7 +79,7 @@ export const WORKFLOW_TEMPLATES: Record<string, WorkflowTemplate> = {
     ],
     steps: [
       {
-        agentId: "layer2-comparison-guide",
+        agentId: "layer-2-comparison-guide",
         task: "Compare the source and target chains in terms of TVL, transaction costs, speed, ecosystem size, and DeFi protocol availability.",
         dependsOn: [],
         priority: 1,
@@ -99,7 +99,7 @@ export const WORKFLOW_TEMPLATES: Record<string, WorkflowTemplate> = {
       {
         agentId: "defi-yield-farmer",
         task: "Compare DeFi yield opportunities available on both the source and target chains. Show the yield differential to determine if migration is worthwhile.",
-        dependsOn: ["layer2-comparison-guide"],
+        dependsOn: ["layer-2-comparison-guide"],
         priority: 2,
       },
     ],

@@ -18,6 +18,7 @@
 import { Hono } from "hono";
 import * as coincap from "../sources/coincap.js";
 import * as bybit from "../sources/bybit.js";
+import type { BybitCategory } from "../sources/bybit.js";
 import * as deribit from "../sources/deribit.js";
 import * as okx from "../sources/okx.js";
 
@@ -41,13 +42,14 @@ exchangesRoutes.get("/rates/:id", async (c) => {
 
 exchangesRoutes.get("/bybit/insurance", async (c) => {
   const coin = c.req.query("coin") || "BTC";
-  const data = await bybit.getInsuranceFund(coin);
+  const data = await bybit.getInsurance(coin);
   return c.json(data);
 });
 
 exchangesRoutes.get("/bybit/risk-limit", async (c) => {
   const symbol = c.req.query("symbol") || "BTCUSDT";
-  const data = await bybit.getRiskLimit(symbol);
+  const category = (c.req.query("category") || "linear") as bybit.BybitCategory;
+  const data = await bybit.getRiskLimit(category, symbol);
   return c.json(data);
 });
 
@@ -101,7 +103,7 @@ exchangesRoutes.get("/okx/mark-price", async (c) => {
 // ─── Bybit Spot ──────────────────────────────────────────────
 
 exchangesRoutes.get("/bybit/spot", async (c) => {
-  const data = await bybit.getSpotTickers();
+  const data = await bybit.getTickers("spot");
   return c.json({ count: data.length, data: data.slice(0, 200) });
 });
 

@@ -383,9 +383,8 @@ agentsRoutes.post("/multi", async (c) => {
 
 // ─── GET /api/agents/orchestrate/templates ───────────────────
 
-agentsRoutes.get("/orchestrate/templates", (c) => {
-  // Lazy import to avoid circular dependencies at startup
-  const { listTemplates } = require("../lib/workflow-templates.js") as typeof import("../lib/workflow-templates.js");
+agentsRoutes.get("/orchestrate/templates", async (c) => {
+  const { listTemplates } = await import("../lib/workflow-templates.js");
 
   return c.json({
     data: listTemplates(),
