@@ -42,6 +42,11 @@ output "scheduler_service_account" {
   value       = google_service_account.scheduler.email
 }
 
+output "artifact_registry" {
+  description = "Artifact Registry Docker repository URL"
+  value       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker.repository_id}"
+}
+
 output "lb_ip_address" {
   description = "Global Load Balancer IP (point DNS A record here)"
   value       = var.enable_cdn ? google_compute_global_address.lb_ip[0].address : null

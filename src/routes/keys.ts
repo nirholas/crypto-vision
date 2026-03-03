@@ -30,7 +30,7 @@ keysRoutes.post("/api/keys", requireAdmin(), async (c) => {
   if (contentType.includes("application/json")) {
     try {
       const body = await c.req.json<{ tier?: string }>();
-      if (body.tier === "pro" || body.tier === "basic") {
+      if (body.tier === "pro" || body.tier === "basic" || body.tier === "enterprise") {
         tier = body.tier;
       }
     } catch {
@@ -45,7 +45,7 @@ keysRoutes.post("/api/keys", requireAdmin(), async (c) => {
     createdAt: new Date().toISOString(),
   };
 
-  addKey(entry);
+  await addKey(entry);
 
   return c.json(
     {
@@ -77,7 +77,7 @@ keysRoutes.get("/api/keys/usage", async (c) => {
     );
   }
 
-  const entry = lookupKey(apiKey);
+  const entry = await lookupKey(apiKey);
   if (!entry) {
     return c.json({ error: "INVALID_API_KEY", message: "Key not found." }, 401);
   }

@@ -3,8 +3,8 @@
 # ─────────────────────────────────────────────────────────────
 
 locals {
-  # Use provided image or default to gcr.io path
-  image = var.container_image != "" ? var.container_image : "gcr.io/${var.project_id}/${var.service_name}:latest"
+  # Use provided image or default to Artifact Registry path
+  image = var.container_image != "" ? var.container_image : "${var.region}-docker.pkg.dev/${var.project_id}/crypto-vision/${var.service_name}:latest"
 
   # Build secret env var mappings
   secret_env_vars = {

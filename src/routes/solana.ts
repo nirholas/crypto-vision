@@ -18,17 +18,20 @@ export const solanaRoutes = new Hono();
 
 solanaRoutes.get("/price/:token", async (c) => {
   const token = c.req.param("token");
-  const vsToken = c.req.query("vs") || undefined;
-  const data = await jupiter.getPrice([token], vsToken);
+  const vs = c.req.query("vs");
+  const data = vs
+    ? await jupiter.getPriceVs(token, vs)
+    : await jupiter.getPrice(token);
   return c.json(data);
 });
 
 solanaRoutes.get("/prices", async (c) => {
   const ids = c.req.query("ids");
   if (!ids) return c.json({ error: "Missing ?ids= parameter (comma-separated mints or symbols)" }, 400);
-  const tokens = ids.split(",").map((t) => t.trim());
-  const vsToken = c.req.query("vs") || undefined;
-  const data = await jupiter.getPrice(tokens, vsToken);
+  const vs = c.req.query("vs");
+  const data = vs
+    ? await jupiter.getPriceVs(ids, vs)
+    : await jupiter.getPrice(ids);
   return c.json(data);
 });
 
@@ -52,7 +55,7 @@ solanaRoutes.get("/tokens", async (c) => {
 });
 
 solanaRoutes.get("/tokens/popular", async (c) => {
-  const data = await jupiter.getPopularTokens();
+  const data = await jupiter.getPopularPrices();
   return c.json(data);
 });
 

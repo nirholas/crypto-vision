@@ -392,6 +392,93 @@ onchainRoutes.get("/bitcoin/network", async (c) => {
   });
 });
 
+// ─── GET /api/onchain/bitcoin/difficulty-raw ─────────────────
+// Raw Bitcoin mining difficulty number
+
+onchainRoutes.get("/bitcoin/difficulty-raw", async (c) => {
+  const difficulty = await bc.getDifficulty();
+
+  return c.json({
+    data: { difficulty },
+    source: "blockchain.info",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/onchain/bitcoin/block-count ────────────────────
+// Total block count (current block height)
+
+onchainRoutes.get("/bitcoin/block-count", async (c) => {
+  const blockCount = await bc.getBlockCount();
+
+  return c.json({
+    data: { blockCount },
+    source: "blockchain.info",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/onchain/bitcoin/latest-block ───────────────────
+// Latest block summary
+
+onchainRoutes.get("/bitcoin/latest-block", async (c) => {
+  const block = await bc.getLatestBlock();
+
+  return c.json({
+    data: {
+      hash: block.hash,
+      height: block.height,
+      time: block.time,
+      blockIndex: block.block_index,
+      txCount: block.txIndexes?.length || 0,
+    },
+    source: "blockchain.info",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/onchain/bitcoin/price-chart ────────────────────
+// 30-day BTC market price chart
+
+onchainRoutes.get("/bitcoin/price-chart", async (c) => {
+  const chart = await bc.getBtcMarketPrice();
+
+  return c.json({
+    data: {
+      name: chart.name,
+      unit: chart.unit,
+      period: chart.period,
+      values: (chart.values || []).map((v: any) => ({
+        timestamp: v.x,
+        date: new Date(v.x * 1000).toISOString(),
+        price: v.y,
+      })),
+    },
+    source: "blockchain.info",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/onchain/bitcoin/hashrate-history ───────────────
+// Historical hashrate with difficulty overlay
+
+onchainRoutes.get("/bitcoin/hashrate-history", async (c) => {
+  const period = c.req.query("period") || "1m";
+  const data = await bc.getHashrate(period);
+
+  return c.json({
+    data: {
+      hashrates: data.hashrates,
+      difficulty: data.difficulty,
+      currentHashrate: data.currentHashrate,
+      currentDifficulty: data.currentDifficulty,
+    },
+    period,
+    source: "mempool.space",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // ─── GET /api/onchain/eth/supply ─────────────────────────
 
 onchainRoutes.get("/eth/supply", async (c) => {

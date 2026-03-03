@@ -67,11 +67,26 @@ gcloud services enable \
   cloudscheduler.googleapis.com \
   vpcaccess.googleapis.com \
   cloudbuild.googleapis.com \
-  containerregistry.googleapis.com \
   artifactregistry.googleapis.com \
   compute.googleapis.com \
+  monitoring.googleapis.com \
   --quiet
 log "APIs enabled"
+
+# ─── 1b. Create Artifact Registry repository ─────────────────
+
+info "Creating Artifact Registry Docker repository..."
+if ! gcloud artifacts repositories describe "crypto-vision" \
+  --location="${REGION}" &>/dev/null; then
+  gcloud artifacts repositories create "crypto-vision" \
+    --repository-format=docker \
+    --location="${REGION}" \
+    --description="Docker images for crypto-vision" \
+    --quiet
+  log "Artifact Registry repo created: crypto-vision"
+else
+  warn "Artifact Registry repo already exists"
+fi
 
 # ─── 2. Create Service Accounts ──────────────────────────────
 
@@ -176,10 +191,18 @@ for secret_name in "${SECRETS[@]}"; do
   fi
 done
 
-# Set Redis URL secret automatically
-echo -n "redis://${REDIS_HOST}:${REDIS_PORT}" | \
-  gcloud secrets versions add "REDIS_URL" --data-file=- --quiet
-log "Set REDIS_URL secret to redis://${REDIS_HOST}:${REDIS_PORT}"
+# Set Redis URL secret automatically (with AUTH string)
+REDIS_AUTH=$(gcloud redis instances describe "${REDIS_INSTANCE}" \
+  --region="${REGION}" --format='value(authString)' 2>/dev/null || echo "")
+if [ -n "${REDIS_AUTH}" ]; then
+  echo -n "redis://:${REDIS_AUTH}@${REDIS_HOST}:${REDIS_PORT}" | \
+    gcloud secrets versions add "REDIS_URL" --data-file=- --quiet
+  log "Set REDIS_URL secret with AUTH string"
+else
+  echo -n "redis://${REDIS_HOST}:${REDIS_PORT}" | \
+    gcloud secrets versions add "REDIS_URL" --data-file=- --quiet
+  log "Set REDIS_URL secret to redis://${REDIS_HOST}:${REDIS_PORT}"
+fi
 
 echo ""
 warn "Remember to populate remaining secrets:"
@@ -200,7 +223,7 @@ done
 
 # Deploy the service
 gcloud run deploy "${SERVICE_NAME}" \
-  --image="gcr.io/${PROJECT}/${SERVICE_NAME}:latest" \
+  --image="${REGION}-docker.pkg.dev/${PROJECT}/${SERVICE_NAME}/${SERVICE_NAME}:latest" \
   --region="${REGION}" \
   --platform=managed \
   --no-allow-unauthenticated \

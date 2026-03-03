@@ -357,3 +357,76 @@ defiRoutes.get("/nft-marketplaces", async (c) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// ─── GET /api/defi/options-volume ────────────────────────────
+// Options protocol volume (DeFiLlama)
+
+defiRoutes.get("/options-volume", async (c) => {
+  const data = await llama.getOptionsVolume();
+
+  return c.json({
+    data: {
+      chart: (data.totalDataChart || []).map(([ts, vol]: [number, number]) => ({
+        date: new Date(ts * 1000).toISOString().split("T")[0],
+        volume: vol,
+      })),
+      protocols: (data.protocols || [])
+        .sort((a: any, b: any) => (b.total24h || 0) - (a.total24h || 0))
+        .slice(0, 30)
+        .map((p: any) => ({
+          name: p.name,
+          volume24h: p.total24h,
+          volume7d: p.total7d,
+          volume30d: p.total30d,
+          change1d: p.change_1d,
+        })),
+    },
+    source: "defillama",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/defi/derivatives-volume ────────────────────────
+// Derivatives/perpetuals protocol volume (DeFiLlama)
+
+defiRoutes.get("/derivatives-volume", async (c) => {
+  const data = await llama.getDerivativesVolume();
+
+  return c.json({
+    data: {
+      chart: (data.totalDataChart || []).map(([ts, vol]: [number, number]) => ({
+        date: new Date(ts * 1000).toISOString().split("T")[0],
+        volume: vol,
+      })),
+      protocols: (data.protocols || [])
+        .sort((a: any, b: any) => (b.total24h || 0) - (a.total24h || 0))
+        .slice(0, 30)
+        .map((p: any) => ({
+          name: p.name,
+          volume24h: p.total24h,
+          volume7d: p.total7d,
+          volume30d: p.total30d,
+          change1d: p.change_1d,
+        })),
+    },
+    source: "defillama",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/defi/defi-liquidations ─────────────────────────
+// DeFi lending liquidation data (DeFiLlama)
+
+defiRoutes.get("/defi-liquidations", async (c) => {
+  const data = await llama.getLiquidations();
+
+  return c.json({
+    data: (data || []).map((item: any) => ({
+      symbol: item.symbol,
+      openInterest: item.openInterest,
+      liquidations24h: item.liquidations24h,
+    })),
+    source: "defillama",
+    timestamp: new Date().toISOString(),
+  });
+});

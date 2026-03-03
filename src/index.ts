@@ -23,6 +23,7 @@ import { requestLogger, globalErrorHandler } from "@/lib/middleware";
 import { apiKeyAuth } from "@/lib/auth";
 import { circuitBreakerStats } from "@/lib/fetcher";
 import { aiQueue, heavyFetchQueue } from "@/lib/queue";
+import { cdnCacheHeaders } from "@/lib/cdn-cache";
 
 import { marketRoutes } from "@/routes/market";
 import { defiRoutes } from "@/routes/defi";
@@ -63,8 +64,8 @@ app.use("*", timing());
 app.use("*", secureHeaders());
 app.use("*", compress());
 
-// Body size limit — prevent OOM from large POST payloads (default 256KB)
-app.use("/api/*", bodyLimit({ maxSize: 256 * 1024, type: "application/json" }));
+// Body size limit — prevent abuse from oversized payloads (10M+ user protection)
+app.use("/api/*", bodyLimit({ maxSize: 256 * 1024 })); // 256 KB
 
 app.use(
   "*",
@@ -276,6 +277,11 @@ app.get("/api", (c) =>
         "GET /api/cex/klines/:symbol": "Candlestick data (?interval=1h)",
         "GET /api/cex/pairs": "Available trading pairs",
         "GET /api/cex/book-ticker": "Best bid/ask for all pairs",
+        "GET /api/cex/mini-ticker": "Binance 24h mini ticker (lightweight)",
+        "GET /api/cex/avg-price/:symbol": "5-min weighted average price",
+        "GET /api/cex/bybit/spot": "Bybit spot tickers",
+        "GET /api/cex/okx/spot": "OKX spot tickers",
+        "GET /api/cex/okx/mark-price": "OKX mark prices (?instType=SWAP)",
       },
       dex: {
         "GET /api/dex/networks": "Supported DEX networks (100+)",
@@ -321,6 +327,10 @@ app.get("/api", (c) =>
         "GET /api/bitcoin/address/:addr": "Address balance + tx count",
         "GET /api/bitcoin/tx/:txid": "Transaction details",
         "GET /api/bitcoin/block-height": "Latest block height",
+        "GET /api/bitcoin/block/:hash": "Block details by hash",
+        "GET /api/bitcoin/block-count": "Total block count (blockchain.info)",
+        "GET /api/bitcoin/market-price": "BTC market price chart (blockchain.info)",
+        "GET /api/bitcoin/hashrate-history": "Hashrate history (blockchain.info)",
         "GET /api/bitcoin/overview": "Comprehensive Bitcoin dashboard",
         "GET /api/bitcoin/blocks": "Recent blocks with details",
         "GET /api/bitcoin/hashrate": "Hashrate history (?period=1m)",

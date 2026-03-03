@@ -149,3 +149,52 @@ variable "alert_email" {
   type        = string
   default     = "alerts@cryptocurrency.cv"
 }
+
+# ── Uptime Check ───────────────────────────────────────────
+
+resource "google_monitoring_uptime_check_config" "health" {
+  display_name = "${var.service_name} — Health Endpoint"
+  timeout      = "10s"
+  period       = "60s"
+
+  http_check {
+    path         = "/health"
+    port         = 443
+    use_ssl      = true
+    validate_ssl = true
+  }
+
+  monitored_resource {
+    type = "uptime_url"
+    labels = {
+      project_id = var.project_id
+      host       = var.domain
+    }
+  }
+}
+
+resource "google_monitoring_alert_policy" "uptime" {
+  display_name = "${var.service_name} — Downtime Alert"
+  combiner     = "OR"
+
+  conditions {
+    display_name = "Uptime check failing"
+
+    condition_threshold {
+      filter          = "resource.type = \"uptime_url\" AND metric.type = \"monitoring.googleapis.com/uptime_check/check_passed\" AND metric.labels.check_id = \"${google_monitoring_uptime_check_config.health.uptime_check_id}\""
+      comparison      = "COMPARISON_LT"
+      threshold_value = 1
+      duration        = "300s"
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_NEXT_OLDER"
+      }
+    }
+  }
+
+  notification_channels = [google_monitoring_notification_channel.email.name]
+
+  alert_strategy {
+    auto_close = "1800s"
+  }
+}

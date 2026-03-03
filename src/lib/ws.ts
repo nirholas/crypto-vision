@@ -15,6 +15,7 @@
 
 import WebSocket from "ws";
 import { logger } from "@/lib/logger";
+import { getRedis, getRedisSubscriber } from "@/lib/redis";
 import type { WSContext } from "hono/ws";
 
 // ─── Broadcast Throttling ────────────────────────────────────
@@ -151,8 +152,14 @@ export function updateClientCoins(
 /**
  * Enqueue price ticks into the throttle buffer instead of broadcasting
  * immediately. For non-price topics, broadcast directly.
+ * If this instance is the leader, also publish to Redis Pub/Sub.
  */
 function broadcast(topic: Topic, message: string): void {
+  // Leader publishes to Redis for cross-instance fan-out
+  if (isLeader) {
+    void publishToChannel(topic, message);
+  }
+
   if (topic === "prices") {
     // Accumulate into throttle buffer — latest value wins per coin
     try {
@@ -202,6 +209,141 @@ function broadcastRaw(topic: Topic, message: string): void {
     } catch {
       // Client gone, will be cleaned up
     }
+  }
+}
+
+// ─── Redis Pub/Sub for Cross-Instance Fan-Out ───────────────
+//
+// At scale (100+ Cloud Run instances), only ONE instance should connect
+// to upstream WebSockets (the "leader"). The leader publishes messages
+// to Redis Pub/Sub channels, and all instances subscribe to fan out to
+// their local clients.
+//
+// Leader election: SET NX with TTL. Leader renews lease every 10s.
+// If leader dies, another instance claims leadership within 30s.
+
+const LEADER_KEY = "cv:ws:leader";
+const LEADER_TTL_S = 30;
+const LEADER_RENEW_MS = 10_000;
+const INSTANCE_ID = `${process.pid}-${Date.now().toString(36)}`;
+
+const PUBSUB_CHANNELS = {
+  prices: "cv:ws:ch:prices",
+  bitcoin: "cv:ws:ch:bitcoin",
+  trades: "cv:ws:ch:trades",
+} as const;
+
+let isLeader = false;
+let leaderRenewTimer: ReturnType<typeof setInterval> | null = null;
+
+async function tryAcquireLeadership(): Promise<boolean> {
+  const r = await getRedis();
+  if (!r) {
+    // No Redis → every instance is its own leader (single-instance mode)
+    isLeader = true;
+    return true;
+  }
+  try {
+    const result = await r.set(LEADER_KEY, INSTANCE_ID, "EX", LEADER_TTL_S, "NX");
+    if (result === "OK") {
+      isLeader = true;
+      logger.info({ instanceId: INSTANCE_ID }, "WS leader elected");
+      return true;
+    }
+    // Check if we already hold the lease (e.g., after reconnect)
+    const current = await r.get(LEADER_KEY);
+    if (current === INSTANCE_ID) {
+      isLeader = true;
+      return true;
+    }
+    isLeader = false;
+    return false;
+  } catch {
+    // Redis error → assume leader for resilience
+    isLeader = true;
+    return true;
+  }
+}
+
+async function renewLeadership(): Promise<void> {
+  if (!isLeader) return;
+  const r = await getRedis();
+  if (!r) return;
+  try {
+    const current = await r.get(LEADER_KEY);
+    if (current === INSTANCE_ID) {
+      await r.expire(LEADER_KEY, LEADER_TTL_S);
+    } else {
+      // Lost leadership
+      logger.warn("Lost WS leader lease — stopping upstreams");
+      isLeader = false;
+      disconnectCoinCap();
+      disconnectMempool();
+      stopDexPolling();
+    }
+  } catch {
+    // Best effort
+  }
+}
+
+function startLeaderRenewal(): void {
+  if (leaderRenewTimer) return;
+  leaderRenewTimer = setInterval(renewLeadership, LEADER_RENEW_MS);
+}
+
+function stopLeaderRenewal(): void {
+  if (leaderRenewTimer) {
+    clearInterval(leaderRenewTimer);
+    leaderRenewTimer = null;
+  }
+}
+
+/** Publish a message to a Redis Pub/Sub channel (leader only). */
+async function publishToChannel(topic: Topic, message: string): Promise<void> {
+  const r = await getRedis();
+  if (!r) return;
+  try {
+    await r.publish(PUBSUB_CHANNELS[topic], message);
+  } catch {
+    // Best effort — local broadcast still works
+  }
+}
+
+/** Subscribe to Redis Pub/Sub channels and fan out to local clients. */
+async function subscribeToChannels(): Promise<void> {
+  const sub = await getRedisSubscriber();
+  if (!sub) return;
+
+  try {
+    await sub.subscribe(
+      PUBSUB_CHANNELS.prices,
+      PUBSUB_CHANNELS.bitcoin,
+      PUBSUB_CHANNELS.trades,
+    );
+
+    sub.on("message", (channel: string, message: string) => {
+      // Find which topic this channel maps to
+      for (const [topic, ch] of Object.entries(PUBSUB_CHANNELS)) {
+        if (ch === channel) {
+          if (topic === "prices") {
+            // Feed into throttle buffer
+            try {
+              const parsed = JSON.parse(message) as PriceTick;
+              for (const [coin, price] of Object.entries(parsed.data)) {
+                pendingPrices.set(coin, price);
+              }
+            } catch { /* ignore malformed */ }
+          } else {
+            broadcastRaw(topic as Topic, message);
+          }
+          break;
+        }
+      }
+    });
+
+    logger.info("WS: subscribed to Redis Pub/Sub channels");
+  } catch (err) {
+    logger.warn({ err }, "WS: failed to subscribe to Redis Pub/Sub");
   }
 }
 

@@ -10,8 +10,8 @@ resource "google_redis_instance" "cache" {
   redis_version  = "REDIS_7_0"
   display_name   = "Crypto Vision Cache"
 
-  auth_enabled            = false
-  transit_encryption_mode = "DISABLED"
+  auth_enabled            = true
+  transit_encryption_mode = "SERVER_AUTHENTICATION"
 
   maintenance_policy {
     weekly_maintenance_window {

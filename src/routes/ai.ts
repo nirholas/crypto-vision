@@ -31,6 +31,7 @@ import * as llama from "../sources/defillama.js";
 import * as alt from "../sources/alternative.js";
 import { log } from "../lib/logger.js";
 import { ApiError } from "../lib/api-error.js";
+import { AskBodySchema, CoinIdSchema, validateBody, validateParam } from "../lib/validation.js";
 
 export const aiRoutes = new Hono();
 
@@ -40,7 +41,9 @@ const SYSTEM_PROMPT =
 // ─── GET /api/ai/sentiment/:coin ─────────────────────────────
 
 aiRoutes.get("/sentiment/:coin", async (c) => {
-  const coinId = c.req.param("coin");
+  const param = validateParam(c, "coin", CoinIdSchema);
+  if (!param.success) return param.error;
+  const coinId = param.data;
 
   const [detail, trending, fearGreed] = await Promise.all([
     cg.getCoinDetail(coinId).catch(() => null),
@@ -248,10 +251,9 @@ Respond in JSON:
 // ─── POST /api/ai/ask ────────────────────────────────────────
 
 aiRoutes.post("/ask", async (c) => {
-  const body = await c.req.json<{ question: string; context?: string }>();
-  if (!body.question) {
-    return ApiError.missingParam(c, "question");
-  }
+  const parsed = await validateBody(c, AskBodySchema);
+  if (!parsed.success) return parsed.error;
+  const body = parsed.data;
 
   // Fetch live context to enrich the answer
   const [global, fearGreed] = await Promise.all([

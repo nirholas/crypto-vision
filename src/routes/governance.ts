@@ -21,7 +21,7 @@ governanceRoutes.get("/proposals/:space", async (c) => {
   const first = Number(c.req.query("limit") || "20");
   const skip = Number(c.req.query("offset") || "0");
   const state = c.req.query("state") || undefined;
-  const data = await snapshot.getProposals(space, first, skip, state);
+  const data = await snapshot.getProposals(space, state, first);
   return c.json({ space, count: data.length, data });
 });
 
@@ -33,7 +33,7 @@ governanceRoutes.get("/active", async (c) => {
 governanceRoutes.get("/spaces", async (c) => {
   const first = Number(c.req.query("limit") || "20");
   const skip = Number(c.req.query("offset") || "0");
-  const data = await snapshot.getSpaces(first, skip);
+  const data = await snapshot.getTopSpaces(first);
   return c.json({ count: data.length, data });
 });
 

@@ -23,6 +23,7 @@ import { ApiError } from "../lib/api-error.js";
 import * as cg from "../sources/coingecko.js";
 import * as llama from "../sources/defillama.js";
 import * as alt from "../sources/alternative.js";
+import { AgentRunSchema, AgentMultiSchema, validateBody } from "../lib/validation.js";
 
 export const agentsRoutes = new Hono();
 
@@ -274,14 +275,9 @@ agentsRoutes.post("/:id/run", async (c) => {
     return ApiError.serviceUnavailable(c, "No AI provider configured");
   }
 
-  const body = await c.req.json<{
-    message: string;
-    context?: string;
-    enrich?: boolean;
-    maxTokens?: number;
-  }>();
-
-  if (!body.message) return ApiError.missingParam(c, "message");
+  const parsed = await validateBody(c, AgentRunSchema);
+  if (!parsed.success) return parsed.error;
+  const body = parsed.data;
 
   // Build enriched prompt
   let liveData = "";
@@ -337,15 +333,9 @@ agentsRoutes.post("/multi", async (c) => {
     return ApiError.serviceUnavailable(c, "No AI provider configured");
   }
 
-  const body = await c.req.json<{
-    agents: string[];
-    message: string;
-    context?: string;
-    maxTokens?: number;
-  }>();
-
-  if (!body.message) return ApiError.missingParam(c, "message");
-  if (!body.agents || body.agents.length === 0) return ApiError.missingParam(c, "agents");
+  const parsed = await validateBody(c, AgentMultiSchema);
+  if (!parsed.success) return parsed.error;
+  const body = parsed.data;
 
   const agentIds = body.agents.slice(0, 5); // Max 5 agents at once
   const results = await Promise.allSettled(

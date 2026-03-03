@@ -5,6 +5,33 @@
 - **Ship production-quality code** — write thorough tests, handle edge cases, add meaningful error messages, and document public APIs.
 - **Think big, execute precisely** — propose ambitious improvements but implement them carefully and incrementally.
 
+### Continuous Improvement Mindset
+
+Every time you touch a file, ask yourself:
+1. **Can I make this faster?** — optimize hot paths, reduce allocations, cache aggressively
+2. **Can I make this safer?** — add validation, tighten types, handle edge cases, sanitize inputs
+3. **Can I make this cleaner?** — reduce duplication, improve naming, simplify logic, extract helpers
+4. **Can I make this more testable?** — add missing tests, improve coverage, add integration tests
+5. **Can I make this more observable?** — add structured logging, metrics, health checks, error context
+
+If you see something broken or improvable while working on something else, **fix it**. Leave every file better than you found it (Boy Scout Rule).
+
+### Proactive Engineering
+
+- **Don't wait to be asked** — if you notice dead code, remove it. If you see a missing index, add it. If docs are stale, update them.
+- **Anticipate failures** — add retry logic, circuit breakers, graceful degradation, and timeout handling where appropriate.
+- **Think about the next developer** — write clear commit messages, helpful code comments, and self-documenting APIs.
+- **Performance matters** — profile before optimizing, but always be aware of O(n) vs O(1), unnecessary re-renders, and N+1 queries.
+- **Security is non-negotiable** — never log secrets, always validate inputs, use parameterized queries, and follow least privilege.
+
+### Build & Run Discipline
+
+- **Always verify your changes compile** — run `npx tsc --noEmit` after TypeScript changes.
+- **Always run tests** — run `npx vitest run` (or the appropriate test command) after changes to ensure nothing is broken.
+- **Start the server and smoke-test** — after meaningful changes, spin up the dev server and hit key endpoints to verify behavior end-to-end.
+- **If a build or test fails, fix it immediately** — never leave the codebase in a broken state.
+- **Commit working code frequently** — small, focused commits with clear messages are better than large, monolithic ones.
+
 ### Git Identity
 
 - **Always commit and push as `nirholas`** — before any git commit or push, configure:

@@ -258,3 +258,211 @@ researchRoutes.get("/exchanges/:symbol", async (c) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// ─── GET /api/research/price ─────────────────────────────────
+// Multi-symbol price lookup (CryptoCompare)
+
+researchRoutes.get("/price", async (c) => {
+  const fsyms = c.req.query("fsyms") || "BTC,ETH";
+  const tsyms = c.req.query("tsyms") || "USD";
+  const data = await cc.getPrice(fsyms, tsyms);
+
+  return c.json({
+    data,
+    source: "cryptocompare",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/research/price-full ────────────────────────────
+// Detailed multi-symbol price data (volume, market cap, 24h change)
+
+researchRoutes.get("/price-full", async (c) => {
+  const fsyms = c.req.query("fsyms") || "BTC,ETH";
+  const tsyms = c.req.query("tsyms") || "USD";
+  const { RAW } = await cc.getPriceFull(fsyms, tsyms);
+
+  const data: Record<string, any> = {};
+  for (const [sym, targets] of Object.entries(RAW || {})) {
+    data[sym] = {};
+    for (const [currency, d] of Object.entries(targets as Record<string, any>)) {
+      data[sym][currency] = {
+        price: d.PRICE,
+        volume24h: d.VOLUME24HOUR,
+        marketCap: d.MKTCAP,
+        changePct24h: d.CHANGEPCT24HOUR,
+        high24h: d.HIGH24HOUR,
+        low24h: d.LOW24HOUR,
+        supply: d.SUPPLY,
+        totalVolume24h: d.TOTALVOLUME24HTO,
+      };
+    }
+  }
+
+  return c.json({
+    data,
+    source: "cryptocompare",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/research/histoday/:symbol ──────────────────────
+// Daily OHLCV candles (CryptoCompare)
+
+researchRoutes.get("/histoday/:symbol", async (c) => {
+  const symbol = c.req.param("symbol").toUpperCase();
+  const tsym = (c.req.query("vs") || "USD").toUpperCase();
+  const limit = Math.min(Number(c.req.query("limit") || 30), 365);
+  const result = await cc.getHistoDay(symbol, tsym, limit);
+
+  return c.json({
+    data: (result.Data?.Data || []).map((d: any) => ({
+      time: d.time,
+      date: new Date(d.time * 1000).toISOString().split("T")[0],
+      open: d.open,
+      high: d.high,
+      low: d.low,
+      close: d.close,
+      volumeFrom: d.volumefrom,
+      volumeTo: d.volumeto,
+    })),
+    symbol,
+    currency: tsym,
+    source: "cryptocompare",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/research/histohour/:symbol ─────────────────────
+// Hourly OHLCV candles (CryptoCompare)
+
+researchRoutes.get("/histohour/:symbol", async (c) => {
+  const symbol = c.req.param("symbol").toUpperCase();
+  const tsym = (c.req.query("vs") || "USD").toUpperCase();
+  const limit = Math.min(Number(c.req.query("limit") || 24), 168);
+  const result = await cc.getHistoHour(symbol, tsym, limit);
+
+  return c.json({
+    data: (result.Data?.Data || []).map((d: any) => ({
+      time: d.time,
+      date: new Date(d.time * 1000).toISOString(),
+      open: d.open,
+      high: d.high,
+      low: d.low,
+      close: d.close,
+      volumeFrom: d.volumefrom,
+      volumeTo: d.volumeto,
+    })),
+    symbol,
+    currency: tsym,
+    source: "cryptocompare",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/research/top-mcap ──────────────────────────────
+// Top coins by market cap (CryptoCompare)
+
+researchRoutes.get("/top-mcap", async (c) => {
+  const tsym = (c.req.query("vs") || "USD").toUpperCase();
+  const limit = Math.min(Number(c.req.query("limit") || 50), 100);
+  const { Data } = await cc.getTopByMarketCap(tsym, limit);
+
+  return c.json({
+    data: (Data || []).map((item: any) => ({
+      id: item.CoinInfo?.Id,
+      name: item.CoinInfo?.Name,
+      fullName: item.CoinInfo?.FullName,
+      imageUrl: item.CoinInfo?.ImageUrl ? `https://www.cryptocompare.com${item.CoinInfo.ImageUrl}` : null,
+      algorithm: item.CoinInfo?.Algorithm,
+      price: item.RAW?.[tsym]?.PRICE,
+      marketCap: item.RAW?.[tsym]?.MKTCAP,
+      volume24h: item.RAW?.[tsym]?.VOLUME24HOUR,
+      changePct24h: item.RAW?.[tsym]?.CHANGEPCT24HOUR,
+      supply: item.RAW?.[tsym]?.SUPPLY,
+    })),
+    currency: tsym,
+    source: "cryptocompare",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/research/news/categories ───────────────────────
+// CryptoCompare news categories
+
+researchRoutes.get("/news/categories", async (c) => {
+  const { Data } = await cc.getNewsCategories();
+
+  return c.json({
+    data: (Data || []).map((cat: any) => ({
+      name: cat.categoryName,
+      keywords: cat.wordsAssociatedWithCategory?.split("|").slice(0, 10),
+    })),
+    source: "cryptocompare",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/research/blockchains ───────────────────────────
+// Available blockchain data (CryptoCompare)
+
+researchRoutes.get("/blockchains", async (c) => {
+  const { Data } = await cc.getBlockchainAvailable();
+
+  return c.json({
+    data: Object.entries(Data || {}).map(([symbol, info]: [string, any]) => ({
+      symbol,
+      id: info.id,
+      dataAvailableFrom: info.data_available_from_ts
+        ? new Date(info.data_available_from_ts * 1000).toISOString()
+        : null,
+    })),
+    source: "cryptocompare",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/research/search ────────────────────────────────
+// Search assets (Messari)
+
+researchRoutes.get("/search", async (c) => {
+  const q = c.req.query("q");
+  if (!q) return c.json({ error: "q parameter required" }, 400);
+  const { data } = await messari.searchAssets(q);
+
+  return c.json({
+    data: (data || []).map((a: any) => ({
+      id: a.id,
+      symbol: a.symbol,
+      name: a.name,
+      slug: a.slug,
+    })),
+    query: q,
+    source: "messari",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/research/asset/:slug/market ────────────────────
+// Real-time asset market data (Messari)
+
+researchRoutes.get("/asset/:slug/market", async (c) => {
+  const slug = c.req.param("slug");
+  const { data } = await messari.getAssetMarketData(slug);
+  const md = data?.market_data;
+
+  return c.json({
+    data: {
+      slug,
+      price: md?.price_usd,
+      volume24h: md?.volume_last_24_hours,
+      realVolume24h: md?.real_volume_last_24_hours,
+      changeHour: md?.percent_change_usd_last_1_hour,
+      change24h: md?.percent_change_usd_last_24_hours,
+      ohlcvHour: md?.ohlcv_last_1_hour,
+      ohlcv24h: md?.ohlcv_last_24_hour,
+    },
+    source: "messari",
+    timestamp: new Date().toISOString(),
+  });
+});

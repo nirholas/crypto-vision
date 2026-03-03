@@ -13,10 +13,10 @@ resource "google_secret_manager_secret" "secrets" {
   depends_on = [google_project_service.apis]
 }
 
-# Auto-populate REDIS_URL with the Memorystore endpoint
+# Auto-populate REDIS_URL with the Memorystore endpoint (including auth string)
 resource "google_secret_manager_secret_version" "redis_url" {
   secret      = google_secret_manager_secret.secrets["REDIS_URL"].id
-  secret_data = "redis://${google_redis_instance.cache.host}:${google_redis_instance.cache.port}"
+  secret_data = "redis://:${google_redis_instance.cache.auth_string}@${google_redis_instance.cache.host}:${google_redis_instance.cache.port}"
 }
 
 # Grant Cloud Run SA access to all secrets

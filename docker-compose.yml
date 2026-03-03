@@ -1,5 +1,4 @@
 # docker-compose.yml — local development with Redis
-version: "3.9"
 
 services:
   redis:
