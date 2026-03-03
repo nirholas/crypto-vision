@@ -9,12 +9,12 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
   resolve: {
     alias: {
-      "@/": path.resolve(__dirname) + "/",
+      "@/": path.resolve(__dirname, "src") + "/",
     },
   },
   test: {
     environment: "node",
-    include: ["tests/**/*.test.ts", "lib/__tests__/**/*.test.ts", "routes/__tests__/**/*.test.ts"],
+    include: ["tests/**/*.test.ts", "src/lib/__tests__/**/*.test.ts", "src/routes/__tests__/**/*.test.ts"],
     exclude: ["node_modules", "dist", "apps", "packages"],
     testTimeout: 10_000,
     hookTimeout: 10_000,
@@ -22,7 +22,7 @@ export default defineConfig({
     sequence: { shuffle: false },
     coverage: {
       provider: "v8",
-      include: ["lib/**/*.ts", "routes/**/*.ts"],
+      include: ["src/lib/**/*.ts", "src/routes/**/*.ts"],
       exclude: ["**/*.test.ts", "**/__tests__/**"],
     },
   },
