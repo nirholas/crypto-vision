@@ -13,3 +13,6 @@ export const logger = pino({
       : undefined,
   base: { service: "crypto-vision" },
 });
+
+/** Alias for convenience — many modules import `{ log }` */
+export const log = logger;

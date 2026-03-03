@@ -1,9 +1,15 @@
 /**
  * Crypto Vision — Cache Layer
  *
- * Two-tier caching:
- *  1. In-memory LRU (instant, per-instance)
+ * Two-tier caching designed for 10M+ users:
+ *  1. In-memory LRU (instant, per-instance, up to 50k entries)
  *  2. Redis (shared across instances, GCP Memorystore in prod)
+ *
+ * Scalability features:
+ *  - Cache stampede protection (single-flight / request coalescing)
+ *  - Stale-while-revalidate: serve stale data while refreshing in background
+ *  - Graceful degradation: memory-only if Redis is down
+ *  - Batch eviction for efficiency under high load
  *
  * Every upstream call goes through cache.wrap() so we never
  * hammer free-tier APIs and stay well within rate limits.
@@ -16,49 +22,47 @@ import { logger } from "./logger.js";
 interface CacheEntry<T> {
   value: T;
   expiresAt: number;
+  /** Soft expiry — serve stale but trigger background refresh */
+  staleAt: number;
 }
 
 class MemoryCache {
   private store = new Map<string, CacheEntry<unknown>>();
   private maxSize: number;
 
-  constructor(maxSize = 5000) {
+  constructor(maxSize = 50_000) {
     this.maxSize = maxSize;
   }
 
-  get<T>(key: string): T | null {
+  get<T>(key: string): { value: T; stale: boolean } | null {
     const entry = this.store.get(key) as CacheEntry<T> | undefined;
     if (!entry) return null;
-    if (Date.now() > entry.expiresAt) {
-      this.store.delete(key);
-      return null;
-    }
-    return entry.value;
+    const now = Date.now();
+    if (now > entry.expiresAt) { this.store.delete(key); return null; }
+    return { value: entry.value, stale: now > entry.staleAt };
   }
 
   set<T>(key: string, value: T, ttlSeconds: number): void {
-    // Evict oldest entries if at capacity
     if (this.store.size >= this.maxSize) {
-      const firstKey = this.store.keys().next().value;
-      if (firstKey) this.store.delete(firstKey);
+      // Batch-evict 10% for amortized efficiency
+      const evictCount = Math.ceil(this.maxSize * 0.1);
+      const iter = this.store.keys();
+      for (let i = 0; i < evictCount; i++) {
+        const k = iter.next().value;
+        if (k) this.store.delete(k);
+      }
     }
+    const now = Date.now();
     this.store.set(key, {
       value,
-      expiresAt: Date.now() + ttlSeconds * 1000,
+      staleAt: now + ttlSeconds * 800,   // stale at 80% TTL
+      expiresAt: now + ttlSeconds * 1000, // hard expire at 100%
     });
   }
 
-  delete(key: string): void {
-    this.store.delete(key);
-  }
-
-  clear(): void {
-    this.store.clear();
-  }
-
-  get size(): number {
-    return this.store.size;
-  }
+  delete(key: string): void { this.store.delete(key); }
+  clear(): void { this.store.clear(); }
+  get size(): number { return this.store.size; }
 }
 
 // ─── Redis (optional — graceful fallback to memory-only) ─────
@@ -76,15 +80,22 @@ async function getRedis() {
       maxRetriesPerRequest: 2,
       connectTimeout: 3000,
       lazyConnect: true,
+      enableReadyCheck: true,
+      enableOfflineQueue: true,
     });
     await redis.connect();
     logger.info("Redis connected");
+    redis.on("error", (err) => logger.warn({ err: err.message }, "Redis error"));
     return redis;
   } catch (err) {
     logger.warn({ err }, "Redis unavailable — memory-only caching");
     return null;
   }
 }
+
+// ─── Single-Flight (Cache Stampede Protection) ───────────────
+
+const inflight = new Map<string, Promise<unknown>>();
 
 // ─── Unified Cache Interface ─────────────────────────────────
 
@@ -95,24 +106,25 @@ export const cache = {
    * Get a value, trying memory first, then Redis.
    */
   async get<T>(key: string): Promise<T | null> {
-    // L1: memory
     const memHit = mem.get<T>(key);
-    if (memHit !== null) return memHit;
+    if (memHit !== null && !memHit.stale) return memHit.value;
 
-    // L2: redis
     const r = await getRedis();
     if (r) {
       try {
         const raw = await r.get(`cv:${key}`);
         if (raw) {
           const parsed = JSON.parse(raw) as T;
-          mem.set(key, parsed, 30); // backfill L1 with short TTL
+          mem.set(key, parsed, 30);
           return parsed;
         }
       } catch {
         // Redis read failure — not critical
       }
     }
+
+    // Return stale memory data as last resort
+    if (memHit !== null) return memHit.value;
     return null;
   },
 
@@ -132,36 +144,71 @@ export const cache = {
   },
 
   /**
-   * Cache-aside wrapper. Returns cached value or calls `fn` and caches result.
+   * Cache-aside wrapper with stampede protection and stale-while-revalidate.
+   *
+   * - Fresh hit → return immediately
+   * - Stale hit → return stale, refresh in background
+   * - Miss → single-flight fetch (1 call even with 10k concurrent requests)
    */
   async wrap<T>(
     key: string,
     ttlSeconds: number,
-    fn: () => Promise<T>
+    fn: () => Promise<T>,
   ): Promise<T> {
-    const cached = await this.get<T>(key);
-    if (cached !== null) return cached;
+    // Check memory for stale-while-revalidate
+    const memHit = mem.get<T>(key);
+    if (memHit !== null && !memHit.stale) return memHit.value;
 
-    const fresh = await fn();
-    await this.set(key, fresh, ttlSeconds);
-    return fresh;
+    if (memHit !== null && memHit.stale) {
+      // Serve stale, refresh in background
+      void this._singleFlight(key, ttlSeconds, fn).catch(() => {});
+      return memHit.value;
+    }
+
+    // Check Redis
+    const r = await getRedis();
+    if (r) {
+      try {
+        const raw = await r.get(`cv:${key}`);
+        if (raw) {
+          const parsed = JSON.parse(raw) as T;
+          mem.set(key, parsed, ttlSeconds);
+          return parsed;
+        }
+      } catch { /* Redis miss */ }
+    }
+
+    // Cold miss — single-flight fetch
+    return this._singleFlight(key, ttlSeconds, fn);
+  },
+
+  /** Deduplicated concurrent fetch for the same cache key. */
+  async _singleFlight<T>(key: string, ttlSeconds: number, fn: () => Promise<T>): Promise<T> {
+    const existing = inflight.get(key) as Promise<T> | undefined;
+    if (existing) return existing;
+
+    const promise = fn()
+      .then(async (result) => { await this.set(key, result, ttlSeconds); return result; })
+      .finally(() => inflight.delete(key));
+
+    inflight.set(key, promise);
+    return promise;
   },
 
   /** Invalidate a key. */
   async del(key: string): Promise<void> {
     mem.delete(key);
     const r = await getRedis();
-    if (r) {
-      try {
-        await r.del(`cv:${key}`);
-      } catch {
-        // noop
-      }
-    }
+    if (r) { try { await r.del(`cv:${key}`); } catch { /* noop */ } }
   },
 
-  /** Memory cache stats for /health. */
+  /** Stats for /health. */
   stats() {
-    return { memoryEntries: mem.size, redisConnected: redis !== null };
+    return {
+      memoryEntries: mem.size,
+      memoryMaxSize: 50_000,
+      redisConnected: redis !== null,
+      inflightRequests: inflight.size,
+    };
   },
 };

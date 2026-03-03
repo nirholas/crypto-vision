@@ -1,9 +1,0 @@
-# These owners will be requested for review when someone opens a pull request.
-
-# Global rule - nirholas owns everything
-* @nirholas
-
-# Specific paths
-/src/ @nirholas
-/docs/ @nirholas
-/.github/ @nirholas

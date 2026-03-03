@@ -11,8 +11,9 @@
  */
 
 import { Hono } from "hono";
-import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
+import { aiComplete } from "../lib/ai.js";
+import { aiQueue } from "../lib/queue.js";
 import * as cg from "../sources/coingecko.js";
 import * as llama from "../sources/defillama.js";
 import * as alt from "../sources/alternative.js";
@@ -20,79 +21,8 @@ import { log } from "../lib/logger.js";
 
 export const aiRoutes = new Hono();
 
-// ─── LLM Config ──────────────────────────────────────────────
-
-const GEMINI_KEY = () => process.env.GEMINI_API_KEY || "";
-const OPENAI_KEY = () => process.env.OPENAI_API_KEY || "";
-
-interface LLMResponse {
-  text: string;
-  model: string;
-  tokensUsed?: number;
-}
-
-/**
- * Simple LLM call abstraction. Prefers Gemini (free tier available),
- * falls back to OpenAI.
- */
-async function llmComplete(prompt: string, maxTokens = 1024): Promise<LLMResponse> {
-  if (GEMINI_KEY()) {
-    return callGemini(prompt, maxTokens);
-  }
-  if (OPENAI_KEY()) {
-    return callOpenAI(prompt, maxTokens);
-  }
-  throw new Error("No LLM API key configured. Set GEMINI_API_KEY or OPENAI_API_KEY.");
-}
-
-async function callGemini(prompt: string, maxTokens: number): Promise<LLMResponse> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY()}`;
-
-  const res = await fetchJSON<any>(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: maxTokens, temperature: 0.3 },
-    }),
-  });
-
-  const text = res.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  return {
-    text,
-    model: "gemini-2.0-flash",
-    tokensUsed: res.usageMetadata?.totalTokenCount,
-  };
-}
-
-async function callOpenAI(prompt: string, maxTokens: number): Promise<LLMResponse> {
-  const res = await fetchJSON<any>("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_KEY()}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a crypto market analyst. Provide concise, data-backed analysis. Always include specific numbers. Respond in JSON when asked.",
-        },
-        { role: "user", content: prompt },
-      ],
-      max_tokens: maxTokens,
-      temperature: 0.3,
-    }),
-  });
-
-  return {
-    text: res.choices?.[0]?.message?.content || "",
-    model: res.model || "gpt-4o-mini",
-    tokensUsed: res.usage?.total_tokens,
-  };
-}
+const SYSTEM_PROMPT =
+  "You are a crypto market analyst. Provide concise, data-backed analysis. Always include specific numbers. Respond in JSON when asked.";
 
 // ─── GET /api/ai/sentiment/:coin ─────────────────────────────
 
@@ -139,12 +69,13 @@ Respond in JSON with this exact structure:
   }
 
   try {
-    const { text, model, tokensUsed } = await llmComplete(prompt);
-    // Extract JSON from response
+    const { text, model, tokensUsed } = await aiQueue.execute(() =>
+      aiComplete(SYSTEM_PROMPT, prompt, { temperature: 0.3 })
+    );
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : { raw: text };
 
-    await cache.set(`ai:sentiment:${coinId}`, JSON.stringify(parsed), 300); // 5min cache
+    await cache.set(`ai:sentiment:${coinId}`, JSON.stringify(parsed), 300);
 
     return c.json({
       data: parsed,
@@ -153,6 +84,7 @@ Respond in JSON with this exact structure:
       timestamp: new Date().toISOString(),
     });
   } catch (err: any) {
+    if (err.name === "QueueFullError") return c.json({ error: "Service busy", retryAfter: 5 }, 503);
     log.error({ err }, "AI sentiment failed");
     return c.json({ error: err.message }, 500);
   }
@@ -199,11 +131,13 @@ Respond in JSON:
 }`;
 
   try {
-    const { text, model, tokensUsed } = await llmComplete(prompt, 1500);
+    const { text, model, tokensUsed } = await aiQueue.execute(() =>
+      aiComplete(SYSTEM_PROMPT, prompt, { maxTokens: 1500, temperature: 0.3 })
+    );
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : { raw: text };
 
-    await cache.set("ai:digest", JSON.stringify(parsed), 900); // 15min cache
+    await cache.set("ai:digest", JSON.stringify(parsed), 900);
 
     return c.json({
       data: parsed,
@@ -212,6 +146,7 @@ Respond in JSON:
       timestamp: new Date().toISOString(),
     });
   } catch (err: any) {
+    if (err.name === "QueueFullError") return c.json({ error: "Service busy", retryAfter: 5 }, 503);
     log.error({ err }, "AI digest failed");
     return c.json({ error: err.message }, 500);
   }
@@ -270,11 +205,13 @@ Respond in JSON:
 }`;
 
   try {
-    const { text, model, tokensUsed } = await llmComplete(prompt, 1500);
+    const { text, model, tokensUsed } = await aiQueue.execute(() =>
+      aiComplete(SYSTEM_PROMPT, prompt, { maxTokens: 1500, temperature: 0.3 })
+    );
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : { raw: text };
 
-    await cache.set("ai:signals", JSON.stringify(parsed), 600); // 10min cache
+    await cache.set("ai:signals", JSON.stringify(parsed), 600);
 
     return c.json({
       data: parsed,
@@ -283,6 +220,7 @@ Respond in JSON:
       timestamp: new Date().toISOString(),
     });
   } catch (err: any) {
+    if (err.name === "QueueFullError") return c.json({ error: "Service busy", retryAfter: 5 }, 503);
     log.error({ err }, "AI signals failed");
     return c.json({ error: err.message }, 500);
   }
@@ -306,16 +244,19 @@ aiRoutes.post("/ask", async (c) => {
     ? `\nLive market: Cap $${(global.data.total_market_cap.usd / 1e12).toFixed(2)}T, BTC dom ${global.data.market_cap_percentage.btc.toFixed(1)}%, 24h change ${global.data.market_cap_change_percentage_24h_usd.toFixed(2)}%, Fear&Greed ${fearGreed.data[0]?.value || "N/A"}`
     : "";
 
-  const prompt = `You are Crypto Vision AI, an expert crypto market analyst.
+  const askSystemPrompt = `You are Crypto Vision AI, an expert crypto market analyst.
 Answer the following question using current data and your knowledge.
-Be concise, specific, and data-driven. If you're uncertain, say so.
-${marketContext}
+Be concise, specific, and data-driven. If you're uncertain, say so.`;
+
+  const userPrompt = `${marketContext}
 ${body.context ? `\nAdditional context: ${body.context}` : ""}
 
 Question: ${body.question}`;
 
   try {
-    const { text, model, tokensUsed } = await llmComplete(prompt, 2048);
+    const { text, model, tokensUsed } = await aiQueue.execute(() =>
+      aiComplete(askSystemPrompt, userPrompt, { maxTokens: 2048, temperature: 0.3 })
+    );
 
     return c.json({
       data: { answer: text },
@@ -324,6 +265,7 @@ Question: ${body.question}`;
       timestamp: new Date().toISOString(),
     });
   } catch (err: any) {
+    if (err.name === "QueueFullError") return c.json({ error: "Service busy", retryAfter: 5 }, 503);
     log.error({ err }, "AI ask failed");
     return c.json({ error: err.message }, 500);
   }

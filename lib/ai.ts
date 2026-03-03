@@ -9,7 +9,7 @@
  * @see https://github.com/nirholas/free-crypto-news
  */
 
-import { fetchJSON } from "./fetcher.js";
+import { fetchJSON, type FetchOptions } from "./fetcher.js";
 import { cache } from "./cache.js";
 import { log } from "./logger.js";
 
@@ -26,7 +26,7 @@ interface AIProvider {
     userPrompt: string,
     maxTokens: number,
     temperature: number,
-  ) => { url: string; init: RequestInit };
+  ) => { url: string; init: FetchOptions };
   extractText: (response: any) => string;
   extractUsage: (response: any) => number | undefined;
 }
@@ -43,10 +43,9 @@ const PROVIDERS: AIProvider[] = [
       init: {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${key}`,
         },
-        body: JSON.stringify({
+        body: {
           model: "llama-3.3-70b-versatile",
           messages: [
             { role: "system", content: system },
@@ -55,7 +54,7 @@ const PROVIDERS: AIProvider[] = [
           max_tokens: maxTokens,
           temperature,
           response_format: { type: "json_object" },
-        }),
+        },
       },
     }),
     extractText: (r) => r.choices?.[0]?.message?.content || "",
@@ -72,14 +71,13 @@ const PROVIDERS: AIProvider[] = [
       url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,
       init: {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           contents: [{ parts: [{ text: `${system}\n\n${user}` }] }],
           generationConfig: {
             maxOutputTokens: maxTokens,
             temperature,
           },
-        }),
+        },
       },
     }),
     extractText: (r) => r.candidates?.[0]?.content?.parts?.[0]?.text || "",
@@ -97,10 +95,9 @@ const PROVIDERS: AIProvider[] = [
       init: {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${key}`,
         },
-        body: JSON.stringify({
+        body: {
           model: "gpt-4o-mini",
           messages: [
             {
@@ -111,7 +108,7 @@ const PROVIDERS: AIProvider[] = [
           ],
           max_tokens: maxTokens,
           temperature,
-        }),
+        },
       },
     }),
     extractText: (r) => r.choices?.[0]?.message?.content || "",
@@ -129,17 +126,16 @@ const PROVIDERS: AIProvider[] = [
       init: {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           "x-api-key": key,
           "anthropic-version": "2023-06-01",
         },
-        body: JSON.stringify({
+        body: {
           model: "claude-3-5-haiku-latest",
           max_tokens: maxTokens,
           temperature,
           system,
           messages: [{ role: "user", content: user }],
-        }),
+        },
       },
     }),
     extractText: (r) =>
@@ -159,12 +155,11 @@ const PROVIDERS: AIProvider[] = [
       init: {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${key}`,
           "HTTP-Referer": "https://cryptocurrency.cv",
           "X-Title": "Crypto Vision",
         },
-        body: JSON.stringify({
+        body: {
           model: "meta-llama/llama-3.3-70b-instruct",
           messages: [
             { role: "system", content: system },
@@ -172,7 +167,7 @@ const PROVIDERS: AIProvider[] = [
           ],
           max_tokens: maxTokens,
           temperature,
-        }),
+        },
       },
     }),
     extractText: (r) => r.choices?.[0]?.message?.content || "",

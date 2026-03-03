@@ -1,9 +1,8 @@
 /**
- * Crypto Vision — News Routes (proxy to existing cryptocurrency.cv news API)
+ * Crypto Vision — News Routes (native RSS aggregation)
  *
- * These routes proxy to the existing free-crypto-news deployment
- * while this service is being built up. Eventually the news
- * aggregation will run natively here.
+ * Uses sources/crypto-news.ts for local RSS feed aggregation
+ * instead of proxying to an external API.
  *
  * GET /api/news             — Latest news
  * GET /api/news/search      — Search news
@@ -15,91 +14,106 @@
  */
 
 import { Hono } from "hono";
-import { fetchJSON } from "../lib/fetcher.js";
-import { cache } from "../lib/cache.js";
+import { ApiError } from "../lib/api-error.js";
+import { log } from "../lib/logger.js";
+import {
+  getNews,
+  searchNews,
+  getBreakingNews,
+  getTrending,
+  getSources,
+} from "../sources/crypto-news.js";
 
 export const newsRoutes = new Hono();
-
-/**
- * Upstream news API base.
- * Currently points to the existing free-crypto-news deployment.
- * Will be replaced with native aggregation.
- */
-const NEWS_UPSTREAM = process.env.NEWS_API_URL || "https://cryptocurrency.cv";
-
-async function proxyNews<T>(path: string, ttl: number): Promise<T> {
-  return cache.wrap(`news:${path}`, ttl, () =>
-    fetchJSON<T>(`${NEWS_UPSTREAM}${path}`)
-  );
-}
 
 // ─── GET /api/news ───────────────────────────────────────────
 
 newsRoutes.get("/", async (c) => {
-  const limit = Math.min(Number(c.req.query("limit") || 20), 100);
-  const source = c.req.query("source") || "";
-  const category = c.req.query("category") || "";
-  const page = c.req.query("page") || "1";
+  try {
+    const limit = Math.min(Number(c.req.query("limit") || 20), 100);
+    const source = c.req.query("source") || undefined;
+    const category = c.req.query("category") || undefined;
+    const page = Number(c.req.query("page") || 1);
 
-  const params = new URLSearchParams({ limit: String(limit), page });
-  if (source) params.set("source", source);
-  if (category) params.set("category", category);
-
-  const data = await proxyNews(`/api/news?${params}`, 60);
-  return c.json(data);
+    const data = await getNews({ limit, source, category, page });
+    return c.json(data);
+  } catch (err: any) {
+    log.error({ err: err.message }, "Failed to fetch news");
+    return ApiError.internal(c, "Failed to fetch news", err.message);
+  }
 });
 
 // ─── GET /api/news/search ────────────────────────────────────
 
 newsRoutes.get("/search", async (c) => {
   const q = c.req.query("q");
-  if (!q) return c.json({ error: "q parameter required" }, 400);
+  if (!q) return ApiError.missingParam(c, "q");
 
-  const limit = Math.min(Number(c.req.query("limit") || 20), 100);
-  const params = new URLSearchParams({
-    q,
-    limit: String(limit),
-  });
-
-  const data = await proxyNews(`/api/search?${params}`, 60);
-  return c.json(data);
+  try {
+    const limit = Math.min(Number(c.req.query("limit") || 20), 100);
+    const data = await searchNews(q, limit);
+    return c.json(data);
+  } catch (err: any) {
+    log.error({ err: err.message }, "Failed to search news");
+    return ApiError.internal(c, "Failed to search news", err.message);
+  }
 });
 
 // ─── GET /api/news/bitcoin ───────────────────────────────────
 
 newsRoutes.get("/bitcoin", async (c) => {
-  const limit = Math.min(Number(c.req.query("limit") || 20), 50);
-  const data = await proxyNews(`/api/bitcoin?limit=${limit}`, 60);
-  return c.json(data);
+  try {
+    const limit = Math.min(Number(c.req.query("limit") || 20), 50);
+    const data = await getNews({ limit, category: "bitcoin" });
+    return c.json(data);
+  } catch (err: any) {
+    log.error({ err: err.message }, "Failed to fetch bitcoin news");
+    return ApiError.internal(c, "Failed to fetch bitcoin news", err.message);
+  }
 });
 
 // ─── GET /api/news/defi ──────────────────────────────────────
 
 newsRoutes.get("/defi", async (c) => {
-  const limit = Math.min(Number(c.req.query("limit") || 20), 50);
-  const data = await proxyNews(`/api/defi?limit=${limit}`, 60);
-  return c.json(data);
+  try {
+    const limit = Math.min(Number(c.req.query("limit") || 20), 50);
+    const data = await getNews({ limit, category: "defi" });
+    return c.json(data);
+  } catch (err: any) {
+    log.error({ err: err.message }, "Failed to fetch defi news");
+    return ApiError.internal(c, "Failed to fetch defi news", err.message);
+  }
 });
 
 // ─── GET /api/news/breaking ──────────────────────────────────
 
 newsRoutes.get("/breaking", async (c) => {
-  const limit = Math.min(Number(c.req.query("limit") || 10), 50);
-  const data = await proxyNews(`/api/breaking?limit=${limit}`, 30); // 30s cache for breaking
-  return c.json(data);
+  try {
+    const limit = Math.min(Number(c.req.query("limit") || 10), 50);
+    const data = await getBreakingNews(limit);
+    return c.json(data);
+  } catch (err: any) {
+    log.error({ err: err.message }, "Failed to fetch breaking news");
+    return ApiError.internal(c, "Failed to fetch breaking news", err.message);
+  }
 });
 
 // ─── GET /api/news/trending ──────────────────────────────────
 
 newsRoutes.get("/trending", async (c) => {
-  const limit = Math.min(Number(c.req.query("limit") || 10), 30);
-  const data = await proxyNews(`/api/trending?limit=${limit}`, 120);
-  return c.json(data);
+  try {
+    const limit = Math.min(Number(c.req.query("limit") || 10), 30);
+    const data = await getTrending(limit);
+    return c.json(data);
+  } catch (err: any) {
+    log.error({ err: err.message }, "Failed to fetch trending topics");
+    return ApiError.internal(c, "Failed to fetch trending topics", err.message);
+  }
 });
 
 // ─── GET /api/news/sources ───────────────────────────────────
 
-newsRoutes.get("/sources", async (c) => {
-  const data = await proxyNews("/api/sources", 3600); // 1hr cache
+newsRoutes.get("/sources", (c) => {
+  const data = getSources();
   return c.json(data);
 });

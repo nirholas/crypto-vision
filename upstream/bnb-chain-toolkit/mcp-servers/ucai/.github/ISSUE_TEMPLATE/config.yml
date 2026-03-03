@@ -1,8 +1,0 @@
-blank_issues_enabled: false
-contact_links:
-  - name: Documentation
-    url: https://ucai.tech
-    about: Check the documentation for guides and API reference
-  - name: Discussions
-    url: https://github.com/nirholas/UCAI/discussions
-    about: Ask questions and share ideas

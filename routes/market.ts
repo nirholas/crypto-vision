@@ -1,17 +1,30 @@
 /**
  * Crypto Vision — Market Data Routes
  *
- * GET /api/coins          — Top coins by market cap
- * GET /api/coin/:id       — Coin detail
- * GET /api/price          — Simple price lookup
- * GET /api/trending       — Trending coins
- * GET /api/global         — Global market stats
- * GET /api/search         — Search coins
- * GET /api/chart/:id      — Price chart data
- * GET /api/ohlc/:id       — OHLC candles
- * GET /api/exchanges      — Exchange rankings
- * GET /api/categories     — Market categories
- * GET /api/fear-greed     — Fear & Greed Index
+ * GET /api/coins              — Top coins by market cap
+ * GET /api/coin/:id           — Coin detail
+ * GET /api/price              — Simple price lookup
+ * GET /api/trending           — Trending coins
+ * GET /api/global             — Global market stats
+ * GET /api/search             — Search coins
+ * GET /api/chart/:id          — Price chart data
+ * GET /api/ohlc/:id           — OHLC candles
+ * GET /api/exchanges          — Exchange rankings
+ * GET /api/categories         — Market categories
+ * GET /api/fear-greed         — Fear & Greed Index
+ * GET /api/dex/search         — DEX pair search
+ * GET /api/dex/token/:address — DEX pairs by token address
+ * GET /api/gainers            — Top 24h gainers
+ * GET /api/losers             — Top 24h losers
+ * GET /api/high-volume        — Highest volume coins
+ * GET /api/ath-distance       — Coins ranked by distance from ATH
+ * GET /api/compare            — Compare multiple coins side-by-side
+ * GET /api/dominance          — Dominance chart (BTC, ETH, etc.)
+ * GET /api/paprika/global     — CoinPaprika global market data
+ * GET /api/paprika/tickers    — CoinPaprika tickers
+ * GET /api/coincap/assets     — CoinCap asset rankings
+ * GET /api/coincap/history/:id — CoinCap price history
+ * GET /api/market-overview    — Combined multi-source market overview
  */
 
 import { Hono } from "hono";

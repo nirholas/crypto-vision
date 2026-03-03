@@ -1,6 +1,0 @@
-#pragma version 8
-
-// Clear program
-// Always approve clear state
-int 1
-return

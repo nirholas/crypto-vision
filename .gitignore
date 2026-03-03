@@ -4,7 +4,7 @@ dist
 .env
 .env.local
 .env.production
-upstream
+upstream/
 .DS_Store
 coverage
 .vscode

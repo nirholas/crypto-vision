@@ -1,9 +1,0 @@
-# crypto-market-data-ts
-
-> Comprehensive cryptocurrency market data service with CoinGecko, DeFiLlama, and Fear & Greed Index. Built-in caching, rate limiting, and Edge Runtime compatibility.
-
-## Links
-
-- Repository: https://github.com/nirholas/crypto-market-data-ts
-- Author: https://github.com/nirholas
-- Full documentation: https://raw.githubusercontent.com/nirholas/crypto-market-data-ts/main/llms-full.txt
