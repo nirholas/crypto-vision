@@ -5,7 +5,7 @@
  * { retCode: 0, retMsg: "OK", result: T } envelopes.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../../lib/fetcher.js", () => ({ fetchJSON: vi.fn() }));
 vi.mock("../../lib/cache.js", () => ({
@@ -14,18 +14,18 @@ vi.mock("../../lib/cache.js", () => ({
 
 import { fetchJSON } from "../../lib/fetcher.js";
 import {
-  getTickers,
-  getTicker,
-  getKlines,
-  getOrderBook,
-  getRecentTrades,
   getFundingRate,
-  getOpenInterest,
+  getHistoricalVolatility,
   getInstruments,
   getInsuranceFund,
-  getRiskLimits,
+  getKlines,
   getLongShortRatio,
-  getHistoricalVolatility,
+  getOpenInterest,
+  getOrderBook,
+  getRecentTrades,
+  getRiskLimits,
+  getTicker,
+  getTickers,
 } from "../bybit.js";
 
 const mockFetch = fetchJSON as ReturnType<typeof vi.fn>;

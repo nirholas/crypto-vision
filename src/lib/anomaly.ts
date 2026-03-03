@@ -13,8 +13,8 @@
  * - Handler registry for WebSocket broadcast, BigQuery logging, etc.
  */
 
-import { log } from "./logger.js";
 import { cache } from "./cache.js";
+import { log } from "./logger.js";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -460,4 +460,5 @@ class AnomalyEngine {
 export const anomalyEngine = new AnomalyEngine();
 
 // Export internals for testing and route introspection
-export { SlidingWindow, DETECTOR_CONFIGS };
+export { DETECTOR_CONFIGS, SlidingWindow };
+

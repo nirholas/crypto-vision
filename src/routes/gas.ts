@@ -9,8 +9,8 @@
  */
 
 import { Hono } from "hono";
-import * as evm from "../sources/evm.js";
 import { processGas } from "../lib/anomaly-processors.js";
+import * as evm from "../sources/evm.js";
 
 export const gasRoutes = new Hono();
 

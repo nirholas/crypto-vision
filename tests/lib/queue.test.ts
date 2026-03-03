@@ -5,7 +5,7 @@
  * queue full rejection, and metrics tracking.
  */
 
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { QueueFullError, RequestQueue } from "../../src/lib/queue.js";
 
 function delay(ms: number): Promise<void> {

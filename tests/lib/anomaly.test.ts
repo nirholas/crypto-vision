@@ -5,8 +5,8 @@
  * minimum data-point requirements, directional filtering, and handler dispatch.
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { anomalyEngine, SlidingWindow, DETECTOR_CONFIGS, type AnomalyEvent } from "../../src/lib/anomaly.js";
+import { beforeEach, describe, expect, it } from "vitest";
+import { anomalyEngine, DETECTOR_CONFIGS, SlidingWindow, type AnomalyEvent } from "../../src/lib/anomaly.js";
 
 // ─── SlidingWindow ───────────────────────────────────────────
 

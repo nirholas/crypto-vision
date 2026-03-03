@@ -8,7 +8,7 @@
  * All AI / BigQuery calls are mocked — no live API traffic.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ─── Mock dependencies BEFORE importing routes ──────────────
 
@@ -97,9 +97,9 @@ vi.mock("@/lib/vector-store.js", () => ({
   },
 }));
 
-import { Hono } from "hono";
-import { agentsRoutes } from "@/routes/agents.js";
 import { aiComplete } from "@/lib/ai.js";
+import { agentsRoutes } from "@/routes/agents.js";
+import { Hono } from "hono";
 
 const app = new Hono();
 app.route("/api/agents", agentsRoutes);

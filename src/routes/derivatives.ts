@@ -12,8 +12,8 @@
  */
 
 import { Hono } from "hono";
-import * as glass from "../sources/coinglass.js";
 import { processDerivatives } from "../lib/anomaly-processors.js";
+import * as glass from "../sources/coinglass.js";
 
 export const derivativesRoutes = new Hono();
 

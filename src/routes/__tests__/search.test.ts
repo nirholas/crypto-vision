@@ -6,8 +6,8 @@
  * response format, status codes, and query parameter handling.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Hono } from "hono";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ─── Mock dependencies BEFORE route import ───────────────────
 
@@ -42,10 +42,10 @@ vi.mock("../../lib/logger.js", () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 }));
 
-import { smartSearch } from "../../lib/search.js";
+import { cache } from "../../lib/cache.js";
 import { ragQuery } from "../../lib/rag.js";
 import { logSearch } from "../../lib/search-analytics.js";
-import { cache } from "../../lib/cache.js";
+import { smartSearch } from "../../lib/search.js";
 import { searchRoutes } from "../search.js";
 
 // ─── App Setup ───────────────────────────────────────────────

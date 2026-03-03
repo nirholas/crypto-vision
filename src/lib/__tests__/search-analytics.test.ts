@@ -5,7 +5,7 @@
  * and click-through tracking.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ─── Mock BigQuery ───────────────────────────────────────────
 
@@ -18,8 +18,8 @@ vi.mock("../logger.js", () => ({
   logger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
 
-import { logSearch, logSearchClick } from "../search-analytics.js";
 import { insertRows } from "../bigquery.js";
+import { logSearch, logSearchClick } from "../search-analytics.js";
 
 beforeEach(() => {
   vi.clearAllMocks();

@@ -13,17 +13,16 @@
  */
 
 import { Hono } from "hono";
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { aiComplete, isAIConfigured, getConfiguredProviders } from "../lib/ai.js";
-import { cache } from "../lib/cache.js";
-import { aiQueue, QueueFullError } from "../lib/queue.js";
-import { log } from "../lib/logger.js";
+import { aiComplete, getConfiguredProviders, isAIConfigured } from "../lib/ai.js";
 import { ApiError } from "../lib/api-error.js";
+import { log } from "../lib/logger.js";
+import { aiQueue, QueueFullError } from "../lib/queue.js";
+import { AgentMultiSchema, AgentRunSchema, OrchestrateSchema, validateBody } from "../lib/validation.js";
+import * as alt from "../sources/alternative.js";
 import * as cg from "../sources/coingecko.js";
 import * as llama from "../sources/defillama.js";
-import * as alt from "../sources/alternative.js";
-import { AgentRunSchema, AgentMultiSchema, OrchestrateSchema, validateBody } from "../lib/validation.js";
 
 export const agentsRoutes = new Hono();
 
@@ -141,15 +140,15 @@ function getEnricherForAgent(agentId: string): DataEnricher | null {
 
   // Market/trading agents
   if (id.includes("whale") || id.includes("narrative") || id.includes("alpha") ||
-      id.includes("portfolio") || id.includes("pump")) {
+    id.includes("portfolio") || id.includes("pump")) {
     return DATA_ENRICHERS.market;
   }
 
   // DeFi agents
   if (id.includes("defi") || id.includes("yield") || id.includes("liquidity") ||
-      id.includes("protocol") || id.includes("dex") || id.includes("apy") ||
-      id.includes("impermanent") || id.includes("liquidation") ||
-      id.includes("governance") || id.includes("staking")) {
+    id.includes("protocol") || id.includes("dex") || id.includes("apy") ||
+    id.includes("impermanent") || id.includes("liquidation") ||
+    id.includes("governance") || id.includes("staking")) {
     return DATA_ENRICHERS.defi;
   }
 

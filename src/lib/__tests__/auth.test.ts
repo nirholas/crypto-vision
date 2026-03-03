@@ -49,6 +49,7 @@ import {
   trackUsage,
   type ApiTier,
   type KeyEntry,
+  type TierConfig,
 } from "@/lib/auth.js";
 
 /** Cast Response.json() to a typed record for test assertions. */

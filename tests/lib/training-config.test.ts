@@ -5,19 +5,16 @@
  * hyperparameters, and infrastructure config.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  MODELS,
-  LORA_CONFIG,
-  TRAINING_HYPERPARAMS,
   EVALUATION_CONFIG,
-  INFRA_CONFIG,
   GPU_PRICING,
   HOSTING_OPTIONS,
+  INFRA_CONFIG,
+  LORA_CONFIG,
+  MODELS,
   TRAINING_CONFIG,
-  type ModelConfig,
-  type LoRAConfig,
-  type TrainingHyperparams,
+  TRAINING_HYPERPARAMS
 } from "../../../scripts/training/opensource/config.js";
 
 describe("Model Configurations", () => {

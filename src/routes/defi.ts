@@ -14,8 +14,8 @@
  */
 
 import { Hono } from "hono";
+import { processTVL } from "../lib/anomaly-processors.js";
 import * as llama from "../sources/defillama.js";
-import { processTVL, processStablecoinPrice } from "../lib/anomaly-processors.js";
 
 export const defiRoutes = new Hono();
 

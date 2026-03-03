@@ -8,7 +8,7 @@
  * code path which is the behavior when REDIS_URL is unset.
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 // We need to set env vars BEFORE importing auth, so we do dynamic imports.
 // This ensures loadKeysFromEnv sees the right values.

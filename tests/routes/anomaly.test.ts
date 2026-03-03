@@ -9,7 +9,7 @@
  * - GET /api/anomalies/stream   — SSE stream (verifies connection setup)
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock WebSocket and BigQuery to prevent side effects from anomaly-processors
 vi.mock("@/lib/ws.js", () => ({
@@ -26,9 +26,9 @@ vi.mock("@/lib/cache.js", () => ({
   },
 }));
 
-import { Hono } from "hono";
-import { anomalyRoutes } from "@/routes/anomaly.js";
 import { anomalyEngine } from "@/lib/anomaly.js";
+import { anomalyRoutes } from "@/routes/anomaly.js";
+import { Hono } from "hono";
 
 const app = new Hono();
 app.route("/api/anomalies", anomalyRoutes);

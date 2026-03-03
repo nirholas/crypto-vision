@@ -41,7 +41,6 @@
 
 import { Hono } from "hono";
 import * as whales from "../sources/whales.js";
-import { ApiError } from "../lib/api-error.js";
 
 export const whaleRoutes = new Hono();
 

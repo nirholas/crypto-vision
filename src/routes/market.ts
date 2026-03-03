@@ -28,14 +28,14 @@
  */
 
 import { Hono } from "hono";
-import * as cg from "../sources/coingecko.js";
-import * as alt from "../sources/alternative.js";
-import * as coinlore from "../sources/coinlore.js";
+import { processPrice } from "../lib/anomaly-processors.js";
 import { ApiError } from "../lib/api-error.js";
 import { tryMultipleSources } from "../lib/fallback.js";
-import { processPrice } from "../lib/anomaly-processors.js";
-import { validateQueries, validateParam, CoinIdSchema, NumericIdSchema, ChainSlugSchema, HexAddressSchema } from "../lib/validation.js";
-import { MarketCoinsQuerySchema, MarketPriceQuerySchema, MarketSearchQuerySchema, MarketChartQuerySchema, MarketOhlcQuerySchema, MarketFearGreedQuerySchema, MarketGainersLosersQuerySchema, MarketHighVolumeQuerySchema, MarketAthDistanceQuerySchema, MarketCompareQuerySchema, MarketPaprikaTickersQuerySchema, MarketCoincapAssetsQuerySchema, MarketCoincapHistoryQuerySchema, MarketCoinloreTickersQuerySchema, MarketRatesQuerySchema, MarketMarketsQuerySchema } from "../lib/route-schemas.js";
+import { MarketAthDistanceQuerySchema, MarketChartQuerySchema, MarketCoincapAssetsQuerySchema, MarketCoincapHistoryQuerySchema, MarketCoinloreTickersQuerySchema, MarketCoinsQuerySchema, MarketCompareQuerySchema, MarketFearGreedQuerySchema, MarketGainersLosersQuerySchema, MarketHighVolumeQuerySchema, MarketMarketsQuerySchema, MarketOhlcQuerySchema, MarketPaprikaTickersQuerySchema, MarketPriceQuerySchema, MarketRatesQuerySchema, MarketSearchQuerySchema } from "../lib/route-schemas.js";
+import { ChainSlugSchema, CoinIdSchema, HexAddressSchema, NumericIdSchema, validateParam, validateQueries } from "../lib/validation.js";
+import * as alt from "../sources/alternative.js";
+import * as cg from "../sources/coingecko.js";
+import * as coinlore from "../sources/coinlore.js";
 
 export const marketRoutes = new Hono();
 
@@ -773,13 +773,13 @@ marketRoutes.get("/market-overview", async (c) => {
     data: {
       global: cgGlobal
         ? {
-            totalMarketCap: cgGlobal.data.total_market_cap.usd,
-            totalVolume24h: cgGlobal.data.total_volume.usd,
-            btcDominance: cgGlobal.data.market_cap_percentage.btc,
-            ethDominance: cgGlobal.data.market_cap_percentage.eth,
-            marketCapChange24h: cgGlobal.data.market_cap_change_percentage_24h_usd,
-            activeCryptocurrencies: cgGlobal.data.active_cryptocurrencies,
-          }
+          totalMarketCap: cgGlobal.data.total_market_cap.usd,
+          totalVolume24h: cgGlobal.data.total_volume.usd,
+          btcDominance: cgGlobal.data.market_cap_percentage.btc,
+          ethDominance: cgGlobal.data.market_cap_percentage.eth,
+          marketCapChange24h: cgGlobal.data.market_cap_change_percentage_24h_usd,
+          activeCryptocurrencies: cgGlobal.data.active_cryptocurrencies,
+        }
         : null,
       fearGreed: fg
         ? { value: Number(fg.value), classification: fg.value_classification }
@@ -799,10 +799,10 @@ marketRoutes.get("/market-overview", async (c) => {
       })),
       crossSourceValidation: paprikaGlobal
         ? {
-            coinpaprikaMarketCap: paprikaGlobal.market_cap_usd,
-            coinpaprikaVolume: paprikaGlobal.volume_24h_usd,
-            coinpaprikaBtcDom: paprikaGlobal.bitcoin_dominance_percentage,
-          }
+          coinpaprikaMarketCap: paprikaGlobal.market_cap_usd,
+          coinpaprikaVolume: paprikaGlobal.volume_24h_usd,
+          coinpaprikaBtcDom: paprikaGlobal.bitcoin_dominance_percentage,
+        }
         : null,
     },
     timestamp: new Date().toISOString(),
