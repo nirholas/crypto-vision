@@ -47,6 +47,10 @@ export const AskBodySchema = z.object({
     .min(1, "question is required")
     .max(2000, "question too long (max 2000 chars)"),
   context: z.string().max(4000).optional(),
+  /** Enable RAG-enhanced answers (default: true) */
+  useRag: z.boolean().optional().default(true),
+  /** Filter RAG results by category (news, protocol, agent, governance) */
+  ragCategory: z.enum(["news", "protocol", "agent", "governance"]).optional(),
 });
 
 export const AgentRunSchema = z.object({

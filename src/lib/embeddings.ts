@@ -90,7 +90,7 @@ class VertexAIEmbeddingProvider implements EmbeddingProvider {
         const values =
           prediction.structValue?.fields?.embeddings?.structValue?.fields?.values
             ?.listValue?.values;
-        const embedding = values?.map((v: { numberValue?: number }) => v.numberValue ?? 0) ?? [];
+        const embedding = values?.map((v) => (v.numberValue ?? 0) as number) ?? [];
         results.push(embedding);
       }
 
