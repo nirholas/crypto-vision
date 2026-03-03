@@ -4,7 +4,7 @@
 # Usage: pip install -r requirements.txt
 
 # Core ML framework
-torch==2.4.0
+torch==2.8.0
 
 # HuggingFace ecosystem
 transformers==4.44.0
