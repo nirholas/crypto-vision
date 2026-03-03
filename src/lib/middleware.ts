@@ -8,10 +8,17 @@
  */
 
 import type { Context, MiddlewareHandler } from "hono";
-import { logger } from "./logger.js";
 import { apiError, AppError } from "./api-error.js";
-import type { ErrorCode } from "./api-error.js";
 import { FetchError } from "./fetcher.js";
+import { logger } from "./logger.js";
+
+// ─── Hono Context Augmentation ───────────────────────────────
+
+declare module "hono" {
+  interface ContextVariableMap {
+    abortSignal: AbortSignal;
+  }
+}
 
 // ─── Request Logger ──────────────────────────────────────────
 

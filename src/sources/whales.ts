@@ -13,6 +13,7 @@
 
 import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
+import { ingestWhaleMovements } from "../lib/bq-ingest.js";
 
 // ─── Blockchair ──────────────────────────────────────────────
 
@@ -46,12 +47,27 @@ export function getChainStats(chain = "bitcoin"): Promise<BlockchairStatsRespons
 /**
  * Recent large BTC transactions (> threshold BTC) via Blockchair.
  */
-export function getLatestBTCTransactions(limit = 25): Promise<unknown> {
-  return cache.wrap(`whale:btc:latest:${limit}`, 60, () =>
+export async function getLatestBTCTransactions(limit = 25): Promise<unknown> {
+  const data = await cache.wrap(`whale:btc:latest:${limit}`, 60, () =>
     fetchJSON(
       `${BLOCKCHAIR}/bitcoin/transactions${blockchairParams()}${blockchairParams() ? "&" : "?"}limit=${limit}&s=output_total(desc)`,
     ),
   );
+  // Fire-and-forget: attempt BQ ingest for whale movements
+  const txData = data as Record<string, unknown>;
+  if (Array.isArray(txData.data)) {
+    ingestWhaleMovements(
+      (txData.data as Array<Record<string, unknown>>).map(tx => ({
+        tx_hash: tx.hash,
+        chain: "bitcoin",
+        amount: tx.output_total,
+        usd_value: tx.output_total_usd,
+        block_number: tx.block_id,
+        movement_type: "whale_transfer",
+      })),
+    );
+  }
+  return data;
 }
 
 /**

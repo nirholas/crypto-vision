@@ -18,7 +18,7 @@
 
 import { BigQuery } from "@google-cloud/bigquery";
 import { Storage } from "@google-cloud/storage";
-import { readFile, readdir, stat } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { log } from "./logger.js";
 
@@ -39,6 +39,14 @@ const BASE_DELAY_MS = 1_000;
 // ─── Types ───────────────────────────────────────────────────
 
 export type ExportFormat = "PARQUET" | "NEWLINE_DELIMITED_JSON" | "CSV";
+
+/** BigQuery extract accepts a narrower set of format strings */
+type BqExtractFormat = "PARQUET" | "CSV" | "JSON" | "AVRO" | "ORC";
+
+/** Map our export format to BigQuery's accepted extract format */
+function toBqExtractFormat(format: ExportFormat): BqExtractFormat {
+  return format === "NEWLINE_DELIMITED_JSON" ? "JSON" : format;
+}
 
 export type ExportJobType = "bigquery" | "gcs" | "model" | "config";
 
@@ -217,7 +225,7 @@ export class ExportManager {
         const [extractJob] = await this.bq
           .dataset(DATASET)
           .table(table)
-          .extract(destination, { format, compression });
+          .extract(destination, { format: toBqExtractFormat(format), compression });
 
         // Poll for completion
         const [metadata] = await extractJob.getMetadata();
@@ -614,4 +622,5 @@ export function listExportableTables(): ReadonlyArray<{ table: string; source: s
   return BQ_TABLES;
 }
 
-export { formatBytes, EXPORT_BUCKET, PROJECT, DATASET };
+export { DATASET, EXPORT_BUCKET, PROJECT, formatBytes };
+

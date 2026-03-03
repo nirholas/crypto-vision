@@ -17,6 +17,7 @@ import { z } from "zod";
 import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
 import { log } from "../lib/logger.js";
+import { ingestDerivativesSnapshots, ingestOHLCCandles } from "../lib/bq-ingest.js";
 
 // ─── API Base URLs ───────────────────────────────────────────
 
@@ -368,13 +369,15 @@ export function getOrderBook(symbol: string, limit = 20): Promise<OrderBook> {
 
 // ─── Klines (Candlesticks) ──────────────────────────────────
 
-export function getKlines(
+export async function getKlines(
   symbol: string,
   interval = "1h",
   limit = 100,
 ): Promise<KlineData[]> {
   const l = Math.min(limit, 1000);
-  return bn(`/klines?symbol=${symbol}&interval=${interval}&limit=${l}`, 30);
+  const data = await bn<KlineData[]>(`/klines?symbol=${symbol}&interval=${interval}&limit=${l}`, 30);
+  ingestOHLCCandles(symbol, data.map(k => [k[0], Number(k[1]), Number(k[2]), Number(k[3]), Number(k[4])]));
+  return data;
 }
 
 // ─── Aggregated Trades ───────────────────────────────────────
@@ -433,13 +436,23 @@ export function getBookTicker(symbol?: string): Promise<BookTicker | BookTicker[
 export async function getFundingRates(symbol?: string, limit = 100): Promise<FundingRate[]> {
   const params: Record<string, string> = { limit: String(Math.min(limit, 1000)) };
   if (symbol) params.symbol = symbol;
-  return binanceFetch<FundingRate[]>(FAPI_BASE, "/fundingRate", params, 60);
+  const data = await binanceFetch<FundingRate[]>(FAPI_BASE, "/fundingRate", params, 60);
+  ingestDerivativesSnapshots(
+    data.map(d => ({ symbol: d.symbol, fundingRate: Number(d.fundingRate), exchange: "binance" })),
+    "binance",
+  );
+  return data;
 }
 
 // ─── Open Interest ───────────────────────────────────────────
 
 export async function getOpenInterest(symbol: string): Promise<OpenInterest> {
-  return binanceFetch<OpenInterest>(FAPI_BASE, "/openInterest", { symbol }, 30);
+  const data = await binanceFetch<OpenInterest>(FAPI_BASE, "/openInterest", { symbol }, 30);
+  ingestDerivativesSnapshots(
+    [{ symbol: data.symbol, openInterest: Number(data.openInterest), exchange: "binance" }],
+    "binance",
+  );
+  return data;
 }
 
 // ─── Futures Klines ──────────────────────────────────────────
@@ -464,12 +477,20 @@ export async function getLongShortRatio(
   period = "5m",
   limit = 30,
 ): Promise<LongShortRatio[]> {
-  return binanceFetch<LongShortRatio[]>(
+  const data = await binanceFetch<LongShortRatio[]>(
     FUTURES_DATA_BASE,
     "/globalLongShortAccountRatio",
     { symbol, period, limit: String(Math.min(limit, 500)) },
     60,
   );
+  if (data.length > 0) {
+    const latest = data[0];
+    ingestDerivativesSnapshots(
+      [{ symbol, longShortRatio: Number(latest.longShortRatio), exchange: "binance" }],
+      "binance",
+    );
+  }
+  return data;
 }
 
 // ─── Top Trader Long/Short (Position Ratio) ─────────────────
@@ -495,7 +516,12 @@ export async function getLiquidations(
 ): Promise<ForceLiquidation[]> {
   const params: Record<string, string> = { limit: String(Math.min(limit, 1000)) };
   if (symbol) params.symbol = symbol;
-  return binanceFetch<ForceLiquidation[]>(FAPI_BASE, "/allForceOrders", params, 15);
+  const data = await binanceFetch<ForceLiquidation[]>(FAPI_BASE, "/allForceOrders", params, 15);
+  ingestDerivativesSnapshots(
+    data.map(d => ({ symbol: d.symbol, liquidations: Number(d.quantity), exchange: "binance" })),
+    "binance",
+  );
+  return data;
 }
 
 // ═══════════════════════════════════════════════════════════════

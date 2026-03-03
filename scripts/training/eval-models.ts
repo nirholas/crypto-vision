@@ -25,7 +25,7 @@
  * @copyright 2024-2026 nirholas. All rights reserved.
  */
 
-import { writeFileSync, mkdirSync, existsSync, readFileSync } from "fs";
+import { mkdirSync, writeFileSync } from "fs";
 import { resolve } from "path";
 
 // ─── Types ───────────────────────────────────────────────────
@@ -331,8 +331,8 @@ Macro: Fed holding rates, CPI at 3.1%`,
 
         fieldScores.confidence =
           typeof (output.confidence as number) === "number" &&
-          (output.confidence as number) >= 0 &&
-          (output.confidence as number) <= 100
+            (output.confidence as number) >= 0 &&
+            (output.confidence as number) <= 100
             ? 100
             : 0;
 
@@ -502,8 +502,8 @@ Macro: Fed holding rates, CPI at 3.1%`,
 
         fieldScores.confidence =
           typeof (output.confidence as number) === "number" &&
-          (output.confidence as number) >= 0 &&
-          (output.confidence as number) <= 100
+            (output.confidence as number) >= 0 &&
+            (output.confidence as number) <= 100
             ? 100
             : 0;
 

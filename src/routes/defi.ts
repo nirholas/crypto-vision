@@ -15,6 +15,7 @@
 
 import { Hono } from "hono";
 import * as llama from "../sources/defillama.js";
+import { processTVL, processStablecoinPrice } from "../lib/anomaly-processors.js";
 
 export const defiRoutes = new Hono();
 
@@ -40,6 +41,11 @@ defiRoutes.get("/protocols", async (c) => {
 
   // Sort by TVL descending
   protocols.sort((a, b) => (b.tvl || 0) - (a.tvl || 0));
+
+  // Feed anomaly detection engine with TVL data
+  for (const p of protocols.slice(0, 200)) {
+    if (p.tvl) processTVL(p.slug, p.tvl);
+  }
 
   return c.json({
     data: protocols.slice(0, limit).map((p) => ({

@@ -1,0 +1,90 @@
+# Crypto Vision — Pub/Sub Topic Architecture
+#
+# This document defines the tiered Pub/Sub topic layout.
+# Topics are separated by data frequency to optimize
+# cost, latency, and BigQuery write patterns.
+#
+# ┌─────────────────────────────────────────────────────────────┐
+# │ Topic Tier       │ Latency    │ Sources                     │
+# ├──────────────────┼────────────┼─────────────────────────────┤
+# │ realtime         │ < 1s       │ WebSocket feeds             │
+# │ frequent         │ 1-2 min    │ Prices, gas, DEX pairs      │
+# │ standard         │ 5-10 min   │ Markets, DeFi, news         │
+# │ hourly           │ 30-60 min  │ Exchanges, governance, L2   │
+# │ daily            │ 24h        │ OHLC backfill, security     │
+# └──────────────────┴────────────┴─────────────────────────────┘
+
+topics:
+  # ── Realtime Tier (< 1s) ──────────────────────────────────
+  - name: crypto-vision-realtime
+    retention: 86400s  # 24h
+    subscriptions:
+      - crypto-vision-realtime-bq
+    sources:
+      - binance-trades (WebSocket)
+      - bybit-trades (WebSocket)
+      - hyperliquid-trades (WebSocket)
+      - deribit-options (WebSocket)
+      - coincap-prices (WebSocket)
+      - mempool-blocks (WebSocket)
+
+  # ── Frequent Tier (1-2 min) ───────────────────────────────
+  - name: crypto-vision-frequent
+    retention: 86400s
+    subscriptions:
+      - crypto-vision-frequent-bq
+    sources:
+      - prices: CoinGecko /simple/price (every 1 min)
+      - gas-prices: mempool.space + EVM RPCs (every 2 min)
+      - dex-pairs: DexScreener + GeckoTerminal (every 2 min)
+      - fear-greed: Alternative.me (every 2 min)
+      - market-snapshots: CoinGecko /coins/markets (every 2 min)
+
+  # ── Standard Tier (5-10 min) ──────────────────────────────
+  - name: crypto-vision-standard
+    retention: 86400s
+    subscriptions:
+      - crypto-vision-standard-bq
+    sources:
+      - trending: CoinGecko /search/trending (every 5 min)
+      - defi-protocols: DeFiLlama /protocols (every 5 min)
+      - defi-chains: DeFiLlama /v2/chains (every 5 min)
+      - yields: DeFiLlama /pools (every 5 min)
+      - stablecoins: DeFiLlama /stablecoins (every 10 min)
+      - dex-volumes: DeFiLlama /overview/dexs (every 10 min)
+      - fees-revenue: DeFiLlama /overview/fees (every 10 min)
+      - news: RSS feeds + CryptoPanic (every 5 min)
+      - derivatives: CoinGlass + Hyperliquid + Deribit (every 10 min)
+
+  # ── Hourly Tier (30-60 min) ───────────────────────────────
+  - name: crypto-vision-hourly
+    retention: 172800s  # 48h
+    subscriptions:
+      - crypto-vision-hourly-bq
+    sources:
+      - exchanges: CoinGecko /exchanges (every 30 min)
+      - categories: CoinGecko /coins/categories (every 30 min)
+      - bridges: DeFiLlama /bridges (every 30 min)
+      - funding-rounds: DeFiLlama /raises (every 2h)
+      - l2-data: L2Beat /scaling/summary (every 30 min)
+      - governance: Snapshot GraphQL (every 30 min)
+      - depin: DePINScan /projects (every 1h)
+      - macro: Yahoo Finance (every 1h)
+
+  # ── Daily Tier (24h) ──────────────────────────────────────
+  - name: crypto-vision-daily
+    retention: 604800s  # 7 days
+    subscriptions:
+      - crypto-vision-daily-bq
+    sources:
+      - ohlc-candles: CoinGecko OHLC (top 50 coins, 365 days)
+      - protocol-detail: DeFiLlama /protocol/{slug} (top 200)
+      - bitcoin-network: blockchain.com + mempool.space
+      - security-scans: GoPlus token security audits
+
+dead_letter_topics:
+  - crypto-vision-realtime-dlq
+  - crypto-vision-frequent-dlq
+  - crypto-vision-standard-dlq
+  - crypto-vision-hourly-dlq
+  - crypto-vision-daily-dlq

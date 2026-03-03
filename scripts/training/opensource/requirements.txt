@@ -2,9 +2,13 @@
 # Install in the training Docker image or GPU environment
 #
 # Usage: pip install -r requirements.txt
+#
+# For GPU environments with CUDA 12.4:
+#   pip install torch==2.4.0 --index-url https://download.pytorch.org/whl/cu124
+#   pip install -r requirements.txt
 
-# Core ML framework
-torch==2.4.0
+# Core ML framework (install torch separately with CUDA index)
+# torch==2.4.0
 
 # HuggingFace ecosystem
 transformers==4.44.0
@@ -25,12 +29,15 @@ protobuf
 auto-gptq==0.7.1
 autoawq==0.2.6
 
-# GCS upload
+# GCS upload / model management
 google-cloud-storage
 
-# Inference server
+# Inference server (for post-training smoke tests)
 vllm>=0.5.0
 
-# Optional: experiment tracking
+# Benchmarking
+aiohttp>=3.9.0
+
+# Optional: experiment tracking (uncomment as needed)
 # wandb
 # tensorboard

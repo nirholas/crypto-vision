@@ -27,7 +27,7 @@
 
 import { Hono } from "hono";
 import { z } from "zod";
-import { ApiError } from "../lib/api-error.js";
+import { AppError } from "../lib/api-error.js";
 import * as staking from "../sources/staking.js";
 
 export const stakingRoutes = new Hono();
@@ -74,10 +74,7 @@ stakingRoutes.get("/yield/:token", async (c) => {
   const data = await staking.getStakingYield(token);
 
   if (!data || (data.apy === 0 && data.tvlUsd === 0)) {
-    throw new ApiError({
-      code: "NOT_FOUND",
-      message: `No staking data found for token: ${token}`,
-    });
+    throw new AppError("NOT_FOUND", `No staking data found for token: ${token}`);
   }
 
   return c.json({
@@ -108,9 +105,7 @@ const calculatorSchema = z.object({
 stakingRoutes.get("/calculator", async (c) => {
   const parsed = calculatorSchema.safeParse(c.req.query());
   if (!parsed.success) {
-    throw new ApiError({
-      code: "VALIDATION_FAILED",
-      message: "Invalid calculator parameters",
+    throw new AppError("VALIDATION_FAILED", "Invalid calculator parameters", {
       details: parsed.error.flatten().fieldErrors,
     });
   }
@@ -119,10 +114,7 @@ stakingRoutes.get("/calculator", async (c) => {
   const stakingInfo = await staking.getStakingYield(token);
 
   if (!stakingInfo || stakingInfo.apy === 0) {
-    throw new ApiError({
-      code: "NOT_FOUND",
-      message: `No staking yield data found for token: ${token}`,
-    });
+    throw new AppError("NOT_FOUND", `No staking yield data found for token: ${token}`);
   }
 
   // APY-based calculations (APY already includes compounding)

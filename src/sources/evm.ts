@@ -9,6 +9,7 @@
 
 import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
+import { ingestGasPrices } from "../lib/bq-ingest.js";
 
 // ─── Multi-Chain Gas Tracking ────────────────────────────────
 
@@ -47,7 +48,7 @@ export async function getGasOracle(chain = "ethereum"): Promise<{
 }
 
 export async function getMultiChainGas(): Promise<GasEstimate[]> {
-  return cache.wrap("gas:multi", 30, async () => {
+  const data = await cache.wrap("gas:multi", 30, async () => {
     const chains = Object.keys(OWLRACLE_CHAINS);
     const results = await Promise.allSettled(
       chains.map((chain) => getGasOracle(chain)),
@@ -69,6 +70,10 @@ export async function getMultiChainGas(): Promise<GasEstimate[]> {
     }
     return estimates;
   });
+  ingestGasPrices(
+    data.map(g => ({ chain: g.chain, fast: g.high, standard: g.average, slow: g.low })),
+  );
+  return data;
 }
 
 // ─── Etherscan (with key) ────────────────────────────────────

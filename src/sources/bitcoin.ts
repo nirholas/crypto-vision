@@ -8,8 +8,8 @@
  *           on-chain metrics, fee estimates, and UTXO set analysis.
  */
 
-import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
+import { fetchJSON } from "../lib/fetcher.js";
 
 const BLOCKCHAIN = "https://blockchain.info";
 const MEMPOOL = "https://mempool.space/api";
@@ -52,7 +52,7 @@ export function getBTCPrice(): Promise<
 
 // ─── Bitcoin Stats ───────────────────────────────────────────
 
-export function getBTCStats(): Promise<{
+export async function getBTCStats(): Promise<{
   market_price_usd: number;
   hash_rate: number;
   total_fees_btc: number;
@@ -74,9 +74,11 @@ export function getBTCStats(): Promise<{
   nextretarget: number;
   timestamp: number;
 }> {
-  return cache.wrap("btc:stats", 120, () =>
+  const data = await cache.wrap("btc:stats", 120, () =>
     fetchJSON(`${BLOCKCHAIN}/stats?format=json`),
   );
+  ingestBitcoinNetwork(data as unknown as Record<string, unknown>);
+  return data;
 }
 
 // ─── Bitcoin Address Balance ─────────────────────────────────
@@ -201,203 +203,6 @@ export function getLightningStats(): Promise<{
 }> {
   return cache.wrap("btc:lightning", 600, () =>
     fetchJSON(`${MEMPOOL}/v1/lightning/statistics/latest`),
-  );
-}
-
-// ─── Block Hash at Height ────────────────────────────────────
-
-export function getBlockHashAtHeight(height: number): Promise<string> {
-  return cache.wrap(`btc:blockhash:${height}`, 3600, async () => {
-    const res = await fetch(`${MEMPOOL}/block-height/${height}`);
-    if (!res.ok) throw new Error(`Failed to get block hash at height ${height}: ${res.status}`);
-    return res.text();
-  });
-}
-
-// ─── Block by Height ─────────────────────────────────────────
-
-export async function getBlockByHeight(height: number): Promise<{
-  id: string;
-  height: number;
-  version: number;
-  timestamp: number;
-  tx_count: number;
-  size: number;
-  weight: number;
-  difficulty: number;
-  nonce: number;
-  bits: number;
-  previousblockhash: string;
-}> {
-  const hash = await getBlockHashAtHeight(height);
-  return getBlock(hash);
-}
-
-// ─── Recent Blocks ───────────────────────────────────────────
-
-export interface MempoolBlock {
-  id: string;
-  height: number;
-  version: number;
-  timestamp: number;
-  tx_count: number;
-  size: number;
-  weight: number;
-  merkle_root: string;
-  previousblockhash: string;
-  mediantime: number;
-  nonce: number;
-  bits: number;
-  difficulty: number;
-}
-
-export function getRecentBlocks(): Promise<MempoolBlock[]> {
-  return cache.wrap("btc:recent-blocks", 30, () =>
-    fetchJSON(`${MEMPOOL}/v1/blocks`),
-  );
-}
-
-// ─── Recommended Fees ────────────────────────────────────────
-
-export interface RecommendedFees {
-  fastestFee: number;
-  halfHourFee: number;
-  hourFee: number;
-  economyFee: number;
-  minimumFee: number;
-}
-
-export function getRecommendedFees(): Promise<RecommendedFees> {
-  return cache.wrap("btc:fees", 30, () =>
-    fetchJSON(`${MEMPOOL}/v1/fees/recommended`),
-  );
-}
-
-// ─── Current Block Height (alias) ────────────────────────────
-
-export function getCurrentBlockHeight(): Promise<number> {
-  return getLatestBlockHeight();
-}
-
-// ─── On-Chain Metrics (derived from blockchain.info stats) ───
-
-export interface OnChainMetrics {
-  activeAddresses: number;
-  transactionCount: number;
-  avgTransactionValue: number;
-  totalTransferVolume: number;
-}
-
-export async function getOnChainMetrics(): Promise<OnChainMetrics> {
-  const stats = await getBTCStats();
-  return {
-    activeAddresses: stats.n_tx,
-    transactionCount: stats.n_tx,
-    avgTransactionValue: stats.estimated_transaction_volume_usd / Math.max(stats.n_tx, 1),
-    totalTransferVolume: stats.estimated_transaction_volume_usd,
-  };
-}
-
-// ─── Mining Stats (derived from stats + difficulty) ──────────
-
-export interface MiningStatsData {
-  hashRate: number;
-  difficulty: number;
-  blockReward: number;
-  blocksMinedToday: number;
-  minerRevenue24h: number;
-  nextDifficultyAdjustment: {
-    estimatedDate: string;
-    remainingBlocks: number;
-    progressPercent: number;
-    difficultyChange: number;
-  };
-}
-
-export async function getMiningStats(): Promise<MiningStatsData> {
-  const [stats, diff] = await Promise.all([
-    getBTCStats(),
-    getDifficultyAdjustment(),
-  ]);
-  const height = stats.n_blocks_total;
-  const halvingNumber = Math.floor(height / 210_000);
-  const blockReward = 50 / Math.pow(2, halvingNumber);
-
-  return {
-    hashRate: stats.hash_rate,
-    difficulty: stats.difficulty,
-    blockReward,
-    blocksMinedToday: stats.n_blocks_mined,
-    minerRevenue24h: stats.miners_revenue_usd,
-    nextDifficultyAdjustment: {
-      estimatedDate: new Date(diff.estimatedRetargetDate).toISOString(),
-      remainingBlocks: diff.remainingBlocks,
-      progressPercent: diff.progressPercent,
-      difficultyChange: diff.difficultyChange,
-    },
-  };
-}
-
-// ─── Address Transactions ────────────────────────────────────
-
-export function getAddressTransactions(address: string): Promise<Array<{
-  txid: string;
-  version: number;
-  locktime: number;
-  vin: Array<{ txid: string; vout: number; prevout: { value: number; scriptpubkey_address: string } }>;
-  vout: Array<{ value: number; scriptpubkey_address: string }>;
-  size: number;
-  weight: number;
-  fee: number;
-  status: { confirmed: boolean; block_height: number; block_time: number };
-}>> {
-  return cache.wrap(`btc:addr-txs:${address}`, 60, () =>
-    fetchJSON(`${MEMPOOL}/address/${address}/txs`),
-  );
-}
-
-// ─── Mining Pools ────────────────────────────────────────────
-
-export interface MiningPoolData {
-  pools: Array<{
-    poolId: number;
-    name: string;
-    link: string;
-    blockCount: number;
-    rank: number;
-    emptyBlocks: number;
-    slug: string;
-    avgMatchRate: number;
-  }>;
-  blockCount: number;
-  lastEstimatedHashrate: number;
-}
-
-export function getMiningPools(timePeriod = "1w"): Promise<MiningPoolData> {
-  return cache.wrap(`btc:pools:${timePeriod}`, 600, () =>
-    fetchJSON(`${MEMPOOL}/v1/mining/pools/${timePeriod}`),
-  );
-}
-
-// ─── Hashrate History ────────────────────────────────────────
-
-export interface HashrateHistory {
-  hashrates: Array<{
-    timestamp: number;
-    avgHashrate: number;
-  }>;
-  difficulty: Array<{
-    timestamp: number;
-    difficulty: number;
-    height: number;
-  }>;
-  currentHashrate: number;
-  currentDifficulty: number;
-}
-
-export function getHashrateHistory(timePeriod = "1m"): Promise<HashrateHistory> {
-  return cache.wrap(`btc:hashrate:${timePeriod}`, 600, () =>
-    fetchJSON(`${MEMPOOL}/v1/mining/hashrate/${timePeriod}`),
   );
 }
 

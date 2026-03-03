@@ -10,6 +10,7 @@
 
 import { Hono } from "hono";
 import * as evm from "../sources/evm.js";
+import { processGas } from "../lib/anomaly-processors.js";
 
 export const gasRoutes = new Hono();
 
@@ -17,6 +18,11 @@ export const gasRoutes = new Hono();
 
 gasRoutes.get("/", async (c) => {
   const estimates = await evm.getMultiChainGas();
+
+  // Feed anomaly detection with gas data per chain
+  for (const est of estimates) {
+    if (est.gasPrice) processGas(est.chain, est.gasPrice);
+  }
 
   return c.json({
     data: estimates,

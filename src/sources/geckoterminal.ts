@@ -9,6 +9,7 @@
 
 import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
+import { ingestDexPairs } from "../lib/bq-ingest.js";
 
 const API = "https://api.geckoterminal.com/api/v2";
 
@@ -47,7 +48,7 @@ export interface PoolAttributes {
   reserve_in_usd: string;
 }
 
-export function getTrendingPools(network?: string): Promise<{
+export async function getTrendingPools(network?: string): Promise<{
   data: Array<{
     id: string;
     type: string;
@@ -58,7 +59,27 @@ export function getTrendingPools(network?: string): Promise<{
   const path = network
     ? `/networks/${network}/trending_pools`
     : "/networks/trending_pools";
-  return gt(path, 60);
+  const data = await gt<{
+    data: Array<{
+      id: string;
+      type: string;
+      attributes: PoolAttributes;
+      relationships: { base_token: { data: { id: string } }; quote_token: { data: { id: string } } };
+    }>;
+  }>(path, 60);
+  if (data.data?.length) {
+    ingestDexPairs(
+      data.data.map(p => ({
+        pairAddress: p.attributes.address,
+        chainId: network ?? p.id.split("_")[0],
+        priceUsd: p.attributes.base_token_price_usd,
+        volume: { h24: Number(p.attributes.volume_usd?.h24 ?? 0) },
+        liquidity: { usd: Number(p.attributes.reserve_in_usd ?? 0) },
+      })),
+      "geckoterminal",
+    );
+  }
+  return data;
 }
 
 // ─── New Pools ───────────────────────────────────────────────
@@ -156,11 +177,26 @@ export function searchPools(query: string): Promise<{
 
 // ─── Top Pools by Network ────────────────────────────────────
 
-export function getTopPools(network: string): Promise<{
+export async function getTopPools(network: string): Promise<{
   data: Array<{
     id: string;
     attributes: PoolAttributes;
   }>;
 }> {
-  return gt(`/networks/${network}/pools?page=1&sort=h24_volume_usd_liquidity_desc`, 120);
+  const data = await gt<{
+    data: Array<{ id: string; attributes: PoolAttributes }>;
+  }>(`/networks/${network}/pools?page=1&sort=h24_volume_usd_liquidity_desc`, 120);
+  if (data.data?.length) {
+    ingestDexPairs(
+      data.data.map(p => ({
+        pairAddress: p.attributes.address,
+        chainId: network,
+        priceUsd: p.attributes.base_token_price_usd,
+        volume: { h24: Number(p.attributes.volume_usd?.h24 ?? 0) },
+        liquidity: { usd: Number(p.attributes.reserve_in_usd ?? 0) },
+      })),
+      "geckoterminal",
+    );
+  }
+  return data;
 }

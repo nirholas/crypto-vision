@@ -14,6 +14,7 @@
  */
 
 import { log } from "./logger.js";
+import { cache } from "./cache.js";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -417,6 +418,35 @@ class AnomalyEngine {
     };
   }
 
+  /** Persist sliding-window state to cache for crash recovery */
+  async saveState(): Promise<void> {
+    const state: Record<string, number[]> = {};
+    for (const [key, window] of this.windows) {
+      state[key] = [...window.values];
+    }
+    await cache.set("anomaly:engine:state", state, 86_400); // 24h
+    log.debug({ metrics: Object.keys(state).length }, "Anomaly engine state saved");
+  }
+
+  /** Restore sliding-window state from cache on startup */
+  async loadState(): Promise<void> {
+    try {
+      const state = await cache.get<Record<string, number[]>>("anomaly:engine:state");
+      if (!state) return;
+
+      let restored = 0;
+      for (const [key, values] of Object.entries(state)) {
+        const window = new SlidingWindow(1000);
+        for (const v of values) window.add(v);
+        this.windows.set(key, window);
+        restored++;
+      }
+      log.info({ restoredMetrics: restored }, "Anomaly engine state restored from cache");
+    } catch (err) {
+      log.warn({ err }, "Failed to restore anomaly engine state — starting fresh");
+    }
+  }
+
   /** Reset all windows and cooldowns (useful for testing) */
   reset(): void {
     this.windows.clear();
@@ -429,5 +459,5 @@ class AnomalyEngine {
 /** Singleton anomaly engine instance */
 export const anomalyEngine = new AnomalyEngine();
 
-// Also export the SlidingWindow for testing
-export { SlidingWindow };
+// Export internals for testing and route introspection
+export { SlidingWindow, DETECTOR_CONFIGS };

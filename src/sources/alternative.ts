@@ -15,6 +15,7 @@
 import { z } from "zod";
 import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
+import { ingestFearGreed, ingestBitcoinNetwork, ingestDexPairs } from "../lib/bq-ingest.js";
 
 // ═══════════════════════════════════════════════════════════════
 // API BASE URLs
@@ -396,25 +397,29 @@ export interface FearGreedData {
  * Fetch the Fear & Greed Index with optional limit.
  * @param limit Number of data points to return (default: 1)
  */
-export function getFearGreedIndex(limit = 1): Promise<FearGreedResponse> {
-  return cache.wrap(`fg:${limit}`, 120, async () => {
+export async function getFearGreedIndex(limit = 1): Promise<FearGreedResponse> {
+  const data = await cache.wrap(`fg:${limit}`, 120, async () => {
     const raw = await fetchJSON<unknown>(
       `${ALTERNATIVE_ME}/fng/?limit=${limit}&format=json`
     );
     return FearGreedResponseSchema.parse(raw);
   });
+  ingestFearGreed(data.data as unknown as Array<Record<string, unknown>>);
+  return data;
 }
 
 /**
  * Fetch Fear & Greed history for the specified number of days.
  */
-export function getFearGreedHistory(days: number): Promise<FearGreedResponse> {
-  return cache.wrap(`fg:history:${days}`, 600, async () => {
+export async function getFearGreedHistory(days: number): Promise<FearGreedResponse> {
+  const data = await cache.wrap(`fg:history:${days}`, 600, async () => {
     const raw = await fetchJSON<unknown>(
       `${ALTERNATIVE_ME}/fng/?limit=${days}&format=json`
     );
     return FearGreedResponseSchema.parse(raw);
   });
+  ingestFearGreed(data.data as unknown as Array<Record<string, unknown>>);
+  return data;
 }
 
 /**
@@ -474,21 +479,29 @@ export async function getSentimentTrend(days: number): Promise<{
 /**
  * Get recommended Bitcoin transaction fees.
  */
-export function getBitcoinFees(): Promise<BitcoinFees> {
-  return cache.wrap("mempool:fees", 30, async () => {
+export async function getBitcoinFees(): Promise<BitcoinFees> {
+  const data = await cache.wrap("mempool:fees", 30, async () => {
     const raw = await fetchJSON<unknown>(`${MEMPOOL}/v1/fees/recommended`);
     return BitcoinFeesSchema.parse(raw);
   });
+  ingestBitcoinNetwork({
+    fee_fast: data.fastestFee,
+    fee_medium: data.halfHourFee,
+    fee_slow: data.hourFee,
+  });
+  return data;
 }
 
 /**
  * Get current mempool statistics including fee histogram.
  */
-export function getMempoolStats(): Promise<MempoolStats> {
-  return cache.wrap("mempool:stats", 30, async () => {
+export async function getMempoolStats(): Promise<MempoolStats> {
+  const data = await cache.wrap("mempool:stats", 30, async () => {
     const raw = await fetchJSON<unknown>(`${MEMPOOL}/mempool`);
     return MempoolStatsSchema.parse(raw);
   });
+  ingestBitcoinNetwork({ mempool_size: data.count });
+  return data;
 }
 
 /**
@@ -556,13 +569,18 @@ export async function getMempoolFeeHistogram(): Promise<[number, number][]> {
 /**
  * Get the current Bitcoin hashrate (3-day average from mempool.space).
  */
-export function getBitcoinHashrate(): Promise<BitcoinHashrate> {
-  return cache.wrap("mempool:hashrate", 300, async () => {
+export async function getBitcoinHashrate(): Promise<BitcoinHashrate> {
+  const data = await cache.wrap("mempool:hashrate", 300, async () => {
     const raw = await fetchJSON<unknown>(
       `${MEMPOOL}/v1/mining/hashrate/3d`
     );
     return BitcoinHashrateSchema.parse(raw);
   });
+  ingestBitcoinNetwork({
+    hashrate: data.currentHashrate,
+    difficulty: data.currentDifficulty,
+  });
+  return data;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -572,13 +590,15 @@ export function getBitcoinHashrate(): Promise<BitcoinHashrate> {
 /**
  * Get all DEX pairs for a given token address.
  */
-export function dexTokenPairs(address: string): Promise<DexSearchResult> {
-  return cache.wrap(`dex:token:${address}`, 30, async () => {
+export async function dexTokenPairs(address: string): Promise<DexSearchResult> {
+  const data = await cache.wrap(`dex:token:${address}`, 30, async () => {
     const raw = await fetchJSON<unknown>(
       `${DEXSCREENER}/latest/dex/tokens/${address}`
     );
     return DexSearchResultSchema.parse(raw);
   });
+  if (data.pairs?.length) ingestDexPairs(data.pairs as unknown as Array<Record<string, unknown>>, "dexscreener");
+  return data;
 }
 
 /**
@@ -599,13 +619,15 @@ export function dexPairByAddress(
 /**
  * Search DEX pairs by query string (token name, symbol, or address).
  */
-export function dexSearch(query: string): Promise<DexSearchResult> {
-  return cache.wrap(`dex:search:${query}`, 60, async () => {
+export async function dexSearch(query: string): Promise<DexSearchResult> {
+  const data = await cache.wrap(`dex:search:${query}`, 60, async () => {
     const raw = await fetchJSON<unknown>(
       `${DEXSCREENER}/latest/dex/search?q=${encodeURIComponent(query)}`
     );
     return DexSearchResultSchema.parse(raw);
   });
+  if (data.pairs?.length) ingestDexPairs(data.pairs as unknown as Array<Record<string, unknown>>, "dexscreener");
+  return data;
 }
 
 /**

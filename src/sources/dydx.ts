@@ -10,6 +10,7 @@
 
 import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
+import { ingestDerivativesSnapshots, ingestOHLCCandles } from "../lib/bq-ingest.js";
 
 const BASE = "https://indexer.dydx.trade/v4";
 
@@ -33,10 +34,22 @@ export interface DydxMarket {
   subticksPerTick: number;
 }
 
-export function getMarkets(): Promise<{ markets: Record<string, DydxMarket> }> {
-  return cache.wrap("dydx:markets", 15, () =>
-    fetchJSON(`${BASE}/perpetualMarkets`)
+export async function getMarkets(): Promise<{ markets: Record<string, DydxMarket> }> {
+  const data = await cache.wrap("dydx:markets", 15, () =>
+    fetchJSON<{ markets: Record<string, DydxMarket> }>(`${BASE}/perpetualMarkets`)
   );
+  const markets = Object.values(data.markets);
+  ingestDerivativesSnapshots(
+    markets.map(m => ({
+      symbol: m.ticker,
+      openInterest: m.openInterest,
+      fundingRate: m.nextFundingRate,
+      volume24h: m.volume24H,
+      exchange: "dydx",
+    })),
+    "dydx",
+  );
+  return data;
 }
 
 export async function getMarket(ticker: string): Promise<DydxMarket | null> {
@@ -59,14 +72,20 @@ export interface DydxCandle {
   trades: number;
 }
 
-export function getCandles(
+export async function getCandles(
   ticker: string,
   resolution = "1HOUR",
   limit = 100,
 ): Promise<{ candles: DydxCandle[] }> {
-  return cache.wrap(`dydx:candles:${ticker}:${resolution}:${limit}`, 30, () =>
-    fetchJSON(`${BASE}/candles/perpetualMarkets/${ticker}?resolution=${resolution}&limit=${limit}`)
+  const data = await cache.wrap(`dydx:candles:${ticker}:${resolution}:${limit}`, 30, () =>
+    fetchJSON<{ candles: DydxCandle[] }>(`${BASE}/candles/perpetualMarkets/${ticker}?resolution=${resolution}&limit=${limit}`)
   );
+  ingestOHLCCandles(
+    ticker,
+    data.candles.map(c => [new Date(c.startedAt).getTime(), Number(c.open), Number(c.high), Number(c.low), Number(c.close)] as [number, number, number, number, number]),
+    "dydx",
+  );
+  return data;
 }
 
 // ─── Orderbook ───────────────────────────────────────────────
@@ -113,13 +132,21 @@ export interface DydxFundingRate {
   effectiveAtHeight: string;
 }
 
-export function getFundingRates(
+export async function getFundingRates(
   ticker: string,
   limit = 50,
 ): Promise<{ historicalFunding: DydxFundingRate[] }> {
-  return cache.wrap(`dydx:funding:${ticker}:${limit}`, 60, () =>
-    fetchJSON(`${BASE}/historicalFunding/${ticker}?limit=${limit}`)
+  const data = await cache.wrap(`dydx:funding:${ticker}:${limit}`, 60, () =>
+    fetchJSON<{ historicalFunding: DydxFundingRate[] }>(`${BASE}/historicalFunding/${ticker}?limit=${limit}`)
   );
+  if (data.historicalFunding.length > 0) {
+    const latest = data.historicalFunding[0];
+    ingestDerivativesSnapshots(
+      [{ symbol: latest.ticker, fundingRate: latest.rate, exchange: "dydx" }],
+      "dydx",
+    );
+  }
+  return data;
 }
 
 // ─── Sparklines ──────────────────────────────────────────────

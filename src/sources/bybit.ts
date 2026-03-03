@@ -15,6 +15,7 @@
 import { z } from "zod";
 import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
+import { ingestDerivativesSnapshots, ingestOHLCCandles } from "../lib/bq-ingest.js";
 
 const BASE = "https://api.bybit.com/v5";
 
@@ -216,7 +217,20 @@ export async function getTickers(
     params,
     15,
   );
-  return z.array(BybitTickerSchema).parse(result.list);
+  const data = z.array(BybitTickerSchema).parse(result.list);
+  if (category === "linear" || category === "inverse") {
+    ingestDerivativesSnapshots(
+      data.map(t => ({
+        symbol: t.symbol,
+        openInterest: t.openInterestValue,
+        fundingRate: t.fundingRate,
+        volume24h: t.turnover24h,
+        exchange: "bybit",
+      })),
+      "bybit",
+    );
+  }
+  return data;
 }
 
 /**
@@ -368,7 +382,12 @@ export async function getOpenInterest(
     { category, symbol: symbol.toUpperCase(), intervalTime, limit },
     30,
   );
-  return z.array(BybitOpenInterestSchema).parse(result.list);
+  const data = z.array(BybitOpenInterestSchema).parse(result.list);
+  ingestDerivativesSnapshots(
+    data.map(d => ({ symbol: d.symbol, openInterest: d.openInterest, exchange: "bybit" })),
+    "bybit",
+  );
+  return data;
 }
 
 /**
@@ -438,7 +457,12 @@ export async function getFundingRateHistory(
     { category, symbol: symbol.toUpperCase(), limit },
     60,
   );
-  return z.array(BybitFundingRateSchema).parse(result.list);
+  const data = z.array(BybitFundingRateSchema).parse(result.list);
+  ingestDerivativesSnapshots(
+    data.map(d => ({ symbol: d.symbol, fundingRate: d.fundingRate, exchange: "bybit" })),
+    "bybit",
+  );
+  return data;
 }
 
 /**
@@ -456,7 +480,14 @@ export async function getLongShortRatio(
     { category, symbol: symbol.toUpperCase(), period, limit },
     60,
   );
-  return z.array(BybitLongShortRatioSchema).parse(result.list);
+  const data = z.array(BybitLongShortRatioSchema).parse(result.list);
+  if (data.length > 0) {
+    ingestDerivativesSnapshots(
+      [{ symbol, longShortRatio: Number(data[0].buyRatio) / Math.max(Number(data[0].sellRatio), 0.0001), exchange: "bybit" }],
+      "bybit",
+    );
+  }
+  return data;
 }
 
 // ─── Analytics Functions ─────────────────────────────────────

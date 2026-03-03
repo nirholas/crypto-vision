@@ -284,47 +284,204 @@ create_job() {
   fi
 }
 
-# Market data — every 2 minutes
-create_job "refresh-coins" \
+# ── Market Data (high frequency) ──────────────────────────────
+
+create_job "ingest-coins" \
   "*/2 * * * *" \
   "/api/coins" \
-  "Refresh top coins by market cap"
+  "Market snapshots (top 250)"
 
-# Trending — every 5 minutes
-create_job "refresh-trending" \
+create_job "ingest-prices-btc-eth" \
+  "*/1 * * * *" \
+  "/api/price?ids=bitcoin,ethereum,solana,bnb" \
+  "Key prices"
+
+create_job "ingest-trending" \
   "*/5 * * * *" \
   "/api/trending" \
-  "Refresh trending coins"
+  "Trending coins"
 
-# Global market stats — every 5 minutes
-create_job "refresh-global" \
+create_job "ingest-global" \
   "*/5 * * * *" \
   "/api/global" \
-  "Refresh global market stats"
+  "Global market stats"
 
-# Fear & Greed — every 15 minutes
-create_job "refresh-fear-greed" \
+create_job "ingest-fear-greed" \
   "*/15 * * * *" \
   "/api/fear-greed" \
-  "Refresh Fear and Greed index"
+  "Fear & Greed Index"
 
-# DeFi protocols — every 10 minutes
-create_job "refresh-defi-protocols" \
+# ── DeFi (standard frequency) ────────────────────────────────
+
+create_job "ingest-defi-protocols" \
   "*/10 * * * *" \
   "/api/defi/protocols" \
-  "Refresh DeFi protocol TVL data"
+  "DeFi protocol TVL"
 
-# DeFi chains — every 10 minutes
-create_job "refresh-defi-chains" \
+create_job "ingest-defi-chains" \
   "*/10 * * * *" \
   "/api/defi/chains" \
-  "Refresh chain TVL rankings"
+  "Chain TVL rankings"
 
-# Crypto news — every 5 minutes
-create_job "refresh-news" \
+create_job "ingest-defi-yields" \
+  "*/10 * * * *" \
+  "/api/defi/yields" \
+  "Yield pool APYs"
+
+create_job "ingest-defi-stablecoins" \
+  "*/15 * * * *" \
+  "/api/defi/stablecoins" \
+  "Stablecoin supply"
+
+create_job "ingest-defi-dex-volumes" \
+  "*/15 * * * *" \
+  "/api/defi/dex-volumes" \
+  "DEX trading volumes"
+
+create_job "ingest-defi-fees" \
+  "*/15 * * * *" \
+  "/api/defi/fees" \
+  "Protocol fees & revenue"
+
+create_job "ingest-defi-bridges" \
+  "*/30 * * * *" \
+  "/api/defi/bridges" \
+  "Bridge volumes"
+
+create_job "ingest-defi-raises" \
+  "0 */2 * * *" \
+  "/api/defi/raises" \
+  "Funding rounds"
+
+# ── News ─────────────────────────────────────────────────────
+
+create_job "ingest-news" \
   "*/5 * * * *" \
   "/api/news" \
-  "Refresh crypto news feed"
+  "Latest crypto news"
+
+create_job "ingest-news-bitcoin" \
+  "*/5 * * * *" \
+  "/api/news/bitcoin" \
+  "Bitcoin-specific news"
+
+create_job "ingest-news-defi" \
+  "*/10 * * * *" \
+  "/api/news/defi" \
+  "DeFi news"
+
+create_job "ingest-news-breaking" \
+  "*/5 * * * *" \
+  "/api/news/breaking" \
+  "Breaking crypto news"
+
+# ── DEX & Trading ────────────────────────────────────────────
+
+create_job "ingest-dex-trending" \
+  "*/5 * * * *" \
+  "/api/dex/trending" \
+  "Trending DEX pairs"
+
+create_job "ingest-dex-new-pools" \
+  "*/5 * * * *" \
+  "/api/dex/new" \
+  "Newly created pools"
+
+# ── On-chain ─────────────────────────────────────────────────
+
+create_job "ingest-gas" \
+  "*/5 * * * *" \
+  "/api/onchain/gas" \
+  "Multi-chain gas prices"
+
+create_job "ingest-btc-fees" \
+  "*/5 * * * *" \
+  "/api/onchain/bitcoin/fees" \
+  "Bitcoin fee estimates"
+
+create_job "ingest-btc-stats" \
+  "*/15 * * * *" \
+  "/api/onchain/bitcoin/stats" \
+  "Bitcoin network stats"
+
+# ── Derivatives ──────────────────────────────────────────────
+
+create_job "ingest-funding-rates" \
+  "*/10 * * * *" \
+  "/api/derivatives/funding" \
+  "Perp funding rates"
+
+create_job "ingest-open-interest" \
+  "*/10 * * * *" \
+  "/api/derivatives/oi" \
+  "Open interest"
+
+create_job "ingest-liquidations" \
+  "*/10 * * * *" \
+  "/api/derivatives/liquidations" \
+  "Liquidation data"
+
+# ── Exchanges & Categories ───────────────────────────────────
+
+create_job "ingest-exchanges" \
+  "*/30 * * * *" \
+  "/api/exchanges" \
+  "Exchange rankings"
+
+create_job "ingest-categories" \
+  "*/30 * * * *" \
+  "/api/categories" \
+  "Coin categories"
+
+# ── Layer 2 ──────────────────────────────────────────────────
+
+create_job "ingest-l2-summary" \
+  "*/30 * * * *" \
+  "/api/l2" \
+  "L2 scaling summary"
+
+# ── Governance ───────────────────────────────────────────────
+
+create_job "ingest-governance" \
+  "0 */1 * * *" \
+  "/api/governance" \
+  "Governance proposals"
+
+# ── DePIN ────────────────────────────────────────────────────
+
+create_job "ingest-depin" \
+  "0 */1 * * *" \
+  "/api/depin" \
+  "DePIN projects"
+
+# ── Macro ────────────────────────────────────────────────────
+
+create_job "ingest-macro" \
+  "0 */2 * * *" \
+  "/api/macro" \
+  "Macro economic data"
+
+# ── AI Cache Warming ─────────────────────────────────────────
+
+create_job "warm-ai-digest" \
+  "0 */4 * * *" \
+  "/api/ai/digest" \
+  "AI market digest"
+
+create_job "warm-ai-signals" \
+  "0 */2 * * *" \
+  "/api/ai/signals" \
+  "AI trading signals"
+
+create_job "warm-ai-sentiment-btc" \
+  "*/30 * * * *" \
+  "/api/ai/sentiment/bitcoin" \
+  "BTC AI sentiment"
+
+create_job "warm-ai-sentiment-eth" \
+  "*/30 * * * *" \
+  "/api/ai/sentiment/ethereum" \
+  "ETH AI sentiment"
 
 # ─── 8. Custom Domain Mapping ────────────────────────────────
 

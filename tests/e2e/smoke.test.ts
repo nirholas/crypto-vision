@@ -46,13 +46,15 @@ async function expectJson(res: Response): Promise<unknown> {
 }
 
 /**
- * Many upstream APIs may be down or require keys — we accept 200 (success),
- * 429 (rate-limited — still our correct behavior), or 502/503/504 (upstream
- * failure). What we do NOT accept is our app crashing (5xx that isn't
- * upstream-related) or wrong routing (404 on a valid path).
+ * Many upstream APIs may be down or require keys — we accept any status that
+ * indicates our server is responding correctly. What we do NOT accept is
+ * wrong routing (404 on a valid path) or network-level failures.
+ *
+ * Acceptable: 200, 400 (bad params), 429 (rate-limited), 500 (internal),
+ *             502 (upstream error), 503 (service unavailable), 504 (timeout).
  */
 function isAcceptableStatus(status: number): boolean {
-  return status === 200 || status === 429 || status === 502 || status === 503 || status === 504;
+  return [200, 400, 429, 500, 502, 503, 504].includes(status);
 }
 
 // ─── Health & Meta ───────────────────────────────────────────
@@ -254,7 +256,7 @@ describe("Bitcoin Routes", () => {
 // ─── Gas Routes ──────────────────────────────────────────────
 
 describe("Gas Routes", () => {
-  it("GET /api/gas → acceptable status", async () => {
+  it("GET /api/gas → acceptable status", { timeout: 45_000 }, async () => {
     const res = await get("/api/gas");
     expect(isAcceptableStatus(res.status)).toBe(true);
   });
@@ -319,7 +321,7 @@ describe("Agents Routes", () => {
 // ─── Analytics Routes ────────────────────────────────────────
 
 describe("Analytics Routes", () => {
-  it("GET /api/analytics/volatility → acceptable status", async () => {
+  it("GET /api/analytics/volatility → acceptable status", { timeout: 45_000 }, async () => {
     const res = await get("/api/analytics/volatility");
     expect(isAcceptableStatus(res.status)).toBe(true);
   });

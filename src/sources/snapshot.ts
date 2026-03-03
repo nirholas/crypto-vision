@@ -10,6 +10,7 @@
 
 import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
+import { ingestGovernanceProposals } from "../lib/bq-ingest.js";
 
 const BASE = "https://hub.snapshot.org/graphql";
 
@@ -65,6 +66,7 @@ export function getProposals(
         }
       }
     `);
+    ingestGovernanceProposals(res.proposals as unknown as Array<Record<string, unknown>>);
     return res.proposals;
   });
 }

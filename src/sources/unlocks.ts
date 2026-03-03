@@ -558,7 +558,9 @@ export const TRACKED_PROTOCOLS = [
 ] as const;
 
 /** Quick overview of tracked protocol emissions. */
-export async function getTrackedEmissions(): Promise<Array<{ protocol: string; data: EmissionDetail }>> {
+export type TrackedProtocol = (typeof TRACKED_PROTOCOLS)[number];
+
+export async function getTrackedEmissions(): Promise<Array<{ protocol: TrackedProtocol; data: EmissionDetail }>> {
   const results = await Promise.allSettled(
     TRACKED_PROTOCOLS.map((p) =>
       getProtocolEmissions(p).then((data) => ({ protocol: p, data })),
@@ -566,7 +568,7 @@ export async function getTrackedEmissions(): Promise<Array<{ protocol: string; d
   );
 
   return results
-    .filter((r): r is PromiseFulfilledResult<{ protocol: string; data: EmissionDetail }> => r.status === "fulfilled")
+    .filter((r): r is PromiseFulfilledResult<{ protocol: TrackedProtocol; data: EmissionDetail }> => r.status === "fulfilled")
     .map((r) => r.value)
     .filter((v) => !!v.data);
 }

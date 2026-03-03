@@ -10,6 +10,7 @@
 
 import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
+import { ingestDerivativesSnapshots } from "../lib/bq-ingest.js";
 
 const BASE = "https://api.hyperliquid.xyz";
 
@@ -49,10 +50,24 @@ export interface HLMetaAndAssetCtxs {
   assetCtxs: HLAssetCtx[];
 }
 
-export function getMetaAndAssetCtxs(): Promise<[HLMeta, HLAssetCtx[]]> {
-  return cache.wrap("hl:meta", 15, () =>
+export async function getMetaAndAssetCtxs(): Promise<[HLMeta, HLAssetCtx[]]> {
+  const data = await cache.wrap("hl:meta", 15, () =>
     hlPost<[HLMeta, HLAssetCtx[]]>("metaAndAssetCtxs")
   );
+  const [meta, assetCtxs] = data;
+  if (meta.universe.length > 0 && assetCtxs.length > 0) {
+    ingestDerivativesSnapshots(
+      assetCtxs.map((ctx, i) => ({
+        symbol: meta.universe[i]?.name ?? `HL-${i}`,
+        openInterest: ctx.openInterest,
+        fundingRate: ctx.funding,
+        volume24h: ctx.dayNtlVlm,
+        exchange: "hyperliquid",
+      })),
+      "hyperliquid",
+    );
+  }
+  return data;
 }
 
 // ─── All Mid Prices ──────────────────────────────────────────

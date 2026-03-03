@@ -1,0 +1,104 @@
+# Crypto Vision — Cloud Build for Ingestion Workers
+#
+# Builds the worker Docker image and deploys each worker
+# as a Cloud Run Job. Workers are scheduled via Cloud Scheduler.
+#
+# Usage:   gcloud builds submit --config cloudbuild-workers.yaml .
+#
+# Substitutions:
+#   _REGION        — GCP region (default: us-central1)
+#   _SERVICE_ACCOUNT — Cloud Run service account
+
+substitutions:
+  _REGION: us-central1
+  _SERVICE_ACCOUNT: crypto-vision-run
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: E2_HIGHCPU_8
+
+steps:
+  # ── 1. Build worker Docker image ───────────────────────────
+  - name: gcr.io/cloud-builders/docker
+    id: build-worker
+    args:
+      - build
+      - -t
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/crypto-vision/worker:$SHORT_SHA"
+      - -t
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/crypto-vision/worker:latest"
+      - -f
+      - Dockerfile.worker
+      - .
+
+  # ── 2. Push worker image to Artifact Registry ─────────────
+  - name: gcr.io/cloud-builders/docker
+    id: push-worker
+    args:
+      - push
+      - --all-tags
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/crypto-vision/worker"
+    waitFor: [build-worker]
+
+  # ── 3. Deploy / Update each worker as a Cloud Run Job ──────
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    id: deploy-workers
+    entrypoint: bash
+    waitFor: [push-worker]
+    args:
+      - -c
+      - |
+        set -euo pipefail
+
+        IMAGE="${_REGION}-docker.pkg.dev/$PROJECT_ID/crypto-vision/worker:$SHORT_SHA"
+        WORKERS="market defi news dex derivatives onchain governance macro"
+
+        for worker in $WORKERS; do
+          echo "=== Deploying ingest-${worker} ==="
+          
+          gcloud run jobs create "ingest-${worker}" \
+            --image="${IMAGE}" \
+            --region="${_REGION}" \
+            --command=node \
+            --args="dist/src/workers/ingest-${worker}.js" \
+            --set-env-vars="NODE_ENV=production,GCP_PROJECT_ID=$PROJECT_ID" \
+            --set-secrets="COINGECKO_API_KEY=COINGECKO_API_KEY:latest,REDIS_URL=REDIS_URL:latest" \
+            --service-account="${_SERVICE_ACCOUNT}@$PROJECT_ID.iam.gserviceaccount.com" \
+            --max-retries=3 \
+            --task-timeout=600s \
+            --memory=1Gi \
+            --cpu=1 \
+            --quiet 2>/dev/null \
+          || gcloud run jobs update "ingest-${worker}" \
+            --image="${IMAGE}" \
+            --region="${_REGION}" \
+            --quiet
+          
+          echo "=== Deployed ingest-${worker} ==="
+        done
+
+        # Deploy backfill job with higher resources
+        echo "=== Deploying backfill-historical ==="
+        gcloud run jobs create "backfill-historical" \
+          --image="${IMAGE}" \
+          --region="${_REGION}" \
+          --command=node \
+          --args="dist/src/workers/backfill-historical.js" \
+          --set-env-vars="NODE_ENV=production,GCP_PROJECT_ID=$PROJECT_ID" \
+          --set-secrets="COINGECKO_API_KEY=COINGECKO_API_KEY:latest,REDIS_URL=REDIS_URL:latest" \
+          --service-account="${_SERVICE_ACCOUNT}@$PROJECT_ID.iam.gserviceaccount.com" \
+          --max-retries=1 \
+          --task-timeout=3600s \
+          --memory=2Gi \
+          --cpu=2 \
+          --quiet 2>/dev/null \
+        || gcloud run jobs update "backfill-historical" \
+          --image="${IMAGE}" \
+          --region="${_REGION}" \
+          --quiet
+        
+        echo "=== All workers deployed ==="
+
+images:
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/crypto-vision/worker:$SHORT_SHA"
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/crypto-vision/worker:latest"

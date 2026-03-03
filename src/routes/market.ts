@@ -33,6 +33,7 @@ import * as alt from "../sources/alternative.js";
 import * as coinlore from "../sources/coinlore.js";
 import { ApiError } from "../lib/api-error.js";
 import { tryMultipleSources } from "../lib/fallback.js";
+import { processPrice } from "../lib/anomaly-processors.js";
 import { validateQueries, validateParam, CoinIdSchema, NumericIdSchema, ChainSlugSchema, HexAddressSchema } from "../lib/validation.js";
 import { MarketCoinsQuerySchema, MarketPriceQuerySchema, MarketSearchQuerySchema, MarketChartQuerySchema, MarketOhlcQuerySchema, MarketFearGreedQuerySchema, MarketGainersLosersQuerySchema, MarketHighVolumeQuerySchema, MarketAthDistanceQuerySchema, MarketCompareQuerySchema, MarketPaprikaTickersQuerySchema, MarketCoincapAssetsQuerySchema, MarketCoincapHistoryQuerySchema, MarketCoinloreTickersQuerySchema, MarketRatesQuerySchema, MarketMarketsQuerySchema } from "../lib/route-schemas.js";
 
@@ -151,6 +152,11 @@ marketRoutes.get("/coins", async (c) => {
       },
     ],
   );
+
+  // Feed anomaly detection engine with fresh market data
+  for (const coin of result.data) {
+    processPrice(coin.id, coin.price, coin.volume24h);
+  }
 
   return c.json({
     data: result.data,
@@ -409,7 +415,9 @@ function classifyFearGreed(value: number): string {
 // ─── GET /api/fear-greed ─────────────────────────────────────
 
 marketRoutes.get("/fear-greed", async (c) => {
-  const limit = Math.min(Number(c.req.query("limit") || 1), 30);
+  const q = validateQueries(c, MarketFearGreedQuerySchema);
+  if (!q.success) return q.error;
+  const limit = q.data.limit;
 
   const result = await tryMultipleSources<NormalisedFearGreed[]>("fear-greed", [
     {
@@ -485,7 +493,9 @@ marketRoutes.get("/dex/search", async (c) => {
 // ─── GET /api/gainers ────────────────────────────────────────
 
 marketRoutes.get("/gainers", async (c) => {
-  const limit = Math.min(Number(c.req.query("limit") || 20), 100);
+  const q = validateQueries(c, MarketGainersLosersQuerySchema);
+  if (!q.success) return q.error;
+  const limit = q.data.limit;
   const coins = await cg.getCoins({ page: 1, perPage: 250, order: "market_cap_desc", sparkline: false });
 
   const gainers = coins
@@ -513,7 +523,9 @@ marketRoutes.get("/gainers", async (c) => {
 // ─── GET /api/losers ─────────────────────────────────────────
 
 marketRoutes.get("/losers", async (c) => {
-  const limit = Math.min(Number(c.req.query("limit") || 20), 100);
+  const q = validateQueries(c, MarketGainersLosersQuerySchema);
+  if (!q.success) return q.error;
+  const limit = q.data.limit;
   const coins = await cg.getCoins({ page: 1, perPage: 250, order: "market_cap_desc", sparkline: false });
 
   const losers = coins
@@ -541,7 +553,9 @@ marketRoutes.get("/losers", async (c) => {
 // ─── GET /api/high-volume ────────────────────────────────────
 
 marketRoutes.get("/high-volume", async (c) => {
-  const limit = Math.min(Number(c.req.query("limit") || 20), 100);
+  const q = validateQueries(c, MarketHighVolumeQuerySchema);
+  if (!q.success) return q.error;
+  const limit = q.data.limit;
   const coins = await cg.getCoins({ page: 1, perPage: 250, order: "market_cap_desc", sparkline: false });
 
   const sorted = [...coins].sort((a, b) => (b.total_volume || 0) - (a.total_volume || 0)).slice(0, limit);
@@ -565,7 +579,9 @@ marketRoutes.get("/high-volume", async (c) => {
 // ─── GET /api/ath-distance ───────────────────────────────────
 
 marketRoutes.get("/ath-distance", async (c) => {
-  const limit = Math.min(Number(c.req.query("limit") || 50), 250);
+  const q = validateQueries(c, MarketAthDistanceQuerySchema);
+  if (!q.success) return q.error;
+  const limit = q.data.limit;
   const coins = await cg.getCoins({ page: 1, perPage: limit, order: "market_cap_desc", sparkline: false });
 
   const sorted = [...coins]
@@ -589,8 +605,9 @@ marketRoutes.get("/ath-distance", async (c) => {
 // ─── GET /api/compare ────────────────────────────────────────
 
 marketRoutes.get("/compare", async (c) => {
-  const ids = c.req.query("ids");
-  if (!ids) return c.json({ error: "ids parameter required (comma-separated coin ids)" }, 400);
+  const q = validateQueries(c, MarketCompareQuerySchema);
+  if (!q.success) return q.error;
+  const ids = q.data.ids;
 
   const coinIds = ids.split(",").slice(0, 10);
   const details = await Promise.all(
@@ -664,7 +681,9 @@ marketRoutes.get("/paprika/global", async (c) => {
 // ─── GET /api/paprika/tickers ────────────────────────────────
 
 marketRoutes.get("/paprika/tickers", async (c) => {
-  const limit = Math.min(Number(c.req.query("limit") || 100), 250);
+  const q = validateQueries(c, MarketPaprikaTickersQuerySchema);
+  if (!q.success) return q.error;
+  const limit = q.data.limit;
   const tickers = await alt.getCoinPaprikaTickers(limit);
 
   return c.json({
@@ -688,7 +707,9 @@ marketRoutes.get("/paprika/tickers", async (c) => {
 // ─── GET /api/coincap/assets ─────────────────────────────────
 
 marketRoutes.get("/coincap/assets", async (c) => {
-  const limit = Math.min(Number(c.req.query("limit") || 100), 250);
+  const q = validateQueries(c, MarketCoincapAssetsQuerySchema);
+  if (!q.success) return q.error;
+  const limit = q.data.limit;
   const { data } = await alt.getCoinCapAssets(limit);
 
   return c.json({
@@ -713,10 +734,14 @@ marketRoutes.get("/coincap/assets", async (c) => {
 // ─── GET /api/coincap/history/:id ────────────────────────────
 
 marketRoutes.get("/coincap/history/:id", async (c) => {
-  const id = c.req.param("id");
-  const interval = c.req.query("interval") || "h1";
-  const start = c.req.query("start") ? Number(c.req.query("start")) : undefined;
-  const end = c.req.query("end") ? Number(c.req.query("end")) : undefined;
+  const pv = validateParam(c, "id", CoinIdSchema);
+  if (!pv.success) return pv.error;
+  const q = validateQueries(c, MarketCoincapHistoryQuerySchema);
+  if (!q.success) return q.error;
+  const id = pv.data;
+  const interval = q.data.interval;
+  const start = q.data.start;
+  const end = q.data.end;
 
   const { data } = await alt.getCoinCapHistory(id, interval as Parameters<typeof alt.getCoinCapHistory>[1], start, end);
 
@@ -810,8 +835,10 @@ marketRoutes.get("/coinlore/global", async (c) => {
 // ─── GET /api/coinlore/tickers ───────────────────────────────
 
 marketRoutes.get("/coinlore/tickers", async (c) => {
-  const start = Number(c.req.query("start") || 0);
-  const limit = Math.min(Number(c.req.query("limit") || 100), 100);
+  const q = validateQueries(c, MarketCoinloreTickersQuerySchema);
+  if (!q.success) return q.error;
+  const start = q.data.start;
+  const limit = q.data.limit;
   const { data: tickers } = await coinlore.getTickers(start, limit);
 
   return c.json({
@@ -836,7 +863,9 @@ marketRoutes.get("/coinlore/tickers", async (c) => {
 // ─── GET /api/coinlore/coin/:id ──────────────────────────────
 
 marketRoutes.get("/coinlore/coin/:id", async (c) => {
-  const data = await coinlore.getCoinDetail(c.req.param("id"));
+  const pv = validateParam(c, "id", NumericIdSchema);
+  if (!pv.success) return pv.error;
+  const data = await coinlore.getCoinDetail(pv.data);
   if (!data || data.length === 0) {
     return c.json({ error: "Coin not found" }, 404);
   }
@@ -888,7 +917,9 @@ marketRoutes.get("/coinlore/exchanges", async (c) => {
 // ─── GET /api/coinlore/coin/:id/markets ──────────────────────
 
 marketRoutes.get("/coinlore/coin/:id/markets", async (c) => {
-  const data = await coinlore.getCoinMarkets(c.req.param("id"));
+  const pv = validateParam(c, "id", NumericIdSchema);
+  if (!pv.success) return pv.error;
+  const data = await coinlore.getCoinMarkets(pv.data);
 
   return c.json({
     data: (data || []).map((m) => ({
@@ -905,7 +936,9 @@ marketRoutes.get("/coinlore/coin/:id/markets", async (c) => {
 // ─── GET /api/coinlore/coin/:id/social ───────────────────────
 
 marketRoutes.get("/coinlore/coin/:id/social", async (c) => {
-  const data = await coinlore.getCoinSocialStats(c.req.param("id"));
+  const pv = validateParam(c, "id", NumericIdSchema);
+  if (!pv.success) return pv.error;
+  const data = await coinlore.getCoinSocialStats(pv.data);
 
   return c.json({
     data: {
@@ -920,7 +953,9 @@ marketRoutes.get("/coinlore/coin/:id/social", async (c) => {
 // ─── GET /api/rates ──────────────────────────────────────────
 
 marketRoutes.get("/rates", async (c) => {
-  const type = c.req.query("type"); // "fiat" or "crypto"
+  const q = validateQueries(c, MarketRatesQuerySchema);
+  if (!q.success) return q.error;
+  const type = q.data.type;
   const { data } = await alt.getCoinCapRates();
 
   let rates = data || [];
@@ -964,7 +999,9 @@ marketRoutes.get("/exchanges/coincap", async (c) => {
 // CoinCap exchange markets (individual trading pairs)
 
 marketRoutes.get("/markets", async (c) => {
-  const limit = Math.min(Number(c.req.query("limit") || 50), 200);
+  const q = validateQueries(c, MarketMarketsQuerySchema);
+  if (!q.success) return q.error;
+  const limit = q.data.limit;
   const { data } = await alt.getCoinCapMarkets(limit);
 
   return c.json({
@@ -1084,7 +1121,9 @@ marketRoutes.get("/paprika/coin/:id/events", async (c) => {
 // DexScreener pairs on a given chain
 
 marketRoutes.get("/dex/pairs/:chain", async (c) => {
-  const chain = c.req.param("chain");
+  const pv = validateParam(c, "chain", ChainSlugSchema);
+  if (!pv.success) return pv.error;
+  const chain = pv.data;
   const data = await alt.dexPairsByChain(chain);
 
   return c.json({
@@ -1108,8 +1147,12 @@ marketRoutes.get("/dex/pairs/:chain", async (c) => {
 // DexScreener single pair detail
 
 marketRoutes.get("/dex/pair/:chain/:address", async (c) => {
-  const chain = c.req.param("chain");
-  const address = c.req.param("address");
+  const pv1 = validateParam(c, "chain", ChainSlugSchema);
+  if (!pv1.success) return pv1.error;
+  const pv2 = validateParam(c, "address", HexAddressSchema);
+  if (!pv2.success) return pv2.error;
+  const chain = pv1.data;
+  const address = pv2.data;
   const data = await alt.dexPairDetail(chain, address);
 
   return c.json({

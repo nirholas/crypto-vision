@@ -10,9 +10,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Hono } from "hono";
 
-// Stub admin env var so the module sees it at load time
-const TEST_ADMIN_KEY = "test-admin-key-secret";
-vi.stubEnv("ADMIN_API_KEYS", TEST_ADMIN_KEY);
+// Set admin env var BEFORE any mocks/imports (vi.hoisted runs first)
+const TEST_ADMIN_KEY = vi.hoisted(() => {
+  const key = "test-admin-key-secret";
+  process.env.ADMIN_API_KEYS = key;
+  return key;
+});
 
 // Mock Redis before importing auth module
 vi.mock("@/lib/redis.js", () => ({

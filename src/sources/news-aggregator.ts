@@ -20,6 +20,7 @@
 
 import { cache } from "../lib/cache.js";
 import { log } from "../lib/logger.js";
+import { ingestNewsArticles } from "../lib/bq-ingest.js";
 
 // ═══════════════════════════════════════════════════════════════
 // Per-source circuit breaker — auto-disable feeds after repeated failures
@@ -881,6 +882,8 @@ export async function getNews(options: {
   const offset = (page - 1) * perPage;
   const paginated = articles.slice(offset, offset + perPage);
 
+  ingestNewsArticles(paginated as unknown as Array<Record<string, unknown>>);
+
   return {
     articles: paginated,
     totalCount: articles.length,
@@ -895,6 +898,8 @@ export async function getNews(options: {
       },
     }),
   };
+  ingestNewsArticles(paginated as unknown as Array<Record<string, unknown>>);
+  return result;
 }
 
 /**

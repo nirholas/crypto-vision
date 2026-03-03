@@ -8,7 +8,7 @@
  * unset so we test the "no provider" and cascade-selection paths.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Stub all AI keys so no real network calls happen
 beforeEach(() => {
@@ -197,15 +197,15 @@ describe("Provider extractText functions", () => {
   });
 
   it("returns empty string for missing content", () => {
-    const empty1 = { choices: [] };
+    const empty1: { choices: Array<{ message?: { content?: string } }> } = { choices: [] };
     const text1 = empty1.choices?.[0]?.message?.content || "";
     expect(text1).toBe("");
 
-    const empty2 = { candidates: [] };
+    const empty2: { candidates: Array<{ content?: { parts?: Array<{ text?: string }> } }> } = { candidates: [] };
     const text2 = empty2.candidates?.[0]?.content?.parts?.[0]?.text || "";
     expect(text2).toBe("");
 
-    const empty3 = { content: [] };
+    const empty3: { content: Array<{ text: string }> } = { content: [] };
     const text3 = empty3.content?.map((b: { text: string }) => b.text).join("") || "";
     expect(text3).toBe("");
   });
@@ -231,5 +231,42 @@ describe("Provider extractUsage functions", () => {
   it("returns undefined when usage is missing", () => {
     const response = {};
     expect((response as Record<string, unknown>).usage).toBeUndefined();
+  });
+});
+
+describe("Self-Hosted Provider", () => {
+  it("getConfiguredProviders includes self-hosted when SELF_HOSTED_URL is set", async () => {
+    vi.stubEnv("SELF_HOSTED_URL", "http://localhost:8000");
+    const mod = await import("../../src/lib/ai.js");
+    const providers = mod.getConfiguredProviders();
+    expect(providers).toContain("self-hosted");
+  });
+
+  it("self-hosted provider is ordered after groq", async () => {
+    vi.stubEnv("GROQ_API_KEY", "test-key");
+    vi.stubEnv("SELF_HOSTED_URL", "http://localhost:8000");
+    const mod = await import("../../src/lib/ai.js");
+    const providers = mod.getConfiguredProviders();
+    const groqIdx = providers.indexOf("groq");
+    const selfIdx = providers.indexOf("self-hosted");
+    expect(groqIdx).toBeLessThan(selfIdx);
+  });
+
+  it("self-hosted provider uses OpenAI-compatible format", () => {
+    // Validate the response extraction matches OpenAI format
+    const response = {
+      choices: [{ message: { content: '{"sentiment": "bullish"}' } }],
+      usage: { total_tokens: 250, prompt_tokens: 100, completion_tokens: 150 },
+    };
+    const text = response.choices?.[0]?.message?.content || "";
+    const tokens = response.usage?.total_tokens;
+    expect(text).toBe('{"sentiment": "bullish"}');
+    expect(tokens).toBe(250);
+  });
+
+  it("self-hosted provider returns empty string on missing content", () => {
+    const emptyResponse = { choices: [] };
+    const text = emptyResponse.choices?.[0]?.message?.content || "";
+    expect(text).toBe("");
   });
 });

@@ -10,6 +10,7 @@
 
 import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
+import { ingestDerivativesSnapshots } from "../lib/bq-ingest.js";
 
 const BASE = "https://www.deribit.com/api/v2/public";
 
@@ -84,10 +85,22 @@ export interface DeribitBookSummary {
   creation_timestamp: number;
 }
 
-export function getBookSummary(currency: string, kind = "option"): Promise<DeribitBookSummary[]> {
-  return cache.wrap(`deribit:booksummary:${currency}:${kind}`, 30, () =>
+export async function getBookSummary(currency: string, kind = "option"): Promise<DeribitBookSummary[]> {
+  const data = await cache.wrap(`deribit:booksummary:${currency}:${kind}`, 30, () =>
     deribit<DeribitBookSummary[]>("get_book_summary_by_currency", { currency: currency.toUpperCase(), kind })
   );
+  if (kind === "future") {
+    ingestDerivativesSnapshots(
+      data.map(d => ({
+        symbol: d.instrument_name,
+        openInterest: d.open_interest,
+        volume24h: d.volume_usd,
+        exchange: "deribit",
+      })),
+      "deribit",
+    );
+  }
+  return data;
 }
 
 // ─── Volatility Index ────────────────────────────────────────
@@ -122,14 +135,19 @@ export interface DeribitFundingRate {
   index_price: number;
 }
 
-export function getFundingRate(instrument: string): Promise<DeribitFundingRate> {
-  return cache.wrap(`deribit:fr:${instrument}`, 30, () =>
+export async function getFundingRate(instrument: string): Promise<DeribitFundingRate> {
+  const data = await cache.wrap(`deribit:fr:${instrument}`, 30, () =>
     deribit<DeribitFundingRate>("get_funding_rate_value", {
       instrument_name: instrument,
       start_timestamp: Date.now() - 3600_000,
       end_timestamp: Date.now(),
     })
   );
+  ingestDerivativesSnapshots(
+    [{ symbol: instrument, fundingRate: data.current_funding, exchange: "deribit" }],
+    "deribit",
+  );
+  return data;
 }
 
 // ─── Order Book ──────────────────────────────────────────────

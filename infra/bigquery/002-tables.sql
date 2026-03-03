@@ -270,3 +270,23 @@ CREATE TABLE IF NOT EXISTS crypto_vision.agent_interactions (
 )
 PARTITION BY DATE(ingested_at)
 CLUSTER BY agent_id;
+
+-- 18. Anomaly events (real-time anomaly detection engine)
+CREATE TABLE IF NOT EXISTS crypto_vision.anomaly_events (
+  event_id STRING NOT NULL,
+  type STRING NOT NULL,
+  severity STRING NOT NULL,
+  asset STRING NOT NULL,
+  metric STRING NOT NULL,
+  current_value FLOAT64,
+  expected_low FLOAT64,
+  expected_high FLOAT64,
+  deviation FLOAT64,
+  message STRING,
+  context JSON,
+  detector STRING DEFAULT 'statistical-mzs',
+  detected_at TIMESTAMP NOT NULL,
+  ingested_at TIMESTAMP NOT NULL
+)
+PARTITION BY DATE(detected_at)
+CLUSTER BY type, severity, asset;

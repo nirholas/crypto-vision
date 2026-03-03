@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { anomalyEngine, SlidingWindow, type AnomalyEvent } from "../../src/lib/anomaly.js";
+import { anomalyEngine, SlidingWindow, DETECTOR_CONFIGS, type AnomalyEvent } from "../../src/lib/anomaly.js";
 
 // ─── SlidingWindow ───────────────────────────────────────────
 
@@ -359,5 +359,52 @@ describe("AnomalyEvent structure", () => {
     if (event) {
       expect(event.context).toEqual({ exchange: "binance", pair: "BTC/USDT" });
     }
+  });
+});
+
+// ─── DETECTOR_CONFIGS Export ─────────────────────────────────
+
+describe("DETECTOR_CONFIGS", () => {
+  it("exports all 16 anomaly types", () => {
+    expect(Object.keys(DETECTOR_CONFIGS)).toHaveLength(16);
+  });
+
+  it("has valid config for each type", () => {
+    for (const [type, config] of Object.entries(DETECTOR_CONFIGS)) {
+      expect(config.name, `${type} missing name`).toBeDefined();
+      expect(config.zScoreThreshold, `${type} missing zScoreThreshold`).toBeDefined();
+      expect(config.minDataPoints, `${type} missing minDataPoints`).toBeGreaterThan(0);
+      expect(config.cooldownMs, `${type} missing cooldownMs`).toBeGreaterThan(0);
+      expect(typeof config.severity, `${type} severity must be a function`).toBe("function");
+    }
+  });
+
+  it("severity functions return valid severity levels", () => {
+    for (const [type, config] of Object.entries(DETECTOR_CONFIGS)) {
+      const validSeverities = ["info", "warning", "critical"];
+      expect(validSeverities).toContain(config.severity(1));
+      expect(validSeverities).toContain(config.severity(4));
+      expect(validSeverities).toContain(config.severity(6));
+      expect(validSeverities).toContain(config.severity(-4));
+    }
+  });
+});
+
+// ─── State Persistence ───────────────────────────────────────
+
+describe("State Persistence", () => {
+  beforeEach(() => {
+    anomalyEngine.reset();
+  });
+
+  it("saveState does not throw", async () => {
+    for (let i = 0; i < 20; i++) {
+      anomalyEngine.ingest("price_spike", "bitcoin", "price", 50000 + i);
+    }
+    await expect(anomalyEngine.saveState()).resolves.not.toThrow();
+  });
+
+  it("loadState does not throw when no saved state", async () => {
+    await expect(anomalyEngine.loadState()).resolves.not.toThrow();
   });
 });

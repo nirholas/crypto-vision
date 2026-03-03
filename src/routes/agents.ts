@@ -241,6 +241,36 @@ agentsRoutes.get("/search", (c) => {
   });
 });
 
+// ─── GET /api/agents/discover ────────────────────────────────
+
+agentsRoutes.get("/discover", async (c) => {
+  const q = c.req.query("q");
+  if (!q) return ApiError.missingParam(c, "q");
+
+  const topK = Math.min(Number(c.req.query("limit") || 5), 10);
+
+  try {
+    const { findRelevantAgents, findRelevantAgentsByKeyword } = await import("../lib/agent-discovery.js");
+
+    let results;
+    try {
+      results = await findRelevantAgents(q, topK);
+    } catch {
+      results = findRelevantAgentsByKeyword(q, topK);
+    }
+
+    return c.json({
+      data: results,
+      query: q,
+      count: results.length,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    log.error({ err, query: q }, "Agent discovery failed");
+    return ApiError.aiError(c, "Agent discovery failed", (err as Error).message);
+  }
+});
+
 // ─── GET /api/agents/:id ────────────────────────────────────
 
 agentsRoutes.get("/:id", (c) => {
@@ -480,36 +510,6 @@ agentsRoutes.post("/orchestrate", async (c) => {
     }
     log.error({ err, question: question.slice(0, 200) }, "Orchestration failed");
     return ApiError.aiError(c, "Orchestration failed", (err as Error).message);
-  }
-});
-
-// ─── GET /api/agents/discover ────────────────────────────────
-
-agentsRoutes.get("/discover", async (c) => {
-  const q = c.req.query("q");
-  if (!q) return ApiError.missingParam(c, "q");
-
-  const topK = Math.min(Number(c.req.query("limit") || 5), 10);
-
-  try {
-    const { findRelevantAgents, findRelevantAgentsByKeyword } = await import("../lib/agent-discovery.js");
-
-    let results;
-    try {
-      results = await findRelevantAgents(q, topK);
-    } catch {
-      results = findRelevantAgentsByKeyword(q, topK);
-    }
-
-    return c.json({
-      data: results,
-      query: q,
-      count: results.length,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (err) {
-    log.error({ err, query: q }, "Agent discovery failed");
-    return ApiError.aiError(c, "Agent discovery failed", (err as Error).message);
   }
 });
 

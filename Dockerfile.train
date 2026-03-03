@@ -1,7 +1,7 @@
 # Dockerfile.train — GPU training container for Crypto Vision
 #
-# Builds a CUDA-enabled image with all Python dependencies for
-# fine-tuning open-source LLMs using LoRA + Unsloth.
+# Multi-stage build producing a CUDA-enabled image with all Python
+# dependencies for fine-tuning open-source LLMs using LoRA + Unsloth.
 #
 # Build:
 #   docker build -f Dockerfile.train -t crypto-vision-trainer .
@@ -21,15 +21,14 @@
 #
 # Copyright 2024-2026 nirholas. All rights reserved.
 
-FROM nvidia/cuda:12.4.0-devel-ubuntu22.04
+# ─── Stage 1: Build dependencies ─────────────────────────────
+FROM nvidia/cuda:12.4.0-devel-ubuntu22.04 AS builder
 
-# Prevent interactive prompts and ensure unbuffered Python output
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PYTHONUNBUFFERED=1
 ENV PIP_NO_CACHE_DIR=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Install system dependencies
+# Install system dependencies needed for building Python packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.11 \
     python3.11-dev \
@@ -38,14 +37,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     wget \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Set Python 3.11 as default
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
 
-# Upgrade pip
 RUN python3 -m pip install --upgrade pip setuptools wheel
+
+# Install all Python dependencies into a virtual environment
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:${PATH}"
 
 # Install PyTorch with CUDA 12.4 support
 RUN pip install torch==2.4.0 --index-url https://download.pytorch.org/whl/cu124
@@ -68,17 +71,47 @@ RUN pip install \
     autoawq==0.2.6
 
 # Install GCS tools for model upload
-RUN pip install google-cloud-storage \
-    && curl -sSL https://sdk.cloud.google.com | bash -s -- --disable-prompts \
-    && echo 'source /root/google-cloud-sdk/path.bash.inc' >> /etc/bash.bashrc
-ENV PATH="/root/google-cloud-sdk/bin:${PATH}"
+RUN pip install google-cloud-storage
 
 # Install Unsloth for 2x faster training
 # Pinned to cu124-torch240 variant for CUDA 12.4 + PyTorch 2.4.0
 RUN pip install "unsloth[cu124-torch240] @ git+https://github.com/unslothai/unsloth.git"
 
-# Install vLLM for post-training inference testing
-RUN pip install vllm>=0.5.0
+# Install vLLM for post-training inference smoke tests
+RUN pip install "vllm>=0.5.0"
+
+# Install benchmarking dependencies
+RUN pip install aiohttp
+
+# ─── Stage 2: Runtime image ──────────────────────────────────
+FROM nvidia/cuda:12.4.0-runtime-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+
+# Install minimal runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3.11-venv \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set Python 3.11 as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
+    && update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:${PATH}"
+
+# Install gsutil (lightweight, needed for model upload)
+RUN curl -sSL https://sdk.cloud.google.com | bash -s -- --disable-prompts \
+    && echo 'source /root/google-cloud-sdk/path.bash.inc' >> /etc/bash.bashrc
+ENV PATH="/root/google-cloud-sdk/bin:${PATH}"
+
+# Create non-root user for runtime (but allow root for GPU access if needed)
+RUN groupadd -r trainer && useradd -r -g trainer -m trainer
 
 # Set working directory
 WORKDIR /training
@@ -90,8 +123,21 @@ COPY scripts/training/ ./scripts/
 # In production, data is usually mounted as a volume
 COPY data/training/ ./data/ 2>/dev/null || true
 
+# Ensure model output directory exists and is writable
+RUN mkdir -p /models && chown trainer:trainer /models
+
+# Healthcheck: verify Python and torch are importable
+HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=3 \
+    CMD python3 -c "import torch; assert torch.cuda.is_available(), 'No GPU'" || exit 1
+
+# Metadata labels
+LABEL org.opencontainers.image.title="crypto-vision-trainer" \
+      org.opencontainers.image.description="GPU training container for fine-tuning crypto-specific LLMs" \
+      org.opencontainers.image.source="https://github.com/nirholas/crypto-vision" \
+      org.opencontainers.image.authors="nirholas"
+
 # Default entrypoint: Python 3.11
 ENTRYPOINT ["python3"]
 
-# Default command: run the training script
+# Default command: show help
 CMD ["scripts/opensource/train.py", "--help"]

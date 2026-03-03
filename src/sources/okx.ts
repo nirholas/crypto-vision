@@ -10,6 +10,7 @@
 
 import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
+import { ingestDerivativesSnapshots, ingestOHLCCandles } from "../lib/bq-ingest.js";
 
 const BASE = "https://www.okx.com/api/v5";
 
@@ -43,6 +44,14 @@ export async function getSwapTickers(): Promise<OKXTicker[]> {
   return cache.wrap("okx:swap:tickers", 15, async () => {
     const res = await fetchJSON<OKXResponse<OKXTicker[]>>(
       `${BASE}/market/tickers?instType=SWAP`,
+    );
+    ingestDerivativesSnapshots(
+      res.data.map(t => ({
+        symbol: t.instId,
+        volume24h: t.vol24h,
+        exchange: "okx",
+      })),
+      "okx",
     );
     return res.data;
   });
@@ -106,7 +115,7 @@ export async function getCandles(
     const res = await fetchJSON<OKXResponse<string[][]>>(
       `${BASE}/market/candles?instId=${instId}&bar=${bar}&limit=${limit}`,
     );
-    return res.data.map((c) => ({
+    const candles = res.data.map((c) => ({
       ts: c[0],
       o: c[1],
       h: c[2],
@@ -117,6 +126,12 @@ export async function getCandles(
       volCcyQuote: c[7],
       confirm: c[8],
     }));
+    ingestOHLCCandles(
+      instId,
+      candles.map(c => [Number(c.ts), Number(c.o), Number(c.h), Number(c.l), Number(c.c)] as [number, number, number, number, number]),
+      "okx",
+    );
+    return candles;
   });
 }
 
@@ -135,7 +150,12 @@ export async function getFundingRate(instId: string): Promise<OKXFundingRate> {
     const res = await fetchJSON<OKXResponse<OKXFundingRate[]>>(
       `${BASE}/public/funding-rate?instId=${instId}`,
     );
-    return res.data[0];
+    const fr = res.data[0];
+    ingestDerivativesSnapshots(
+      [{ symbol: fr.instId, fundingRate: fr.fundingRate, exchange: "okx" }],
+      "okx",
+    );
+    return fr;
   });
 }
 
@@ -161,6 +181,10 @@ export async function getOpenInterest(instType = "SWAP"): Promise<OKXOpenInteres
   return cache.wrap(`okx:oi:${instType}`, 30, async () => {
     const res = await fetchJSON<OKXResponse<OKXOpenInterest[]>>(
       `${BASE}/public/open-interest?instType=${instType}`,
+    );
+    ingestDerivativesSnapshots(
+      res.data.map(d => ({ symbol: d.instId, openInterest: d.oi, exchange: "okx" })),
+      "okx",
     );
     return res.data;
   });

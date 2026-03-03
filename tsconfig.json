@@ -3,7 +3,9 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "outDir": "dist",
     "rootDir": ".",
     "strict": true,
@@ -16,11 +18,28 @@
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@/packages/*": ["packages/*"],
-      "@/agents/*": ["agents/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@/packages/*": [
+        "packages/*"
+      ],
+      "@/agents/*": [
+        "agents/*"
+      ]
     }
   },
-  "include": ["src/**/*", "scripts/**/*"],
-  "exclude": ["node_modules", "dist", "apps", "packages", "agents", "upstream", "**/*.test.ts"]
+  "include": [
+    "src/**/*",
+    "scripts/**/*",
+    "tests/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "apps",
+    "packages",
+    "agents",
+    "upstream"
+  ]
 }

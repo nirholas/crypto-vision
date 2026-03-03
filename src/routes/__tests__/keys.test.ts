@@ -10,7 +10,7 @@ import { Hono } from "hono";
 // ─── Mock auth module BEFORE importing routes ────────────────
 
 vi.mock("../../lib/auth.js", () => ({
-  requireAdmin: vi.fn(() => async (c: any, next: any) => {
+  requireAdmin: vi.fn(() => async (_c: any, next: any) => {
     // Simulate admin middleware — by default allow through
     await next();
   }),
@@ -41,9 +41,10 @@ app.route("/", keysRoutes);
 beforeEach(() => {
   vi.clearAllMocks();
   // Re-set requireAdmin to allow through by default
-  vi.mocked(auth.requireAdmin).mockReturnValue(async (c: any, next: any) => {
+  const passthrough = async (_c: any, next: any): Promise<void> => {
     await next();
-  });
+  };
+  vi.mocked(auth.requireAdmin).mockReturnValue(passthrough as any);
 });
 
 // ═══════════════════════════════════════════════════════════════

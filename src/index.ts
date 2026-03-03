@@ -45,6 +45,10 @@ import { aggregateRoutes } from "@/routes/aggregate";
 import { aiRoutes } from "@/routes/ai";
 import { analyticsRoutes } from "@/routes/analytics";
 import { anomalyRoutes } from "@/routes/anomaly";
+import { anomalyEngine } from "@/lib/anomaly";
+
+// Import anomaly processors for side-effects (registers WebSocket broadcast + BigQuery logging handlers)
+import "@/lib/anomaly-processors";
 import { bitcoinRoutes } from "@/routes/bitcoin";
 import { calendarRoutes } from "@/routes/calendar";
 import { cexRoutes } from "@/routes/cex";
@@ -775,6 +779,13 @@ const server = serve(
   (info) => {
     injectWebSocket(server);
     void startUpstreams();
+
+    // Restore anomaly engine state from cache + start periodic save
+    anomalyEngine.loadState().catch(() => {});
+    setInterval(() => {
+      anomalyEngine.saveState().catch(() => {});
+    }, 300_000); // every 5 minutes
+
     log.info(
       `🚀 Crypto Vision API running on http://localhost:${info.port}`
     );
@@ -811,6 +822,13 @@ async function gracefulShutdown(signal: string) {
 
   // Stop WebSocket upstream connections
   await stopUpstreams();
+
+  // Save anomaly engine state before shutdown
+  try {
+    await anomalyEngine.saveState();
+  } catch {
+    /* best-effort */
+  }
 
   // Disconnect shared resources
   try {

@@ -193,6 +193,8 @@ def main() -> None:
     start_time = time.time()
 
     lora_alpha = args.lora_alpha if args.lora_alpha is not None else args.lora_r * 2
+    merged_path: Optional[str] = None
+    quantized_path: Optional[str] = None
 
     logger.info("=" * 60)
     logger.info("Crypto Vision — Open-Source Model Fine-Tuning")

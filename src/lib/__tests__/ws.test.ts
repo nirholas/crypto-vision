@@ -6,7 +6,7 @@
  * updateClientCoins, broadcastToTopic, startUpstreams, stopUpstreams.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Mock Redis before importing ws module
 vi.mock("@/lib/redis", () => ({
@@ -61,13 +61,12 @@ vi.mock("ws", () => {
 
 import {
   addClient,
+  broadcastToTopic,
   removeClient,
-  updateClientCoins,
-  wsStats,
   startUpstreams,
   stopUpstreams,
-  broadcastToTopic,
-  type Topic,
+  updateClientCoins,
+  wsStats
 } from "@/lib/ws.js";
 import type { WSContext } from "hono/ws";
 
@@ -243,8 +242,9 @@ describe("broadcastToTopic()", () => {
     broadcastToTopic("prices", priceMsg);
 
     // The client should receive only bitcoin price
-    if (ws.send.mock.calls.length > 0) {
-      const sent = JSON.parse(ws.send.mock.calls[0][0]);
+    const sendMock = vi.mocked(ws.send);
+    if (sendMock.mock.calls.length > 0) {
+      const sent = JSON.parse(sendMock.mock.calls[0][0] as string);
       expect(sent.data).toHaveProperty("bitcoin");
       expect(sent.data).not.toHaveProperty("ethereum");
     }

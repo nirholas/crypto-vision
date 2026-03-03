@@ -9,6 +9,7 @@
 import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
 import { log } from "../lib/logger.js";
+import { ingestNewsArticles } from "../lib/bq-ingest.js";
 
 // ─── RSS Sources ─────────────────────────────────────────────
 
@@ -213,7 +214,7 @@ export async function getNews(options: {
 
   const cacheKey = `news:${source || "all"}:${category || "all"}:${page}:${limit}`;
 
-  return cache.wrap(cacheKey, 60, async () => {
+  const result = await cache.wrap(cacheKey, 60, async () => {
     const sourcesToFetch = source
       ? NEWS_SOURCES.filter((s) => s.id === source)
       : NEWS_SOURCES;
@@ -270,6 +271,8 @@ export async function getNews(options: {
       timestamp: new Date().toISOString(),
     };
   });
+  ingestNewsArticles(result.articles as unknown as Array<Record<string, unknown>>);
+  return result;
 }
 
 /**

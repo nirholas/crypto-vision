@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc && tsc-alias",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "start": "node dist/src/index.js",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit",
@@ -20,6 +20,7 @@
     "training:eval": "tsx scripts/training/eval-models.ts",
     "training:eval:quick": "tsx scripts/training/eval-models.ts quick",
     "training:retrain": "tsx scripts/training/retrain.ts",
+    "training:prepare": "tsx scripts/training/opensource/prepare-data.ts",
     "export": "tsx scripts/export-all.ts",
     "export:dry-run": "tsx scripts/export-all.ts --dry-run",
     "export:download": "bash scripts/download-exports.sh",

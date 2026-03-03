@@ -13,6 +13,7 @@
 
 import { Hono } from "hono";
 import * as glass from "../sources/coinglass.js";
+import { processDerivatives } from "../lib/anomaly-processors.js";
 
 export const derivativesRoutes = new Hono();
 
@@ -20,6 +21,13 @@ export const derivativesRoutes = new Hono();
 
 derivativesRoutes.get("/funding", async (c) => {
   const result = await glass.getFundingRates();
+
+  // Feed anomaly detection with funding rate data
+  for (const item of (result.data || [])) {
+    const avgRate = (item.uMarginList || []).reduce((sum: number, ex: { rate: number }) => sum + ex.rate, 0)
+      / Math.max((item.uMarginList || []).length, 1);
+    processDerivatives(item.symbol, avgRate, 0);
+  }
 
   return c.json({
     data: (result.data || []).map((item) => ({
@@ -63,6 +71,13 @@ derivativesRoutes.get("/funding/:symbol", async (c) => {
 derivativesRoutes.get("/oi", async (c) => {
   const limit = Math.min(Number(c.req.query("limit") || 50), 200);
   const result = await glass.getOpenInterest();
+
+  // Feed anomaly detection with OI + funding rate data
+  for (const item of (result.data || [])) {
+    if (item.openInterest != null) {
+      processDerivatives(item.symbol, 0, item.openInterest);
+    }
+  }
 
   return c.json({
     data: (result.data || [])

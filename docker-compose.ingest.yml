@@ -1,0 +1,168 @@
+# ─────────────────────────────────────────────────────────────
+# Crypto Vision — Docker Compose for Local Ingestion Pipeline
+#
+# Runs Pub/Sub emulator + all ingestion workers for local
+# development and testing. Workers connect to the emulator
+# instead of real GCP Pub/Sub.
+#
+# Usage:
+#   docker compose -f docker-compose.ingest.yml up
+#   docker compose -f docker-compose.ingest.yml up worker-market  # single worker
+#
+# Prerequisites:
+#   - .env file with API keys (COINGECKO_API_KEY, etc.)
+#   - Built project: npm run build
+# ─────────────────────────────────────────────────────────────
+
+services:
+  # ── Pub/Sub Emulator ──────────────────────────────────────
+  pubsub-emulator:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
+    command: >
+      gcloud beta emulators pubsub start
+        --host-port=0.0.0.0:8085
+        --project=local-dev
+    ports:
+      - "8085:8085"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # ── Market Worker (every 2 min) ───────────────────────────
+  worker-market:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    command: node dist/src/workers/ingest-market.js
+    env_file: .env
+    environment:
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
+      GCP_PROJECT_ID: local-dev
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    depends_on:
+      pubsub-emulator:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── DeFi Worker (every 5 min) ─────────────────────────────
+  worker-defi:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    command: node dist/src/workers/ingest-defi.js
+    env_file: .env
+    environment:
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
+      GCP_PROJECT_ID: local-dev
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    depends_on:
+      pubsub-emulator:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── News Worker (every 5 min) ─────────────────────────────
+  worker-news:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    command: node dist/src/workers/ingest-news.js
+    env_file: .env
+    environment:
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
+      GCP_PROJECT_ID: local-dev
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    depends_on:
+      pubsub-emulator:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── DEX Worker (every 2 min) ──────────────────────────────
+  worker-dex:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    command: node dist/src/workers/ingest-dex.js
+    env_file: .env
+    environment:
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
+      GCP_PROJECT_ID: local-dev
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    depends_on:
+      pubsub-emulator:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Derivatives Worker (every 10 min) ─────────────────────
+  worker-derivatives:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    command: node dist/src/workers/ingest-derivatives.js
+    env_file: .env
+    environment:
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
+      GCP_PROJECT_ID: local-dev
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    depends_on:
+      pubsub-emulator:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── On-Chain Worker (every 5 min) ─────────────────────────
+  worker-onchain:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    command: node dist/src/workers/ingest-onchain.js
+    env_file: .env
+    environment:
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
+      GCP_PROJECT_ID: local-dev
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    depends_on:
+      pubsub-emulator:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Governance Worker (every 30 min) ──────────────────────
+  worker-governance:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    command: node dist/src/workers/ingest-governance.js
+    env_file: .env
+    environment:
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
+      GCP_PROJECT_ID: local-dev
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    depends_on:
+      pubsub-emulator:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Macro Worker (every 60 min) ───────────────────────────
+  worker-macro:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    command: node dist/src/workers/ingest-macro.js
+    env_file: .env
+    environment:
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8085
+      GCP_PROJECT_ID: local-dev
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    depends_on:
+      pubsub-emulator:
+        condition: service_healthy
+    restart: unless-stopped

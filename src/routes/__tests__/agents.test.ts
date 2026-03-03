@@ -319,7 +319,7 @@ describe("POST /api/agents/:id/run", () => {
 
     it("returns 503 when queue is full", async () => {
         vi.mocked(aiQueue.execute).mockRejectedValue(
-            new QueueFullError("Queue is full, try again later"),
+            new QueueFullError(100),
         );
 
         const res = await app.request("/api/agents/test-agent/run", {

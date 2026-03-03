@@ -10,6 +10,7 @@
 
 import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
+import { ingestDerivativesSnapshots } from "../lib/bq-ingest.js";
 
 const API = "https://open-api-v3.coinglass.com/api";
 
@@ -26,7 +27,7 @@ function glass<T>(path: string, ttl: number): Promise<T> {
 
 // ─── Funding Rates ───────────────────────────────────────────
 
-export function getFundingRates(symbol?: string): Promise<{
+export async function getFundingRates(symbol?: string): Promise<{
   code: string;
   data: Array<{
     symbol: string;
@@ -38,12 +39,23 @@ export function getFundingRates(symbol?: string): Promise<{
   }>;
 }> {
   const q = symbol ? `?symbol=${symbol}` : "";
-  return glass(`/futures/funding-rate${q}`, 300);
+  const data = await glass<{
+    code: string;
+    data: Array<{
+      symbol: string;
+      uMarginList: Array<{ exchangeName: string; rate: number; nextFundingTime: number }>;
+    }>;
+  }>(`/futures/funding-rate${q}`, 300);
+  const rows = data.data?.flatMap(d =>
+    d.uMarginList?.map(e => ({ symbol: d.symbol, exchange: e.exchangeName, fundingRate: e.rate })) ?? [],
+  ) ?? [];
+  if (rows.length) ingestDerivativesSnapshots(rows, "coinglass");
+  return data;
 }
 
 // ─── Open Interest ───────────────────────────────────────────
 
-export function getOpenInterest(symbol?: string): Promise<{
+export async function getOpenInterest(symbol?: string): Promise<{
   code: string;
   data: Array<{
     symbol: string;
@@ -55,12 +67,18 @@ export function getOpenInterest(symbol?: string): Promise<{
   }>;
 }> {
   const q = symbol ? `?symbol=${symbol}` : "";
-  return glass(`/futures/open-interest${q}`, 300);
+  const data = await glass<{
+    code: string;
+    data: Array<{ symbol: string; openInterest: number; openInterestAmount: number; h1Change: number; h4Change: number; h24Change: number }>;
+  }>(`/futures/open-interest${q}`, 300);
+  const rows = data.data?.map(d => ({ symbol: d.symbol, openInterest: d.openInterest })) ?? [];
+  if (rows.length) ingestDerivativesSnapshots(rows, "coinglass");
+  return data;
 }
 
 // ─── Liquidations ────────────────────────────────────────────
 
-export function getLiquidations(symbol?: string): Promise<{
+export async function getLiquidations(symbol?: string): Promise<{
   code: string;
   data: Array<{
     symbol: string;
@@ -77,7 +95,28 @@ export function getLiquidations(symbol?: string): Promise<{
   }>;
 }> {
   const q = symbol ? `?symbol=${symbol}` : "";
-  return glass(`/futures/liquidation/detail${q}`, 120);
+  const data = await glass<{
+    code: string;
+    data: Array<{
+      symbol: string;
+      longLiquidationUsd: number;
+      shortLiquidationUsd: number;
+      h1LongLiquidationUsd: number;
+      h1ShortLiquidationUsd: number;
+      h4LongLiquidationUsd: number;
+      h4ShortLiquidationUsd: number;
+      h12LongLiquidationUsd: number;
+      h12ShortLiquidationUsd: number;
+      h24LongLiquidationUsd: number;
+      h24ShortLiquidationUsd: number;
+    }>;
+  }>(`/futures/liquidation/detail${q}`, 120);
+  const rows = data.data?.map(d => ({
+    symbol: d.symbol,
+    liquidations: d.h24LongLiquidationUsd + d.h24ShortLiquidationUsd,
+  })) ?? [];
+  if (rows.length) ingestDerivativesSnapshots(rows, "coinglass");
+  return data;
 }
 
 // ─── Long/Short Ratio ────────────────────────────────────────

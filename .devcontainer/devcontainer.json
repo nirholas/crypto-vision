@@ -1,0 +1,54 @@
+{
+  "name": "crypto-vision",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+
+  "hostRequirements": {
+    "cpus": 32,
+    "memory": "128gb",
+    "storage": "128gb"
+  },
+
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      "kubectl": "latest",
+      "helm": "latest",
+      "minikube": "none"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker",
+        "bradlc.vscode-tailwindcss"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    },
+    "codespaces": {
+      "openFiles": []
+    }
+  },
+
+  "postCreateCommand": "npm install",
+
+  "forwardPorts": [8080, 3000, 5173],
+
+  "portsAttributes": {
+    "8080": { "label": "API Server", "onAutoForward": "notify" },
+    "3000": { "label": "Dashboard", "onAutoForward": "notify" },
+    "5173": { "label": "Vite Dev", "onAutoForward": "notify" }
+  },
+
+  "remoteUser": "node"
+}

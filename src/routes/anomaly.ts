@@ -10,6 +10,7 @@ import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import {
   anomalyEngine,
+  DETECTOR_CONFIGS,
   type AnomalyEvent,
   type AnomalyType,
   type AnomalyHandler,
@@ -100,6 +101,48 @@ function getTopTypes(): Array<{ type: string; count: number }> {
     .sort((a, b) => b[1] - a[1])
     .map(([type, count]) => ({ type, count }));
 }
+
+// ─── GET /api/anomalies/types — Available anomaly types ──────
+
+anomalyRoutes.get("/types", (c) => {
+  const types = Object.entries(DETECTOR_CONFIGS).map(([type, config]) => ({
+    type,
+    name: config.name,
+    zScoreThreshold: config.zScoreThreshold,
+    minDataPoints: config.minDataPoints,
+    cooldownMs: config.cooldownMs,
+  }));
+
+  return c.json({
+    data: types,
+    count: types.length,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/anomalies/config — Current detector configuration ────
+
+anomalyRoutes.get("/config", (c) => {
+  const configs = Object.fromEntries(
+    Object.entries(DETECTOR_CONFIGS).map(([type, config]) => [
+      type,
+      {
+        name: config.name,
+        zScoreThreshold: config.zScoreThreshold,
+        minDataPoints: config.minDataPoints,
+        cooldownMs: config.cooldownMs,
+        cooldownMinutes: config.cooldownMs / 60_000,
+      },
+    ]),
+  );
+
+  return c.json({
+    data: configs,
+    detectorMethod: "modified-z-score",
+    description: "Statistical anomaly detection using Median Absolute Deviation (MAD) for robustness against outliers",
+    timestamp: new Date().toISOString(),
+  });
+});
 
 // ─── GET /api/anomalies/stream — Server-Sent Events ─────────
 
