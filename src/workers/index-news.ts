@@ -26,8 +26,9 @@ const INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 async function indexNewsArticles(): Promise<number> {
   try {
     // Dynamic import to avoid circular deps and allow the source to be optional
-    const { getLatestNews } = await import("../sources/crypto-news.js");
-    const articles = await getLatestNews(50);
+    const { getNews } = await import("../sources/crypto-news.js");
+    const response = await getNews({ limit: 50 });
+    const articles = response.articles;
 
     if (!articles?.length) {
       log.debug("News indexer: no articles to index");
@@ -57,7 +58,7 @@ async function indexNewsArticles(): Promise<number> {
         });
         await cache.set(`idx:${id}`, "1", 86400); // dedup for 24h
         indexed++;
-      } catch (err) {
+      } catch (err: unknown) {
         log.warn({ err, id }, "Failed to index news article");
       }
     }
@@ -67,7 +68,7 @@ async function indexNewsArticles(): Promise<number> {
     errorCount = 0;
     log.info({ indexed, total: articles.length }, "News indexer completed");
     return indexed;
-  } catch (err) {
+  } catch (err: unknown) {
     errorCount++;
     log.error({ err }, "News indexer failed");
     return 0;

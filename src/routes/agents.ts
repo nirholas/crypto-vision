@@ -23,7 +23,7 @@ import { ApiError } from "../lib/api-error.js";
 import * as cg from "../sources/coingecko.js";
 import * as llama from "../sources/defillama.js";
 import * as alt from "../sources/alternative.js";
-import { AgentRunSchema, AgentMultiSchema, validateBody } from "../lib/validation.js";
+import { AgentRunSchema, AgentMultiSchema, OrchestrateSchema, validateBody } from "../lib/validation.js";
 
 export const agentsRoutes = new Hono();
 
@@ -379,6 +379,139 @@ agentsRoutes.post("/multi", async (c) => {
     }),
     timestamp: new Date().toISOString(),
   });
+});
+
+// ─── GET /api/agents/orchestrate/templates ───────────────────
+
+agentsRoutes.get("/orchestrate/templates", (c) => {
+  // Lazy import to avoid circular dependencies at startup
+  const { listTemplates } = require("../lib/workflow-templates.js") as typeof import("../lib/workflow-templates.js");
+
+  return c.json({
+    data: listTemplates(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── POST /api/agents/orchestrate ────────────────────────────
+
+agentsRoutes.post("/orchestrate", async (c) => {
+  if (!isAIConfigured()) {
+    return ApiError.serviceUnavailable(c, "No AI provider configured");
+  }
+
+  const parsed = await validateBody(c, OrchestrateSchema);
+  if (!parsed.success) return parsed.error;
+  const { question, template, context } = parsed.data;
+
+  const startTime = Date.now();
+
+  try {
+    const { planWorkflow, executeWorkflow } = await import("../lib/orchestrator.js");
+    const { templateToPlan } = await import("../lib/workflow-templates.js");
+
+    // 1. Plan: use template or LLM planner
+    let plan;
+    if (template) {
+      plan = templateToPlan(template, context ? `${question}\n\nAdditional context: ${context}` : question);
+      if (!plan) {
+        return ApiError.notFound(c, `Workflow template '${template}' not found`);
+      }
+    } else {
+      plan = await planWorkflow(context ? `${question}\n\nAdditional context: ${context}` : question);
+    }
+
+    // 2. Execute the workflow
+    const result = await executeWorkflow(plan);
+
+    // 3. Log interaction to BigQuery (fire-and-forget)
+    import("../lib/bigquery.js")
+      .then(({ insertRows }) =>
+        insertRows("agent_interactions", [
+          {
+            interaction_id: plan.id,
+            agent_id: "orchestrator",
+            query: question,
+            response: result.synthesis.slice(0, 10_000),
+            model_used: result.synthesisModel,
+            latency_ms: result.totalLatencyMs,
+            agents_used: JSON.stringify(result.agentsUsed),
+            workflow_plan: JSON.stringify({
+              planId: plan.id,
+              steps: plan.steps.length,
+              template: plan.templateUsed,
+            }),
+            timestamp: new Date().toISOString(),
+          },
+        ]),
+      )
+      .catch((err) => {
+        log.warn({ err: err instanceof Error ? err.message : String(err) }, "Failed to log orchestration to BigQuery");
+      });
+
+    // 4. Response
+    return c.json({
+      data: {
+        answer: result.synthesis,
+        agentsUsed: result.agentsUsed.map((id) => {
+          const step = result.steps.find((s) => s.agentId === id);
+          return {
+            id,
+            status: step?.status ?? "unknown",
+            analysis: step?.status === "completed" ? step.output.slice(0, 500) : undefined,
+            error: step?.status === "failed" ? step.error : undefined,
+            latencyMs: step?.latencyMs,
+            model: step?.model,
+          };
+        }),
+        workflow: {
+          planId: result.planId,
+          templateUsed: plan.templateUsed,
+          totalLatencyMs: result.totalLatencyMs,
+          stepsExecuted: result.steps.length,
+          stepsSucceeded: result.steps.filter((s) => s.status === "completed").length,
+          stepsFailed: result.failedAgents.length,
+        },
+      },
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    if (err instanceof QueueFullError) {
+      return ApiError.serviceUnavailable(c, err.message);
+    }
+    log.error({ err, question: question.slice(0, 200) }, "Orchestration failed");
+    return ApiError.aiError(c, "Orchestration failed", (err as Error).message);
+  }
+});
+
+// ─── GET /api/agents/discover ────────────────────────────────
+
+agentsRoutes.get("/discover", async (c) => {
+  const q = c.req.query("q");
+  if (!q) return ApiError.missingParam(c, "q");
+
+  const topK = Math.min(Number(c.req.query("limit") || 5), 10);
+
+  try {
+    const { findRelevantAgents, findRelevantAgentsByKeyword } = await import("../lib/agent-discovery.js");
+
+    let results;
+    try {
+      results = await findRelevantAgents(q, topK);
+    } catch {
+      results = findRelevantAgentsByKeyword(q, topK);
+    }
+
+    return c.json({
+      data: results,
+      query: q,
+      count: results.length,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    log.error({ err, query: q }, "Agent discovery failed");
+    return ApiError.aiError(c, "Agent discovery failed", (err as Error).message);
+  }
 });
 
 // ─── Helpers ─────────────────────────────────────────────────

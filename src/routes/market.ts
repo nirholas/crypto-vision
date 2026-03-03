@@ -270,7 +270,33 @@ marketRoutes.get("/dex/search", async (c) => {
       txns24h: p.txns?.h24,
       createdAt: p.pairCreatedAt,
     })),
-   Note: DEX search/token endpoints live in routes/dex.ts (mounted at /api/dex)   volume24h: coin.total_volume,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Note: DEX search/token endpoints live in routes/dex.ts (mounted at /api/dex)
+
+// ─── GET /api/gainers ────────────────────────────────────────
+
+marketRoutes.get("/gainers", async (c) => {
+  const limit = Math.min(Number(c.req.query("limit") || 20), 100);
+  const coins = await cg.getCoins({ page: 1, perPage: 250, order: "market_cap_desc", sparkline: false });
+
+  const gainers = coins
+    .filter((coin) => coin.price_change_percentage_24h != null && coin.price_change_percentage_24h > 0)
+    .sort((a, b) => (b.price_change_percentage_24h || 0) - (a.price_change_percentage_24h || 0))
+    .slice(0, limit);
+
+  return c.json({
+    data: gainers.map((coin) => ({
+      id: coin.id,
+      symbol: coin.symbol,
+      name: coin.name,
+      image: coin.image,
+      price: coin.current_price,
+      change24h: coin.price_change_percentage_24h,
+      marketCap: coin.market_cap,
+      volume24h: coin.total_volume,
       rank: coin.market_cap_rank,
     })),
     count: gainers.length,
@@ -759,7 +785,31 @@ marketRoutes.get("/paprika/coin/:id", async (c) => {
   return c.json({
     data: {
       id: data.id,
-   Note: CoinCap exchange endpoints live in routes/exchanges.ts─── GET /api/paprika/coin/:id/ohlcv ────────────────────────
+      name: data.name,
+      symbol: data.symbol,
+      rank: data.rank,
+      type: data.type,
+      description: data.description,
+      openSource: data.open_source,
+      startedAt: data.started_at,
+      tags: data.tags.map((t: { id: string; name: string }) => ({ id: t.id, name: t.name })),
+      team: data.team.map((m: { id: string; name: string; position: string }) => ({
+        id: m.id,
+        name: m.name,
+        position: m.position,
+      })),
+      links: data.links,
+      whitepaper: data.whitepaper,
+      isActive: data.is_active,
+    },
+    source: "coinpaprika",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Note: CoinCap exchange endpoints live in routes/exchanges.ts
+
+// ─── GET /api/paprika/coin/:id/ohlcv ────────────────────────
 // CoinPaprika 30-day OHLCV candles
 
 marketRoutes.get("/paprika/coin/:id/ohlcv", async (c) => {
@@ -875,25 +925,6 @@ marketRoutes.get("/dex/pair/:chain/:address", async (c) => {
     timestamp: new Date().toISOString(),
   });
 });
-
-// ─── GET /api/btc-exchange-rates ─────────────────────────────
-// BTC exchange rates in 40+ currencies (blockchain.info)
-
-marketRoutes.get("/btc-exchang) => ({
-      id: (ev as Record<string, unknown>).id,
-      date: (ev as Record<string, unknown>).date,
-      name: (ev as Record<string, unknown>).name,
-      description: (ev as Record<string, unknown>).description,
-      isConference: (ev as Record<string, unknown>).is_conference,
-      link: (ev as Record<string, unknown>)rate.symbol,
-      last: rate.last,
-      buy: rate.buy,
-      sell: rate.sell,
-    })),
-    source: "blockchain.info",
-    timestamp: new Date().toISOString(),
-  });
-});Note: DEX pairs/pair endpoints live in routes/dex.ts (mounted at /api/dex)
 
 // ─── GET /api/btc-exchange-rates ─────────────────────────────
 // BTC exchange rates in 40+ currencies (blockchain.info)

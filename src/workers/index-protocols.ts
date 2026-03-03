@@ -25,8 +25,9 @@ const INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
 
 async function indexProtocols(): Promise<number> {
   try {
-    const { fetchTopProtocols } = await import("../sources/defillama.js");
-    const protocols = await fetchTopProtocols(200);
+    const { getProtocols } = await import("../sources/defillama.js");
+    const allProtocols = await getProtocols();
+    const protocols = allProtocols.slice(0, 200);
 
     if (!protocols?.length) {
       log.debug("Protocol indexer: no protocols to index");
@@ -61,7 +62,7 @@ async function indexProtocols(): Promise<number> {
         });
         await cache.set(`idx:${id}`, "1", 3600); // dedup for 1h
         indexed++;
-      } catch (err) {
+      } catch (err: unknown) {
         log.warn({ err, id }, "Failed to index protocol");
       }
     }
@@ -71,7 +72,7 @@ async function indexProtocols(): Promise<number> {
     errorCount = 0;
     log.info({ indexed, total: protocols.length }, "Protocol indexer completed");
     return indexed;
-  } catch (err) {
+  } catch (err: unknown) {
     errorCount++;
     log.error({ err }, "Protocol indexer failed");
     return 0;

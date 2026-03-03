@@ -127,6 +127,17 @@ export const AgentMultiSchema = z.object({
   maxTokens: z.number().int().min(100).max(4096).optional(),
 });
 
+export const OrchestrateSchema = z.object({
+  question: z
+    .string()
+    .min(1, "question is required")
+    .max(2000, "question too long (max 2000 chars)"),
+  /** Optional: use a pre-defined workflow template instead of LLM planning */
+  template: z.string().max(64).optional(),
+  /** Optional: extra context to give agents (e.g., portfolio details) */
+  context: z.string().max(4000).optional(),
+});
+
 export const GenerateKeySchema = z.object({
   tier: z.enum(["basic", "pro", "enterprise"]).optional().default("basic"),
 });

@@ -25,8 +25,9 @@ const INTERVAL_MS = 30 * 60 * 1000; // 30 minutes
 
 async function indexGovernanceProposals(): Promise<number> {
   try {
-    const { fetchActiveProposals } = await import("../sources/snapshot.js");
-    const proposals = await fetchActiveProposals();
+    const { getActiveProposals } = await import("../sources/snapshot.js");
+    const activeBySpace = await getActiveProposals();
+    const proposals = Object.values(activeBySpace).flat();
 
     if (!proposals?.length) {
       log.debug("Governance indexer: no proposals to index");
@@ -62,7 +63,7 @@ async function indexGovernanceProposals(): Promise<number> {
         });
         await cache.set(`idx:${id}`, "1", 7200); // dedup for 2h
         indexed++;
-      } catch (err) {
+      } catch (err: unknown) {
         log.warn({ err, id }, "Failed to index governance proposal");
       }
     }
@@ -72,7 +73,7 @@ async function indexGovernanceProposals(): Promise<number> {
     errorCount = 0;
     log.info({ indexed, total: proposals.length }, "Governance indexer completed");
     return indexed;
-  } catch (err) {
+  } catch (err: unknown) {
     errorCount++;
     log.error({ err }, "Governance indexer failed");
     return 0;
