@@ -10,6 +10,7 @@ import type { Context, MiddlewareHandler } from "hono";
 import { logger } from "./logger.js";
 import { apiError, AppError } from "./api-error.js";
 import type { ErrorCode } from "./api-error.js";
+import { FetchError } from "./fetcher.js";
 
 // ─── Request Logger ──────────────────────────────────────────
 
@@ -45,12 +46,34 @@ export const requestLogger: MiddlewareHandler = async (c, next) => {
 // ─── Global Error Handler ────────────────────────────────────
 
 /**
+ * Detects whether an error originates from an upstream fetch.
+ * Returns the upstream service identifier if so, else undefined.
+ */
+function detectUpstreamSource(err: Error): string | undefined {
+  // Explicit FetchError from our fetcher.ts
+  if (err instanceof FetchError) return err.source;
+
+  // AbortError from fetch timeout
+  if (err.name === "AbortError") return "upstream (timeout)";
+
+  // TypeError from failed fetch (DNS, network, etc.)
+  if (err.name === "TypeError" && err.message.includes("fetch")) return "upstream (network)";
+
+  // Nested cause chain (Node 18+ error.cause)
+  if (err.cause instanceof Error) return detectUpstreamSource(err.cause);
+
+  return undefined;
+}
+
+/**
  * Global `app.onError` handler.
  * Converts thrown errors into structured ApiErrorResponse objects.
  *
- * - AppError instances → mapped to their code & status
- * - SyntaxError (bad JSON body) → INVALID_JSON 400
- * - Everything else → INTERNAL_ERROR 500
+ * Priority:
+ *   1. AppError instances → mapped to their code & status
+ *   2. FetchError / upstream failures → UPSTREAM_ERROR 502
+ *   3. SyntaxError (bad JSON body) → INVALID_JSON 400
+ *   4. Everything else → INTERNAL_ERROR 500
  */
 export function globalErrorHandler(err: Error, c: Context) {
   // Thrown AppError — structured domain error
@@ -64,6 +87,22 @@ export function globalErrorHandler(err: Error, c: Context) {
       message: err.message,
       details: err.details,
       retryAfter: err.retryAfter,
+    });
+  }
+
+  // Upstream fetch failure — convert to 502 UPSTREAM_ERROR
+  const upstreamSource = detectUpstreamSource(err);
+  if (upstreamSource) {
+    const status = err instanceof FetchError ? err.status : undefined;
+    logger.warn(
+      { source: upstreamSource, status, path: c.req.path, err: err.message },
+      `Upstream error: ${upstreamSource}`,
+    );
+    return apiError(c, {
+      code: "UPSTREAM_ERROR",
+      message: `Upstream service error: ${upstreamSource}`,
+      details: process.env.NODE_ENV !== "production" ? err.message : undefined,
+      retryAfter: status === 429 ? 30 : 5,
     });
   }
 

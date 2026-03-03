@@ -383,7 +383,7 @@ describe("POST /api/ai/ask", () => {
 
     const json = await res.json();
     expect(json.error).toContain("question");
-    expect(json.code).toBe("MISSING_PARAMETER");
+    expect(json.code).toBe("VALIDATION_FAILED");
   });
 
   it("returns 500 when AI fails", async () => {

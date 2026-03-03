@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crypto-vision
+  labels:
+    app.kubernetes.io/name: crypto-vision
+    app.kubernetes.io/part-of: crypto-vision

@@ -128,7 +128,7 @@ app.get("/health", async (c) => {
       },
       websockets: wsStats(),
       memory: {
-        rss: Math.round(process.memoryUsage.rss() / 1024 / 1024),
+        rss: Math.round(process.memoryUsage().rss / 1024 / 1024),
         heapUsed: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
       },
       env: process.env.NODE_ENV || "development",
@@ -237,6 +237,12 @@ app.get("/api", (c) =>
         "GET /api/defi/tvl/history": "Historical total TVL",
         "GET /api/defi/revenue": "Protocol revenue rankings",
         "GET /api/defi/nft-marketplaces": "NFT marketplace volumes",
+        "GET /api/defi/options-volume": "Options volume data (DeFiLlama)",
+        "GET /api/defi/derivatives-volume": "Derivatives volume data (DeFiLlama)",
+        "GET /api/defi/project-metrics/:slug": "Project metrics (TokenTerminal)",
+        "GET /api/defi/protocol-fees": "Protocol fee rankings (TokenTerminal)",
+        "GET /api/defi/active-users": "Protocol active users (TokenTerminal)",
+        "GET /api/defi/market-metric": "Market metrics (?metric=market_cap)",
       },
       news: {
         "GET /api/news": "Latest crypto news",
@@ -266,6 +272,9 @@ app.get("/api", (c) =>
         "GET /api/onchain/stablecoins": "Stablecoin on-chain data",
         "GET /api/onchain/bridges": "Bridge volume data",
         "GET /api/onchain/dex-volume": "On-chain DEX volumes",
+        "GET /api/onchain/eth/supply": "ETH total supply",
+        "GET /api/onchain/eth/price": "ETH price (Etherscan)",
+        "GET /api/onchain/erc20/holders/:address": "Top ERC-20 token holders",
       },
       cex: {
         "GET /api/cex/tickers": "All Binance 24h tickers (?quote=USDT)",
@@ -297,6 +306,7 @@ app.get("/api", (c) =>
       security: {
         "GET /api/security/token/:chainId/:address": "Token security audit (honeypot, tax, holders)",
         "GET /api/security/address/:chainId/:address": "Address risk check (scam, phishing, sanctions)",
+        "GET /api/security/approval/:chainId/:address": "Token approval security check",
         "GET /api/security/nft/:chainId/:address": "NFT contract security audit",
         "GET /api/security/dapp": "dApp phishing check (?url=...)",
         "GET /api/security/chains": "Supported security-check chains",
@@ -346,11 +356,19 @@ app.get("/api", (c) =>
         "GET /api/research/assets": "Asset rankings with deep metrics (Messari)",
         "GET /api/research/asset/:slug": "Deep asset profile (on-chain, dev, risk)",
         "GET /api/research/asset/:slug/markets": "Exchange/pair data for asset",
+        "GET /api/research/asset/:slug/market-data": "Messari market data for asset",
+        "GET /api/research/search": "Search assets (Messari) (?q=...)",
         "GET /api/research/signals/:symbol": "Trading signals (IntoTheBlock via CryptoCompare)",
         "GET /api/research/social/:coinId": "Social metrics (Twitter, Reddit, GitHub)",
         "GET /api/research/compare": "Compare assets (?slugs=bitcoin,ethereum)",
         "GET /api/research/top-volume": "Top coins by 24h volume",
+        "GET /api/research/top-market-cap": "Top coins by market cap (CryptoCompare)",
         "GET /api/research/news": "CryptoCompare news feed",
+        "GET /api/research/news-categories": "CryptoCompare news categories",
+        "GET /api/research/blockchains": "Available blockchains (CryptoCompare)",
+        "GET /api/research/price-full/:symbol": "Full price data with 24h stats",
+        "GET /api/research/histo-day/:symbol": "Daily OHLCV history",
+        "GET /api/research/histo-hour/:symbol": "Hourly OHLCV history",
         "GET /api/research/exchanges/:symbol": "Exchange volume rankings per coin",
       },
       aggregate: {
@@ -399,11 +417,15 @@ app.get("/api", (c) =>
         "GET /api/perps/volatility/:currency": "Implied + historical volatility (Deribit)",
         "GET /api/perps/dydx/sparklines": "dYdX sparkline charts",
         "GET /api/perps/hl/user/:address": "Hyperliquid user positions + open orders",
+        "GET /api/perps/hl/mids": "Hyperliquid all mid prices",
+        "GET /api/perps/hl/stats": "Hyperliquid L1 chain stats",
+        "GET /api/perps/deribit/currencies": "Deribit supported currencies",
       },
       governance: {
         "GET /api/governance/proposals/:space": "DAO proposals (Snapshot)",
         "GET /api/governance/active": "Active proposals across 12 major DAOs",
         "GET /api/governance/spaces": "Popular DAO spaces",
+        "GET /api/governance/top-spaces": "Top spaces by follower count",
         "GET /api/governance/space/:id": "Space detail",
         "GET /api/governance/votes/:proposalId": "Votes on a proposal",
         "GET /api/governance/search": "Search DAO spaces (?q=...)",
@@ -421,15 +443,20 @@ app.get("/api", (c) =>
       solana: {
         "GET /api/solana/price/:token": "Jupiter price for a token mint/symbol",
         "GET /api/solana/prices": "Batch prices (?ids=mint1,mint2)",
+        "GET /api/solana/price-vs/:token": "Price vs another token (?vs=SOL_MINT)",
         "GET /api/solana/quote": "Jupiter swap quote (?inputMint=&outputMint=&amount=)",
         "GET /api/solana/tokens": "Full Solana token list",
+        "GET /api/solana/tokens/strict": "Jupiter strict/verified token list",
         "GET /api/solana/tokens/popular": "Popular tokens by volume",
+        "GET /api/solana/popular/prices": "Prices for popular Solana tokens",
+        "GET /api/solana/top-tokens": "Top tokens by market cap",
         "GET /api/solana/search": "Search tokens (?q=...)",
       },
       depin: {
         "GET /api/depin/projects": "All DePIN projects",
         "GET /api/depin/project/:slug": "Single DePIN project detail",
         "GET /api/depin/categories": "DePIN project categories",
+        "GET /api/depin/category/:category": "DePIN projects by category",
         "GET /api/depin/metrics": "Aggregate DePIN metrics",
       },
       exchanges: {
@@ -548,7 +575,7 @@ const server = serve(
   },
   (info) => {
     injectWebSocket(server);
-    startUpstreams();
+    void startUpstreams();
     log.info(
       `🚀 Crypto Vision API running on http://localhost:${info.port}`
     );
@@ -584,7 +611,7 @@ async function gracefulShutdown(signal: string) {
   });
 
   // Stop WebSocket upstream connections
-  stopUpstreams();
+  await stopUpstreams();
 
   // Disconnect shared resources
   try {

@@ -1,0 +1,159 @@
+# ─────────────────────────────────────────────────────────────
+# Deploy to Kubernetes (Cloud-Agnostic)
+#
+# Works with any container registry + any K8s cluster:
+#   GKE, EKS, AKS, DigitalOcean, Hetzner, self-hosted, etc.
+#
+# Required secrets:
+#   REGISTRY_URL       — e.g. ghcr.io/nirholas, your-registry.azurecr.io, etc.
+#   REGISTRY_USERNAME  — registry auth user
+#   REGISTRY_PASSWORD  — registry auth token/password
+#   KUBECONFIG_B64     — base64-encoded kubeconfig for target cluster
+# ─────────────────────────────────────────────────────────────
+
+name: Deploy to Kubernetes
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+          - staging
+      image_tag:
+        description: "Image tag (default: git SHA)"
+        required: false
+        type: string
+
+concurrency:
+  group: deploy-k8s-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SERVICE_NAME: crypto-vision
+  REGISTRY_URL: ${{ secrets.REGISTRY_URL }}
+  IMAGE_TAG: ${{ inputs.image_tag || github.sha }}
+
+jobs:
+  # ── Quality Gates ──────────────────────────────────────────
+  test:
+    name: Test & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build
+
+  # ── Build & Push Container ────────────────────────────────
+  build:
+    name: Build Image
+    runs-on: ubuntu-latest
+    needs: test
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Set image metadata
+        id: meta
+        run: |
+          IMAGE="${REGISTRY_URL}/${SERVICE_NAME}:${IMAGE_TAG}"
+          echo "image=${IMAGE}" >> $GITHUB_OUTPUT
+          echo "Image: ${IMAGE}"
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.REGISTRY_URL }}/${{ env.SERVICE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.REGISTRY_URL }}/${{ env.SERVICE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ── Deploy to Kubernetes ───────────────────────────────────
+  deploy:
+    name: Deploy to K8s
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Set image in kustomize
+        working-directory: infra/k8s
+        run: |
+          # Install kustomize
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+
+          # Set the image
+          kustomize edit set image crypto-vision=${{ needs.build.outputs.image }}
+
+      - name: Apply manifests
+        run: kubectl apply -k infra/k8s/
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/crypto-vision \
+            --namespace=crypto-vision \
+            --timeout=300s
+
+      - name: Verify health
+        run: |
+          # Port-forward and health check
+          kubectl port-forward svc/crypto-vision 8080:80 \
+            --namespace=crypto-vision &
+          PF_PID=$!
+          sleep 5
+
+          for i in 1 2 3 4 5; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health || true)
+            if [ "$STATUS" = "200" ]; then
+              echo "Health check passed"
+              kill $PF_PID 2>/dev/null || true
+              exit 0
+            fi
+            echo "Attempt ${i}/5 — status ${STATUS}, retrying..."
+            sleep 5
+          done
+          kill $PF_PID 2>/dev/null || true
+          echo "Health check failed"
+          exit 1
+
+      - name: Post summary
+        if: success()
+        run: |
+          echo "### Deployed to Kubernetes" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Image** | \`${{ needs.build.outputs.image }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Namespace** | crypto-vision |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Replicas** | $(kubectl get deployment crypto-vision -n crypto-vision -o jsonpath='{.status.readyReplicas}') |" >> $GITHUB_STEP_SUMMARY

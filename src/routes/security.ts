@@ -183,6 +183,34 @@ securityRoutes.get("/chains", async (c) => {
 });
 
 // ─── GET /api/security/approval/:chainId/:address ────────────
+// Token approval risk check (GoPlus)
+
+securityRoutes.get("/approval/:chainId/:address", async (c) => {
+  const chainId = resolveChainId(c.req.param("chainId"));
+  const address = c.req.param("address").toLowerCase();
+  const { result } = await goplus.getApprovalSecurity(chainId, address);
+
+  const approvals = Object.entries(result || {}).map(([addr, info]: [string, any]) => ({
+    contract: addr,
+    approvedAmount: info.approved_amount,
+    approvedContract: info.approved_contract,
+    approvedSpender: info.approved_spender,
+    isOpenSource: info.is_open_source === "1",
+    trustList: info.trust_list === "1",
+    tag: info.tag,
+    isContract: info.is_contract === "1",
+  }));
+
+  return c.json({
+    data: approvals,
+    chainId,
+    address,
+    source: "goplus",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/security/approval/:chainId/:address ────────────
 
 securityRoutes.get("/approval/:chainId/:address", async (c) => {
   const chainId = resolveChainId(c.req.param("chainId"));

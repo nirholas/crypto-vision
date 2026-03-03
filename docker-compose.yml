@@ -1,4 +1,13 @@
-# docker-compose.yml — local development with Redis
+# ─────────────────────────────────────────────────────────────
+# Crypto Vision — Docker Compose (Cloud-Portable)
+#
+# Run the full stack anywhere: localhost, AWS, Azure, bare metal.
+# No GCP dependency whatsoever.
+#
+# Usage:
+#   cp .env.example .env   # fill in API keys
+#   docker compose up -d --build
+# ─────────────────────────────────────────────────────────────
 
 services:
   redis:
@@ -9,19 +18,26 @@ services:
       redis-server
       --maxmemory 256mb
       --maxmemory-policy allkeys-lru
-      --save ""
-      --appendonly no
+      --save 60 1000
+      --appendonly yes
+    volumes:
+      - redis-data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 3s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
     restart: unless-stopped
 
   api:
     build: .
     ports:
-      - "8080:8080"
+      - "${PORT:-8080}:8080"
     env_file: .env
     environment:
       - NODE_ENV=production
@@ -42,3 +58,29 @@ services:
           memory: 2G
           cpus: "4.0"
     restart: unless-stopped
+
+  # Lightweight cron — replaces Cloud Scheduler for non-GCP deploys.
+  # Uses curl to hit API endpoints on a schedule.
+  scheduler:
+    image: alpine:3.19
+    depends_on:
+      api:
+        condition: service_healthy
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        apk add --no-cache curl
+        echo "*/2 * * * * curl -sf http://api:8080/api/coins > /dev/null"         > /etc/crontabs/root
+        echo "*/5 * * * * curl -sf http://api:8080/api/trending > /dev/null"      >> /etc/crontabs/root
+        echo "*/5 * * * * curl -sf http://api:8080/api/global > /dev/null"        >> /etc/crontabs/root
+        echo "*/15 * * * * curl -sf http://api:8080/api/fear-greed > /dev/null"   >> /etc/crontabs/root
+        echo "*/10 * * * * curl -sf http://api:8080/api/defi/protocols > /dev/null" >> /etc/crontabs/root
+        echo "*/10 * * * * curl -sf http://api:8080/api/defi/chains > /dev/null"  >> /etc/crontabs/root
+        echo "*/5 * * * * curl -sf http://api:8080/api/news > /dev/null"          >> /etc/crontabs/root
+        crond -f -l 6
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+    driver: local

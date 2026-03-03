@@ -61,7 +61,7 @@ exchangesRoutes.get("/coincap/candles", async (c) => {
   const baseId = c.req.query("base") || "bitcoin";
   const quoteId = c.req.query("quote") || "tether";
   const interval = c.req.query("interval") || "h1";
-  const data = await coincap.getCandles(exchangeId, interval, baseId, quoteId);
+  const data = await coincap.getCandles(exchangeId, baseId, quoteId, interval);
   return c.json({ exchange: exchangeId, base: baseId, quote: quoteId, interval, data });
 });
 

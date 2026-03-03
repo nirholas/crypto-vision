@@ -1,0 +1,29 @@
+# ─────────────────────────────────────────────────────────────
+# Crypto Vision — Kubernetes Manifests
+#
+# Cloud-agnostic deployment: works on GKE, EKS, AKS, k3s, etc.
+#
+# Quick start:
+#   kubectl apply -k infra/k8s/
+#
+# With custom image:
+#   cd infra/k8s && kustomize edit set image crypto-vision=your-registry/crypto-vision:tag
+#   kubectl apply -k infra/k8s/
+# ─────────────────────────────────────────────────────────────
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: crypto-vision
+
+resources:
+  - namespace.yml
+  - redis.yml
+  - deployment.yml
+  - service.yml
+  - hpa.yml
+  - cronjobs.yml
+
+images:
+  - name: crypto-vision
+    newName: crypto-vision
+    newTag: latest

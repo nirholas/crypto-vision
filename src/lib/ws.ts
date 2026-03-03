@@ -692,20 +692,62 @@ function stopHeartbeat(): void {
 
 // ─── Lifecycle ───────────────────────────────────────────────
 
-export function startUpstreams(): void {
-  logger.info("Starting WebSocket upstream connections");
-  connectCoinCap();
-  connectMempool();
-  startDexPolling();
+export async function startUpstreams(): Promise<void> {
+  logger.info("Starting WebSocket subsystem");
+
+  // All instances subscribe to Pub/Sub for fan-out
+  await subscribeToChannels();
+  startPriceThrottle();
   startHeartbeat();
+
+  // Only the leader connects to upstream WebSockets
+  const elected = await tryAcquireLeadership();
+  if (elected) {
+    logger.info("This instance is the WS leader — connecting to upstreams");
+    connectCoinCap();
+    connectMempool();
+    startDexPolling();
+    startLeaderRenewal();
+  } else {
+    logger.info("This instance is a WS follower — relying on Pub/Sub fan-out");
+    // Periodically try to become leader (in case current leader dies)
+    setInterval(async () => {
+      if (!isLeader) {
+        const elected = await tryAcquireLeadership();
+        if (elected) {
+          logger.info("Promoted to WS leader — connecting to upstreams");
+          connectCoinCap();
+          connectMempool();
+          startDexPolling();
+          startLeaderRenewal();
+        }
+      }
+    }, LEADER_TTL_S * 1000);
+  }
 }
 
-export function stopUpstreams(): void {
-  logger.info("Stopping WebSocket upstream connections");
+export async function stopUpstreams(): Promise<void> {
+  logger.info("Stopping WebSocket subsystem");
   stopHeartbeat();
+  stopPriceThrottle();
+  stopLeaderRenewal();
   disconnectCoinCap();
   disconnectMempool();
   stopDexPolling();
+
+  // Release leadership
+  if (isLeader) {
+    const r = await getRedis();
+    if (r) {
+      try {
+        const current = await r.get(LEADER_KEY);
+        if (current === INSTANCE_ID) {
+          await r.del(LEADER_KEY);
+        }
+      } catch { /* best-effort */ }
+    }
+    isLeader = false;
+  }
 
   // Close all client connections
   for (const [, topicClients] of clients) {
@@ -727,6 +769,8 @@ export function wsStats(): {
     mempool: string;
     dexPolling: boolean;
   };
+  leader: boolean;
+  instanceId: string;
 } {
   return {
     clients: {
@@ -743,5 +787,7 @@ export function wsStats(): {
         : "DISCONNECTED",
       dexPolling: dexPollTimer !== null,
     },
+    leader: isLeader,
+    instanceId: INSTANCE_ID,
   };
 }

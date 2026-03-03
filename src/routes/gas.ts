@@ -67,3 +67,60 @@ gasRoutes.get("/:chain", async (c) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// ─── GET /api/gas/eth/supply ─────────────────────────────────
+// Total ETH supply (Etherscan)
+
+gasRoutes.get("/eth/supply", async (c) => {
+  const data = await evm.getEthSupply();
+
+  return c.json({
+    data: {
+      supplyWei: data.result,
+      supplyEth: Number(data.result) / 1e18,
+    },
+    source: "etherscan",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/gas/eth/price ──────────────────────────────────
+// Current ETH price in USD + BTC (Etherscan)
+
+gasRoutes.get("/eth/price", async (c) => {
+  const data = await evm.getEthPrice();
+
+  return c.json({
+    data: {
+      ethUsd: Number(data.result.ethusd),
+      ethBtc: Number(data.result.ethbtc),
+      ethUsdTimestamp: data.result.ethusd_timestamp
+        ? new Date(Number(data.result.ethusd_timestamp) * 1000).toISOString()
+        : null,
+      ethBtcTimestamp: data.result.ethbtc_timestamp
+        ? new Date(Number(data.result.ethbtc_timestamp) * 1000).toISOString()
+        : null,
+    },
+    source: "etherscan",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/gas/eth/token/:address/holders ─────────────────
+// Top ERC-20 token holders (Etherscan)
+
+gasRoutes.get("/eth/token/:address/holders", async (c) => {
+  const address = c.req.param("address");
+  const data = await evm.getERC20TopHolders(address);
+
+  return c.json({
+    data: (data.result || []).map((h: any) => ({
+      address: h.TokenHolderAddress,
+      quantity: h.TokenHolderQuantity,
+      percentage: h.percentage,
+    })),
+    contractAddress: address,
+    source: "etherscan",
+    timestamp: new Date().toISOString(),
+  });
+});

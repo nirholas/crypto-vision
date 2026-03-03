@@ -342,3 +342,92 @@ analyticsRoutes.get("/revenue", async (c) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// ─── GET /api/analytics/tt/projects ──────────────────────────
+// All Token Terminal tracked projects
+
+analyticsRoutes.get("/tt/projects", async (c) => {
+  const data = await tt.getProjects();
+
+  return c.json({
+    data: (data.data || []).map((p: any) => ({
+      id: p.project_id,
+      name: p.project_name,
+      symbol: p.symbol,
+      category: p.category,
+      chains: p.chains,
+      logo: p.logo,
+    })),
+    count: data.data?.length || 0,
+    source: "tokenterminal",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/analytics/tt/project/:id ───────────────────────
+// Per-project metrics (Token Terminal)
+
+analyticsRoutes.get("/tt/project/:id", async (c) => {
+  const projectId = c.req.param("id");
+  const data = await tt.getProjectMetrics(projectId);
+
+  return c.json({
+    data: data.data,
+    projectId,
+    source: "tokenterminal",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/analytics/tt/fees ──────────────────────────────
+// Protocol fee rankings (Token Terminal)
+
+analyticsRoutes.get("/tt/fees", async (c) => {
+  const limit = Math.min(Number(c.req.query("limit") || 50), 200);
+  const data = await tt.getProtocolFees();
+
+  return c.json({
+    data: (data.data || []).slice(0, limit),
+    count: Math.min(data.data?.length || 0, limit),
+    source: "tokenterminal",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/analytics/tt/active-users ──────────────────────
+// Protocol DAU rankings (Token Terminal)
+
+analyticsRoutes.get("/tt/active-users", async (c) => {
+  const limit = Math.min(Number(c.req.query("limit") || 50), 200);
+  const data = await tt.getActiveUsers();
+
+  return c.json({
+    data: (data.data || []).slice(0, limit),
+    count: Math.min(data.data?.length || 0, limit),
+    source: "tokenterminal",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ─── GET /api/analytics/tt/market/:metric ────────────────────
+// Market-level time series (Token Terminal)
+
+analyticsRoutes.get("/tt/market/:metric", async (c) => {
+  const metric = c.req.param("metric");
+  const days = Math.min(Number(c.req.query("days") || 30), 365);
+  const data = await tt.getMarketMetric(metric, days);
+
+  return c.json({
+    data: {
+      metricId: data.metric_id,
+      values: (data.data || []).map((v: any) => ({
+        timestamp: v.timestamp,
+        value: v.value,
+      })),
+    },
+    metric,
+    days,
+    source: "tokenterminal",
+    timestamp: new Date().toISOString(),
+  });
+});

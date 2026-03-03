@@ -9,12 +9,15 @@ import { Hono } from "hono";
 
 // ─── Mock sources ────────────────────────────────────────────
 
-vi.mock("../../sources/crypto-news.js", () => ({
+vi.mock("../../sources/news-aggregator.js", () => ({
   getNews: vi.fn(),
   searchNews: vi.fn(),
   getBreakingNews: vi.fn(),
   getTrending: vi.fn(),
   getSources: vi.fn(),
+  getCategories: vi.fn(),
+  getHomepageNews: vi.fn(),
+  getNewsByCategory: vi.fn(),
 }));
 
 // Suppress logger output during tests
@@ -23,7 +26,7 @@ vi.mock("../../lib/logger.js", () => ({
   logger: { error: vi.fn(), warn: vi.fn(), info: vi.fn() },
 }));
 
-import { getNews, searchNews, getBreakingNews, getTrending, getSources } from "../../sources/crypto-news.js";
+import { getNews, searchNews, getBreakingNews, getTrending, getSources } from "../../sources/news-aggregator.js";
 import { newsRoutes } from "../news.js";
 
 const app = new Hono().route("/api/news", newsRoutes);

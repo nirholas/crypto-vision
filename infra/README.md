@@ -1,8 +1,8 @@
-# Crypto Vision — GCP Infrastructure
+# Crypto Vision — Infrastructure
 
-Full infrastructure setup for **cryptocurrency.cv** on Google Cloud Platform.
+Deployment infrastructure for **cryptocurrency.cv**.
 
-**Budget:** $110k GCP credits over 6 months.
+Current home: GCP ($110k credits, 6 months). Designed for portability — can migrate to AWS, Azure, bare metal, or any Kubernetes cluster with minimal changes.
 
 ---
 
@@ -15,36 +15,37 @@ Full infrastructure setup for **cryptocurrency.cv** on Google Cloud Platform.
                           └──────────┬─────────────┘
                                      │
                           ┌──────────▼─────────────┐
-                          │      Cloud Run          │
-                          │    crypto-vision        │
-                          │  (1–20 instances)       │
-                          │  2 vCPU / 1Gi RAM each  │
+                          │     Container Runtime   │
+                          │   (Cloud Run / K8s)     │
+                          │  auto-scaling 2→500     │
                           └─────┬──────────┬────────┘
                                 │          │
                     ┌───────────▼──┐  ┌────▼──────────────┐
-                    │  Secret Mgr  │  │  VPC Connector     │
-                    │  (API Keys)  │  │  10.8.0.0/28       │
+                    │   Secrets    │  │  Private Network   │
+                    │  (env vars)  │  │  (VPC / overlay)   │
                     └──────────────┘  └────┬──────────────┘
                                            │
                                ┌───────────▼──────────────┐
-                               │   Memorystore Redis      │
+                               │       Redis 7            │
                                │   (cache, shared state)  │
                                └──────────────────────────┘
 
-         Cloud Scheduler ──(OIDC)──► Cloud Run /api/* endpoints
-         (7 cron jobs for data refresh)
+         Scheduler (Cloud Scheduler / K8s CronJob / cron)
+         → 7 periodic cache-warming jobs
 ```
 
 ## Components
 
-| Component | Resource | Purpose |
-|-----------|----------|---------|
-| **Cloud Run** | `crypto-vision` | API server (Hono + Node 22) |
-| **Memorystore Redis** | `crypto-vision-cache` | Shared cache across instances |
-| **VPC Connector** | `crypto-vision-vpc` | Private network for Cloud Run → Redis |
-| **Secret Manager** | 7 secrets | API keys (CoinGecko, Groq, Gemini, OpenAI, Anthropic, OpenRouter, Redis URL) |
-| **Cloud Scheduler** | 7 cron jobs | Periodic cache warming for market/DeFi/news data |
-| **Domain Mapping** | `cryptocurrency.cv` | Custom domain with managed TLS |
+| Concern | GCP | Kubernetes | Docker Compose |
+|---------|-----|------------|----------------|
+| **Compute** | Cloud Run | Deployment + HPA | `api` service |
+| **Cache** | Memorystore Redis | Redis pod | `redis` service |
+| **Secrets** | Secret Manager | K8s Secret | `.env` file |
+| **Scheduling** | Cloud Scheduler | CronJobs | `scheduler` sidecar |
+| **Networking** | VPC Connector | ClusterIP + Ingress | Docker bridge |
+| **TLS** | Managed by Cloud Run | cert-manager | Reverse proxy |
+| **Registry** | Artifact Registry | Any (GHCR, ECR, ACR) | Local build |
+| **Monitoring** | Cloud Monitoring | Prometheus/Grafana | Docker healthchecks |
 
 ## Secrets
 
@@ -56,187 +57,212 @@ Full infrastructure setup for **cryptocurrency.cv** on Google Cloud Platform.
 | `OPENAI_API_KEY` | OpenAI API key |
 | `ANTHROPIC_API_KEY` | Anthropic Claude API key |
 | `OPENROUTER_API_KEY` | OpenRouter API key |
-| `REDIS_URL` | Auto-populated from Memorystore |
+| `REDIS_URL` | Auto-populated (GCP/Terraform) or set manually |
 
 ## Scheduler Jobs
 
-| Job | Schedule | Endpoint | Purpose |
-|-----|----------|----------|---------|
-| `refresh-coins` | Every 2 min | `/api/coins` | Top coins by market cap |
-| `refresh-trending` | Every 5 min | `/api/trending` | Trending coins |
-| `refresh-global` | Every 5 min | `/api/global` | Global market stats |
-| `refresh-fear-greed` | Every 15 min | `/api/fear-greed` | Fear & Greed index |
-| `refresh-defi-protocols` | Every 10 min | `/api/defi/protocols` | DeFi TVL data |
-| `refresh-defi-chains` | Every 10 min | `/api/defi/chains` | Chain TVL rankings |
-| `refresh-news` | Every 5 min | `/api/news` | Crypto news feed |
+| Job | Schedule | Endpoint |
+|-----|----------|----------|
+| `refresh-coins` | Every 2 min | `/api/coins` |
+| `refresh-trending` | Every 5 min | `/api/trending` |
+| `refresh-global` | Every 5 min | `/api/global` |
+| `refresh-fear-greed` | Every 15 min | `/api/fear-greed` |
+| `refresh-defi-protocols` | Every 10 min | `/api/defi/protocols` |
+| `refresh-defi-chains` | Every 10 min | `/api/defi/chains` |
+| `refresh-news` | Every 5 min | `/api/news` |
 
 ---
 
-## Setup Options
+## Deployment Options
 
-### Option A: Shell Script (Quick Start)
+### Option 1: Docker Compose (Simplest — Any Machine)
 
-One-command provisioning for all resources:
+Zero cloud dependencies. Works on any machine with Docker.
 
+```bash
+cp .env.example .env   # fill in API keys
+docker compose up -d --build
+```
+
+Includes API server, Redis, and cron scheduler. That's it.
+
+### Option 2: Kubernetes (Any Cloud or Self-Hosted)
+
+Portable manifests using Kustomize. Works on GKE, EKS, AKS, k3s, etc.
+
+```bash
+# Create secrets
+kubectl create namespace crypto-vision
+kubectl create secret generic crypto-vision-secrets \
+  --namespace=crypto-vision \
+  --from-literal=COINGECKO_API_KEY=xxx \
+  --from-literal=GROQ_API_KEY=xxx \
+  # ... etc
+
+# Set your image
+cd infra/k8s
+kustomize edit set image crypto-vision=your-registry/crypto-vision:latest
+
+# Deploy
+kubectl apply -k infra/k8s/
+```
+
+Includes: Deployment, Service, Ingress, HPA (2→20 pods), Redis, 7 CronJobs.
+
+GitHub Actions workflow: `.github/workflows/deploy-k8s.yml`
+
+### Option 3: GCP Cloud Run (Current Production)
+
+Two sub-options for provisioning:
+
+#### Shell Script (Quick Start)
 ```bash
 export GCP_PROJECT=your-project-id
 bash infra/setup.sh
 ```
 
-**Optional overrides:**
-```bash
-export GCP_REGION=us-central1        # default
-export SERVICE_NAME=crypto-vision     # default
-export REDIS_TIER=STANDARD_HA        # default: BASIC
-export REDIS_SIZE_GB=5               # default: 1
-export DOMAIN=cryptocurrency.cv      # default
-```
-
-### Option B: Terraform (Recommended for Production)
-
-Full IaC with state management, drift detection, and plan/apply workflow.
-
-#### Prerequisites
-```bash
-# Install Terraform
-brew install terraform  # or download from hashicorp.com
-
-# Create state bucket
-gsutil mb -l us-central1 gs://crypto-vision-terraform-state
-
-# Authenticate
-gcloud auth application-default login
-```
-
-#### Deploy
+#### Terraform (Recommended)
 ```bash
 cd infra/terraform
-
-# Copy and edit variables
 cp terraform.tfvars.example terraform.tfvars
-# Edit terraform.tfvars with your project ID
-
-# Initialize
-terraform init
-
-# Review changes
-terraform plan
-
-# Apply
-terraform apply
+terraform init && terraform plan && terraform apply
 ```
 
-#### Terraform Files
+Provisions: Cloud Run, Artifact Registry, Memorystore Redis (with AUTH), VPC connector, Secret Manager, Cloud Scheduler, domain mapping, monitoring alerts.
+
+---
+
+## CI/CD Workflows
+
+| Workflow | File | Target | Trigger |
+|----------|------|--------|---------|
+| **CI** | `.github/workflows/ci.yml` | — | Push/PR to master |
+| **Deploy GCP** | `.github/workflows/deploy.yml` | Cloud Run | Push to master |
+| **Deploy K8s** | `.github/workflows/deploy-k8s.yml` | Any K8s cluster | Manual dispatch |
+| **Cloud Build** | `cloudbuild.yaml` | Cloud Run | GCP trigger |
+
+### GCP Deploy — Required GitHub Secrets
+
+| Secret | Description |
+|--------|-------------|
+| `GCP_PROJECT_ID` | GCP project ID |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | WIF provider |
+| `GCP_SA_EMAIL` | Service account email |
+
+### K8s Deploy — Required GitHub Secrets
+
+| Secret | Description |
+|--------|-------------|
+| `REGISTRY_URL` | Container registry (e.g. `ghcr.io/nirholas`) |
+| `REGISTRY_USERNAME` | Registry auth user |
+| `REGISTRY_PASSWORD` | Registry auth token |
+| `KUBECONFIG_B64` | Base64-encoded kubeconfig |
+
+---
+
+## Cloud Portability
+
+The app has **zero cloud vendor lock-in** at the code level. Everything cloud-specific is isolated in `infra/`.
+
+### What's Portable (No Changes Needed)
+
+- **Application code** — Hono + Node.js, standard Docker image
+- **Redis** — standard `ioredis`, connects via `REDIS_URL` env var
+- **Secrets** — all config via environment variables
+- **Dockerfile** — multi-stage, runs anywhere
+
+### GCP-Specific (in `infra/` only)
+
+| Resource | GCP Service | Portable Equivalent |
+|----------|-------------|---------------------|
+| Compute | Cloud Run | K8s Deployment, ECS, App Runner, Fly.io |
+| Cache | Memorystore | ElastiCache, Upstash, any Redis |
+| Secrets | Secret Manager | K8s Secrets, AWS Secrets Manager, Vault |
+| Cron | Cloud Scheduler | K8s CronJobs, EventBridge, cron |
+| Registry | Artifact Registry | ECR, GHCR, ACR, Docker Hub |
+| Monitoring | Cloud Monitoring | Prometheus + Grafana, Datadog |
+| Networking | VPC Connector | VPC peering, K8s ClusterIP |
+
+### Migration Playbook
+
+To move off GCP:
+
+1. **Push image to new registry** — `docker tag` + `docker push` to ECR/GHCR/ACR
+2. **Provision Redis** — any managed Redis (ElastiCache, Upstash, Aiven) or self-hosted
+3. **Set env vars** — same 7 secrets, just in the new platform's secret store
+4. **Deploy** — use `infra/k8s/` manifests or `docker-compose.yml`
+5. **Update DNS** — point `cryptocurrency.cv` A/AAAA records to new ingress
+
+No application code changes required. Total migration time: ~1 hour.
+
+---
+
+## Terraform Files
 
 | File | Purpose |
 |------|---------|
 | `main.tf` | Provider config, backend state |
 | `variables.tf` | All configurable inputs |
-| `apis.tf` | GCP API enablement |
+| `apis.tf` | GCP API enablement + Artifact Registry |
 | `network.tf` | VPC connector |
-| `redis.tf` | Memorystore Redis instance |
+| `redis.tf` | Memorystore Redis (AUTH enabled) |
 | `secrets.tf` | Secret Manager entries + IAM |
 | `iam.tf` | Service accounts |
 | `cloud_run.tf` | Cloud Run service + domain mapping |
 | `scheduler.tf` | Cloud Scheduler cron jobs |
-| `outputs.tf` | Exported values (URLs, IPs, etc.) |
+| `monitoring.tf` | Uptime checks + alert policies |
+| `outputs.tf` | Exported values |
+
+## Kubernetes Files
+
+| File | Purpose |
+|------|---------|
+| `kustomization.yml` | Kustomize entry point |
+| `namespace.yml` | `crypto-vision` namespace |
+| `deployment.yml` | API pods (2 replicas, rolling update) |
+| `service.yml` | ClusterIP + Ingress with TLS |
+| `redis.yml` | Redis deployment + service |
+| `hpa.yml` | Horizontal Pod Autoscaler (2→20) |
+| `cronjobs.yml` | 7 cache-warming cron jobs |
+| `secrets.example.yml` | Secret template |
 
 ---
-
-## CI/CD Deployment
-
-Two parallel deployment pathways are available. Use whichever fits your workflow.
-
-### Cloud Build (GCP-native)
-
-Triggered automatically on push to `master` via Cloud Build trigger, or manually:
-
-```bash
-gcloud builds submit --config cloudbuild.yaml .
-```
-
-**Pipeline stages:**
-1. `npm ci` — Install dependencies
-2. `npm run typecheck` — TypeScript type checking (parallel)
-3. `npm run lint` — ESLint (parallel)
-4. `npm run test` — Vitest tests (parallel)
-5. Docker build with `$SHORT_SHA` tag
-6. Push to GCR
-7. Deploy to Cloud Run with secrets + VPC connector
-
-Steps 2–4 run in parallel after install for faster builds.
-
-### GitHub Actions (Alternative)
-
-Located at `.github/workflows/deploy.yml`. Runs on push to `master` or manual dispatch.
-
-**Required GitHub Secrets:**
-
-| Secret | Description |
-|--------|-------------|
-| `GCP_PROJECT_ID` | Your GCP project ID |
-| `GCP_WORKLOAD_IDENTITY_PROVIDER` | WIF provider (format: `projects/PROJECT_NUM/locations/global/workloadIdentityPools/POOL/providers/PROVIDER`) |
-| `GCP_SA_EMAIL` | Service account email for deployment |
-
-#### Setting Up Workload Identity Federation
-
-Preferred over service account keys for security:
-
-```bash
-# Create WIF pool
-gcloud iam workload-identity-pools create "github-pool" \
-  --location="global" \
-  --display-name="GitHub Actions Pool"
-
-# Create provider
-gcloud iam workload-identity-pools providers create-oidc "github-provider" \
-  --location="global" \
-  --workload-identity-pool="github-pool" \
-  --display-name="GitHub Provider" \
-  --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository" \
-  --issuer-uri="https://token.actions.githubusercontent.com"
-
-# Grant impersonation
-gcloud iam service-accounts add-iam-policy-binding \
-  "crypto-vision-run@${PROJECT}.iam.gserviceaccount.com" \
-  --role="roles/iam.workloadIdentityUser" \
-  --member="principalSet://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/github-pool/attribute.repository/nirholas/crypto-vision"
-```
-
----
-
-## Populating Secrets
-
-After infrastructure is provisioned:
-
-```bash
-# Set each API key
-echo -n "your-coingecko-key" | gcloud secrets versions add COINGECKO_API_KEY --data-file=-
-echo -n "your-groq-key"      | gcloud secrets versions add GROQ_API_KEY --data-file=-
-echo -n "your-gemini-key"    | gcloud secrets versions add GEMINI_API_KEY --data-file=-
-echo -n "your-openai-key"    | gcloud secrets versions add OPENAI_API_KEY --data-file=-
-echo -n "your-anthropic-key" | gcloud secrets versions add ANTHROPIC_API_KEY --data-file=-
-echo -n "your-openrouter-key"| gcloud secrets versions add OPENROUTER_API_KEY --data-file=-
-
-# REDIS_URL is auto-populated by setup.sh / Terraform
-```
 
 ## DNS Configuration
 
-After domain mapping is created, configure DNS for `cryptocurrency.cv`:
+Point `cryptocurrency.cv` to your deployment:
 
+**Cloud Run:**
 ```
-Type   Name   Value
-A      @      <IP from gcloud beta run domain-mappings describe>
-AAAA   @      <IPv6 from domain-mappings describe>
-CNAME  www    ghs.googlehosted.com.
+A      @   <IP from gcloud beta run domain-mappings describe>
+AAAA   @   <IPv6 from domain-mappings describe>
+CNAME  www ghs.googlehosted.com.
 ```
 
-Verify with:
+**Kubernetes (with Ingress):**
+```
+A      @   <Load balancer external IP>
+CNAME  www <Load balancer hostname>
+```
+
+## Populating Secrets
+
+**GCP:**
 ```bash
-gcloud beta run domain-mappings describe \
-  --domain=cryptocurrency.cv \
-  --region=us-central1
+echo -n "key" | gcloud secrets versions add COINGECKO_API_KEY --data-file=-
+```
+
+**Kubernetes:**
+```bash
+kubectl create secret generic crypto-vision-secrets \
+  --namespace=crypto-vision \
+  --from-literal=COINGECKO_API_KEY=xxx
+```
+
+**Docker Compose:**
+```bash
+# Just edit .env
+COINGECKO_API_KEY=xxx
 ```
 
 
