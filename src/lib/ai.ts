@@ -61,6 +61,35 @@ const PROVIDERS: AIProvider[] = [
     extractUsage: (r) => r.usage?.total_tokens,
   },
 
+  // ── Self-Hosted (fine-tuned model via vLLM, OpenAI-compatible) ──
+  {
+    name: "self-hosted",
+    envKey: "SELF_HOSTED_URL",
+    url: "",
+    model: "crypto-vision",
+    buildRequest: (_key, system, user, maxTokens, temperature) => ({
+      url: `${process.env.SELF_HOSTED_URL}/v1/chat/completions`,
+      init: {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: {
+          model: "crypto-vision",
+          messages: [
+            { role: "system", content: system },
+            { role: "user", content: user },
+          ],
+          max_tokens: maxTokens,
+          temperature,
+          response_format: { type: "json_object" },
+        },
+      },
+    }),
+    extractText: (r) => r.choices?.[0]?.message?.content || "",
+    extractUsage: (r) => r.usage?.total_tokens,
+  },
+
   // ── Google Gemini (Free quota) ──
   {
     name: "gemini",
@@ -248,7 +277,7 @@ export async function aiComplete(
 
   if (available.length === 0) {
     throw new Error(
-      "No AI provider configured. Set one of: GROQ_API_KEY, GEMINI_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY, OPENROUTER_API_KEY",
+      "No AI provider configured. Set one of: GROQ_API_KEY, SELF_HOSTED_URL, GEMINI_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY, OPENROUTER_API_KEY",
     );
   }
 

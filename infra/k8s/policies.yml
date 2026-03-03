@@ -1,0 +1,86 @@
+# ─── Pod Disruption Budget ───────────────────────────────────
+# Ensures at least 1 pod is always running during voluntary disruptions
+# (node upgrades, cluster autoscaler, kubectl drain, etc.)
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: crypto-vision
+  namespace: crypto-vision
+  labels:
+    app.kubernetes.io/name: crypto-vision
+    app.kubernetes.io/part-of: crypto-vision
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: crypto-vision
+---
+# ─── Network Policy ──────────────────────────────────────────
+# Restricts traffic to only what's needed:
+#   - API pods: accept ingress on 8080, egress to Redis + external
+#   - Redis: accept ingress only from API pods on 6379
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: crypto-vision-api
+  namespace: crypto-vision
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: crypto-vision
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from ingress controller and other namespaces
+    - ports:
+        - port: 8080
+          protocol: TCP
+  egress:
+    # Allow DNS resolution
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    # Allow Redis access within namespace
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+      ports:
+        - port: 6379
+          protocol: TCP
+    # Allow external HTTPS (upstream APIs, AI providers)
+    - ports:
+        - port: 443
+          protocol: TCP
+        - port: 80
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: redis-restrict
+  namespace: crypto-vision
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Only allow API pods to connect
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: crypto-vision
+      ports:
+        - port: 6379
+          protocol: TCP
+  egress:
+    # Redis doesn't need outbound access (besides DNS)
+    - ports:
+        - port: 53
+          protocol: UDP

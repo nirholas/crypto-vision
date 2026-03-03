@@ -759,25 +759,7 @@ marketRoutes.get("/paprika/coin/:id", async (c) => {
   return c.json({
     data: {
       id: data.id,
-      name: data.name,
-      symbol: data.symbol,
-      rank: data.rank,
-      type: data.type,
-      isActive: data.is_active,
-      description: data.description,
-      openSource: data.open_source,
-      startedAt: data.started_at,
-      tags: data.tags,
-      team: data.team,
-      links: data.links,
-      whitepaper: data.whitepaper,
-    },
-    source: "coinpaprika",
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// ─── GET /api/paprika/coin/:id/ohlcv ────────────────────────
+   Note: CoinCap exchange endpoints live in routes/exchanges.ts─── GET /api/paprika/coin/:id/ohlcv ────────────────────────
 // CoinPaprika 30-day OHLCV candles
 
 marketRoutes.get("/paprika/coin/:id/ohlcv", async (c) => {
@@ -897,13 +879,13 @@ marketRoutes.get("/dex/pair/:chain/:address", async (c) => {
 // ─── GET /api/btc-exchange-rates ─────────────────────────────
 // BTC exchange rates in 40+ currencies (blockchain.info)
 
-marketRoutes.get("/btc-exchange-rates", async (c) => {
-  const data = await alt.getBtcExchangeRates();
-
-  return c.json({
-    data: Object.entries(data).map(([currency, rate]: [string, any]) => ({
-      currency,
-      symbol: rate.symbol,
+marketRoutes.get("/btc-exchang) => ({
+      id: (ev as Record<string, unknown>).id,
+      date: (ev as Record<string, unknown>).date,
+      name: (ev as Record<string, unknown>).name,
+      description: (ev as Record<string, unknown>).description,
+      isConference: (ev as Record<string, unknown>).is_conference,
+      link: (ev as Record<string, unknown>)rate.symbol,
       last: rate.last,
       buy: rate.buy,
       sell: rate.sell,
@@ -911,6 +893,22 @@ marketRoutes.get("/btc-exchange-rates", async (c) => {
     source: "blockchain.info",
     timestamp: new Date().toISOString(),
   });
-});
+});Note: DEX pairs/pair endpoints live in routes/dex.ts (mounted at /api/dex)
 
+// ─── GET /api/btc-exchange-rates ─────────────────────────────
+// BTC exchange rates in 40+ currencies (blockchain.info)
 
+marketRoutes.get("/btc-exchange-rates", async (c) => {
+  const data = await alt.getBtcExchangeRates();
+
+  return c.json({
+    data: Object.entries(data).map(([currency, rate]) => {
+      const r = rate as { symbol: string; last: number; buy: number; sell: number };
+      return {
+        currency,
+        symbol: r.symbol,
+        last: r.last,
+        buy: r.buy,
+        sell: r.sell,
+      };
+    }

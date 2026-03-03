@@ -1,0 +1,24 @@
+# ─── Redis Persistent Volume Claim ────────────────────────────
+# Optional: use this for persistent Redis data across pod restarts.
+# Apply with: kubectl apply -f infra/k8s/redis-pvc.yml
+# Then update redis.yml volumes section to reference this PVC.
+#
+# NOTE: Requires a StorageClass that supports ReadWriteOnce.
+# Most cloud providers (GKE, EKS, AKS) include one by default.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: crypto-vision
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/component: cache
+    app.kubernetes.io/part-of: crypto-vision
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  # Uncomment and set your StorageClass if not using the default:
+  # storageClassName: standard-rwo

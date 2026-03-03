@@ -1,0 +1,36 @@
+# Python dependencies for open-source model fine-tuning
+# Install in the training Docker image or GPU environment
+#
+# Usage: pip install -r requirements.txt
+
+# Core ML framework
+torch==2.4.0
+
+# HuggingFace ecosystem
+transformers==4.44.0
+datasets==2.21.0
+accelerate==0.33.0
+peft==0.12.0
+trl==0.9.6
+
+# Memory-efficient training
+bitsandbytes==0.43.3
+
+# Tokenizer dependencies
+scipy
+sentencepiece
+protobuf
+
+# Quantization
+auto-gptq==0.7.1
+autoawq==0.2.6
+
+# GCS upload
+google-cloud-storage
+
+# Inference server
+vllm>=0.5.0
+
+# Optional: experiment tracking
+# wandb
+# tensorboard

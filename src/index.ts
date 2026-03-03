@@ -16,6 +16,8 @@ import { serve } from "@hono/node-server";
 import { createNodeWebSocket } from "@hono/node-ws";
 
 import { logger as log } from "@/lib/logger";
+// Validate env vars at startup — must be early so we fail fast on bad config
+import "@/lib/env";
 import { cache } from "@/lib/cache";
 import { rateLimit } from "@/lib/rate-limit";
 import { ApiError } from "@/lib/api-error";
@@ -498,10 +500,12 @@ app.get("/api", (c) =>
         "POST /api/keys": "Generate new API key (admin)",
         "GET /api/keys/usage": "Usage stats for current key",
       },
-      calendar: {
-        "GET /api/calendar/events": "Upcoming hot crypto events (CoinMarketCal)",
-        "GET /api/calendar/coin/:coinId": "Events for a specific coin",
+      calendar: {symbol": "Events for a specific coin",
         "GET /api/calendar/categories": "Event categories",
+        "GET /api/calendar/category/:id": "Events by category",
+        "GET /api/calendar/coins": "Coins with upcoming events",
+        "GET /api/calendar/paprika/:coinId": "CoinPaprika events for a coin",
+        "GET /api/calendar/aggregate": "Aggregated events from all source
         "GET /api/calendar/category/:id": "Events by category",
         "GET /api/calendar/coins": "Coins with upcoming events",
       },
@@ -511,15 +515,21 @@ app.get("/api", (c) =>
         "GET /api/oracles/dia/quote/:symbol": "DIA oracle price quote",
         "GET /api/oracles/dia/assets": "DIA asset list",
         "GET /api/oracles/dia/supply/:symbol": "DIA circulating supply",
-        "GET /api/oracles/pyth/feeds": "Pyth Network feed IDs",
-        "POST /api/oracles/pyth/prices": "Pyth latest prices (POST ids[])",
-      },
-      whales: {
-        "GET /api/whales/btc/latest": "Recent large BTC transactions (>1 BTC)",
+        "GET /api/oracles/pyth/feeds": "Pyth Network feed IDs",",
+        "GET /api/whales/btc/mempool": "BTC mempool data",
         "GET /api/whales/stats/bitcoin": "Blockchair BTC network stats",
         "GET /api/whales/stats/ethereum": "Blockchair ETH network stats",
         "GET /api/whales/stats/:chain": "Blockchair stats for any chain",
+        "GET /api/whales/address/:chain/:address": "Address balance lookup",
+        "GET /api/whales/eth/richlist": "Top ETH holders",
+        "GET /api/whales/eth/holders/:address": "Token top holders",
+        "GET /api/whales/eth/transfers/:address": "Recent large ETH transfers",
         "GET /api/whales/charts/price": "BTC market price chart (?timespan=1year)",
+        "GET /api/whales/charts/hashrate": "BTC hashrate chart",
+        "GET /api/whales/charts/difficulty": "BTC difficulty chart",
+        "GET /api/whales/charts/transactions": "BTC transaction count chart",
+        "GET /api/whales/charts/:name": "Any blockchain.info chart",
+        "GET /api/whales/overview": "Aggregate whale overviewtimespan=1year)",
         "GET /api/whales/charts/hashrate": "BTC hashrate chart",
         "GET /api/whales/charts/difficulty": "BTC difficulty chart",
         "GET /api/whales/charts/transactions": "BTC transaction count chart",
