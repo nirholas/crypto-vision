@@ -100,6 +100,11 @@ export interface CoinDetail {
     circulating_supply: number;
     total_supply: number | null;
     max_supply: number | null;
+    ath: Record<string, number>;
+    ath_date: Record<string, string>;
+    ath_change_percentage: Record<string, number>;
+    atl: Record<string, number>;
+    atl_date: Record<string, string>;
   };
   categories: string[];
   platforms: Record<string, string>;

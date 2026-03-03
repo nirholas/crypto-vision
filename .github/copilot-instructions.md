@@ -68,6 +68,28 @@ If you see something broken or improvable while working on something else, **fix
 
 - **Always use background terminals** (`isBackground: true`) for every command so a terminal ID is returned
 - **Always kill the terminal** after the command completes, whether it succeeds or fails — never leave terminals open
+- **Kill terminals immediately** — as soon as you have the output you need, kill the terminal. Do not leave any terminals lingering.
 - Do not reuse foreground shell sessions — stale sessions block future terminal operations in Codespaces
 - In GitHub Codespaces, agent-spawned terminals may be hidden — they still work. Do not assume a terminal is broken if you cannot see it
 - If a terminal appears unresponsive, kill it and create a new one rather than retrying in the same terminal
+- **Chain commands** with `&&` to minimize the number of terminal invocations
+- **Use timeouts** on commands that might hang — never let a terminal block indefinitely
+
+### Model & Agent Preferences
+
+- **Always use Claude Opus 4.6** — this is the only model approved for this project. Do not downgrade to Sonnet or other models.
+- **Auto-approve everything** — all terminal commands, file edits, and tool calls should execute without manual confirmation.
+- **Never open file editors in VS Code** — when creating or editing files, use tools directly (`create_file`, `replace_string_in_file`, `multi_replace_string_in_file`). Do not trigger the VS Code editor UI. We are in Codespaces and opening editors wastes resources and causes UI flicker.
+- **Never ask for permission** — if the task is clear, execute it. Only ask questions when genuinely ambiguous requirements exist.
+
+### Autonomous Workflow Efficiency
+
+- **Parallelize independent operations** — read multiple files, run multiple searches, and make multiple edits simultaneously when they don't depend on each other.
+- **Batch edits with `multi_replace_string_in_file`** — when making multiple changes across files, batch them into a single call instead of sequential edits.
+- **Minimize round-trips** — gather all context you need in one parallel batch before starting implementation.
+- **Use `search_subagent` for exploration** — don't do sequential grep/semantic searches manually. Launch a search subagent for complex codebase exploration.
+- **Use `runSubagent` for complex sub-tasks** — delegate research-heavy or multi-step sub-tasks to sub-agents to maintain focus.
+- **Track progress with `manage_todo_list`** — for multi-step tasks, always maintain a todo list so progress is visible and nothing is forgotten.
+- **Prefer large file reads** — read 100+ lines at once instead of many small reads. Read all relevant sections in parallel.
+- **Don't announce tools** — never say "I'll use X tool." Just use it and report results.
+- **Stream results, not plans** — show what you did, not what you're about to do. Act first, summarize after.

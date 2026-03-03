@@ -75,6 +75,7 @@ import { portfolioRoutes } from "@/routes/portfolio";
 import { socialRoutes } from "@/routes/social";
 import { newsFeedRoutes } from "@/routes/news-aggregator";
 import { anomalyRoutes } from "@/routes/anomaly";
+import { searchRoutes } from "@/routes/search";
 
 // ─── App ─────────────────────────────────────────────────────
 
@@ -479,11 +480,24 @@ app.get("/api", (c) =>
         "GET /api/macro/quote/:symbol": "Raw Yahoo Finance quote for any symbol",
       },
       solana: {
-        "GET /api/solana/price/:token": "Jupiter price for a token mint/symbol",
-        "GET /api/solana/prices": "Batch prices (?ids=mint1,mint2)",
+        "GET /api/solana/overview": "Solana ecosystem overview (price, network, supply)",
+        "GET /api/solana/tokens": "Top Solana tokens by market cap (?limit=50)",
+        "GET /api/solana/token/:mint": "Token detail by mint address",
+        "GET /api/solana/quote": "Jupiter swap quote (?input_mint=&output_mint=&amount=&slippage=)",
+        "GET /api/solana/routes/:inputMint/:outputMint": "Best swap routes (?amount=)",
+        "GET /api/solana/price/:mint": "Token price via Jupiter (?vs=)",
+        "GET /api/solana/prices": "Batch token prices (?ids=mint1,mint2)",
+        "GET /api/solana/dex/pools": "Top Solana DEX pools (?page=1)",
+        "GET /api/solana/dex/volume": "Solana DEX volume stats",
+        "GET /api/solana/validators": "Validator rankings (?limit=50&include_delinquent=false)",
+        "GET /api/solana/tps": "Current TPS (transactions per second)",
+        "GET /api/solana/supply": "SOL supply breakdown (total, circulating, non-circulating)",
+        "GET /api/solana/staking": "Staking statistics (validators, APY, commission)",
+        "GET /api/solana/programs/top": "Top Solana programs by usage (?limit=20)",
+        "GET /api/solana/nft/collections": "Top Solana NFT collections (?limit=20)",
+        "GET /api/solana/new-tokens": "Recently created SPL tokens (?limit=50)",
+        "GET /api/solana/memecoins": "Trending memecoins on Solana (?limit=20)",
         "GET /api/solana/price-vs/:token": "Price vs another token (?vs=SOL_MINT)",
-        "GET /api/solana/quote": "Jupiter swap quote (?inputMint=&outputMint=&amount=)",
-        "GET /api/solana/tokens": "Full Solana token list",
         "GET /api/solana/tokens/strict": "Jupiter strict/verified token list",
         "GET /api/solana/tokens/popular": "Popular tokens by volume",
         "GET /api/solana/popular/prices": "Prices for popular Solana tokens",
@@ -619,6 +633,11 @@ app.get("/api", (c) =>
         "GET /api/anomalies/types": "Available anomaly types",
         "GET /api/anomalies/config": "Current detector configuration",
       },
+      search: {
+        "GET /api/search/smart": "Semantic search across all data (?q=...&types=coin,protocol&limit=20)",
+        "GET /api/search/nlq": "AI-powered natural language query (?q=...)",
+        "GET /api/search/suggest": "Search autocomplete suggestions (?q=...)",
+      },
       newsFeed: {
         "GET /api/news-feed/latest": "Aggregated news from 130+ RSS feeds (?limit&source&category&page)",
         "GET /api/news-feed/search": "Search aggregated news (?q=query&limit)",
@@ -674,6 +693,7 @@ app.route("/api/portfolio", portfolioRoutes);
 app.route("/api/social", socialRoutes);
 app.route("/api/news-feed", newsFeedRoutes);
 app.route("/api/anomalies", anomalyRoutes);
+app.route("/api/search", searchRoutes);
 app.route("/", keysRoutes);
 
 // ─── WebSocket Routes ─────────────────────────────────────────

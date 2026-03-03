@@ -33,11 +33,25 @@ export const SearchQuerySchema = z.string().min(1).max(256).trim();
 /** Positive integer query param */
 export const PositiveIntSchema = z.coerce.number().int().positive();
 
+/** Pagination page number (1+) */
+export const PageSchema = z.coerce.number().int().min(1).default(1);
+
 /** Pagination limit (1–250, default 25) */
 export const LimitSchema = z.coerce.number().int().min(1).max(250).default(25);
 
 /** Days param for charts (1–365) */
 export const DaysSchema = z.coerce.number().int().min(1).max(365).default(7);
+
+/** Factory for limit schemas with custom defaults and bounds */
+export function limitSchema(defaultVal: number, maxVal: number) {
+  return z.coerce.number().int().min(1).max(maxVal).default(defaultVal);
+}
+
+/** Pagination combo: page + limit */
+export const PaginationSchema = z.object({
+  page: PageSchema,
+  limit: LimitSchema,
+});
 
 // ─── Extended Primitives (route param validation) ────────────
 
@@ -348,6 +362,45 @@ export async function validateBody<T extends z.ZodTypeAny>(
   return { success: true, data: result.data };
 }
 
+// ─── Multi-Query Validation ─────────────────────────────────
+
+/**
+ * Validate multiple query parameters at once against a Zod object schema.
+ * Reads each key from the URL query string, applies the schema,
+ * and returns typed parsed data or a structured 400 error.
+ *
+ * @example
+ * const QS = z.object({ page: PageSchema, limit: limitSchema(50, 200) });
+ * const q = validateQueries(c, QS);
+ * if (!q.success) return q.error;
+ * const { page, limit } = q.data;
+ */
+export function validateQueries<T extends z.ZodRawShape>(
+  c: Context,
+  schema: z.ZodObject<T>,
+): { success: true; data: z.infer<z.ZodObject<T>> } | { success: false; error: Response } {
+  const raw: Record<string, string | undefined> = {};
+  for (const key of Object.keys(schema.shape)) {
+    raw[key] = c.req.query(key);
+  }
+
+  const result = schema.safeParse(raw);
+  if (!result.success) {
+    const issues: ValidationError[] = result.error.issues.map((i) => ({
+      field: i.path.join(".") || "(root)",
+      message: i.message,
+    }));
+    return {
+      success: false,
+      error: ApiError.validation(
+        c,
+        `Invalid query parameters: ${issues.map((i) => `${i.field}: ${i.message}`).join("; ")}`,
+        issues,
+      ),
+    };
+  }
+  return { success: true, data: result.data };
+}
 /**
  * Validate a query parameter against a Zod schema.
  * Returns the parsed value or sends a 400 error response.

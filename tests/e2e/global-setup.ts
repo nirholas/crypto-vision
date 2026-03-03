@@ -62,6 +62,11 @@ export async function setup(): Promise<void> {
 
   console.log(`[e2e] Starting server on port ${port}…`);
 
+  // Use a deterministic test API key with 'pro' tier (2000 req/min)
+  // so smoke tests don't get rate-limited at the 30 req/min public tier.
+  const testApiKey = "e2e-smoke-test-key-00000000";
+  process.env.E2E_API_KEY = testApiKey;
+
   serverProcess = spawn("npx", ["tsx", "src/index.ts"], {
     cwd: ROOT,
     env: {
@@ -69,6 +74,7 @@ export async function setup(): Promise<void> {
       PORT: String(port),
       NODE_ENV: "test",
       LOG_LEVEL: "warn",
+      API_KEYS: `${testApiKey}:pro`,
     },
     stdio: ["ignore", "pipe", "pipe"],
   });
