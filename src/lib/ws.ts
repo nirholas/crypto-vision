@@ -357,6 +357,7 @@ async function subscribeToChannels(): Promise<void> {
 // ─── Upstream: CoinCap Prices ────────────────────────────────
 
 const COINCAP_WS_URL = "wss://ws.coincap.io/prices";
+const COINCAP_API_KEY = process.env.COINCAP_API_KEY ?? "";
 const DEFAULT_COINS = [
   "bitcoin",
   "ethereum",
@@ -373,6 +374,7 @@ const DEFAULT_COINS = [
 let coinCapWs: WebSocket | null = null;
 let coinCapReconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let coinCapReconnectAttempts = 0;
+let coinCapAuthFailed = false;
 let currentCoinCapAssets: string[] = [];
 
 function getAllSubscribedCoins(): string[] {
@@ -391,6 +393,7 @@ function getAllSubscribedCoins(): string[] {
 }
 
 function rebuildPriceSubscription(): void {
+  if (coinCapAuthFailed) return;
   const newAssets = getAllSubscribedCoins();
   const sorted = [...newAssets].sort().join(",");
   const currentSorted = [...currentCoinCapAssets].sort().join(",");
@@ -404,6 +407,13 @@ function rebuildPriceSubscription(): void {
 
 function connectCoinCap(assets?: string[]): void {
   if (coinCapWs?.readyState === WebSocket.OPEN) return;
+  if (coinCapAuthFailed) return;
+
+  if (!COINCAP_API_KEY) {
+    logger.warn("COINCAP_API_KEY not set — skipping CoinCap WS (API key required since 2025)");
+    coinCapAuthFailed = true;
+    return;
+  }
 
   const assetList = assets ?? getAllSubscribedCoins();
   currentCoinCapAssets = assetList;
@@ -411,7 +421,9 @@ function connectCoinCap(assets?: string[]): void {
 
   logger.info({ url: url.slice(0, 100), assets: assetList.length }, "Connecting to CoinCap WS");
 
-  coinCapWs = new WebSocket(url);
+  coinCapWs = new WebSocket(url, {
+    headers: { Authorization: `Bearer ${COINCAP_API_KEY}` },
+  });
 
   coinCapWs.on("open", () => {
     logger.info("CoinCap WS connected");
@@ -421,6 +433,16 @@ function connectCoinCap(assets?: string[]): void {
   coinCapWs.on("message", (raw) => {
     try {
       const data = JSON.parse(raw.toString()) as Record<string, string>;
+
+      // CoinCap returns { error: "Unauthorized: ..." } when key is invalid
+      if ("error" in data) {
+        const errMsg = data["error"] ?? "Unknown CoinCap error";
+        logger.error({ error: errMsg }, "CoinCap WS returned error — stopping reconnect");
+        coinCapAuthFailed = true;
+        disconnectCoinCap();
+        return;
+      }
+
       const message: PriceTick = {
         type: "price",
         data,
@@ -432,8 +454,17 @@ function connectCoinCap(assets?: string[]): void {
     }
   });
 
-  coinCapWs.on("close", () => {
-    logger.warn("CoinCap WS disconnected");
+  coinCapWs.on("close", (code, reason) => {
+    const reasonStr = reason?.toString() ?? "";
+    logger.warn({ code, reason: reasonStr }, "CoinCap WS disconnected");
+
+    // Don't reconnect if explicitly unauthorized
+    if (code === 1000 && reasonStr.toLowerCase().includes("unauthorized")) {
+      logger.error("CoinCap API key invalid or missing — disabling reconnect");
+      coinCapAuthFailed = true;
+      return;
+    }
+
     scheduleReconnect("coincap");
   });
 
@@ -786,9 +817,11 @@ export function wsStats(): {
       trades: clients.get("trades")!.size,
     },
     upstreams: {
-      coinCap: coinCapWs
-        ? ["CONNECTING", "OPEN", "CLOSING", "CLOSED"][coinCapWs.readyState]
-        : "DISCONNECTED",
+      coinCap: coinCapAuthFailed
+        ? "AUTH_FAILED"
+        : coinCapWs
+          ? ["CONNECTING", "OPEN", "CLOSING", "CLOSED"][coinCapWs.readyState]
+          : "DISCONNECTED",
       mempool: mempoolWs
         ? ["CONNECTING", "OPEN", "CLOSING", "CLOSED"][mempoolWs.readyState]
         : "DISCONNECTED",

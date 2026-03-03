@@ -1,0 +1,202 @@
+# ─────────────────────────────────────────────────────────────
+# Inference Deployment for Self-Hosted Crypto Vision LLM
+#
+# Deploys the fine-tuned, quantized model using vLLM on any
+# Kubernetes cluster with GPU support. Compatible with:
+#   - GKE (during GCP credits)
+#   - RunPod ($0.44/hr L4)
+#   - Lambda Labs ($0.60/hr A10G)
+#   - Vast.ai ($0.30/hr RTX 4090)
+#   - Self-hosted (RTX 3090)
+#
+# The vLLM server exposes an OpenAI-compatible API that
+# src/lib/ai.ts consumes via the "self-hosted" provider.
+#
+# Prerequisites:
+#   1. Model weights downloaded to /mnt/models on the host
+#      gsutil -m cp -r gs://${PROJECT_ID}-models/crypto-vision-llama-8b-gptq-4bit /mnt/models/
+#   2. NVIDIA GPU driver + nvidia-container-toolkit installed
+#   3. kubectl access to the cluster
+#
+# Usage:
+#   kubectl apply -f inference-deployment.yaml
+#
+# Copyright 2024-2026 nirholas. All rights reserved.
+# ─────────────────────────────────────────────────────────────
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: inference
+  labels:
+    app: crypto-vision
+    component: inference
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crypto-vision-llm
+  namespace: inference
+  labels:
+    app: crypto-vision
+    component: inference
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crypto-vision-llm
+  strategy:
+    type: Recreate  # GPU workloads need Recreate (can't share GPU)
+  template:
+    metadata:
+      labels:
+        app: crypto-vision-llm
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:latest
+          args:
+            - "--model=/models/crypto-vision-llama-8b-gptq-4bit"
+            - "--quantization=gptq"
+            - "--max-model-len=4096"
+            - "--gpu-memory-utilization=0.90"
+            - "--served-model-name=crypto-vision"
+            - "--trust-remote-code"
+            - "--max-num-seqs=64"
+            - "--disable-log-requests"
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          resources:
+            requests:
+              nvidia.com/gpu: 1
+              memory: "16Gi"
+              cpu: "4"
+            limits:
+              nvidia.com/gpu: 1
+              memory: "24Gi"
+              cpu: "8"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 120  # Model loading takes time
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30  # Allow up to 5 minutes for model loading
+          volumeMounts:
+            - mountPath: /models
+              name: model-weights
+              readOnly: true
+            - mountPath: /root/.cache/huggingface
+              name: hf-cache
+      volumes:
+        - name: model-weights
+          hostPath:
+            path: /mnt/models
+            type: Directory
+        - name: hf-cache
+          emptyDir:
+            sizeLimit: 10Gi
+      # Node selection for GPU workloads
+      tolerations:
+        - key: "nvidia.com/gpu"
+          operator: "Exists"
+          effect: "NoSchedule"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crypto-vision-llm
+  namespace: inference
+  labels:
+    app: crypto-vision
+    component: inference
+spec:
+  type: ClusterIP
+  selector:
+    app: crypto-vision-llm
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+---
+# Optional: Expose via NodePort for external access
+apiVersion: v1
+kind: Service
+metadata:
+  name: crypto-vision-llm-external
+  namespace: inference
+  labels:
+    app: crypto-vision
+    component: inference
+spec:
+  type: NodePort
+  selector:
+    app: crypto-vision-llm
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+      nodePort: 30800
+      protocol: TCP
+---
+# HPA for auto-scaling based on GPU utilization (if multi-GPU)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: crypto-vision-llm
+  namespace: inference
+  labels:
+    app: crypto-vision
+    component: inference
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: crypto-vision-llm
+  minReplicas: 1
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 300
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 60

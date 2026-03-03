@@ -66,7 +66,7 @@ variable "cloud_run_max_instances" {
 }
 
 variable "container_image" {
-  description = "Container image to deploy (e.g., gcr.io/PROJECT/crypto-vision:latest)"
+  description = "Container image to deploy (e.g., us-central1-docker.pkg.dev/PROJECT/crypto-vision/crypto-vision:latest)"
   type        = string
   default     = ""
 }

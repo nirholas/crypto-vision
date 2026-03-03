@@ -10,7 +10,6 @@ locals {
     "cloudscheduler.googleapis.com",
     "vpcaccess.googleapis.com",
     "cloudbuild.googleapis.com",
-    "containerregistry.googleapis.com",
     "artifactregistry.googleapis.com",
     "compute.googleapis.com",
   ]

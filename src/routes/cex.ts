@@ -260,13 +260,13 @@ cexRoutes.get("/book-ticker", async (c) => {
 // Lightweight 24h ticker (faster response than full ticker)
 
 cexRoutes.get("/mini-ticker", async (c) => {
-  const all = await binance.getMiniTicker() as any[];
+  const all = await binance.getMiniTicker() as binance.MiniTicker[];
   const quote = c.req.query("quote")?.toUpperCase();
-  let filtered = quote ? all.filter((t: any) => t.symbol.endsWith(quote)) : all;
+  let filtered: binance.MiniTicker[] = quote ? all.filter((t) => t.symbol.endsWith(quote)) : all;
   filtered = filtered.slice(0, 200);
 
   return c.json({
-    data: filtered.map((t: any) => ({
+    data: filtered.map((t) => ({
       symbol: t.symbol,
       lastPrice: Number(t.lastPrice),
       openPrice: Number(t.openPrice),

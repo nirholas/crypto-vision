@@ -213,30 +213,8 @@ marketRoutes.get("/ohlc/:id", async (c) => {
   });
 });
 
-// ─── GET /api/exchanges ──────────────────────────────────────
-
-marketRoutes.get("/exchanges", async (c) => {
-  const page = Number(c.req.query("page") || 1);
-  const perPage = Math.min(Number(c.req.query("per_page") || 100), 250);
-  const data = await cg.getExchanges(page, perPage);
-
-  return c.json({
-    data: data.map((ex) => ({
-      id: ex.id,
-      name: ex.name,
-      yearEstablished: ex.year_established,
-      country: ex.country,
-      volume24hBtc: ex.trade_volume_24h_btc,
-      trustScore: ex.trust_score,
-      rank: ex.trust_score_rank,
-    })),
-    page,
-    perPage,
-    timestamp: new Date().toISOString(),
-  });
-});
-
 // ─── GET /api/categories ─────────────────────────────────────
+// Note: Exchange endpoints live in routes/exchanges.ts (mounted at /api/exchanges)
 
 marketRoutes.get("/categories", async (c) => {
   const data = await cg.getCategories();
@@ -292,58 +270,7 @@ marketRoutes.get("/dex/search", async (c) => {
       txns24h: p.txns?.h24,
       createdAt: p.pairCreatedAt,
     })),
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// ─── GET /api/dex/token/:address ─────────────────────────────
-
-marketRoutes.get("/dex/token/:address", async (c) => {
-  const { pairs } = await alt.dexTokenPairs(c.req.param("address"));
-
-  if (!pairs || pairs.length === 0) {
-    return c.json({ error: "No pairs found for this token", data: [] }, 404);
-  }
-
-  return c.json({
-    data: pairs.slice(0, 50).map((p) => ({
-      chain: p.chainId,
-      dex: p.dexId,
-      pair: p.pairAddress,
-      baseToken: p.baseToken,
-      quoteToken: p.quoteToken,
-      priceUsd: p.priceUsd,
-      volume24h: p.volume?.h24,
-      liquidity: p.liquidity?.usd,
-      fdv: p.fdv,
-      txns24h: p.txns?.h24,
-      createdAt: p.pairCreatedAt,
-    })),
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// ─── GET /api/gainers ────────────────────────────────────────
-
-marketRoutes.get("/gainers", async (c) => {
-  const limit = Math.min(Number(c.req.query("limit") || 20), 100);
-  const coins = await cg.getCoins({ page: 1, perPage: 250, order: "market_cap_desc", sparkline: false });
-
-  const gainers = coins
-    .filter((coin) => coin.price_change_percentage_24h != null && coin.price_change_percentage_24h > 0)
-    .sort((a, b) => (b.price_change_percentage_24h || 0) - (a.price_change_percentage_24h || 0))
-    .slice(0, limit);
-
-  return c.json({
-    data: gainers.map((coin) => ({
-      id: coin.id,
-      symbol: coin.symbol,
-      name: coin.name,
-      image: coin.image,
-      price: coin.current_price,
-      change24h: coin.price_change_percentage_24h,
-      marketCap: coin.market_cap,
-      volume24h: coin.total_volume,
+   Note: DEX search/token endpoints live in routes/dex.ts (mounted at /api/dex)   volume24h: coin.total_volume,
       rank: coin.market_cap_rank,
     })),
     count: gainers.length,

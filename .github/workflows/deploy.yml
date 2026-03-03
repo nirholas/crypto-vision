@@ -103,12 +103,14 @@ jobs:
             --platform=managed \
             --no-allow-unauthenticated \
             --port=8080 \
-            --memory=1Gi \
-            --cpu=2 \
-            --min-instances=1 \
-            --max-instances=20 \
+            --memory=2Gi \
+            --cpu=4 \
+            --min-instances=2 \
+            --max-instances=500 \
             --timeout=60s \
-            --concurrency=200 \
+            --concurrency=250 \
+            --cpu-boost \
+            --execution-environment=gen2 \
             --vpc-connector=projects/${{ env.PROJECT_ID }}/locations/${{ env.REGION }}/connectors/${{ env.VPC_CONNECTOR }} \
             --vpc-egress=private-ranges-only \
             --service-account=${{ env.SERVICE_ACCOUNT }}@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \

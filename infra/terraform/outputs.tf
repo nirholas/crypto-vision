@@ -47,17 +47,8 @@ output "artifact_registry" {
   value       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker.repository_id}"
 }
 
-output "lb_ip_address" {
-  description = "Global Load Balancer IP (point DNS A record here)"
-  value       = var.enable_cdn ? google_compute_global_address.lb_ip[0].address : null
-}
-
-output "cdn_enabled" {
-  description = "Whether Cloud CDN is active"
-  value       = var.enable_cdn
-}
-
-output "cloud_armor_enabled" {
-  description = "Whether Cloud Armor WAF is active"
-  value       = var.enable_cloud_armor
+output "redis_auth_enabled" {
+  description = "Whether Redis AUTH is enabled"
+  value       = google_redis_instance.cache.auth_enabled
+  sensitive   = true
 }

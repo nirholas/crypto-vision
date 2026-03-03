@@ -72,9 +72,9 @@ steps:
       - ${_REGION}-docker.pkg.dev/$PROJECT_ID/crypto-vision/${_SERVICE_NAME}
     waitFor: ["build"]
 
-  # ── 7. Deploy to Cloud Run ────────────────────────────────
+  # ── 7. Deploy canary (5% traffic) ───────────────────────────
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
-    id: deploy
+    id: deploy-canary
     entrypoint: gcloud
     args:
       - run
@@ -98,7 +98,51 @@ steps:
       - --service-account=${_SERVICE_ACCOUNT}@$PROJECT_ID.iam.gserviceaccount.com
       - --set-env-vars=NODE_ENV=production,COINGECKO_PRO=true
       - --set-secrets=COINGECKO_API_KEY=COINGECKO_API_KEY:latest,GROQ_API_KEY=GROQ_API_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,OPENAI_API_KEY=OPENAI_API_KEY:latest,ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest,OPENROUTER_API_KEY=OPENROUTER_API_KEY:latest,REDIS_URL=REDIS_URL:latest
+      - --no-traffic
+      - --tag=canary
     waitFor: ["push"]
+
+  # ── 8. Verify canary health ────────────────────────────────
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    id: verify-canary
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        CANARY_URL=$(gcloud run services describe ${_SERVICE_NAME} \
+          --region=${_REGION} --format='value(status.traffic[tag=canary].url)' 2>/dev/null)
+        if [ -z "$$CANARY_URL" ]; then
+          # Fallback: use the revision URL directly
+          CANARY_URL="https://canary---${_SERVICE_NAME}-$$(gcloud run services describe ${_SERVICE_NAME} \
+            --region=${_REGION} --format='value(status.url)' | sed 's|https://||' )"
+        fi
+        echo "Canary URL: $$CANARY_URL"
+        TOKEN=$$(gcloud auth print-identity-token --impersonate-service-account=${_SERVICE_ACCOUNT}@$PROJECT_ID.iam.gserviceaccount.com 2>/dev/null || gcloud auth print-identity-token)
+        for i in 1 2 3 4 5; do
+          STATUS=$$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $$TOKEN" "$$CANARY_URL/health" || echo "000")
+          if [ "$$STATUS" = "200" ]; then
+            echo "Canary health check passed"
+            exit 0
+          fi
+          echo "Attempt $$i/5 — status $$STATUS, retrying in 10s..."
+          sleep 10
+        done
+        echo "Canary health check FAILED — aborting deployment"
+        exit 1
+    waitFor: ["deploy-canary"]
+
+  # ── 9. Promote canary to 100% traffic ─────────────────────
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    id: promote
+    entrypoint: gcloud
+    args:
+      - run
+      - services
+      - update-traffic
+      - ${_SERVICE_NAME}
+      - --region=${_REGION}
+      - --to-latest
+    waitFor: ["verify-canary"]
 
 images:
   - ${_REGION}-docker.pkg.dev/$PROJECT_ID/crypto-vision/${_SERVICE_NAME}:$SHORT_SHA

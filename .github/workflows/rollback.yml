@@ -1,0 +1,119 @@
+name: Rollback Cloud Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: "Revision to rollback to (leave empty for previous revision)"
+        required: false
+        type: string
+      traffic_percent:
+        description: "Traffic percentage for the target revision"
+        required: true
+        default: "100"
+        type: choice
+        options:
+          - "100"
+          - "50"
+          - "25"
+          - "10"
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1
+  SERVICE_NAME: crypto-vision
+
+jobs:
+  rollback:
+    name: Rollback
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: List recent revisions
+        run: |
+          echo "### Recent Revisions" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          gcloud run revisions list \
+            --service=${{ env.SERVICE_NAME }} \
+            --region=${{ env.REGION }} \
+            --limit=10 \
+            --format='table(name, active, creation_timestamp.date(), status.conditions[0].status)' \
+            | tee -a $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Determine target revision
+        id: target
+        run: |
+          if [ -n "${{ inputs.revision }}" ]; then
+            echo "revision=${{ inputs.revision }}" >> $GITHUB_OUTPUT
+          else
+            # Get the second most recent revision (the one before current)
+            PREV=$(gcloud run revisions list \
+              --service=${{ env.SERVICE_NAME }} \
+              --region=${{ env.REGION }} \
+              --limit=2 \
+              --format='value(name)' | tail -1)
+            echo "revision=${PREV}" >> $GITHUB_OUTPUT
+          fi
+          echo "Rolling back to: $(cat $GITHUB_OUTPUT | grep revision | cut -d= -f2)"
+
+      - name: Rollback traffic
+        run: |
+          REVISION="${{ steps.target.outputs.revision }}"
+          PERCENT="${{ inputs.traffic_percent }}"
+
+          if [ "${PERCENT}" = "100" ]; then
+            gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
+              --region=${{ env.REGION }} \
+              --to-revisions="${REVISION}=100"
+          else
+            REMAINING=$((100 - ${PERCENT}))
+            gcloud run services update-traffic ${{ env.SERVICE_NAME }} \
+              --region=${{ env.REGION }} \
+              --to-revisions="${REVISION}=${PERCENT}" \
+              --to-latest=${REMAINING}
+          fi
+
+      - name: Verify rollback
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region=${{ env.REGION }} \
+            --format='value(status.url)')
+          TOKEN=$(gcloud auth print-identity-token --audiences="${SERVICE_URL}")
+
+          for i in 1 2 3 4 5; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${TOKEN}" "${SERVICE_URL}/health" || true)
+            if [ "$STATUS" = "200" ]; then
+              echo "Health check passed after rollback"
+              exit 0
+            fi
+            echo "Attempt ${i}/5 — status ${STATUS}, retrying in 10s..."
+            sleep 10
+          done
+          echo "WARNING: Health check did not pass after rollback"
+          exit 1
+
+      - name: Post summary
+        if: always()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Rollback Result" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Service** | ${{ env.SERVICE_NAME }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Revision** | ${{ steps.target.outputs.revision }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Traffic** | ${{ inputs.traffic_percent }}% |" >> $GITHUB_STEP_SUMMARY

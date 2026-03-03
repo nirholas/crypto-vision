@@ -255,6 +255,43 @@ aiRoutes.post("/ask", async (c) => {
   if (!parsed.success) return parsed.error;
   const body = parsed.data;
 
+  const { question, context: userContext, useRag = true, ragCategory } = body;
+
+  // ─── RAG-Enhanced Path ─────────────────────────────────────
+  if (useRag) {
+    try {
+      const { ragQuery } = await import("../lib/rag.js");
+      const result = await aiQueue.execute(() =>
+        ragQuery(question, {
+          category: ragCategory || userContext || undefined,
+          topK: 5,
+          temperature: 0.3,
+          maxTokens: 2048,
+        })
+      );
+
+      return c.json({
+        data: {
+          answer: result.answer,
+          sources: result.sources,
+        },
+        model: result.model,
+        tokensUsed: result.tokensUsed,
+        rag: result.ragUsed,
+        retrievalCount: result.retrievalCount,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err: unknown) {
+      const error = err as Error & { name?: string };
+      if (error.name === "QueueFullError") {
+        return ApiError.serviceUnavailable(c, "AI service busy — please retry");
+      }
+      // Fall through to non-RAG path on RAG-specific failures
+      log.warn({ err: error.message }, "RAG query failed — falling back to direct LLM");
+    }
+  }
+
+  // ─── Non-RAG Fallback Path ─────────────────────────────────
   // Fetch live context to enrich the answer
   const [global, fearGreed] = await Promise.all([
     cg.getGlobal().catch(() => null),
@@ -270,9 +307,9 @@ Answer the following question using current data and your knowledge.
 Be concise, specific, and data-driven. If you're uncertain, say so.`;
 
   const userPrompt = `${marketContext}
-${body.context ? `\nAdditional context: ${body.context}` : ""}
+${userContext ? `\nAdditional context: ${userContext}` : ""}
 
-Question: ${body.question}`;
+Question: ${question}`;
 
   try {
     const { text, model, tokensUsed } = await aiQueue.execute(() =>
@@ -283,14 +320,16 @@ Question: ${body.question}`;
       data: { answer: text },
       model,
       tokensUsed,
+      rag: false,
       timestamp: new Date().toISOString(),
     });
-  } catch (err: any) {
-    if (err.name === "QueueFullError") {
+  } catch (err: unknown) {
+    const error = err as Error & { name?: string };
+    if (error.name === "QueueFullError") {
       return ApiError.serviceUnavailable(c, "AI service busy — please retry");
     }
-    log.error({ err }, "AI ask failed");
-    return ApiError.aiError(c, "AI question answering failed", err.message);
+    log.error({ err: error }, "AI ask failed");
+    return ApiError.aiError(c, "AI question answering failed", error.message);
   }
 });
 

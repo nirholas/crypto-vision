@@ -1,0 +1,97 @@
+# Dockerfile.train — GPU training container for Crypto Vision
+#
+# Builds a CUDA-enabled image with all Python dependencies for
+# fine-tuning open-source LLMs using LoRA + Unsloth.
+#
+# Build:
+#   docker build -f Dockerfile.train -t crypto-vision-trainer .
+#
+# Run (requires NVIDIA GPU + nvidia-container-toolkit):
+#   docker run --gpus all \
+#     -v ./data/training:/training/data \
+#     -v ./models:/training/models \
+#     -e HUGGING_FACE_HUB_TOKEN=$HF_TOKEN \
+#     -e GCS_BUCKET=crypto-vision-models \
+#     crypto-vision-trainer \
+#     scripts/opensource/train.py \
+#     --model meta-llama/Llama-3.1-8B-Instruct \
+#     --data data/prepared/train.jsonl \
+#     --output models/crypto-vision-llama-8b \
+#     --epochs 3 --quantize
+#
+# Copyright 2024-2026 nirholas. All rights reserved.
+
+FROM nvidia/cuda:12.4.0-devel-ubuntu22.04
+
+# Prevent interactive prompts and ensure unbuffered Python output
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3.11-dev \
+    python3.11-venv \
+    python3-pip \
+    git \
+    curl \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set Python 3.11 as default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
+    && update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+
+# Upgrade pip
+RUN python3 -m pip install --upgrade pip setuptools wheel
+
+# Install PyTorch with CUDA 12.4 support
+RUN pip install torch==2.4.0 --index-url https://download.pytorch.org/whl/cu124
+
+# Install HuggingFace ecosystem + training dependencies
+RUN pip install \
+    transformers==4.44.0 \
+    datasets==2.21.0 \
+    accelerate==0.33.0 \
+    peft==0.12.0 \
+    trl==0.9.6 \
+    bitsandbytes==0.43.3 \
+    scipy \
+    sentencepiece \
+    protobuf
+
+# Install quantization libraries
+RUN pip install \
+    auto-gptq==0.7.1 \
+    autoawq==0.2.6
+
+# Install GCS tools for model upload
+RUN pip install google-cloud-storage \
+    && curl -sSL https://sdk.cloud.google.com | bash -s -- --disable-prompts \
+    && echo 'source /root/google-cloud-sdk/path.bash.inc' >> /etc/bash.bashrc
+ENV PATH="/root/google-cloud-sdk/bin:${PATH}"
+
+# Install Unsloth for 2x faster training
+# Pinned to cu124-torch240 variant for CUDA 12.4 + PyTorch 2.4.0
+RUN pip install "unsloth[cu124-torch240] @ git+https://github.com/unslothai/unsloth.git"
+
+# Install vLLM for post-training inference testing
+RUN pip install vllm>=0.5.0
+
+# Set working directory
+WORKDIR /training
+
+# Copy training scripts
+COPY scripts/training/ ./scripts/
+
+# Copy training data (if available at build time)
+# In production, data is usually mounted as a volume
+COPY data/training/ ./data/ 2>/dev/null || true
+
+# Default entrypoint: Python 3.11
+ENTRYPOINT ["python3"]
+
+# Default command: run the training script
+CMD ["scripts/opensource/train.py", "--help"]

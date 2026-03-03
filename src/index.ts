@@ -19,11 +19,21 @@ import { logger as log } from "@/lib/logger";
 import { cache } from "@/lib/cache";
 import { rateLimit } from "@/lib/rate-limit";
 import { ApiError } from "@/lib/api-error";
-import { requestLogger, globalErrorHandler } from "@/lib/middleware";
+import { requestLogger, globalErrorHandler, requestTimeout } from "@/lib/middleware";
 import { apiKeyAuth } from "@/lib/auth";
 import { circuitBreakerStats } from "@/lib/fetcher";
 import { aiQueue, heavyFetchQueue } from "@/lib/queue";
 import { cdnCacheHeaders } from "@/lib/cdn-cache";
+
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(
+  readFileSync(resolve(__dirname, "..", "package.json"), "utf-8")
+) as { version: string };
+const APP_VERSION = pkg.version;
 
 import { marketRoutes } from "@/routes/market";
 import { defiRoutes } from "@/routes/defi";
@@ -50,6 +60,15 @@ import { macroRoutes } from "@/routes/macro";
 import { solanaRoutes } from "@/routes/solana";
 import { depinRoutes } from "@/routes/depin";
 import { exchangesRoutes } from "@/routes/exchanges";
+import { nftRoutes } from "@/routes/nft";
+import { whaleRoutes } from "@/routes/whales";
+import { stakingRoutes } from "@/routes/staking";
+import { calendarRoutes } from "@/routes/calendar";
+import { oracleRoutes } from "@/routes/oracles";
+import { unlocksRoutes } from "@/routes/unlocks";
+import { etfRoutes } from "@/routes/etf";
+import { portfolioRoutes } from "@/routes/portfolio";
+import { socialRoutes } from "@/routes/social";
 
 // ─── App ─────────────────────────────────────────────────────
 
@@ -89,6 +108,11 @@ app.use("/api/*", apiKeyAuth());
 // Rate limit — dynamically uses tier from auth middleware
 app.use("/api/*", rateLimit({ limit: 200, windowSeconds: 60 }));
 
+// Request timeouts — prevent long-running requests from hogging connections
+app.use("/api/ai/*", requestTimeout(60_000));   // AI routes: 60s
+app.use("/api/agents/*", requestTimeout(60_000)); // Agent routes: 60s
+app.use("/api/*", requestTimeout(30_000));        // Everything else: 30s
+
 // CDN Cache-Control headers — enables edge caching for read-heavy endpoints
 app.use("/api/*", cdnCacheHeaders);
 
@@ -101,7 +125,7 @@ app.get("/", (c) =>
   c.json({
     name: "Crypto Vision",
     description: "The complete cryptocurrency intelligence API",
-    version: "0.1.0",
+    version: APP_VERSION,
     docs: "/api",
     health: "/health",
     website: "https://cryptocurrency.cv",
@@ -184,7 +208,7 @@ app.get("/api/ready", async (c) => {
 app.get("/api", (c) =>
   c.json({
     name: "Crypto Vision API",
-    version: "0.1.0",
+    version: APP_VERSION,
     endpoints: {
       market: {
         "GET /api/coins": "Top coins by market cap",
@@ -503,20 +527,70 @@ app.get("/api", (c) =>
       },
       nft: {
         "GET /api/nft/top": "Top NFT collections by volume (Reservoir)",
+        "GET /api/nft/trending": "Trending NFT collections",
         "GET /api/nft/collection/:id": "NFT collection stats",
         "GET /api/nft/activity/:id": "NFT collection activity feed",
+        "GET /api/nft/bids/:id": "Top bids for a collection",
+        "GET /api/nft/listings/:id": "Top listings for a collection",
+        "GET /api/nft/search": "Search NFT collections (?q=...)",
+        "GET /api/nft/user/:address": "User NFT portfolio",
         "GET /api/nft/overview": "NFT market overview (DeFi Llama)",
-        "GET /api/nft/chains/:chain": "NFT collections by chain",
+        "GET /api/nft/chains/:chain": "NFT chains breakdown",
         "GET /api/nft/chart/:slug": "NFT collection floor/volume chart",
         "GET /api/nft/marketplaces": "NFT marketplace volume rankings",
+        "GET /api/nft/list": "CoinGecko NFT list",
+        "GET /api/nft/detail/:id": "CoinGecko NFT detail",
+        "GET /api/nft/market-chart/:id": "CoinGecko NFT market chart",
+        "GET /api/nft/trending-cg": "CoinGecko trending NFTs",
       },
       staking: {
         "GET /api/staking/eth/validators": "ETH validator queue (beaconcha.in)",
         "GET /api/staking/eth/epoch": "Latest ETH epoch info",
         "GET /api/staking/eth/network": "ETH 2.0 network stats",
+        "GET /api/staking/eth/validator/:id": "Validator detail by index/pubkey",
+        "GET /api/staking/eth/attestations/:id": "Validator attestation performance",
         "GET /api/staking/eth/rated": "Rated.network validator overview",
         "GET /api/staking/eth/operators": "Top staking operators (?window=30d)",
+        "GET /api/staking/eth/metrics": "Network-level staking metrics",
         "GET /api/staking/liquid": "Liquid staking protocols (DeFi Llama)",
+        "GET /api/staking/yields": "Staking yields across chains",
+        "GET /api/staking/overview": "Comprehensive staking dashboard",
+      },
+      unlocks: {
+        "GET /api/unlocks/upcoming": "Upcoming token unlocks (?days=30)",
+        "GET /api/unlocks/protocols": "All protocols with emission data",
+        "GET /api/unlocks/protocol/:name": "Emission schedule for a protocol",
+        "GET /api/unlocks/supply/:name": "Protocol supply breakdown",
+        "GET /api/unlocks/tracked": "Tracked major protocol emissions",
+      },
+      etf: {
+        "GET /api/etf/btc": "BTC spot ETF quotes (all issuers)",
+        "GET /api/etf/eth": "ETH spot ETF quotes (all issuers)",
+        "GET /api/etf/overview": "Combined BTC + ETH ETF dashboard",
+        "GET /api/etf/chart/:ticker": "Historical ETF price chart (?range=1mo&interval=1d)",
+        "GET /api/etf/premiums": "ETF premium/discount estimates",
+        "GET /api/etf/flows/btc": "BTC ETF flow data (CoinGlass)",
+        "GET /api/etf/flows/eth": "ETH ETF flow data (CoinGlass)",
+        "GET /api/etf/tickers": "All tracked ETF tickers",
+      },
+      portfolio: {
+        "POST /api/portfolio/value": "Portfolio valuation (post holdings array)",
+        "POST /api/portfolio/correlation": "Correlation matrix for assets",
+        "GET /api/portfolio/volatility/:id": "Volatility & risk metrics (?days=90)",
+        "POST /api/portfolio/risk": "Multi-asset risk analysis",
+        "POST /api/portfolio/diversification": "Diversification score for a portfolio",
+      },
+      social: {
+        "GET /api/social/profile/:id": "Social profile for a coin (CoinGecko)",
+        "GET /api/social/profiles": "Batch social profiles (?ids=bitcoin,ethereum)",
+        "GET /api/social/fear-greed": "Fear & Greed Index",
+        "GET /api/social/fear-greed/history": "Fear & Greed history (?limit=30)",
+        "GET /api/social/lunar/:symbol": "LunarCrush social metrics",
+        "GET /api/social/lunar/top": "Top coins by social volume",
+        "GET /api/social/lunar/feed/:symbol": "LunarCrush social feed",
+        "GET /api/social/cc/:coinId": "CryptoCompare social stats",
+        "GET /api/social/cc/history/:coinId": "CryptoCompare social history",
+        "GET /api/social/dashboard": "Aggregate social dashboard",
       },
       websocket: {
         "WS /ws/prices": "Real-time price ticks (subscribe by coin IDs via ?coins=bitcoin,ethereum)",
@@ -552,6 +626,15 @@ app.route("/api/macro", macroRoutes);
 app.route("/api/solana", solanaRoutes);
 app.route("/api/depin", depinRoutes);
 app.route("/api/exchanges", exchangesRoutes);
+app.route("/api/nft", nftRoutes);
+app.route("/api/whales", whaleRoutes);
+app.route("/api/staking", stakingRoutes);
+app.route("/api/calendar", calendarRoutes);
+app.route("/api/oracles", oracleRoutes);
+app.route("/api/unlocks", unlocksRoutes);
+app.route("/api/etf", etfRoutes);
+app.route("/api/portfolio", portfolioRoutes);
+app.route("/api/social", socialRoutes);
 app.route("/", keysRoutes);
 
 // ─── WebSocket Routes ─────────────────────────────────────────

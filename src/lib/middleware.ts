@@ -43,6 +43,40 @@ export const requestLogger: MiddlewareHandler = async (c, next) => {
   }
 };
 
+// ─── Request Timeout ─────────────────────────────────────────
+
+/**
+ * Middleware that aborts requests exceeding a time limit.
+ * Sends a 504 Gateway Timeout with structured ApiError body.
+ *
+ * @param ms — timeout in milliseconds (default: 30 000)
+ */
+export function requestTimeout(ms = 30_000): MiddlewareHandler {
+  return async (c, next) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), ms);
+
+    // Expose the signal so downstream handlers & fetches can honour it
+    c.set("abortSignal", controller.signal);
+
+    try {
+      // Race: either the handler completes or the timeout fires
+      await Promise.race([
+        next(),
+        new Promise<never>((_, reject) => {
+          controller.signal.addEventListener(
+            "abort",
+            () => reject(new AppError("REQUEST_TIMEOUT" as ErrorCode, "Request timed out", 504)),
+            { once: true },
+          );
+        }),
+      ]);
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+}
+
 // ─── Global Error Handler ────────────────────────────────────
 
 /**

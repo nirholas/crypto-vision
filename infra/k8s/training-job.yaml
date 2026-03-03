@@ -1,0 +1,341 @@
+# ─────────────────────────────────────────────────────────────
+# Kubernetes Training Jobs for Open-Source Model Fine-Tuning
+#
+# Deploys GPU training jobs on GKE for fine-tuning LLMs
+# on crypto-specific datasets using LoRA + Unsloth.
+#
+# Prerequisites:
+#   1. GKE cluster with GPU node pools (see gke-gpu.tf)
+#   2. Training Docker image pushed to Artifact Registry
+#   3. HuggingFace token stored as K8s secret
+#   4. Training data available in the container
+#
+# Usage:
+#   # Create namespace and secrets
+#   kubectl create namespace training
+#   kubectl -n training create secret generic hf-token \
+#     --from-literal=token=$HUGGING_FACE_HUB_TOKEN
+#
+#   # Submit training jobs
+#   envsubst < training-job.yaml | kubectl apply -f -
+#
+# Copyright 2024-2026 nirholas. All rights reserved.
+# ─────────────────────────────────────────────────────────────
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: training
+  labels:
+    app: crypto-vision
+    component: training
+---
+# Service account for Workload Identity (GCS access)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: training-sa
+  namespace: training
+  annotations:
+    iam.gke.io/gcp-service-account: crypto-vision-training@${PROJECT_ID}.iam.gserviceaccount.com
+---
+# ─── Llama 3.1 8B Training (L4 GPU, ~8 hours) ──────────────
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: train-llama-8b
+  namespace: training
+  labels:
+    app: crypto-vision
+    component: training
+    model: llama-3.1-8b
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 86400  # Clean up after 24 hours
+  template:
+    metadata:
+      labels:
+        app: crypto-vision
+        component: training
+        model: llama-3.1-8b
+    spec:
+      serviceAccountName: training-sa
+      restartPolicy: Never
+      # Schedule on L4 GPU nodes
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
+      tolerations:
+        - key: "nvidia.com/gpu"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: trainer
+          image: ${REGISTRY}/crypto-vision-trainer:latest
+          command: ["python3"]
+          args:
+            - "scripts/opensource/train.py"
+            - "--model=meta-llama/Llama-3.1-8B-Instruct"
+            - "--data=data/prepared/train.jsonl"
+            - "--eval-data=data/prepared/eval.jsonl"
+            - "--output=/models/crypto-vision-llama-8b"
+            - "--epochs=3"
+            - "--batch-size=4"
+            - "--grad-accum=4"
+            - "--lr=2e-4"
+            - "--max-seq-len=4096"
+            - "--lora-r=16"
+            - "--quantize"
+            - "--quantize-method=gptq"
+          resources:
+            requests:
+              nvidia.com/gpu: 1
+              memory: "24Gi"
+              cpu: "8"
+              ephemeral-storage: "50Gi"
+            limits:
+              nvidia.com/gpu: 1
+              memory: "32Gi"
+              cpu: "8"
+              ephemeral-storage: "100Gi"
+          env:
+            - name: GCS_BUCKET
+              value: "${PROJECT_ID}-models"
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token
+                  key: token
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          volumeMounts:
+            - mountPath: /models
+              name: model-storage
+      volumes:
+        - name: model-storage
+          emptyDir:
+            sizeLimit: 100Gi
+---
+# ─── Mistral 7B Training (L4 GPU, ~6 hours) ────────────────
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: train-mistral-7b
+  namespace: training
+  labels:
+    app: crypto-vision
+    component: training
+    model: mistral-7b
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app: crypto-vision
+        component: training
+        model: mistral-7b
+    spec:
+      serviceAccountName: training-sa
+      restartPolicy: Never
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
+      tolerations:
+        - key: "nvidia.com/gpu"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: trainer
+          image: ${REGISTRY}/crypto-vision-trainer:latest
+          command: ["python3"]
+          args:
+            - "scripts/opensource/train.py"
+            - "--model=mistralai/Mistral-7B-Instruct-v0.3"
+            - "--data=data/prepared/train.jsonl"
+            - "--eval-data=data/prepared/eval.jsonl"
+            - "--output=/models/crypto-vision-mistral-7b"
+            - "--epochs=3"
+            - "--batch-size=4"
+            - "--grad-accum=4"
+            - "--lr=2e-4"
+            - "--max-seq-len=4096"
+            - "--lora-r=16"
+            - "--quantize"
+            - "--quantize-method=gptq"
+          resources:
+            requests:
+              nvidia.com/gpu: 1
+              memory: "24Gi"
+              cpu: "8"
+              ephemeral-storage: "50Gi"
+            limits:
+              nvidia.com/gpu: 1
+              memory: "32Gi"
+              cpu: "8"
+              ephemeral-storage: "100Gi"
+          env:
+            - name: GCS_BUCKET
+              value: "${PROJECT_ID}-models"
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token
+                  key: token
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          volumeMounts:
+            - mountPath: /models
+              name: model-storage
+      volumes:
+        - name: model-storage
+          emptyDir:
+            sizeLimit: 100Gi
+---
+# ─── Qwen 2.5 7B Training (L4 GPU, ~6 hours) ───────────────
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: train-qwen-7b
+  namespace: training
+  labels:
+    app: crypto-vision
+    component: training
+    model: qwen-2.5-7b
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app: crypto-vision
+        component: training
+        model: qwen-2.5-7b
+    spec:
+      serviceAccountName: training-sa
+      restartPolicy: Never
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
+      tolerations:
+        - key: "nvidia.com/gpu"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: trainer
+          image: ${REGISTRY}/crypto-vision-trainer:latest
+          command: ["python3"]
+          args:
+            - "scripts/opensource/train.py"
+            - "--model=Qwen/Qwen2.5-7B-Instruct"
+            - "--data=data/prepared/train.jsonl"
+            - "--eval-data=data/prepared/eval.jsonl"
+            - "--output=/models/crypto-vision-qwen-7b"
+            - "--epochs=3"
+            - "--batch-size=4"
+            - "--grad-accum=4"
+            - "--lr=2e-4"
+            - "--max-seq-len=4096"
+            - "--lora-r=16"
+            - "--quantize"
+            - "--quantize-method=gptq"
+          resources:
+            requests:
+              nvidia.com/gpu: 1
+              memory: "24Gi"
+              cpu: "8"
+              ephemeral-storage: "50Gi"
+            limits:
+              nvidia.com/gpu: 1
+              memory: "32Gi"
+              cpu: "8"
+              ephemeral-storage: "100Gi"
+          env:
+            - name: GCS_BUCKET
+              value: "${PROJECT_ID}-models"
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token
+                  key: token
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          volumeMounts:
+            - mountPath: /models
+              name: model-storage
+      volumes:
+        - name: model-storage
+          emptyDir:
+            sizeLimit: 100Gi
+---
+# ─── Llama 3.1 70B Training (A100 80GB, ~24 hours) ─────────
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: train-llama-70b
+  namespace: training
+  labels:
+    app: crypto-vision
+    component: training
+    model: llama-3.1-70b
+spec:
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app: crypto-vision
+        component: training
+        model: llama-3.1-70b
+    spec:
+      serviceAccountName: training-sa
+      restartPolicy: Never
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-a100-80gb
+      tolerations:
+        - key: "nvidia.com/gpu"
+          operator: "Exists"
+          effect: "NoSchedule"
+      containers:
+        - name: trainer
+          image: ${REGISTRY}/crypto-vision-trainer:latest
+          command: ["python3"]
+          args:
+            - "scripts/opensource/train.py"
+            - "--model=meta-llama/Llama-3.1-70B-Instruct"
+            - "--data=data/prepared/train.jsonl"
+            - "--eval-data=data/prepared/eval.jsonl"
+            - "--output=/models/crypto-vision-llama-70b"
+            - "--epochs=3"
+            - "--batch-size=1"
+            - "--grad-accum=16"
+            - "--lr=1e-4"
+            - "--max-seq-len=4096"
+            - "--lora-r=16"
+            - "--quantize"
+            - "--quantize-method=awq"
+          resources:
+            requests:
+              nvidia.com/gpu: 1
+              memory: "80Gi"
+              cpu: "12"
+              ephemeral-storage: "100Gi"
+            limits:
+              nvidia.com/gpu: 1
+              memory: "170Gi"
+              cpu: "12"
+              ephemeral-storage: "200Gi"
+          env:
+            - name: GCS_BUCKET
+              value: "${PROJECT_ID}-models"
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token
+                  key: token
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          volumeMounts:
+            - mountPath: /models
+              name: model-storage
+      volumes:
+        - name: model-storage
+          emptyDir:
+            sizeLimit: 200Gi
