@@ -32,6 +32,60 @@ interface AIProvider {
 }
 
 const PROVIDERS: AIProvider[] = [
+  // ── Vertex AI Fine-Tuned (highest priority, crypto-specialized) ──
+  {
+    name: "vertex-finetuned",
+    envKey: "VERTEX_FINETUNED_ENDPOINT",
+    url: "", // Dynamic — constructed from GCP_PROJECT_ID + GCP_REGION
+    model: process.env.VERTEX_FINETUNED_MODEL || "crypto-vision-v1",
+    buildRequest: (key, system, user, maxTokens, temperature) => {
+      const projectId = process.env.GCP_PROJECT_ID;
+      const region = process.env.GCP_REGION || "us-central1";
+      const endpoint = key; // VERTEX_FINETUNED_ENDPOINT value is the endpoint ID
+
+      if (!projectId || !endpoint) {
+        throw new Error("VERTEX_FINETUNED_ENDPOINT and GCP_PROJECT_ID are required");
+      }
+
+      return {
+        url: `https://${region}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${region}/endpoints/${endpoint}:predict`,
+        init: {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.VERTEX_ACCESS_TOKEN || key}`,
+            "Content-Type": "application/json",
+          },
+          body: {
+            instances: [
+              {
+                content: `${system}\n\n${user}`,
+              },
+            ],
+            parameters: {
+              maxOutputTokens: maxTokens,
+              temperature,
+            },
+          },
+        },
+      };
+    },
+    extractText: (r) => {
+      // Vertex AI endpoint prediction response format
+      if (r.predictions?.[0]?.content) return r.predictions[0].content as string;
+      if (r.predictions?.[0]?.candidates?.[0]?.content?.parts?.[0]?.text) {
+        return r.predictions[0].candidates[0].content.parts[0].text as string;
+      }
+      // Gemini tuned model response format
+      if (r.candidates?.[0]?.content?.parts?.[0]?.text) {
+        return r.candidates[0].content.parts[0].text as string;
+      }
+      return (r.predictions?.[0] as string) || "";
+    },
+    extractUsage: (r) => {
+      return (r.metadata?.tokenMetadata?.totalTokenCount as number) ?? undefined;
+    },
+  },
+
   // ── Groq (Free tier, fastest) ──
   {
     name: "groq",
