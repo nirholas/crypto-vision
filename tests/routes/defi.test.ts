@@ -8,7 +8,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // ─── Mock the source module BEFORE importing the routes ──────
 
-vi.mock("../../sources/defillama.js", () => ({
+vi.mock("@/sources/defillama.js", () => ({
   getProtocols: vi.fn(),
   getProtocolDetail: vi.fn(),
   getChainsTVL: vi.fn(),
@@ -22,8 +22,8 @@ vi.mock("../../sources/defillama.js", () => ({
 }));
 
 import { Hono } from "hono";
-import { defiRoutes } from "../../routes/defi.js";
-import * as llama from "../../sources/defillama.js";
+import { defiRoutes } from "@/routes/defi.js";
+import * as llama from "@/sources/defillama.js";
 
 const app = new Hono();
 app.route("/", defiRoutes);

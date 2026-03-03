@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { fetchJSON, FetchError, circuitBreakerStats } from "../../lib/fetcher.js";
+import { fetchJSON, FetchError, circuitBreakerStats } from "@/lib/fetcher.js";
 
 // ─── Helpers ─────────────────────────────────────────────────
 
@@ -226,5 +226,48 @@ describe("fetchJSON — timeout", () => {
     await expect(
       fetchJSON("https://api.timeout-test.com/slow", { timeout: 100, retries: 0 })
     ).rejects.toThrow();
+  });
+
+  it("completes if response arrives before timeout", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ fast: true }));
+
+    const result = await fetchJSON<{ fast: boolean }>("https://api.fast-test.com/data", {
+      timeout: 5000,
+      retries: 0,
+    });
+    expect(result).toEqual({ fast: true });
+  });
+});
+
+// ─── 429 default Retry-After ─────────────────────────────────
+
+describe("fetchJSON — 429 default backoff", () => {
+  it("defaults to 5 second backoff when Retry-After header is missing", async () => {
+    const response429 = new Response(JSON.stringify({ error: "limited" }), {
+      status: 429,
+      headers: { "Content-Type": "application/json" },
+    });
+    fetchMock
+      .mockResolvedValueOnce(response429)
+      .mockResolvedValueOnce(jsonResponse({ ok: true }));
+
+    const result = await fetchJSON<{ ok: boolean }>("https://api.default429.com/data", {
+      retries: 2,
+    });
+    expect(result).toEqual({ ok: true });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+});
+
+// ─── No retries (retries=0) ──────────────────────────────────
+
+describe("fetchJSON — retries=0", () => {
+  it("does not retry when retries is 0", async () => {
+    fetchMock.mockRejectedValue(new Error("single failure"));
+
+    await expect(
+      fetchJSON("https://api.no-retry-test.com/data", { retries: 0 }),
+    ).rejects.toThrow("single failure");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

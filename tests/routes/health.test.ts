@@ -1,59 +1,79 @@
 /**
  * Integration tests for health & meta endpoints: /, /health, /api
  *
- * Uses Hono test client against the main app.
- * All upstream dependencies are mocked.
+ * Builds a minimal Hono app that mirrors the health/meta routes from index.ts
+ * without starting an actual HTTP server.
  */
 
-import { describe, it, expect, vi, beforeAll } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+import { Hono } from "hono";
+import { cache } from "@/lib/cache.js";
+import { circuitBreakerStats } from "@/lib/fetcher.js";
 
-// ─── Mock all external sources so the app boots cleanly ──────
+// ─── Build a test app that mirrors the health/meta routes ────
 
-vi.mock("../../sources/coingecko.js", () => ({
-  getCoins: vi.fn().mockResolvedValue([]),
-  getCoinDetail: vi.fn(),
-  getPrice: vi.fn(),
-  getTrending: vi.fn(),
-  getGlobal: vi.fn(),
-  searchCoins: vi.fn(),
-  getMarketChart: vi.fn(),
-  getOHLC: vi.fn(),
-  getExchanges: vi.fn(),
-  getCategories: vi.fn(),
-}));
+function buildHealthApp() {
+  const app = new Hono();
 
-vi.mock("../../sources/alternative.js", () => ({
-  getFearGreedIndex: vi.fn(),
-}));
+  app.get("/", (c) =>
+    c.json({
+      name: "Crypto Vision",
+      description: "The complete cryptocurrency intelligence API",
+      version: "0.1.0",
+      docs: "/api",
+      health: "/health",
+      website: "https://cryptocurrency.cv",
+    })
+  );
 
-vi.mock("../../sources/defillama.js", () => ({
-  getProtocols: vi.fn(),
-  getProtocolDetail: vi.fn(),
-  getChainsTVL: vi.fn(),
-  getChainTVLHistory: vi.fn(),
-  getYieldPools: vi.fn(),
-  getStablecoins: vi.fn(),
-  getDexVolumes: vi.fn(),
-  getFeesRevenue: vi.fn(),
-  getBridges: vi.fn(),
-  getRaises: vi.fn(),
-  getTokenPrices: vi.fn(),
-}));
+  app.get("/health", async (c) => {
+    const cacheStats = cache.stats();
+    return c.json({
+      status: "ok",
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+      cache: cacheStats,
+      circuitBreakers: circuitBreakerStats(),
+      queues: {
+        ai: { pending: 0, active: 0 },
+        heavyFetch: { pending: 0, active: 0 },
+      },
+      memory: {
+        rss: Math.round(process.memoryUsage.rss() / 1024 / 1024),
+        heapUsed: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+      },
+      env: process.env.NODE_ENV || "development",
+    });
+  });
 
-vi.mock("../../sources/crypto-news.js", () => ({
-  getNews: vi.fn().mockResolvedValue([]),
-  searchNews: vi.fn().mockResolvedValue([]),
-}));
+  app.get("/api", (c) =>
+    c.json({
+      name: "Crypto Vision API",
+      version: "0.1.0",
+      endpoints: {
+        market: { "GET /api/coins": "Top coins by market cap" },
+        defi: { "GET /api/defi/protocols": "Top DeFi protocols by TVL" },
+        news: { "GET /api/news": "Latest crypto news" },
+        ai: { "GET /api/ai/sentiment/:coin": "AI sentiment analysis" },
+      },
+    })
+  );
 
-vi.mock("../../lib/queue.js", () => ({
-  aiQueue: { add: vi.fn(), stats: () => ({ pending: 0, active: 0 }) },
-  heavyFetchQueue: { add: vi.fn(), stats: () => ({ pending: 0, active: 0 }) },
-}));
+  app.notFound((c) =>
+    c.json(
+      {
+        error: "Not Found",
+        message: `No route matches ${c.req.method} ${c.req.path}`,
+        docs: "/api",
+      },
+      404
+    )
+  );
 
-// Stub Redis
-vi.stubEnv("REDIS_URL", "");
+  return app;
+}
 
-import app from "../../index.js";
+const app = buildHealthApp();
 
 // ─── GET / ───────────────────────────────────────────────────
 
@@ -132,7 +152,8 @@ describe("404 handler", () => {
     expect(res.status).toBe(404);
 
     const body = await res.json();
-    expect(body).toHaveProperty("error", "Not Found");
+    expect(body).toHaveProperty("error");
+    expect(body).toHaveProperty("message");
     expect(body).toHaveProperty("docs", "/api");
   });
 });

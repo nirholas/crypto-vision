@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Hono } from "hono";
-import { rateLimit } from "../../lib/rate-limit.js";
+import { rateLimit } from "@/lib/rate-limit.js";
 
 // Ensure no Redis connection
 vi.stubEnv("REDIS_URL", "");
@@ -154,5 +154,103 @@ describe("rateLimit — scope", () => {
     // /health is unaffected
     const health = await app.request("/health");
     expect(health.status).toBe(200);
+  });
+});
+
+// ─── Window reset ────────────────────────────────────────────
+
+describe("rateLimit — window reset", () => {
+  it("resets counter after window expires", async () => {
+    vi.useFakeTimers();
+    try {
+      const app = buildApp({ limit: 2, windowSeconds: 10 });
+      const ip = "10.0.0.30";
+
+      // Exhaust limit
+      for (let i = 0; i < 2; i++) {
+        await app.request("/api/test", {
+          headers: { "x-forwarded-for": ip },
+        });
+      }
+      const blocked = await app.request("/api/test", {
+        headers: { "x-forwarded-for": ip },
+      });
+      expect(blocked.status).toBe(429);
+
+      // Advance past window
+      vi.advanceTimersByTime(11_000);
+
+      const renewed = await app.request("/api/test", {
+        headers: { "x-forwarded-for": ip },
+      });
+      expect(renewed.status).toBe(200);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+// ─── Remaining floor ─────────────────────────────────────────
+
+describe("rateLimit — remaining floor", () => {
+  it("remaining is 0 when limit is reached, not negative", async () => {
+    const app = buildApp({ limit: 1, windowSeconds: 60 });
+
+    const res1 = await app.request("/api/test", {
+      headers: { "x-forwarded-for": "10.0.0.31" },
+    });
+    expect(res1.headers.get("X-RateLimit-Remaining")).toBe("0");
+
+    // Over limit — still 0, not negative
+    const res2 = await app.request("/api/test", {
+      headers: { "x-forwarded-for": "10.0.0.31" },
+    });
+    expect(res2.headers.get("X-RateLimit-Remaining")).toBe("0");
+  });
+});
+
+// ─── 429 response body ───────────────────────────────────────
+
+describe("rateLimit — 429 response body", () => {
+  it("returns structured error with retryAfter field", async () => {
+    const app = buildApp({ limit: 1, windowSeconds: 30 });
+
+    await app.request("/api/test", {
+      headers: { "x-forwarded-for": "10.0.0.32" },
+    });
+
+    const blocked = await app.request("/api/test", {
+      headers: { "x-forwarded-for": "10.0.0.32" },
+    });
+    expect(blocked.status).toBe(429);
+
+    const body = await blocked.json();
+    expect(body).toMatchObject({
+      error: "RATE_LIMIT_EXCEEDED",
+      retryAfter: expect.any(Number),
+    });
+    expect(body.message).toMatch(/too many requests/i);
+  });
+
+  it("uses x-real-ip when x-forwarded-for is absent", async () => {
+    const app = buildApp({ limit: 1, windowSeconds: 60 });
+
+    // First request via x-real-ip
+    const res = await app.request("/api/test", {
+      headers: { "x-real-ip": "99.99.99.99" },
+    });
+    expect(res.status).toBe(200);
+  });
+
+  it("uses default config (limit 200, 60s window) when no config given", async () => {
+    const app = new Hono();
+    app.use("/api/*", rateLimit());
+    app.get("/api/test", (c) => c.json({ ok: true }));
+
+    const res = await app.request("/api/test", {
+      headers: { "x-forwarded-for": "10.0.0.33" },
+    });
+    expect(res.headers.get("X-RateLimit-Limit")).toBe("200");
+    expect(res.headers.get("X-RateLimit-Remaining")).toBe("199");
   });
 });

@@ -17,10 +17,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "@/services/*": ["services/*"],
-      "@/lib/*": ["lib/*"]
+      "@/packages/*": ["packages/*"],
+      "@/agents/*": ["agents/*"]
     }
   },
   "include": ["*.ts", "lib/**/*", "routes/**/*", "sources/**/*"],
-  "exclude": ["node_modules", "dist", "upstream", "**/*.test.ts"]
+  "exclude": ["node_modules", "dist", "apps", "packages", "agents", "upstream", "src", "**/*.test.ts"]
 }

@@ -8,7 +8,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // ─── Mock the source modules BEFORE importing the routes ─────
 
-vi.mock("../../sources/coingecko.js", () => ({
+vi.mock("@/sources/coingecko.js", () => ({
   getCoins: vi.fn(),
   getCoinDetail: vi.fn(),
   getPrice: vi.fn(),
@@ -21,13 +21,13 @@ vi.mock("../../sources/coingecko.js", () => ({
   getCategories: vi.fn(),
 }));
 
-vi.mock("../../sources/alternative.js", () => ({
+vi.mock("@/sources/alternative.js", () => ({
   getFearGreedIndex: vi.fn(),
 }));
 
 import { Hono } from "hono";
-import { marketRoutes } from "../../routes/market.js";
-import * as cg from "../../sources/coingecko.js";
+import { marketRoutes } from "@/routes/market.js";
+import * as cg from "@/sources/coingecko.js";
 
 const app = new Hono();
 app.route("/", marketRoutes);
