@@ -144,3 +144,12 @@ nftRoutes.get("/trending-cg", async (c) => {
   const data = await nft.getTrendingNFTs();
   return c.json({ count: Array.isArray(data) ? data.length : 0, data });
 });
+
+// ─── Collection Stats (Reservoir) ────────────────────────────
+
+nftRoutes.get("/stats/:id", async (c) => {
+  const id = c.req.param("id");
+  const chain = c.req.query("chain") || "ethereum";
+  const data = await nft.getCollectionStats(id, chain);
+  return c.json(data);
+});

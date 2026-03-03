@@ -242,6 +242,7 @@ const PUBSUB_CHANNELS = {
 
 let isLeader = false;
 let leaderRenewTimer: ReturnType<typeof setInterval> | null = null;
+let leaderRetryTimer: ReturnType<typeof setInterval> | null = null;
 
 async function tryAcquireLeadership(): Promise<boolean> {
   const r = await getRedis();
@@ -749,7 +750,7 @@ export async function startUpstreams(): Promise<void> {
   } else {
     logger.info("This instance is a WS follower — relying on Pub/Sub fan-out");
     // Periodically try to become leader (in case current leader dies)
-    setInterval(async () => {
+    leaderRetryTimer = setInterval(async () => {
       if (!isLeader) {
         const elected = await tryAcquireLeadership();
         if (elected) {
@@ -769,6 +770,10 @@ export async function stopUpstreams(): Promise<void> {
   stopHeartbeat();
   stopPriceThrottle();
   stopLeaderRenewal();
+  if (leaderRetryTimer) {
+    clearInterval(leaderRetryTimer);
+    leaderRetryTimer = null;
+  }
   disconnectCoinCap();
   disconnectMempool();
   stopDexPolling();
@@ -830,4 +835,22 @@ export function wsStats(): {
     leader: isLeader,
     instanceId: INSTANCE_ID,
   };
+}
+
+/**
+ * Public API: broadcast a pre-serialized message to all clients on a topic.
+ *
+ * Used by the anomaly detection engine (and potentially other subsystems)
+ * to push events to connected WebSocket clients without coupling to the
+ * internal broadcast/throttle machinery.
+ */
+export function broadcastToTopic(topic: Topic, message: string): void {
+  // For the "alerts" topic (and any future non-price topic),
+  // we bypass the price throttle buffer and broadcast immediately.
+  broadcastRaw(topic, message);
+
+  // Leader publishes to Redis for cross-instance fan-out
+  if (isLeader) {
+    void publishToChannel(topic, message);
+  }
 }

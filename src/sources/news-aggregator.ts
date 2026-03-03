@@ -8,10 +8,11 @@
  *  - 130+ RSS feed sources across 21 categories
  *  - 10+ free JSON API sources (CryptoCompare, CoinGecko, Fear & Greed, etc.)
  *  - Source reputation scoring and trending algorithm
- *  - Concurrency-limited parallel fetching (15 concurrent)
+ *  - Worker-pool parallel fetching (25 concurrent, no batch-waiting)
+ *  - Per-source circuit breaker (auto-disable after 3 failures, 10m cooldown)
  *  - Title-based deduplication
  *  - Category-based keyword filtering
- *  - Stale-while-revalidate caching via lib/cache.ts
+ *  - Stale-while-revalidate caching via lib/cache.ts (5m per-feed, 5m aggregate)
  *
  * @copyright 2024-2026 nirholas. All rights reserved.
  * @see https://github.com/nirholas/free-crypto-news
@@ -19,6 +20,56 @@
 
 import { cache } from "../lib/cache.js";
 import { log } from "../lib/logger.js";
+
+// ═══════════════════════════════════════════════════════════════
+// Per-source circuit breaker — auto-disable feeds after repeated failures
+// ═══════════════════════════════════════════════════════════════
+
+interface CircuitState {
+  failures: number;
+  lastFailure: number;
+  open: boolean;
+}
+
+/** In-memory circuit breaker map: sourceKey → state */
+const circuits = new Map<string, CircuitState>();
+
+/** Number of consecutive failures before a source is circuit-broken */
+const CB_FAILURE_THRESHOLD = 3;
+
+/** How long a circuit stays open before allowing a retry (ms) */
+const CB_RESET_MS = 10 * 60_000; // 10 minutes
+
+function isCircuitOpen(sourceKey: string): boolean {
+  const state = circuits.get(sourceKey);
+  if (!state?.open) return false;
+  // Allow retry after reset window
+  if (Date.now() - state.lastFailure > CB_RESET_MS) {
+    state.open = false;
+    state.failures = 0;
+    return false;
+  }
+  return true;
+}
+
+function recordFailure(sourceKey: string): void {
+  const state = circuits.get(sourceKey) ?? { failures: 0, lastFailure: 0, open: false };
+  state.failures++;
+  state.lastFailure = Date.now();
+  if (state.failures >= CB_FAILURE_THRESHOLD) {
+    state.open = true;
+    log.warn({ source: sourceKey, failures: state.failures }, "circuit breaker opened — source disabled temporarily");
+  }
+  circuits.set(sourceKey, state);
+}
+
+function recordSuccess(sourceKey: string): void {
+  const state = circuits.get(sourceKey);
+  if (state) {
+    state.failures = 0;
+    state.open = false;
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════
 // RSS SOURCES — 130+ feeds across 21 categories
@@ -95,7 +146,7 @@ const RSS_SOURCES: Record<string, RSSSourceEntry> = {
   weekinethereumnews: { name: "Week in Ethereum", url: "https://weekinethereumnews.com/feed/", category: "ethereum", disabled: true },
   etherscan:          { name: "Etherscan Blog",   url: "https://etherscan.io/blog?rss",        category: "ethereum" },
   daily_gwei:         { name: "The Daily Gwei",   url: "https://thedailygwei.substack.com/feed", category: "ethereum" },
-  week_in_ethereum:   { name: "Week in Ethereum", url: "https://weekinethereumnews.com/feed/", category: "ethereum" },
+  week_in_ethereum:   { name: "Week in Ethereum", url: "https://weekinethereumnews.com/feed/", category: "ethereum", disabled: true },
 
   // ── Layer 2 & Scaling ─────────────────────────────────────
   l2beat:          { name: "L2BEAT Blog",   url: "https://l2beat.com/blog/rss.xml",          category: "layer2" },
@@ -107,13 +158,13 @@ const RSS_SOURCES: Record<string, RSSSourceEntry> = {
   base_blog:       { name: "Base Blog",     url: "https://base.mirror.xyz/feed/atom",        category: "layer2" },
 
   // ── Mainstream Finance Crypto Coverage ─────────────────────
-  bloomberg_crypto: { name: "Bloomberg Crypto",  url: "https://www.bloomberg.com/crypto/feed",             category: "mainstream" },
-  reuters_crypto:   { name: "Reuters Crypto",    url: "https://www.reuters.com/technology/cryptocurrency/rss", category: "mainstream" },
+  bloomberg_crypto: { name: "Bloomberg Crypto",  url: "https://www.bloomberg.com/crypto/feed",             category: "mainstream", disabled: true },
+  reuters_crypto:   { name: "Reuters Crypto",    url: "https://www.reuters.com/technology/cryptocurrency/rss", category: "mainstream", disabled: true },
   forbes_crypto:    { name: "Forbes Crypto",     url: "https://www.forbes.com/crypto-blockchain/feed/",    category: "mainstream" },
-  cnbc_crypto:      { name: "CNBC Crypto",       url: "https://www.cnbc.com/id/100727362/device/rss/rss.html", category: "mainstream" },
-  yahoo_crypto:     { name: "Yahoo Finance Crypto", url: "https://finance.yahoo.com/rss/cryptocurrency",  category: "mainstream" },
-  wsj_crypto:       { name: "WSJ Crypto",        url: "https://feeds.a.dj.com/rss/RSSWSJD.xml",           category: "mainstream" },
-  ft_crypto:        { name: "FT Crypto",          url: "https://www.ft.com/cryptocurrencies?format=rss",   category: "mainstream" },
+  cnbc_crypto:      { name: "CNBC Crypto",       url: "https://www.cnbc.com/id/100727362/device/rss/rss.html", category: "mainstream", disabled: true },
+  yahoo_crypto:     { name: "Yahoo Finance Crypto", url: "https://finance.yahoo.com/rss/cryptocurrency",  category: "mainstream", disabled: true },
+  wsj_crypto:       { name: "WSJ Crypto",        url: "https://feeds.a.dj.com/rss/RSSWSJD.xml",           category: "mainstream", disabled: true },
+  ft_crypto:        { name: "FT Crypto",          url: "https://www.ft.com/cryptocurrencies?format=rss",   category: "mainstream", disabled: true },
 
   // ── Institutional Research & VC ────────────────────────────
   coinbase_blog:      { name: "Coinbase Blog",      url: "https://www.coinbase.com/blog/rss.xml",       category: "institutional" },
@@ -212,8 +263,8 @@ const RSS_SOURCES: Record<string, RSSSourceEntry> = {
   playtoearn: { name: "PlayToEarn", url: "https://playtoearn.net/feed/", category: "gaming" },
 
   // ── Traditional Finance ───────────────────────────────────
-  goldman_insights: { name: "Goldman Sachs Insights", url: "https://www.goldmansachs.com/insights/feed.rss", category: "tradfi" },
-  bny_mellon:       { name: "BNY Mellon Aerial View",  url: "https://www.bnymellon.com/us/en/insights/aerial-view-magazine.rss", category: "tradfi" },
+  goldman_insights: { name: "Goldman Sachs Insights", url: "https://www.goldmansachs.com/insights/feed.rss", category: "tradfi", disabled: true },
+  bny_mellon:       { name: "BNY Mellon Aerial View",  url: "https://www.bnymellon.com/us/en/insights/aerial-view-magazine.rss", category: "tradfi", disabled: true },
 
   // ── Additional General Sources ────────────────────────────
   dailyhodl:     { name: "The Daily Hodl", url: "https://dailyhodl.com/feed/",                 category: "general" },
@@ -591,11 +642,12 @@ const API_SOURCES: Record<string, ApiSourceDef> = {
 async function fetchRSSFeed(sourceKey: string): Promise<NewsArticle[]> {
   const source = RSS_SOURCES[sourceKey];
   if (!source || source.disabled) return [];
+  if (isCircuitOpen(sourceKey)) return [];
 
   return cache.wrap(`news:rss:${sourceKey}`, 300, async () => {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 10_000);
+      const timeout = setTimeout(() => controller.abort(), 5_000);
 
       const res = await fetch(source.url, {
         signal: controller.signal,
@@ -608,16 +660,20 @@ async function fetchRSSFeed(sourceKey: string): Promise<NewsArticle[]> {
 
       if (!res.ok) {
         log.warn({ source: sourceKey, status: res.status }, "RSS fetch failed");
+        recordFailure(sourceKey);
         return [];
       }
 
       const xml = await res.text();
-      return parseRSSFeed(xml, sourceKey, source.name, source.category);
+      const articles = parseRSSFeed(xml, sourceKey, source.name, source.category);
+      recordSuccess(sourceKey);
+      return articles;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       if (!msg.includes("abort")) {
         log.warn({ source: sourceKey, err: msg }, "RSS fetch error");
       }
+      recordFailure(sourceKey);
       return [];
     }
   });
@@ -626,6 +682,7 @@ async function fetchRSSFeed(sourceKey: string): Promise<NewsArticle[]> {
 async function fetchApiSource(sourceKey: string): Promise<NewsArticle[]> {
   const source = API_SOURCES[sourceKey];
   if (!source) return [];
+  if (isCircuitOpen(`api:${sourceKey}`)) return [];
 
   return cache.wrap(`news:api:${sourceKey}`, 300, async () => {
     try {
@@ -637,11 +694,17 @@ async function fetchApiSource(sourceKey: string): Promise<NewsArticle[]> {
         headers: { Accept: "application/json", "User-Agent": "CryptoVision/1.0" },
       });
       clearTimeout(timeout);
-      if (!res.ok) return [];
+      if (!res.ok) {
+        recordFailure(`api:${sourceKey}`);
+        return [];
+      }
 
       const data: unknown = await res.json();
-      return source.parser(data);
+      const articles = source.parser(data);
+      recordSuccess(`api:${sourceKey}`);
+      return articles;
     } catch {
+      recordFailure(`api:${sourceKey}`);
       return [];
     }
   });
@@ -659,20 +722,47 @@ async function fetchAllApiSources(): Promise<NewsArticle[]> {
 }
 
 /**
- * Fetch RSS feeds in batches with concurrency control (15 concurrent).
- * Prevents network overload when fetching 130+ feeds.
+ * Run async tasks with a concurrency limit.
+ * Unlike serial batching, this keeps a pool of N concurrent tasks
+ * and starts a new task as soon as one finishes. Much faster when
+ * individual tasks have variable latency.
+ */
+async function pLimit<T>(
+  tasks: (() => Promise<T>)[],
+  concurrency: number,
+): Promise<PromiseSettledResult<T>[]> {
+  const results: PromiseSettledResult<T>[] = new Array(tasks.length);
+  let idx = 0;
+
+  async function worker(): Promise<void> {
+    while (idx < tasks.length) {
+      const i = idx++;
+      try {
+        results[i] = { status: "fulfilled", value: await tasks[i]() };
+      } catch (reason) {
+        results[i] = { status: "rejected", reason };
+      }
+    }
+  }
+
+  await Promise.all(Array.from({ length: Math.min(concurrency, tasks.length) }, () => worker()));
+  return results;
+}
+
+/**
+ * Fetch RSS feeds with true parallel pool (25 concurrent).
+ * Uses a worker-pool pattern so a new fetch starts immediately
+ * whenever a slot frees up — no waiting for batches to complete.
  */
 async function fetchWithConcurrency(
   sourceKeys: string[],
-  concurrency = 15,
+  concurrency = 25,
 ): Promise<NewsArticle[]> {
+  const tasks = sourceKeys.map((key) => () => fetchRSSFeed(key));
+  const results = await pLimit(tasks, concurrency);
   const articles: NewsArticle[] = [];
-  for (let i = 0; i < sourceKeys.length; i += concurrency) {
-    const batch = sourceKeys.slice(i, i + concurrency);
-    const results = await Promise.allSettled(batch.map(fetchRSSFeed));
-    for (const r of results) {
-      if (r.status === "fulfilled") articles.push(...r.value);
-    }
+  for (const r of results) {
+    if (r.status === "fulfilled") articles.push(...r.value);
   }
   return articles;
 }
@@ -688,7 +778,7 @@ async function fetchAllSources(
   const keys = sourceKeys || Object.keys(RSS_SOURCES);
   const cacheKey = `news:all:${keys.length}:${includeApi}`;
 
-  return cache.wrap(cacheKey, 90, async () => {
+  return cache.wrap(cacheKey, 300, async () => {
     const [rss, api] = await Promise.all([
       fetchWithConcurrency(keys),
       includeApi ? fetchAllApiSources() : Promise.resolve([]),

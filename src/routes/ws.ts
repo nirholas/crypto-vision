@@ -202,6 +202,60 @@ export function createWsRoutes(upgradeWebSocket: UpgradeWebSocket) {
     })
   );
 
+  // ─── WS /ws/alerts ──────────────────────────────────────────
+
+  ws.get(
+    "/ws/alerts",
+    upgradeWebSocket(() => {
+      let clientEntry: ReturnType<typeof addClient> | null = null;
+
+      return {
+        onOpen(_evt, wsCtx) {
+          clientEntry = addClient("alerts" as Topic, wsCtx);
+          wsCtx.send(
+            JSON.stringify({
+              type: "subscribed",
+              topic: "alerts",
+              feeds: ["anomalies"],
+              timestamp: new Date().toISOString(),
+            })
+          );
+        },
+
+        onMessage(evt, wsCtx) {
+          try {
+            const msg = JSON.parse(
+              typeof evt.data === "string" ? evt.data : evt.data.toString()
+            ) as { action?: string };
+
+            if (msg.action === "pong") {
+              // heartbeat ack
+            }
+
+            void wsCtx;
+          } catch {
+            // Ignore
+          }
+        },
+
+        onClose() {
+          if (clientEntry) {
+            removeClient("alerts" as Topic, clientEntry);
+            clientEntry = null;
+          }
+        },
+
+        onError(evt) {
+          logger.error({ error: String(evt) }, "WS /ws/alerts error");
+          if (clientEntry) {
+            removeClient("alerts" as Topic, clientEntry);
+            clientEntry = null;
+          }
+        },
+      };
+    })
+  );
+
   // ─── REST: WS stats endpoint ─────────────────────────────────
 
   ws.get("/ws/status", (c) => c.json({ status: "ok", ...wsStats() }));

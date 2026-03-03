@@ -68,7 +68,7 @@ export async function startIndexers(
 
   // Index agents once at startup (they rarely change)
   if (agents) {
-    indexAgents().catch((err) => log.error({ err }, "Agent indexing failed at startup"));
+    indexAgents().catch((err: unknown) => log.error({ err }, "Agent indexing failed at startup"));
   }
 }
 

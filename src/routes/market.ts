@@ -942,4 +942,8 @@ marketRoutes.get("/btc-exchange-rates", async (c) => {
         buy: r.buy,
         sell: r.sell,
       };
-    }
+    }),
+    source: "blockchain.info",
+    timestamp: new Date().toISOString(),
+  });
+});

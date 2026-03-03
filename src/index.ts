@@ -516,7 +516,9 @@ app.get("/api", (c) =>
         "GET /api/oracles/dia/quote/:symbol": "DIA oracle price quote",
         "GET /api/oracles/dia/assets": "DIA asset list",
         "GET /api/oracles/dia/supply/:symbol": "DIA circulating supply",
-        "GET /api/oracles/pyth/feeds": "Pyth Network feed IDs",",
+        "GET /api/oracles/pyth/feeds": "Pyth Network feed IDs",
+      },
+      whales: {
         "GET /api/whales/btc/mempool": "BTC mempool data",
         "GET /api/whales/stats/bitcoin": "Blockchair BTC network stats",
         "GET /api/whales/stats/ethereum": "Blockchair ETH network stats",
@@ -530,11 +532,7 @@ app.get("/api", (c) =>
         "GET /api/whales/charts/difficulty": "BTC difficulty chart",
         "GET /api/whales/charts/transactions": "BTC transaction count chart",
         "GET /api/whales/charts/:name": "Any blockchain.info chart",
-        "GET /api/whales/overview": "Aggregate whale overviewtimespan=1year)",
-        "GET /api/whales/charts/hashrate": "BTC hashrate chart",
-        "GET /api/whales/charts/difficulty": "BTC difficulty chart",
-        "GET /api/whales/charts/transactions": "BTC transaction count chart",
-        "GET /api/whales/charts/:name": "Any blockchain.info chart",
+        "GET /api/whales/overview": "Aggregate whale overview",
       },
       nft: {
         "GET /api/nft/top": "Top NFT collections by volume (Reservoir)",

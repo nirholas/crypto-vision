@@ -19,6 +19,7 @@ import { Hono } from "hono";
 import * as coincap from "../sources/coincap.js";
 import * as bybit from "../sources/bybit.js";
 import * as deribit from "../sources/deribit.js";
+import * as okx from "../sources/okx.js";
 
 export const exchangesRoutes = new Hono();
 
@@ -64,6 +65,55 @@ exchangesRoutes.get("/coincap/candles", async (c) => {
   const data = await coincap.getCandles(exchangeId, baseId, quoteId, interval);
   return c.json({ exchange: exchangeId, base: baseId, quote: quoteId, interval, data });
 });
+
+// ─── OKX Spot ────────────────────────────────────────────────
+
+exchangesRoutes.get("/okx/spot", async (c) => {
+  const data = await okx.getSpotTickers();
+  return c.json({ count: data.length, data: data.slice(0, 200) });
+});
+
+exchangesRoutes.get("/okx/ticker/:instId", async (c) => {
+  const instId = c.req.param("instId");
+  const data = await okx.getTicker(instId);
+  return c.json(data);
+});
+
+exchangesRoutes.get("/okx/instruments", async (c) => {
+  const instType = c.req.query("type") || "SPOT";
+  const data = await okx.getInstruments(instType);
+  return c.json({ count: data.length, data });
+});
+
+exchangesRoutes.get("/okx/funding/:instId", async (c) => {
+  const instId = c.req.param("instId");
+  const data = await okx.getFundingRate(instId);
+  return c.json(data);
+});
+
+exchangesRoutes.get("/okx/mark-price", async (c) => {
+  const instType = c.req.query("type") || "SWAP";
+  const instId = c.req.query("instId") || undefined;
+  const data = await okx.getMarkPrice(instType, instId);
+  return c.json({ count: data.length, data });
+});
+
+// ─── Bybit Spot ──────────────────────────────────────────────
+
+exchangesRoutes.get("/bybit/spot", async (c) => {
+  const data = await bybit.getSpotTickers();
+  return c.json({ count: data.length, data: data.slice(0, 200) });
+});
+
+// ─── Deribit Extended ────────────────────────────────────────
+
+exchangesRoutes.get("/deribit/funding/:instrument", async (c) => {
+  const instrument = c.req.param("instrument");
+  const data = await deribit.getFundingRate(instrument);
+  return c.json(data);
+});
+
+// ─── CoinCap (keep at bottom for /:id catch-all) ─────────────
 
 exchangesRoutes.get("/:id/markets", async (c) => {
   const id = c.req.param("id");

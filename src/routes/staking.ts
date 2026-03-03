@@ -90,3 +90,14 @@ stakingRoutes.get("/overview", async (c) => {
   const data = await staking.getStakingOverview();
   return c.json(data);
 });
+
+// ─── Raw Liquid Staking Protocols ────────────────────────────
+
+stakingRoutes.get("/protocols", async (c) => {
+  const data = await staking.getLiquidStakingProtocols();
+  const protocols = Array.isArray(data) ? data : [];
+  const filtered = protocols
+    .filter((p: any) => p.category === "Liquid Staking")
+    .sort((a: any, b: any) => (b.tvl || 0) - (a.tvl || 0));
+  return c.json({ count: filtered.length, data: filtered });
+});
