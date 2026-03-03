@@ -2,9 +2,8 @@ import React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
-  useColorScheme,
 } from 'react-native';
+import { useStyles, getTheme } from '../hooks/useStyles';
 import { type MarketCoin } from '../api/client';
 
 interface CoinCardProps {
@@ -12,11 +11,8 @@ interface CoinCardProps {
 }
 
 export default function CoinCard({ coin }: CoinCardProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
   const isPositive = coin.change24h >= 0;
-
-  const styles = createStyles(isDark);
+  const styles = useStyles(coinCardStyles);
 
   const formatPrice = (price: number) => {
     if (price >= 1) return `$${price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -49,43 +45,44 @@ export default function CoinCard({ coin }: CoinCardProps) {
   );
 }
 
-const createStyles = (isDark: boolean) =>
-  StyleSheet.create({
+const coinCardStyles = (isDark: boolean) => {
+  const t = getTheme(isDark);
+  return {
     card: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      backgroundColor: t.card,
       paddingHorizontal: 16,
       paddingVertical: 14,
       borderBottomWidth: 1,
-      borderBottomColor: isDark ? '#2a2a2a' : '#e0e0e0',
+      borderBottomColor: t.border,
     },
     left: {
       flex: 1,
     },
     symbol: {
       fontSize: 16,
-      fontWeight: '700',
-      color: isDark ? '#ffffff' : '#000000',
+      fontWeight: '700' as const,
+      color: t.text,
     },
     name: {
       fontSize: 13,
-      color: isDark ? '#888' : '#666',
+      color: t.textSecondary,
       marginTop: 2,
     },
     center: {
       flex: 1,
-      alignItems: 'flex-end',
+      alignItems: 'flex-end' as const,
       marginRight: 12,
     },
     price: {
       fontSize: 15,
-      fontWeight: '600',
-      color: isDark ? '#ffffff' : '#000000',
+      fontWeight: '600' as const,
+      color: t.text,
     },
     marketCap: {
       fontSize: 12,
-      color: isDark ? '#888' : '#666',
+      color: t.textSecondary,
       marginTop: 2,
     },
     changeBadge: {
@@ -93,17 +90,18 @@ const createStyles = (isDark: boolean) =>
       paddingVertical: 6,
       borderRadius: 6,
       minWidth: 70,
-      alignItems: 'center',
+      alignItems: 'center' as const,
     },
     positive: {
-      backgroundColor: 'rgba(34, 197, 94, 0.15)',
+      backgroundColor: t.positive,
     },
     negative: {
-      backgroundColor: 'rgba(239, 68, 68, 0.15)',
+      backgroundColor: t.negative,
     },
     changeText: {
       fontSize: 14,
-      fontWeight: '600',
-      color: isDark ? '#ffffff' : '#000000',
+      fontWeight: '600' as const,
+      color: t.text,
     },
-  });
+  };
+};

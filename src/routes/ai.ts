@@ -769,7 +769,7 @@ aiRoutes.get("/stablecoin-risk", async (c) => {
   const { peggedAssets } = await llama.getStablecoins();
   const top = peggedAssets.slice(0, 15).map((s) => {
     const circ = Object.values(s.circulating).reduce(
-      (sum, ch) => sum + ((ch as any).peggedUSD || 0), 0
+      (sum, ch) => sum + (ch.peggedUSD || 0), 0
     );
     return `${s.name} (${s.symbol}): $${(circ / 1e9).toFixed(2)}B, peg: ${s.pegType}, chains: ${s.chains.length}`;
   });

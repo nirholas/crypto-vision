@@ -2,9 +2,8 @@ import React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
-  useColorScheme,
 } from 'react-native';
+import { useStyles, getTheme } from '../hooks/useStyles';
 import { type FearGreed } from '../api/client';
 
 interface FearGreedGaugeProps {
@@ -12,8 +11,6 @@ interface FearGreedGaugeProps {
 }
 
 export default function FearGreedGauge({ data }: FearGreedGaugeProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
 
   const getColor = (value: number) => {
     if (value <= 25) return '#ef4444'; // Extreme Fear
@@ -23,7 +20,7 @@ export default function FearGreedGauge({ data }: FearGreedGaugeProps) {
     return '#22c55e'; // Extreme Greed
   };
 
-  const styles = createStyles(isDark);
+  const styles = useStyles(gaugeStyles);
   const color = getColor(data.value);
 
   return (
@@ -51,10 +48,11 @@ export default function FearGreedGauge({ data }: FearGreedGaugeProps) {
   );
 }
 
-const createStyles = (isDark: boolean) =>
-  StyleSheet.create({
+const gaugeStyles = (isDark: boolean) => {
+  const t = getTheme(isDark);
+  return {
     container: {
-      backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+      backgroundColor: t.card,
       borderRadius: 12,
       padding: 16,
       marginHorizontal: 16,
@@ -62,45 +60,46 @@ const createStyles = (isDark: boolean) =>
     },
     title: {
       fontSize: 14,
-      fontWeight: '600',
-      color: isDark ? '#888' : '#666',
+      fontWeight: '600' as const,
+      color: t.textSecondary,
       marginBottom: 12,
     },
     gaugeContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
       gap: 16,
     },
     gauge: {
       flex: 1,
       height: 8,
-      backgroundColor: isDark ? '#2a2a2a' : '#e0e0e0',
+      backgroundColor: t.surface,
       borderRadius: 4,
-      overflow: 'hidden',
+      overflow: 'hidden' as const,
     },
     gaugeFill: {
-      height: '100%',
+      height: '100%' as const,
       borderRadius: 4,
     },
     valueContainer: {
-      alignItems: 'flex-end',
+      alignItems: 'flex-end' as const,
     },
     value: {
       fontSize: 28,
-      fontWeight: '700',
+      fontWeight: '700' as const,
     },
     classification: {
       fontSize: 12,
-      fontWeight: '600',
-      textTransform: 'uppercase',
+      fontWeight: '600' as const,
+      textTransform: 'uppercase' as const,
     },
     labels: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+      flexDirection: 'row' as const,
+      justifyContent: 'space-between' as const,
       marginTop: 8,
     },
     label: {
       fontSize: 11,
       color: isDark ? '#666' : '#888',
     },
-  });
+  };
+};

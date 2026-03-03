@@ -183,7 +183,7 @@ onchainRoutes.get("/stablecoins", async (c) => {
     data: peggedAssets
       .map((s) => {
         const totalCirculating = Object.values(s.circulating).reduce(
-          (sum, ch) => sum + ((ch as any).peggedUSD || 0),
+          (sum, ch) => sum + (ch.peggedUSD || 0),
           0
         );
         return {

@@ -48,7 +48,8 @@ interface AgentConfig {
 }
 
 // Load all agent definitions at startup
-const AGENTS_DIR = join(import.meta.dirname ?? ".", "../agents/src");
+// Resolve relative to this file: src/routes/ -> ../../agents/src
+const AGENTS_DIR = join(import.meta.dirname ?? ".", "../../agents/src");
 const AGENTS_MAP = new Map<string, AgentConfig>();
 
 function loadAgents(): void {

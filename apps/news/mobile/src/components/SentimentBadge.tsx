@@ -2,9 +2,8 @@ import React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
-  useColorScheme,
 } from 'react-native';
+import { useStyles, getTheme } from '../hooks/useStyles';
 import { type Sentiment } from '../api/client';
 
 interface SentimentBadgeProps {
@@ -13,8 +12,6 @@ interface SentimentBadgeProps {
 }
 
 export default function SentimentBadge({ sentiment, asset }: SentimentBadgeProps) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
 
   const getColor = (label: string) => {
     switch (label) {
@@ -32,7 +29,7 @@ export default function SentimentBadge({ sentiment, asset }: SentimentBadgeProps
     }
   };
 
-  const styles = createStyles(isDark);
+  const styles = useStyles(badgeStyles);
   const color = getColor(sentiment.label);
 
   return (
@@ -55,12 +52,13 @@ export default function SentimentBadge({ sentiment, asset }: SentimentBadgeProps
   );
 }
 
-const createStyles = (isDark: boolean) =>
-  StyleSheet.create({
+const badgeStyles = (isDark: boolean) => {
+  const t = getTheme(isDark);
+  return {
     container: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      backgroundColor: t.card,
       borderRadius: 12,
       borderLeftWidth: 4,
       padding: 16,
@@ -76,20 +74,21 @@ const createStyles = (isDark: boolean) =>
     },
     title: {
       fontSize: 13,
-      color: isDark ? '#888' : '#666',
+      color: t.textSecondary,
       marginBottom: 4,
     },
     row: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
       gap: 12,
     },
     label: {
       fontSize: 16,
-      fontWeight: '700',
+      fontWeight: '700' as const,
     },
     score: {
       fontSize: 14,
-      color: isDark ? '#888' : '#666',
+      color: t.textSecondary,
     },
-  });
+  };
+};

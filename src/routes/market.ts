@@ -555,11 +555,11 @@ marketRoutes.get("/coincap/assets", async (c) => {
 
 marketRoutes.get("/coincap/history/:id", async (c) => {
   const id = c.req.param("id");
-  const interval = (c.req.query("interval") as any) || "h1";
+  const interval = c.req.query("interval") || "h1";
   const start = c.req.query("start") ? Number(c.req.query("start")) : undefined;
   const end = c.req.query("end") ? Number(c.req.query("end")) : undefined;
 
-  const { data } = await alt.getCoinCapHistory(id, interval, start, end);
+  const { data } = await alt.getCoinCapHistory(id, interval as Parameters<typeof alt.getCoinCapHistory>[1], start, end);
 
   return c.json({
     data: data.map((d) => ({

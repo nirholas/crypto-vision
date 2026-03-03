@@ -15,7 +15,8 @@ import { log } from "./logger.js";
 
 // ─── Lazy Client ─────────────────────────────────────────────
 
-let bqClient: InstanceType<typeof import("@google-cloud/bigquery").BigQuery> | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- BigQuery types only available when @google-cloud/bigquery is installed
+let bqClient: any = null;
 
 async function getClient() {
   if (bqClient) return bqClient;
@@ -24,7 +25,8 @@ async function getClient() {
   if (!projectId) throw new Error("GCP_PROJECT_ID is required for BigQuery");
 
   // Dynamic import so we don't break local dev without the dep
-  const { BigQuery } = await import("@google-cloud/bigquery");
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { BigQuery } = await import("@google-cloud/bigquery" as string);
   bqClient = new BigQuery({
     projectId,
     location: process.env.GCP_REGION || "us-central1",

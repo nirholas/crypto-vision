@@ -160,8 +160,8 @@ aggregateRoutes.get("/assets", async (c) => {
 
 aggregateRoutes.get("/history/:id", async (c) => {
   const id = c.req.param("id");
-  const interval = (c.req.query("interval") as any) || "h1";
-  const { data } = await alt.getCoinCapHistory(id, interval);
+  const interval = c.req.query("interval") || "h1";
+  const { data } = await alt.getCoinCapHistory(id, interval as Parameters<typeof alt.getCoinCapHistory>[1]);
 
   return c.json({
     data: data.map((d) => ({

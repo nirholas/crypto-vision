@@ -3,14 +3,13 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
   Image,
-  useColorScheme,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { type RootStackParamList } from '../../App';
 import { type Article } from '../api/client';
+import { useStylesWithArgs, getTheme } from '../hooks/useStyles';
 
 interface NewsCardProps {
   article: Article;
@@ -21,8 +20,6 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function NewsCard({ article, compact = false }: NewsCardProps) {
   const navigation = useNavigation<NavigationProp>();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
 
   const handlePress = () => {
     navigation.navigate('Article', {
@@ -31,7 +28,7 @@ export default function NewsCard({ article, compact = false }: NewsCardProps) {
     });
   };
 
-  const styles = createStyles(isDark, compact);
+  const styles = useStylesWithArgs(newsCardStyles, compact);
 
   return (
     <TouchableOpacity style={styles.card} onPress={handlePress} activeOpacity={0.7}>
@@ -61,14 +58,15 @@ export default function NewsCard({ article, compact = false }: NewsCardProps) {
   );
 }
 
-const createStyles = (isDark: boolean, compact: boolean) =>
-  StyleSheet.create({
+const newsCardStyles = (isDark: boolean, compact: boolean) => {
+  const t = getTheme(isDark);
+  return {
     card: {
-      backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+      backgroundColor: t.card,
       borderRadius: 12,
       marginHorizontal: 16,
       marginVertical: 8,
-      overflow: 'hidden',
+      overflow: 'hidden' as const,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: isDark ? 0.3 : 0.1,
@@ -76,33 +74,33 @@ const createStyles = (isDark: boolean, compact: boolean) =>
       elevation: 3,
     },
     image: {
-      width: '100%',
+      width: '100%' as const,
       height: 180,
-      backgroundColor: isDark ? '#2a2a2a' : '#f0f0f0',
+      backgroundColor: t.surface,
     },
     content: {
       padding: compact ? 12 : 16,
     },
     header: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: 'row' as const,
+      justifyContent: 'space-between' as const,
+      alignItems: 'center' as const,
       marginBottom: 8,
     },
     source: {
       fontSize: 12,
-      fontWeight: '600',
-      color: '#ffffff',
-      textTransform: 'uppercase',
+      fontWeight: '600' as const,
+      color: t.text,
+      textTransform: 'uppercase' as const,
     },
     time: {
       fontSize: 12,
-      color: isDark ? '#888' : '#666',
+      color: t.textSecondary,
     },
     title: {
       fontSize: compact ? 14 : 16,
-      fontWeight: '700',
-      color: isDark ? '#ffffff' : '#000000',
+      fontWeight: '700' as const,
+      color: t.text,
       lineHeight: compact ? 20 : 22,
     },
     description: {
@@ -112,16 +110,17 @@ const createStyles = (isDark: boolean, compact: boolean) =>
       lineHeight: 20,
     },
     tickerBadge: {
-      backgroundColor: isDark ? '#2a2a2a' : '#f0f0f0',
+      backgroundColor: t.surface,
       paddingHorizontal: 8,
       paddingVertical: 4,
       borderRadius: 4,
-      alignSelf: 'flex-start',
+      alignSelf: 'flex-start' as const,
       marginTop: 8,
     },
     tickerText: {
       fontSize: 12,
-      fontWeight: '600',
-      color: '#ffffff',
+      fontWeight: '600' as const,
+      color: t.text,
     },
-  });
+  };
+};

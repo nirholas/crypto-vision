@@ -183,15 +183,22 @@ function broadcastRaw(topic: Topic, message: string): void {
   const topicClients = clients.get(topic);
   if (!topicClients) return;
 
+  // Parse price message ONCE (not per-client) for filtered delivery
+  let parsedPrice: PriceTick | null = null;
+  if (topic === "prices") {
+    try {
+      parsedPrice = JSON.parse(message) as PriceTick;
+    } catch { /* malformed — will send raw */ }
+  }
+
   for (const entry of topicClients) {
     try {
       if (entry.ws.readyState === 1) {
         // Filter prices to only subscribed coins
-        if (topic === "prices" && entry.subscribedCoins) {
-          const parsed = JSON.parse(message) as PriceTick;
+        if (parsedPrice && entry.subscribedCoins) {
           const filtered: Record<string, string> = {};
           let hasData = false;
-          for (const [coin, price] of Object.entries(parsed.data)) {
+          for (const [coin, price] of Object.entries(parsedPrice.data)) {
             if (entry.subscribedCoins.has(coin)) {
               filtered[coin] = price;
               hasData = true;
@@ -199,7 +206,7 @@ function broadcastRaw(topic: Topic, message: string): void {
           }
           if (hasData) {
             entry.ws.send(
-              JSON.stringify({ type: "price", data: filtered, timestamp: parsed.timestamp })
+              JSON.stringify({ type: "price", data: filtered, timestamp: parsedPrice.timestamp })
             );
           }
         } else {

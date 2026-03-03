@@ -554,6 +554,11 @@ app.route("/api/depin", depinRoutes);
 app.route("/api/exchanges", exchangesRoutes);
 app.route("/", keysRoutes);
 
+// ─── WebSocket Routes ─────────────────────────────────────────
+
+const wsRoutes = createWsRoutes(upgradeWebSocket);
+app.route("/ws", wsRoutes);
+
 // ─── 404 Fallback ────────────────────────────────────────────
 
 app.notFound((c) =>
