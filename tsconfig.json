@@ -21,6 +21,6 @@
       "@/agents/*": ["agents/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "scripts/**/*"],
   "exclude": ["node_modules", "dist", "apps", "packages", "agents", "upstream", "**/*.test.ts"]
 }

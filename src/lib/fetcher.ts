@@ -202,6 +202,12 @@ export async function fetchJSON<T>(
   throw lastError;
 }
 
+/** Check if a given host's circuit breaker is currently open. */
+export function isCircuitOpen(host: string): boolean {
+  const cb = getBreaker(host);
+  return cb.state === "open";
+}
+
 /** Circuit breaker stats for /health */
 export function circuitBreakerStats(): Record<string, { state: CBState; failures: number }> {
   const out: Record<string, { state: CBState; failures: number }> = {};

@@ -11,8 +11,15 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "docker:build": "docker build -t crypto-vision .",
-    "docker:run": "docker run -p 8080:8080 --env-file .env crypto-vision"
+    "docker:run": "docker run -p 8080:8080 --env-file .env crypto-vision",
+    "training:generate": "tsx scripts/training/generate-training-data.ts",
+    "training:validate": "tsx scripts/training/validate-data.ts",
+    "training:finetune": "tsx scripts/training/finetune-gemini.ts",
+    "training:eval": "tsx scripts/training/eval-models.ts",
+    "training:eval:quick": "tsx scripts/training/eval-models.ts quick",
+    "training:retrain": "tsx scripts/training/retrain.ts"
   },
   "dependencies": {
     "@google-cloud/aiplatform": "^6.5.0",

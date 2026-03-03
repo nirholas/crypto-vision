@@ -9,6 +9,13 @@
 
 import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
+import {
+  ingestDefiProtocols,
+  ingestChainTVL,
+  ingestYieldPools,
+  ingestStablecoinSupply,
+  ingestFundingRounds,
+} from "../lib/bq-ingest.js";
 
 const API = "https://api.llama.fi";
 const YIELDS = "https://yields.llama.fi";
@@ -36,10 +43,15 @@ export interface Protocol {
 }
 
 /** All protocols — big payload, cache aggressively */
-export function getProtocols(): Promise<Protocol[]> {
-  return cache.wrap("llama:protocols", 300, () =>
+export async function getProtocols(): Promise<Protocol[]> {
+  const data = await cache.wrap("llama:protocols", 300, () =>
     fetchJSON<Protocol[]>(`${API}/protocols`)
   );
+
+  // Stream to BigQuery (fire-and-forget)
+  ingestDefiProtocols(data as unknown as Record<string, unknown>[]);
+
+  return data;
 }
 
 /** Single protocol detail with historical TVL */
@@ -68,10 +80,15 @@ export interface ChainTVL {
   chainId: number | null;
 }
 
-export function getChainsTVL(): Promise<ChainTVL[]> {
-  return cache.wrap("llama:chains", 300, () =>
+export async function getChainsTVL(): Promise<ChainTVL[]> {
+  const data = await cache.wrap("llama:chains", 300, () =>
     fetchJSON<ChainTVL[]>(`${API}/v2/chains`)
   );
+
+  // Stream to BigQuery (fire-and-forget)
+  ingestChainTVL(data as unknown as Record<string, unknown>[]);
+
+  return data;
 }
 
 export function getChainTVLHistory(chain: string): Promise<Array<{
@@ -100,15 +117,20 @@ export interface YieldPool {
   poolMeta: string | null;
 }
 
-export function getYieldPools(): Promise<{ data: YieldPool[] }> {
-  return cache.wrap("llama:yields", 300, () =>
-    fetchJSON(`${YIELDS}/pools`)
+export async function getYieldPools(): Promise<{ data: YieldPool[] }> {
+  const result = await cache.wrap("llama:yields", 300, () =>
+    fetchJSON<{ data: YieldPool[] }>(`${YIELDS}/pools`)
   );
+
+  // Stream to BigQuery (fire-and-forget)
+  ingestYieldPools(result.data as unknown as Record<string, unknown>[]);
+
+  return result;
 }
 
 // ─── Stablecoins ─────────────────────────────────────────────
 
-export function getStablecoins(): Promise<{
+export async function getStablecoins(): Promise<{
   peggedAssets: Array<{
     id: string;
     name: string;
@@ -119,9 +141,33 @@ export function getStablecoins(): Promise<{
     chains: string[];
   }>;
 }> {
-  return cache.wrap("llama:stables", 600, () =>
-    fetchJSON(`${STABLECOINS}/stablecoins?includePrices=true`)
+  const result = await cache.wrap("llama:stables", 600, () =>
+    fetchJSON<{
+      peggedAssets: Array<{
+        id: string;
+        name: string;
+        symbol: string;
+        gecko_id: string;
+        pegType: string;
+        circulating: Record<string, { peggedUSD: number }>;
+        chains: string[];
+      }>;
+    }>(`${STABLECOINS}/stablecoins?includePrices=true`)
   );
+
+  // Stream to BigQuery (fire-and-forget)
+  ingestStablecoinSupply(
+    result.peggedAssets.map((s) => ({
+      id: s.id,
+      name: s.name,
+      symbol: s.symbol,
+      pegType: s.pegType,
+      circulating: s.circulating?.peggedUSD,
+      chain_circulating: s.circulating,
+    })) as Record<string, unknown>[],
+  );
+
+  return result;
 }
 
 // ─── DEX Volumes ─────────────────────────────────────────────
@@ -185,7 +231,7 @@ export function getTokenPrices(
 
 // ─── Raises (Fundraising) ────────────────────────────────────
 
-export function getRaises(): Promise<{
+export async function getRaises(): Promise<{
   raises: Array<{
     name: string;
     amount: number;
@@ -195,9 +241,23 @@ export function getRaises(): Promise<{
     leadInvestors: string[];
   }>;
 }> {
-  return cache.wrap("llama:raises", 1800, () =>
-    fetchJSON(`${API}/raises`)
+  const result = await cache.wrap("llama:raises", 1800, () =>
+    fetchJSON<{
+      raises: Array<{
+        name: string;
+        amount: number;
+        round: string;
+        date: number;
+        category: string;
+        leadInvestors: string[];
+      }>;
+    }>(`${API}/raises`)
   );
+
+  // Stream to BigQuery (fire-and-forget)
+  ingestFundingRounds(result.raises as unknown as Record<string, unknown>[]);
+
+  return result;
 }
 
 // ─── Hacks ───────────────────────────────────────────────────

@@ -58,11 +58,11 @@ oracleRoutes.get("/pyth/feeds", async (c) => {
   return c.json({ count: Array.isArray(data) ? data.length : 0, data });
 });
 
-oracleRoparsed = await validateBody(c, PythPriceIdsSchema);
+oracleRoutes.post("/pyth/prices", async (c) => {
+  const parsed = await validateBody(c, PythPriceIdsSchema);
   if (!parsed.success) return parsed.error;
   const { ids } = parsed.data;
 
-  const data = await oracles.getPythPriceFeeds(
-  const data = await oracles.getPythPriceFeeds(body.ids);
+  const data = await oracles.getPythPriceFeeds(ids);
   return c.json({ count: Array.isArray(data) ? data.length : 0, data });
 });

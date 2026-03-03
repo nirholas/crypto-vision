@@ -28,13 +28,12 @@ vi.mock("@/lib/ai.js", () => ({
   getConfiguredProviders: vi.fn(() => ["groq"]),
 }));
 
-vi.mock("@/lib/cache.js", () => ({
-  cache: {
-    get: vi.fn().mockResolvedValue(null),
-    set: vi.fn().mockResolvedValue(undefined),
-    del: vi.fn().mockResolvedValue(undefined),
-  },
-}));
+vi.mock("@/lib/cache.js", () => {
+  const get = vi.fn(async () => null);
+  const set = vi.fn(async () => undefined);
+  const del = vi.fn(async () => undefined);
+  return { cache: { get, set, del } };
+});
 
 vi.mock("@/lib/queue.js", () => ({
   aiQueue: {

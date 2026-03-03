@@ -68,7 +68,8 @@ const agentMap = new Map<string, AgentDefinition>();
 function loadAgents(): void {
   // Resolve agents/src relative to project root
   const thisFile = fileURLToPath(import.meta.url);
-  const projectRoot = join(thisFile, "..", "..");
+  // src/lib/agents.ts → src/lib → src → project root
+  const projectRoot = join(thisFile, "..", "..", "..");
   const agentsDir = join(projectRoot, "agents", "src");
 
   let files: string[];

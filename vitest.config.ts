@@ -15,7 +15,7 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/**/*.test.ts", "src/lib/__tests__/**/*.test.ts", "src/routes/__tests__/**/*.test.ts"],
-    exclude: ["node_modules", "dist", "apps", "packages"],
+    exclude: ["node_modules", "dist", "apps", "packages", "tests/e2e/**"],
     testTimeout: 10_000,
     hookTimeout: 10_000,
     restoreMocks: true,

@@ -1,0 +1,50 @@
+# ─────────────────────────────────────────────────────────────
+# Crypto Vision — Weekly Retraining Schedule
+#
+# Triggers the crypto-vision-retrain Cloud Run Job every Sunday
+# at 2 AM UTC. The retraining pipeline:
+#   1. Generates fresh training pairs from latest market data
+#   2. Appends to existing training datasets
+#   3. Validates the combined dataset
+#   4. Submits a new Gemini fine-tuning job
+#   5. Evaluates new model vs current production model
+#   6. Auto-deploys if eval scores improve
+#
+# Deploy with Terraform (infra/terraform/vertex.tf handles this)
+# or manually:
+#   gcloud scheduler jobs create http crypto-vision-retrain-weekly \
+#     --schedule="0 2 * * 0" \
+#     --uri="https://REGION-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/PROJECT/jobs/crypto-vision-retrain:run" \
+#     --http-method=POST \
+#     --oidc-service-account-email=retrain-invoker@PROJECT.iam.gserviceaccount.com \
+#     --time-zone=UTC \
+#     --location=us-central1
+# ─────────────────────────────────────────────────────────────
+
+name: crypto-vision-retrain-weekly
+schedule: "0 2 * * 0"  # Sunday 2 AM UTC
+timeZone: UTC
+description: Weekly retraining of Vertex AI fine-tuned crypto analysis models
+
+target:
+  cloudRunJob:
+    name: crypto-vision-retrain
+    command: ["node", "dist/scripts/training/retrain.js"]
+    env:
+      - name: GCP_PROJECT_ID
+        valueFrom: project_id
+      - name: GCP_REGION
+        value: us-central1
+      - name: NODE_ENV
+        value: production
+
+retryConfig:
+  retryCount: 2
+  minBackoffDuration: 30s
+  maxBackoffDuration: 300s
+
+# Resource requirements for the retraining job
+resources:
+  cpu: "2"
+  memory: 4Gi
+  timeout: 3600s  # 1 hour max

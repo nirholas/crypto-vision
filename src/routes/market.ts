@@ -32,8 +32,31 @@ import * as cg from "../sources/coingecko.js";
 import * as alt from "../sources/alternative.js";
 import * as coinlore from "../sources/coinlore.js";
 import { ApiError } from "../lib/api-error.js";
+import { tryMultipleSources } from "../lib/fallback.js";
 
 export const marketRoutes = new Hono();
+
+// ─── Normalised coin shape for multi-source fallback ─────────
+
+interface NormalisedCoin {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string | null;
+  price: number;
+  marketCap: number;
+  rank: number | null;
+  volume24h: number;
+  change24h: number | null;
+  change7d: number | null;
+  change30d: number | null;
+  circulatingSupply: number | null;
+  totalSupply: number | null;
+  maxSupply: number | null;
+  ath: number | null;
+  athChange: number | null;
+  sparkline7d?: number[];
+}
 
 // ─── GET /api/coins ──────────────────────────────────────────
 
@@ -45,33 +68,99 @@ marketRoutes.get("/coins", async (c) => {
   const ids = c.req.query("ids");
   const category = c.req.query("category");
 
-  const coins = await cg.getCoins({ page, perPage, order, sparkline, ids, category });
+  const result = await tryMultipleSources<NormalisedCoin[]>(
+    `coins:p${page}:pp${perPage}`,
+    [
+      {
+        name: "coingecko",
+        host: "api.coingecko.com",
+        fn: async () => {
+          const coins = await cg.getCoins({ page, perPage, order, sparkline, ids, category });
+          return coins.map((coin) => ({
+            id: coin.id,
+            symbol: coin.symbol,
+            name: coin.name,
+            image: coin.image,
+            price: coin.current_price,
+            marketCap: coin.market_cap,
+            rank: coin.market_cap_rank,
+            volume24h: coin.total_volume,
+            change24h: coin.price_change_percentage_24h,
+            change7d: coin.price_change_percentage_7d_in_currency ?? null,
+            change30d: coin.price_change_percentage_30d_in_currency ?? null,
+            circulatingSupply: coin.circulating_supply,
+            totalSupply: coin.total_supply,
+            maxSupply: coin.max_supply,
+            ath: coin.ath,
+            athChange: coin.ath_change_percentage,
+            ...(sparkline && coin.sparkline_in_7d
+              ? { sparkline7d: coin.sparkline_in_7d.price }
+              : {}),
+          }));
+        },
+      },
+      {
+        name: "coincap",
+        host: "api.coincap.io",
+        fn: async () => {
+          const { data } = await alt.getCoinCapAssets(perPage);
+          return data.map((a) => ({
+            id: a.id,
+            symbol: a.symbol,
+            name: a.name,
+            image: null,
+            price: parseFloat(a.priceUsd),
+            marketCap: parseFloat(a.marketCapUsd),
+            rank: Number(a.rank),
+            volume24h: parseFloat(a.volumeUsd24Hr),
+            change24h: parseFloat(a.changePercent24Hr),
+            change7d: null,
+            change30d: null,
+            circulatingSupply: parseFloat(a.supply),
+            totalSupply: null,
+            maxSupply: a.maxSupply ? parseFloat(a.maxSupply) : null,
+            ath: null,
+            athChange: null,
+          }));
+        },
+      },
+      {
+        name: "coinlore",
+        host: "api.coinlore.net",
+        fn: async () => {
+          const resp = await coinlore.getTickers((page - 1) * perPage, perPage);
+          return resp.data.map((t) => ({
+            id: t.nameid,
+            symbol: t.symbol,
+            name: t.name,
+            image: null,
+            price: parseFloat(t.price_usd),
+            marketCap: parseFloat(t.market_cap_usd),
+            rank: t.rank,
+            volume24h: t.volume24,
+            change24h: parseFloat(t.percent_change_24h),
+            change7d: parseFloat(t.percent_change_7d),
+            change30d: null,
+            circulatingSupply: parseFloat(t.csupply),
+            totalSupply: parseFloat(t.tsupply) || null,
+            maxSupply: parseFloat(t.msupply) || null,
+            ath: null,
+            athChange: null,
+          }));
+        },
+      },
+    ],
+  );
 
   return c.json({
-    data: coins.map((coin) => ({
-      id: coin.id,
-      symbol: coin.symbol,
-      name: coin.name,
-      image: coin.image,
-      price: coin.current_price,
-      marketCap: coin.market_cap,
-      rank: coin.market_cap_rank,
-      volume24h: coin.total_volume,
-      change24h: coin.price_change_percentage_24h,
-      change7d: coin.price_change_percentage_7d_in_currency ?? null,
-      change30d: coin.price_change_percentage_30d_in_currency ?? null,
-      circulatingSupply: coin.circulating_supply,
-      totalSupply: coin.total_supply,
-      maxSupply: coin.max_supply,
-      ath: coin.ath,
-      athChange: coin.ath_change_percentage,
-      ...(sparkline && coin.sparkline_in_7d
-        ? { sparkline7d: coin.sparkline_in_7d.price }
-        : {}),
-    })),
+    data: result.data,
+    source: result.source,
+    stale: result.stale,
+    failedSources: result.failedSources,
+    skippedSources: result.skippedSources,
     page,
     perPage,
-    timestamp: new Date().toISOString(),
+    timestamp: result.timestamp,
   });
 });
 
@@ -140,22 +229,80 @@ marketRoutes.get("/trending", async (c) => {
   });
 });
 
+// ─── Normalised global stats for multi-source fallback ───────
+
+interface NormalisedGlobal {
+  activeCryptocurrencies: number | null;
+  markets: number | null;
+  totalMarketCap: number;
+  totalVolume24h: number;
+  btcDominance: number;
+  ethDominance: number | null;
+  marketCapChange24h: number | null;
+}
+
 // ─── GET /api/global ─────────────────────────────────────────
 
 marketRoutes.get("/global", async (c) => {
-  const { data } = await cg.getGlobal();
+  const result = await tryMultipleSources<NormalisedGlobal>("global", [
+    {
+      name: "coingecko",
+      host: "api.coingecko.com",
+      fn: async () => {
+        const { data } = await cg.getGlobal();
+        return {
+          activeCryptocurrencies: data.active_cryptocurrencies,
+          markets: data.markets,
+          totalMarketCap: data.total_market_cap.usd,
+          totalVolume24h: data.total_volume.usd,
+          btcDominance: data.market_cap_percentage.btc,
+          ethDominance: data.market_cap_percentage.eth,
+          marketCapChange24h: data.market_cap_change_percentage_24h_usd,
+        };
+      },
+    },
+    {
+      name: "coinpaprika",
+      host: "api.coinpaprika.com",
+      fn: async () => {
+        const g = await alt.getCoinPaprikaGlobal();
+        return {
+          activeCryptocurrencies: g.cryptocurrencies_number,
+          markets: null,
+          totalMarketCap: g.market_cap_usd,
+          totalVolume24h: g.volume_24h_usd,
+          btcDominance: g.bitcoin_dominance_percentage,
+          ethDominance: null,
+          marketCapChange24h: g.market_cap_change_24h,
+        };
+      },
+    },
+    {
+      name: "coinlore",
+      host: "api.coinlore.net",
+      fn: async () => {
+        const arr = await coinlore.getGlobal();
+        const g = arr[0];
+        return {
+          activeCryptocurrencies: g.coins_count,
+          markets: g.active_markets,
+          totalMarketCap: g.total_mcap,
+          totalVolume24h: g.total_volume,
+          btcDominance: parseFloat(g.btc_d),
+          ethDominance: parseFloat(g.eth_d),
+          marketCapChange24h: parseFloat(g.mcap_change),
+        };
+      },
+    },
+  ]);
 
   return c.json({
-    data: {
-      activeCryptocurrencies: data.active_cryptocurrencies,
-      markets: data.markets,
-      totalMarketCap: data.total_market_cap.usd,
-      totalVolume24h: data.total_volume.usd,
-      btcDominance: data.market_cap_percentage.btc,
-      ethDominance: data.market_cap_percentage.eth,
-      marketCapChange24h: data.market_cap_change_percentage_24h_usd,
-    },
-    timestamp: new Date().toISOString(),
+    data: result.data,
+    source: result.source,
+    stale: result.stale,
+    failedSources: result.failedSources,
+    skippedSources: result.skippedSources,
+    timestamp: result.timestamp,
   });
 });
 
@@ -232,19 +379,67 @@ marketRoutes.get("/categories", async (c) => {
   });
 });
 
+// ─── Normalised fear & greed for multi-source fallback ───────
+
+interface NormalisedFearGreed {
+  value: number;
+  classification: string;
+  timestamp: string;
+}
+
+function classifyFearGreed(value: number): string {
+  if (value <= 20) return "Extreme Fear";
+  if (value <= 40) return "Fear";
+  if (value <= 60) return "Neutral";
+  if (value <= 80) return "Greed";
+  return "Extreme Greed";
+}
+
 // ─── GET /api/fear-greed ─────────────────────────────────────
 
 marketRoutes.get("/fear-greed", async (c) => {
   const limit = Math.min(Number(c.req.query("limit") || 1), 30);
-  const { data } = await alt.getFearGreedIndex(limit);
+
+  const result = await tryMultipleSources<NormalisedFearGreed[]>("fear-greed", [
+    {
+      name: "alternative.me",
+      host: "api.alternative.me",
+      fn: async () => {
+        const { data } = await alt.getFearGreedIndex(limit);
+        return data.map((d) => ({
+          value: Number(d.value),
+          classification: d.value_classification,
+          timestamp: new Date(Number(d.timestamp) * 1000).toISOString(),
+        }));
+      },
+    },
+    {
+      name: "calculated-sentiment",
+      host: "api.coingecko.com",
+      fn: async () => {
+        // Derive a synthetic fear/greed score from market data
+        const { data } = await cg.getGlobal();
+        const change = data.market_cap_change_percentage_24h_usd;
+        // Map 24h market cap change to 0-100 fear/greed scale
+        // -10% or worse → 0, +10% or better → 100
+        const clamped = Math.max(-10, Math.min(10, change));
+        const value = Math.round(((clamped + 10) / 20) * 100);
+        return [{
+          value,
+          classification: classifyFearGreed(value),
+          timestamp: new Date().toISOString(),
+        }];
+      },
+    },
+  ]);
 
   return c.json({
-    data: data.map((d) => ({
-      value: Number(d.value),
-      classification: d.value_classification,
-      timestamp: new Date(Number(d.timestamp) * 1000).toISOString(),
-    })),
-    timestamp: new Date().toISOString(),
+    data: result.data,
+    source: result.source,
+    stale: result.stale,
+    failedSources: result.failedSources,
+    skippedSources: result.skippedSources,
+    timestamp: result.timestamp,
   });
 });
 

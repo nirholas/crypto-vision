@@ -61,7 +61,7 @@ function stopPriceThrottle(): void {
 
 // ─── Types ───────────────────────────────────────────────────
 
-export type Topic = "prices" | "bitcoin" | "trades";
+export type Topic = "prices" | "bitcoin" | "trades" | "alerts";
 
 export interface PriceTick {
   type: "price";

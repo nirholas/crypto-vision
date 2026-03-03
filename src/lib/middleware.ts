@@ -66,7 +66,7 @@ export function requestTimeout(ms = 30_000): MiddlewareHandler {
         new Promise<never>((_, reject) => {
           controller.signal.addEventListener(
             "abort",
-            () => reject(new AppError("REQUEST_TIMEOUT" as ErrorCode, "Request timed out", 504)),
+            () => reject(new AppError("TIMEOUT", "Request timed out")),
             { once: true },
           );
         }),

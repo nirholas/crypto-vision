@@ -73,7 +73,8 @@ dexRoutes.get("/trending-pools/:network", async (c) => {
   return c.json({
     data: data.map((p) => ({
       id: p.id,
-      name: pnetwork
+      name: p.attributes.name,
+      network,
       address: p.attributes.address,
       priceUsd: p.attributes.base_token_price_usd,
       fdvUsd: p.attributes.fdv_usd,
@@ -113,7 +114,7 @@ dexRoutes.get("/new-pools/:network", async (c) => {
   const { data } = await gt.getNewPools(network);
 
   return c.json({
-    data: datnetwork
+    data: data.map((p) => ({
       id: p.id,
       name: p.attributes.name,
       address: p.attributes.address,
@@ -136,9 +137,10 @@ dexRoutes.get("/top-pools/:network", async (c) => {
   const { data } = await gt.getTopPools(network);
 
   return c.json({
-    data: datnetwork
+    data: data.map((p) => ({
       id: p.id,
       name: p.attributes.name,
+      network,
       address: p.attributes.address,
       priceUsd: p.attributes.base_token_price_usd,
       volume24h: p.attributes.volume_usd.h24,

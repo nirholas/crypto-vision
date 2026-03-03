@@ -25,7 +25,8 @@ import { requestLogger, globalErrorHandler, requestTimeout } from "@/lib/middlew
 import { apiKeyAuth } from "@/lib/auth";
 import { circuitBreakerStats } from "@/lib/fetcher";
 import { aiQueue, heavyFetchQueue } from "@/lib/queue";
-import { cdnCacheHeaders } from "@/lib/cdn-cache";
+import { etagMiddleware } from "@/lib/etag";
+import { responseEnvelope } from "@/lib/response-envelope";
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -116,8 +117,11 @@ app.use("/api/ai/*", requestTimeout(60_000));   // AI routes: 60s
 app.use("/api/agents/*", requestTimeout(60_000)); // Agent routes: 60s
 app.use("/api/*", requestTimeout(30_000));        // Everything else: 30s
 
-// CDN Cache-Control headers — enables edge caching for read-heavy endpoints
-app.use("/api/*", cdnCacheHeaders);
+// ETag + Cache-Control — conditional requests, route-specific cache headers, CDN awareness
+app.use("/api/*", etagMiddleware);
+
+// Response envelope — enriches /api/* JSON responses with meta (latencyMs, source, cached)
+app.use("/api/*", responseEnvelope);
 
 // Structured request logging (method, path, status, duration)
 app.use("*", requestLogger);

@@ -25,6 +25,7 @@
 import { Hono } from "hono";
 import { ApiError } from "../lib/api-error.js";
 import { log } from "../lib/logger.js";
+import { tryMultipleSources } from "../lib/fallback.js";
 import {
   getNews,
   searchNews,
@@ -35,8 +36,30 @@ import {
   getHomepageNews,
   getNewsByCategory,
 } from "../sources/news-aggregator.js";
+import {
+  getNews as getCryptoNews,
+} from "../sources/crypto-news.js";
 
 export const newsRoutes = new Hono();
+
+// ─── Normalised news response shape ─────────────────────────
+
+interface NormalisedNewsResponse {
+  articles: Array<{
+    id?: string;
+    title: string;
+    description?: string;
+    url: string;
+    source: string;
+    sourceName?: string;
+    publishedAt: string;
+    categories: string[];
+    imageUrl?: string;
+  }>;
+  totalCount: number;
+  sources: string[];
+  timestamp: string;
+}
 
 // ─── GET /api/news ───────────────────────────────────────────
 
@@ -47,11 +70,66 @@ newsRoutes.get("/", async (c) => {
     const category = c.req.query("category") || undefined;
     const page = Number(c.req.query("page") || 1);
 
-    const data = await getNews({ limit, source, category, page });
-    return c.json(data);
-  } catch (err: any) {
-    log.error({ err: err.message }, "Failed to fetch news");
-    return ApiError.internal(c, "Failed to fetch news", err.message);
+    const result = await tryMultipleSources<NormalisedNewsResponse>("news", [
+      {
+        name: "news-aggregator",
+        host: "localhost",
+        fn: async () => {
+          const data = await getNews({ limit, source, category, page });
+          return {
+            articles: data.articles.map((a) => ({
+              id: (a as Record<string, unknown>).id as string | undefined,
+              title: a.title,
+              description: (a as Record<string, unknown>).description as string | undefined,
+              url: a.url,
+              source: a.source,
+              sourceName: a.sourceName,
+              publishedAt: a.publishedAt,
+              categories: a.categories,
+              imageUrl: a.imageUrl,
+            })),
+            totalCount: data.totalCount,
+            sources: data.sources,
+            timestamp: data.timestamp,
+          };
+        },
+      },
+      {
+        name: "crypto-news-rss",
+        host: "localhost",
+        fn: async () => {
+          const data = await getCryptoNews({ limit, source, category, page });
+          return {
+            articles: data.articles.map((a) => ({
+              id: a.id,
+              title: a.title,
+              description: a.description,
+              url: a.url,
+              source: a.source,
+              sourceName: a.sourceName,
+              publishedAt: a.publishedAt,
+              categories: a.categories,
+              imageUrl: a.imageUrl,
+            })),
+            totalCount: data.totalCount,
+            sources: data.sources,
+            timestamp: data.timestamp,
+          };
+        },
+      },
+    ]);
+
+    return c.json({
+      ...result.data,
+      source: result.source,
+      stale: result.stale,
+      failedSources: result.failedSources,
+      skippedSources: result.skippedSources,
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    log.error({ err: message }, "Failed to fetch news");
+    return ApiError.internal(c, "Failed to fetch news", message);
   }
 });
 

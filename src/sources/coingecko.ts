@@ -10,6 +10,7 @@
 
 import { fetchJSON } from "../lib/fetcher.js";
 import { cache } from "../lib/cache.js";
+import { ingestMarketSnapshots, ingestOHLCCandles, ingestExchangeSnapshots } from "../lib/bq-ingest.js";
 
 const BASE = process.env.COINGECKO_PRO === "true"
   ? "https://pro-api.coingecko.com/api/v3"
@@ -48,7 +49,7 @@ export interface CoinMarket {
   sparkline_in_7d?: { price: number[] };
 }
 
-export function getCoins(params: {
+export async function getCoins(params: {
   page?: number;
   perPage?: number;
   order?: string;
@@ -57,6 +58,7 @@ export function getCoins(params: {
   category?: string;
   priceChangePct?: string;
 } = {}): Promise<CoinMarket[]> {
+  // Converted to async for BigQuery streaming
   const p = new URLSearchParams({
     vs_currency: "usd",
     order: params.order || "market_cap_desc",
@@ -68,7 +70,12 @@ export function getCoins(params: {
   if (params.ids) p.set("ids", params.ids);
   if (params.category) p.set("category", params.category);
 
-  return cg(`/coins/markets?${p}`, 60); // 1 min cache
+  const data = await cg<CoinMarket[]>(`/coins/markets?${p}`, 60); // 1 min cache
+
+  // Stream to BigQuery (fire-and-forget, non-blocking)
+  ingestMarketSnapshots(data as unknown as Record<string, unknown>[]);
+
+  return data;
 }
 
 // ─── Coin Detail ─────────────────────────────────────────────
@@ -185,16 +192,21 @@ export function getMarketChart(
 
 // ─── OHLC ────────────────────────────────────────────────────
 
-export function getOHLC(
+export async function getOHLC(
   id: string,
   days: number = 7
 ): Promise<[number, number, number, number, number][]> {
-  return cg(`/coins/${id}/ohlc?vs_currency=usd&days=${days}`, 300);
+  const data = await cg<[number, number, number, number, number][]>(`/coins/${id}/ohlc?vs_currency=usd&days=${days}`, 300);
+
+  // Stream to BigQuery (fire-and-forget)
+  ingestOHLCCandles(id, data);
+
+  return data;
 }
 
 // ─── Exchanges ───────────────────────────────────────────────
 
-export function getExchanges(
+export async function getExchanges(
   page = 1,
   perPage = 100
 ): Promise<Array<{
@@ -206,7 +218,20 @@ export function getExchanges(
   trust_score: number;
   trust_score_rank: number;
 }>> {
-  return cg(`/exchanges?per_page=${perPage}&page=${page}`, 300);
+  const data = await cg<Array<{
+    id: string;
+    name: string;
+    year_established: number | null;
+    country: string | null;
+    trade_volume_24h_btc: number;
+    trust_score: number;
+    trust_score_rank: number;
+  }>>(`/exchanges?per_page=${perPage}&page=${page}`, 300);
+
+  // Stream to BigQuery (fire-and-forget)
+  ingestExchangeSnapshots(data as unknown as Record<string, unknown>[], "coingecko");
+
+  return data;
 }
 
 // ─── Categories ──────────────────────────────────────────────
