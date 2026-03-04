@@ -16,6 +16,7 @@ import type {
   SkillResult,
   SkillValidationError,
   SkillCategory,
+  SkillRegistryStats,
 } from './types.js';
 import type { AgentSkill, TaskSendParams } from '../protocols/a2a/types.js';
 import type { TaskManager } from '../protocols/a2a/taskManager.js';
@@ -318,13 +319,7 @@ export class SkillRegistry {
   /**
    * Get registry statistics.
    */
-  getStats(): {
-    totalSkills: number;
-    totalBundles: number;
-    byCategory: Record<string, number>;
-    paidSkills: number;
-    freeSkills: number;
-  } {
+  getStats(): SkillRegistryStats {
     const byCategory: Record<string, number> = {};
     let paidSkills = 0;
     let freeSkills = 0;

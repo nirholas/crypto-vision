@@ -182,6 +182,16 @@ export interface SkillFilter {
   search?: string;
 }
 
+// ─── Skill Registry Stats ─────────────────────────────────────────
+
+export interface SkillRegistryStats {
+  totalSkills: number;
+  totalBundles: number;
+  byCategory: Record<string, number>;
+  paidSkills: number;
+  freeSkills: number;
+}
+
 // ─── Skill Validation Error ───────────────────────────────────────
 
 export interface SkillValidationError {
