@@ -17,10 +17,8 @@ import {
   PublicKey,
 } from '@solana/web3.js';
 import type { ParsedTransactionWithMeta } from '@solana/web3.js';
-import BN from 'bn.js';
 import {
   bondingCurvePda,
-  getGraduationProgress,
   getTokenPrice,
   PUMP_SDK,
 } from '@pump-fun/pump-sdk';
@@ -205,11 +203,6 @@ const DEFAULT_CONFIG: SignalConfig = {
 };
 
 // ─── Helpers ──────────────────────────────────────────────────
-
-/** Convert BN (lamports) → SOL as number */
-function bnToSol(bn: BN): number {
-  return bn.toNumber() / LAMPORTS_PER_SOL;
-}
 
 /** Convert bigint (lamports) → SOL as number */
 function lamportsToSol(lamports: bigint): number {

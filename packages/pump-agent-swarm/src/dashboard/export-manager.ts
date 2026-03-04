@@ -15,7 +15,7 @@ import { writeFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 
 import type { AgentMonitor, AgentPerformanceMetrics, AgentSummaryView } from './agent-monitor.js';
-import type { EventTimeline, TimelineEvent } from './event-timeline.js';
+import type { EventTimeline } from './event-timeline.js';
 import type { AuditLogger, AuditEntry } from '../coordination/audit-logger.js';
 
 // ─── Interfaces ───────────────────────────────────────────────

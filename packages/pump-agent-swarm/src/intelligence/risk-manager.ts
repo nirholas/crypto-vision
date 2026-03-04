@@ -693,14 +693,14 @@ export class RiskManager {
     const existing = this.positions.get(mint);
 
     if (direction === 'buy') {
-      const solSpent = Number(trade.order.amount) / 1e9; // lamports → SOL
-      const tokensReceived = trade.amountOut;
-      const executionPrice = Number(trade.executionPrice) / 1e9;
+      const solSpent = Number(trade.order.amount.toString()) / 1e9; // lamports → SOL
+      const tokensReceived = BigInt(trade.amountOut.toString());
+      const executionPrice = Number(trade.executionPrice.toString()) / 1e9;
 
       if (existing) {
         // Average into existing position
         const totalSolInvested = existing.solInvested + solSpent;
-        const totalTokens = existing.tokenAmount + tokensReceived.toBigInt();
+        const totalTokens = existing.tokenAmount + tokensReceived;
         const avgEntry = totalSolInvested / Number(totalTokens);
 
         existing.solInvested = totalSolInvested;
@@ -720,7 +720,7 @@ export class RiskManager {
         existing.tradeCount++;
       } else {
         // New position
-        const tokensBigInt = tokensReceived.toBigInt();
+        const tokensBigInt = tokensReceived;
         const currentValue = Number(tokensBigInt) * executionPrice;
         const pos: Position = {
           mint,
@@ -750,10 +750,10 @@ export class RiskManager {
       this.consecutiveLosses = 0; // buys reset consecutive loss counter
     } else {
       // Sell — calculate realized P&L
-      const solReceived = Number(trade.amountOut) / 1e9;
+      const solReceived = Number(trade.amountOut.toString()) / 1e9;
 
       if (existing) {
-        const tokensSold = trade.order.amount.toBigInt();
+        const tokensSold = BigInt(trade.order.amount.toString());
         const fractionSold = existing.tokenAmount > 0n
           ? Number(tokensSold) / Number(existing.tokenAmount)
           : 1;

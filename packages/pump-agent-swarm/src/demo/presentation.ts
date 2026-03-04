@@ -16,9 +16,10 @@
  *   await presenter.runPresentation();
  */
 
-import type { Connection, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import type { SwarmStatus } from '../types.js';
 import { SwarmCoordinator } from '../swarm.js';
+import { STRATEGY_ORGANIC } from '../strategies.js';
 import BN from 'bn.js';
 
 // ─── Configuration ────────────────────────────────────────────
@@ -163,24 +164,12 @@ export class PresentationMode {
           metadataUri: 'https://arweave.net/demo-metadata',
         },
         bundle: {
-          devBuyLamports: new BN(0.5 * 1_000_000_000), // 0.5 SOL
+          devBuyLamports: new BN(0.5 * LAMPORTS_PER_SOL),
           bundleWallets: [],
           slippageBps: 500,
         },
-        strategy: {
-          id: 'demo-organic',
-          name: 'Demo Organic',
-          description: 'Presentation mode strategy',
-          minBuyLamports: new BN(0.01 * 1_000_000_000),
-          maxBuyLamports: new BN(0.5 * 1_000_000_000),
-          minSellPercent: 10,
-          maxSellPercent: 50,
-          minIntervalSec: 15,
-          maxIntervalSec: 45,
-          targetHoldingsSol: 2.0,
-        },
-        maxDurationSec: this.config.durationMinutes * 60,
-        maxTotalSpendSol: this.config.budgetSol,
+        strategy: STRATEGY_ORGANIC,
+        devMode: true,
       });
 
       // Set up event listeners
@@ -203,11 +192,24 @@ export class PresentationMode {
         confidence: 0.87,
       });
 
-      // Run the swarm
-      const result = await this.swarm.run();
+      // Set up duration timer to stop swarm after configured duration
+      const durationTimeoutId = setTimeout(async () => {
+        if (this.swarm && !this.aborted) {
+          console.log('\n[Demo] Duration limit reached, stopping swarm...');
+          await this.swarm.stop();
+        }
+      }, this.config.durationMinutes * 60 * 1000);
 
-      // Generate final summary
-      return await this.generateSummary(result);
+      try {
+        // Run the swarm
+        const result = await this.swarm.run();
+        clearTimeout(durationTimeoutId);
+
+        // Generate final summary
+        return await this.generateSummary(result);
+      } finally {
+        clearTimeout(durationTimeoutId);
+      }
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
       await this.narrateEvent('error', { error: err.message });

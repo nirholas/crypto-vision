@@ -351,6 +351,35 @@ export {
   PRESET_STRATEGIES,
 } from './strategies.js';
 
+// ─── Dashboard ────────────────────────────────────────────────
+export { AgentMonitor } from './dashboard/agent-monitor.js';
+export type {
+  AgentRegistration,
+  AgentAction,
+  AgentDetail,
+  AgentSummaryView,
+  AgentHistoryEntry,
+  AgentPerformanceMetrics,
+} from './dashboard/agent-monitor.js';
+export { EventTimeline } from './dashboard/event-timeline.js';
+export type {
+  EventCategory,
+  EventSeverity,
+  TimelineEvent,
+  TimelineConfig,
+  EventFilter,
+} from './dashboard/event-timeline.js';
+export { ExportManager } from './dashboard/export-manager.js';
+export type {
+  TradeVisualizerAdapter,
+  PnLDashboardAdapter,
+  TradeRecord as ExportTradeRecord,
+  PnLSnapshot as ExportPnLSnapshot,
+  ExportContext,
+  SessionExport,
+  ExportFormat,
+} from './dashboard/export-manager.js';
+
 // ─── Types ────────────────────────────────────────────────────
 export type {
   // Wallet Types
