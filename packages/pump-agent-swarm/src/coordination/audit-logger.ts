@@ -127,7 +127,7 @@ export interface AuditConfig {
 
 // ─── Constants ────────────────────────────────────────────────
 
-const DEFAULT_MAX_ENTRIES = 50_000;
+const DEFAULT_MAX_ENTRIES = 100_000;
 
 const SEVERITY_PRIORITY: Record<AuditSeverity, number> = {
   debug: 0,

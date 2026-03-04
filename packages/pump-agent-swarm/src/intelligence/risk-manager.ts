@@ -43,6 +43,10 @@ export interface RiskLimits {
   maxConsecutiveLosses: number;
   /** Minimum time between trades per wallet (ms) */
   minTradeCooldown: number;
+  /** Max hold duration in minutes before time risk triggers */
+  maxHoldDuration?: number;
+  /** Minimum liquidity in SOL before position is considered illiquid */
+  minLiquiditySOL?: number;
 }
 
 export interface ProposedTradeAction {
@@ -1054,11 +1058,17 @@ export class RiskManager {
    * Return a snapshot of current risk metrics.
    */
   getRiskMetrics(): RiskMetrics {
+    const now = Date.now();
     const totalDeployed = this.getTotalDeployed();
     const totalValue = this.getTotalValue();
     const drawdown = this.getDrawdown();
     const positions = Array.from(this.positions.values());
-    const riskScore = this.computePortfolioRiskScore(positions, drawdown);
+    const correlationRisk = this.assessCorrelationRisk(positions);
+    const liquidityRisk = this.assessLiquidityRisk(positions);
+    const timeRisk = this.assessTimeRisk(positions, now);
+    const { riskScore, breakdown } = this.computePortfolioRiskScoreDetailed(
+      positions, drawdown, correlationRisk, liquidityRisk, timeRisk,
+    );
 
     return {
       totalDeployed,
@@ -1070,7 +1080,11 @@ export class RiskManager {
       consecutiveLosses: this.consecutiveLosses,
       windowLoss: this.getWindowLoss(),
       riskScore,
-      timestamp: Date.now(),
+      riskBreakdown: breakdown,
+      correlationRisk,
+      liquidityRisk,
+      timeRisk,
+      timestamp: now,
     };
   }
 
@@ -1197,17 +1211,152 @@ export class RiskManager {
     return Math.min(100, Math.max(0, Math.round(score)));
   }
 
-  /** Compute aggregate portfolio risk score */
-  private computePortfolioRiskScore(
+  // ─── New Risk Assessment Methods ───────────────────────────
+
+  /**
+   * Assess correlation risk between open positions by comparing
+   * price-movement direction (entry vs current).  Positions moving in
+   * the same direction are considered correlated — a simple but
+   * effective approximation without requiring full price-history
+   * time-series which is unavailable in-memory.
+   */
+  private assessCorrelationRisk(positions: Position[]): CorrelationRisk {
+    if (positions.length < 2) {
+      return { avgCorrelation: 0, maxCorrelation: 0, highlyCorrelatedPairs: [], score: 0 };
+    }
+
+    const moves = positions.map((p) => ({
+      mint: p.mint,
+      returnPct: p.entryPrice > 0 ? (p.currentPrice - p.entryPrice) / p.entryPrice : 0,
+    }));
+
+    let pairCount = 0;
+    let totalCorr = 0;
+    let maxCorr = 0;
+    const highPairs: CorrelationRisk['highlyCorrelatedPairs'] = [];
+
+    for (let i = 0; i < moves.length; i++) {
+      for (let j = i + 1; j < moves.length; j++) {
+        // Correlation approximation: 1 − |diff| / max(|a|,|b|,ε)
+        const a = moves[i].returnPct;
+        const b = moves[j].returnPct;
+        const maxAbs = Math.max(Math.abs(a), Math.abs(b), 1e-9);
+        const corr = Math.max(0, 1 - Math.abs(a - b) / maxAbs);
+
+        totalCorr += corr;
+        pairCount++;
+        if (corr > maxCorr) maxCorr = corr;
+
+        if (corr > 0.7) {
+          highPairs.push({ mint1: moves[i].mint, mint2: moves[j].mint, correlation: corr });
+        }
+      }
+    }
+
+    const avgCorrelation = pairCount > 0 ? totalCorr / pairCount : 0;
+
+    // Score: high avg correlation → higher risk (0–100)
+    const score = Math.min(100, Math.round(avgCorrelation * 100));
+
+    return { avgCorrelation, maxCorrelation: maxCorr, highlyCorrelatedPairs: highPairs, score };
+  }
+
+  /**
+   * Assess liquidity risk.  For each position, estimate liquidity from
+   * the position's current value relative to our investment and the
+   * configured minimum liquidity threshold.  Positions with a current
+   * value below `minLiquiditySOL` are flagged as illiquid.
+   */
+  private assessLiquidityRisk(positions: Position[]): LiquidityRisk {
+    if (positions.length === 0) {
+      return { illiquidPositions: [], avgVolumeSOL: 0, score: 0 };
+    }
+
+    const minLiq = this.config.minLiquiditySOL ?? 0.5;
+    const totalValue = this.getTotalValue();
+    const illiquid: LiquidityRisk['illiquidPositions'] = [];
+    let totalVol = 0;
+
+    for (const pos of positions) {
+      // Use currentValue as a proxy for available liquidity
+      const volumeProxy = pos.currentValue;
+      totalVol += volumeProxy;
+
+      if (volumeProxy < minLiq) {
+        const holdPct = totalValue > 0 ? pos.solInvested / totalValue : 0;
+        illiquid.push({ mint: pos.mint, volumeSOL: volumeProxy, holdingPercent: holdPct });
+      }
+    }
+
+    const avgVolumeSOL = totalVol / positions.length;
+
+    // Score: proportion of illiquid positions weighted by their portfolio share (0–100)
+    let illiquidWeight = 0;
+    for (const il of illiquid) {
+      illiquidWeight += il.holdingPercent;
+    }
+    const score = Math.min(100, Math.round(illiquidWeight * 100));
+
+    return { illiquidPositions: illiquid, avgVolumeSOL, score };
+  }
+
+  /**
+   * Assess time risk — positions held beyond the configured max hold duration.
+   */
+  private assessTimeRisk(positions: Position[], now: number): TimeRisk {
+    if (positions.length === 0) {
+      return { overduePositions: [], avgHoldDuration: 0, maxHoldDuration: 0, score: 0 };
+    }
+
+    const maxHold = (this.config.maxHoldDuration ?? 30) * 60_000; // minutes → ms
+    const overdue: TimeRisk['overduePositions'] = [];
+    let totalDuration = 0;
+    let longest = 0;
+
+    for (const pos of positions) {
+      const hold = now - pos.entryTimestamp;
+      totalDuration += hold;
+      if (hold > longest) longest = hold;
+
+      if (hold > maxHold) {
+        overdue.push({ mint: pos.mint, holdDuration: hold, maxHold });
+      }
+    }
+
+    const avgHoldDuration = totalDuration / positions.length;
+
+    // Score: ratio of overdue positions to total and how much they are overdue (0–100)
+    let overdueRatio = positions.length > 0 ? overdue.length / positions.length : 0;
+    // Amplify when *all* positions are overdue
+    if (overdue.length > 0) {
+      const avgOverage = overdue.reduce(
+        (sum, o) => sum + (o.holdDuration - o.maxHold) / o.maxHold, 0,
+      ) / overdue.length;
+      overdueRatio = Math.min(1, overdueRatio + avgOverage * 0.3);
+    }
+
+    const score = Math.min(100, Math.round(overdueRatio * 100));
+
+    return { overduePositions: overdue, avgHoldDuration, maxHoldDuration: longest, score };
+  }
+
+  /**
+   * Compute a detailed portfolio risk score with per-category breakdown.
+   * Returns both the composite score and individual category scores.
+   */
+  private computePortfolioRiskScoreDetailed(
     positions: Position[],
     drawdown: DrawdownInfo,
-  ): number {
-    let score = 0;
+    correlationRisk: CorrelationRisk,
+    liquidityRisk: LiquidityRisk,
+    timeRisk: TimeRisk,
+  ): { riskScore: number; breakdown: RiskBreakdown } {
+    // Drawdown severity (0–100)
+    const drawdownScore = Math.min(100,
+      Math.round((drawdown.drawdownPercent / this.config.maxDrawdownPercent) * 100));
 
-    // Drawdown severity (0–30)
-    score += Math.min(30, (drawdown.drawdownPercent / this.config.maxDrawdownPercent) * 30);
-
-    // Concentration risk (0–20) — Herfindahl index
+    // Concentration — Herfindahl index (0–100)
+    let concentrationScore = 0;
     const totalValue = this.getTotalValue();
     if (totalValue > 0 && positions.length > 0) {
       let herfindahl = 0;
@@ -1215,33 +1364,71 @@ export class RiskManager {
         const weight = pos.currentValue / totalValue;
         herfindahl += weight * weight;
       }
-      // HHI is 1/n for equal weights, 1.0 for single position
-      const maxHHI = 1.0;
-      score += Math.min(20, (herfindahl / maxHHI) * 20);
+      concentrationScore = Math.min(100, Math.round(herfindahl * 100));
     }
 
-    // Deployment utilization (0–15)
-    score += Math.min(15, (this.getTotalDeployed() / this.config.maxTotalDeployed) * 15);
+    // Deployment utilization (0–100)
+    const deploymentScore = Math.min(100,
+      Math.round((this.getTotalDeployed() / this.config.maxTotalDeployed) * 100));
 
-    // Unrealized loss severity (0–15)
+    // Unrealized loss (0–100)
     let totalUnrealizedLoss = 0;
     for (const pos of positions) {
       if (pos.unrealizedPnL < 0) {
         totalUnrealizedLoss += Math.abs(pos.unrealizedPnL);
       }
     }
-    if (this.config.maxDrawdownSOL > 0) {
-      score += Math.min(15, (totalUnrealizedLoss / this.config.maxDrawdownSOL) * 15);
-    }
+    const unrealizedLossScore = this.config.maxDrawdownSOL > 0
+      ? Math.min(100, Math.round((totalUnrealizedLoss / this.config.maxDrawdownSOL) * 100))
+      : 0;
 
-    // Consecutive losses (0–10)
-    score += Math.min(10, (this.consecutiveLosses / this.config.maxConsecutiveLosses) * 10);
+    // Consecutive losses (0–100)
+    const consecutiveLossScore = Math.min(100,
+      Math.round((this.consecutiveLosses / this.config.maxConsecutiveLosses) * 100));
 
-    // Window loss (0–10)
-    const windowLoss = this.getWindowLoss();
-    score += Math.min(10, (windowLoss / this.config.maxLossPerWindow) * 10);
+    // Window loss (0–100)
+    const wLoss = this.getWindowLoss();
+    const windowLossScore = Math.min(100,
+      Math.round((wLoss / this.config.maxLossPerWindow) * 100));
 
-    return Math.min(100, Math.max(0, Math.round(score)));
+    const breakdown: RiskBreakdown = {
+      drawdown: drawdownScore,
+      concentration: concentrationScore,
+      deployment: deploymentScore,
+      unrealizedLoss: unrealizedLossScore,
+      consecutiveLoss: consecutiveLossScore,
+      windowLoss: windowLossScore,
+      correlation: correlationRisk.score,
+      liquidity: liquidityRisk.score,
+      time: timeRisk.score,
+    };
+
+    // Weighted composite score — weights sum to 1.0
+    const weights = {
+      drawdown: 0.20,
+      concentration: 0.12,
+      deployment: 0.10,
+      unrealizedLoss: 0.13,
+      consecutiveLoss: 0.10,
+      windowLoss: 0.10,
+      correlation: 0.10,
+      liquidity: 0.08,
+      time: 0.07,
+    };
+
+    const riskScore = Math.min(100, Math.max(0, Math.round(
+      breakdown.drawdown * weights.drawdown +
+      breakdown.concentration * weights.concentration +
+      breakdown.deployment * weights.deployment +
+      breakdown.unrealizedLoss * weights.unrealizedLoss +
+      breakdown.consecutiveLoss * weights.consecutiveLoss +
+      breakdown.windowLoss * weights.windowLoss +
+      breakdown.correlation * weights.correlation +
+      breakdown.liquidity * weights.liquidity +
+      breakdown.time * weights.time,
+    )));
+
+    return { riskScore, breakdown };
   }
 
   /** Build a rejection RiskAssessment */

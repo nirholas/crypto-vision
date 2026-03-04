@@ -23,11 +23,17 @@ export type {
   VolumeSignal,
   PriceVelocitySignal,
   RSISignal,
+  MACDSignal,
+  BollingerBandsSignal,
+  VWAPSignal,
+  OBVSignal,
   WhaleSignal,
   GraduationSignal,
   TradingSignals,
   SignalSnapshot,
   SignalConfig,
+  SignalAccuracyRecord,
+  SignalAccuracyStats,
 } from './signal-generator.js';
 
 // Risk Manager
@@ -43,6 +49,10 @@ export type {
   CircuitBreakerStatus,
   StopLossAction,
   RiskMetrics,
+  CorrelationRisk,
+  LiquidityRisk,
+  TimeRisk,
+  RiskBreakdown,
 } from './risk-manager.js';
 
 // Sentiment Analyzer

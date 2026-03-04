@@ -31,6 +31,8 @@ export interface SentimentConfig {
   twitterBearerToken?: string;
   /** OpenRouter API key for AI-powered sentiment */
   openRouterApiKey?: string;
+  /** Groq API key for fallback AI inference */
+  groqApiKey?: string;
   /** Model for AI analysis */
   aiModel: string;
   /** Cache TTL (ms) */
@@ -181,6 +183,8 @@ interface PumpfunReply {
 // ─── Constants ────────────────────────────────────────────────
 
 const OPENROUTER_API_BASE = 'https://openrouter.ai/api/v1';
+const GROQ_API_BASE = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_FALLBACK_MODEL = 'llama-3.1-8b-instant';
 const TWITTER_API_BASE = 'https://api.twitter.com/2';
 const PUMPFUN_API_BASE = 'https://frontend-api-v3.pump.fun';
 const GOOGLE_TRENDS_DAILY = 'https://trends.google.com/trends/api/dailytrends';
@@ -263,9 +267,9 @@ const NARRATIVE_KEYWORDS: Record<string, { keywords: string[]; category: string 
 // ─── Default Config ───────────────────────────────────────────
 
 const DEFAULT_CONFIG: Omit<SentimentConfig, 'sources'> & { sources: SentimentConfig['sources'] } = {
-  aiModel: 'google/gemini-2.0-flash-001',
+  aiModel: 'meta-llama/llama-3.1-8b-instruct',
   cacheTtl: 300_000,
-  maxRequestsPerMinute: 30,
+  maxRequestsPerMinute: 10,
   sources: {
     twitter: true,
     pumpfunComments: true,
@@ -1148,24 +1152,64 @@ Provide your analysis as JSON with overallSentiment (-1.0 to 1.0), categories wi
     return topics;
   }
 
-  // ─── OpenRouter AI ─────────────────────────────────────────
+  // ─── OpenRouter AI (with Groq Fallback) ─────────────────────
 
   private async callOpenRouter(
     systemPrompt: string,
     userPrompt: string,
     temperature: number,
   ): Promise<string> {
-    if (!this.config.openRouterApiKey) {
-      throw new Error('OpenRouter API key is required for AI sentiment analysis');
+    if (!this.config.openRouterApiKey && !this.config.groqApiKey) {
+      throw new Error('OpenRouter or Groq API key is required for AI sentiment analysis');
     }
 
-    const url = `${OPENROUTER_API_BASE}/chat/completions`;
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ];
+
+    // Try OpenRouter first
+    if (this.config.openRouterApiKey) {
+      try {
+        return await this.callLLMProvider(
+          `${OPENROUTER_API_BASE}/chat/completions`,
+          this.config.openRouterApiKey,
+          this.config.aiModel,
+          messages,
+          temperature,
+          { 'HTTP-Referer': 'https://crypto-vision.dev', 'X-Title': 'CryptoVision Sentiment Analyzer' },
+        );
+      } catch (err) {
+        this.logger.warn('OpenRouter call failed, attempting Groq fallback', {
+          error: err instanceof Error ? err.message : String(err),
+        });
+        if (!this.config.groqApiKey) throw err;
+      }
+    }
+
+    // Groq fallback
+    return this.callLLMProvider(
+      GROQ_API_BASE,
+      this.config.groqApiKey!,
+      GROQ_FALLBACK_MODEL,
+      messages,
+      temperature,
+      {},
+    );
+  }
+
+  /** Generic LLM provider call (OpenRouter or Groq) */
+  private async callLLMProvider(
+    url: string,
+    apiKey: string,
+    model: string,
+    messages: Array<{ role: string; content: string }>,
+    temperature: number,
+    extraHeaders: Record<string, string>,
+  ): Promise<string> {
     const body = {
-      model: this.config.aiModel,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
+      model,
+      messages,
       temperature,
       max_tokens: 4096,
       response_format: { type: 'json_object' },
@@ -1176,10 +1220,9 @@ Provide your analysis as JSON with overallSentiment (-1.0 to 1.0), categories wi
       {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.config.openRouterApiKey}`,
+          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://crypto-vision.dev',
-          'X-Title': 'CryptoVision Sentiment Analyzer',
+          ...extraHeaders,
         },
         body: JSON.stringify(body),
       },
@@ -1188,7 +1231,7 @@ Provide your analysis as JSON with overallSentiment (-1.0 to 1.0), categories wi
 
     if (!response.ok) {
       const errBody = await response.text();
-      throw new Error(`OpenRouter API error ${response.status}: ${errBody.slice(0, 300)}`);
+      throw new Error(`LLM API error ${response.status}: ${errBody.slice(0, 300)}`);
     }
 
     const result = await response.json() as {
@@ -1197,7 +1240,7 @@ Provide your analysis as JSON with overallSentiment (-1.0 to 1.0), categories wi
 
     const content = result.choices?.[0]?.message?.content;
     if (!content) {
-      throw new Error('OpenRouter returned empty response');
+      throw new Error('LLM provider returned empty response');
     }
 
     return content;

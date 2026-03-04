@@ -21,6 +21,8 @@ import { SwarmLogger } from '../infra/logger.js';
 export interface NarrativeGeneratorConfig {
   /** OpenRouter API key */
   openRouterApiKey: string;
+  /** Groq API key for fallback AI inference */
+  groqApiKey?: string;
   /** Model for narrative generation */
   narrativeModel: string;
   /** Image generation API key (OpenAI or Stability) */
@@ -122,7 +124,9 @@ export interface CategoryTrend {
 // ─── Constants ────────────────────────────────────────────────
 
 const OPENROUTER_API_BASE = 'https://openrouter.ai/api/v1';
-const DEFAULT_MODEL = 'google/gemini-2.0-flash-001';
+const GROQ_API_BASE = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_FALLBACK_MODEL = 'llama-3.1-8b-instant';
+const DEFAULT_MODEL = 'meta-llama/llama-3.1-8b-instruct';
 const DEFAULT_TEMPERATURE = 0.9;
 const DEFAULT_MAX_TICKER_LENGTH = 10;
 const MAX_RETRIES = 3;
@@ -603,7 +607,8 @@ Respond with the refined narrative JSON:
   // ─── OpenRouter LLM ────────────────────────────────────────
 
   /**
-   * Call OpenRouter chat completions API with retry logic and exponential backoff.
+   * Call OpenRouter chat completions API with retry logic, exponential backoff,
+   * and Groq fallback when all OpenRouter retries are exhausted.
    */
   private async callOpenRouter(
     systemPrompt: string,
@@ -614,46 +619,15 @@ Respond with the refined narrative JSON:
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
-        const body = {
-          model: this.config.narrativeModel,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt },
-          ],
+        return await this.callLLMProvider(
+          `${OPENROUTER_API_BASE}/chat/completions`,
+          this.config.openRouterApiKey,
+          this.config.narrativeModel,
+          systemPrompt,
+          userPrompt,
           temperature,
-          max_tokens: 4096,
-          response_format: { type: 'json_object' },
-        };
-
-        const response = await fetch(`${OPENROUTER_API_BASE}/chat/completions`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.config.openRouterApiKey}`,
-            'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://pump.fun',
-            'X-Title': 'PumpAgentSwarm-NarrativeGenerator',
-          },
-          body: JSON.stringify(body),
-          signal: AbortSignal.timeout(LLM_TIMEOUT_MS),
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text().catch(() => 'Unknown error');
-          throw new Error(
-            `OpenRouter API error (${response.status}): ${errorText}`,
-          );
-        }
-
-        const data = (await response.json()) as {
-          choices?: Array<{ message?: { content?: string } }>;
-        };
-        const content = data.choices?.[0]?.message?.content;
-
-        if (!content) {
-          throw new Error('OpenRouter returned empty response');
-        }
-
-        return content;
+          { 'HTTP-Referer': 'https://pump.fun', 'X-Title': 'PumpAgentSwarm-NarrativeGenerator' },
+        );
       } catch (err) {
         lastError = err instanceof Error ? err : new Error(String(err));
         this.logger.warn(`OpenRouter call failed (attempt ${attempt + 1}/${MAX_RETRIES})`, {
@@ -668,6 +642,26 @@ Respond with the refined narrative JSON:
       }
     }
 
+    // Groq fallback — if a key is configured, try once before giving up
+    if (this.config.groqApiKey) {
+      this.logger.info('Attempting Groq fallback after OpenRouter exhaustion');
+      try {
+        return await this.callLLMProvider(
+          GROQ_API_BASE,
+          this.config.groqApiKey,
+          GROQ_FALLBACK_MODEL,
+          systemPrompt,
+          userPrompt,
+          temperature,
+          {},
+        );
+      } catch (groqErr) {
+        this.logger.warn('Groq fallback also failed', {
+          error: groqErr instanceof Error ? groqErr.message : String(groqErr),
+        });
+      }
+    }
+
     const finalError = lastError ?? new Error('OpenRouter call failed after retries');
     this.eventBus.emit(
       'narrative-generator:error',
@@ -677,6 +671,55 @@ Respond with the refined narrative JSON:
       this.correlationId,
     );
     throw finalError;
+  }
+
+  /** Generic LLM provider call (OpenRouter or Groq compatible) */
+  private async callLLMProvider(
+    url: string,
+    apiKey: string,
+    model: string,
+    systemPrompt: string,
+    userPrompt: string,
+    temperature: number,
+    extraHeaders: Record<string, string>,
+  ): Promise<string> {
+    const body = {
+      model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature,
+      max_tokens: 4096,
+      response_format: { type: 'json_object' },
+    };
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        ...extraHeaders,
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(LLM_TIMEOUT_MS),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(`LLM API error (${response.status}): ${errorText}`);
+    }
+
+    const data = (await response.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
+    const content = data.choices?.[0]?.message?.content;
+
+    if (!content) {
+      throw new Error('LLM provider returned empty response');
+    }
+
+    return content;
   }
 
   // ─── Image Generation ──────────────────────────────────────

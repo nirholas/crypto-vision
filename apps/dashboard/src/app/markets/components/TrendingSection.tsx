@@ -58,7 +58,7 @@ export default function TrendingSection({ trending, coins }: TrendingSectionProp
           </h2>
           <Link
             href="/markets/trending"
-            className="text-sm text-text-primary hover:underline"
+            className="text-sm text-primary hover:underline"
           >
             View All →
           </Link>
@@ -68,7 +68,7 @@ export default function TrendingSection({ trending, coins }: TrendingSectionProp
             <Link
               key={coin.id}
               href={`/coin/${coin.id}`}
-              className="flex items-center gap-2 bg-surface-alt hover:bg-surface-hover rounded-lg px-3 py-2 transition-colors"
+              className="flex items-center gap-2 bg-surface-alt hover:bg-surface-hover rounded-lg px-3 py-2 transition-colors group"
             >
               <span className="text-text-muted text-xs font-medium">{index + 1}</span>
               <div className="relative w-6 h-6">
@@ -186,7 +186,7 @@ export default function TrendingSection({ trending, coins }: TrendingSectionProp
         <div className="mt-3 pt-3 border-t border-surface-border">
           <Link
             href={activeTab === 'gainers' ? '/markets/gainers' : '/markets/losers'}
-            className="text-sm text-text-primary hover:underline"
+            className="text-sm text-primary hover:underline"
           >
             View All {activeTab === 'gainers' ? 'Gainers' : 'Losers'} →
           </Link>

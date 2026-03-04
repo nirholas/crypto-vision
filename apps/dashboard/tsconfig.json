@@ -45,6 +45,8 @@
     "**/*.stories.tsx",
     "**/*.spec.ts",
     "**/*.test.ts",
-    "**/*.test.tsx"
+    "**/*.test.tsx",
+    "src/lib/dashboard-presentation.ts",
+    "src/lib/swarm-integration-example.ts"
   ]
 }
