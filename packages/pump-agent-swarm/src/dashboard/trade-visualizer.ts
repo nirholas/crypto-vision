@@ -244,13 +244,12 @@ export class TradeVisualizer implements TradeVisualizerAdapter {
   // ── Event Bus Wiring ──────────────────────────────────────
 
   private subscribeToEvents(): void {
-    const tradeSubId = this.eventBus.subscribe({
-      id: uuidv4(),
-      pattern: 'trade:executed',
-      handler: (event: SwarmEvent) => {
+    const tradeSubId = this.eventBus.subscribe(
+      'trade:executed',
+      (event: SwarmEvent) => {
         this.ingestFromEvent(event);
       },
-    });
+    );
     this.subscriptionIds.push(tradeSubId);
   }
 
