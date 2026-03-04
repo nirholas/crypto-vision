@@ -23,6 +23,11 @@ Create `packages/pump-agent-swarm/src/config/` directory with environment variab
 - **Creates**: `packages/pump-agent-swarm/src/config/defaults.ts`
 - **Creates**: `packages/pump-agent-swarm/src/config/validation.ts`
 
+## Dependencies
+
+- `../types.ts` — `SwarmMasterConfig` and all config sub-types (P01)
+- `dotenv` — optional, caller's responsibility for `.env` file parsing
+
 ## Deliverables
 
 ### 1. `config/env.ts` — Environment Variable Loader

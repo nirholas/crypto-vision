@@ -21,6 +21,15 @@ Enhance `packages/pump-agent-swarm/src/agents/trader-agent.ts` with: directed tr
 
 - **Modifies**: `packages/pump-agent-swarm/src/agents/trader-agent.ts`
 
+## Dependencies
+
+- All existing imports preserved
+- `../types.ts` — `TradeDirection`, `TradingStrategy`, `TradeResult`, `AgentWallet`, `BondingCurveState` (P01)
+- `../infra/event-bus.ts` — `SwarmEventBus` (P04)
+- `../infra/logger.ts` — `SwarmLogger` (P07)
+- `../infra/metrics.ts` — `MetricsCollector` (P08)
+- `../infra/error-handler.ts` — `SwarmErrorHandler`, `withRetry`, `withCircuitBreaker` (P09)
+
 ## Deliverables
 
 ### Enhance `packages/pump-agent-swarm/src/agents/trader-agent.ts`

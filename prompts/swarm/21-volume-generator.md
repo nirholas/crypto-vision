@@ -20,6 +20,12 @@ Create `packages/pump-agent-swarm/src/trading/volume-generator.ts` — generates
 
 - **Creates**: `packages/pump-agent-swarm/src/trading/volume-generator.ts`
 
+## Dependencies
+
+- `../types.ts` — `TradeDirection` (P01)
+- `../infra/event-bus.ts` — `SwarmEventBus` (P04)
+- `../infra/logger.ts` — `SwarmLogger` (P07)
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/trading/volume-generator.ts`

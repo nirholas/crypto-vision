@@ -21,6 +21,18 @@ Create `packages/pump-agent-swarm/src/bundle/bundle-coordinator.ts` — orchestr
 
 - **Creates**: `packages/pump-agent-swarm/src/bundle/bundle-coordinator.ts`
 
+## Dependencies
+
+- `../types.ts` — `AgentWallet`, `JitoBundleConfig`, `TokenNarrative` (P01)
+- `../wallet-manager.ts` — `WalletVault` (P03)
+- `../infra/event-bus.ts` — `SwarmEventBus` (P04)
+- `../infra/logger.ts` — `SwarmLogger` (P07)
+- `../infra/metrics.ts` — `MetricsCollector` (P08)
+- `../infra/error-handler.ts` — `SwarmErrorHandler` (P09)
+- `./jito-client.ts` — `JitoClient` (P31)
+- `@solana/web3.js` — `Connection`
+- `bn.js` — `BN`
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/bundle/bundle-coordinator.ts`

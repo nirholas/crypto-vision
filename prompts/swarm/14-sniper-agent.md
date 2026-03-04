@@ -21,6 +21,15 @@ Create `packages/pump-agent-swarm/src/agents/sniper-agent.ts` — an agent that 
 
 - **Creates**: `packages/pump-agent-swarm/src/agents/sniper-agent.ts`
 
+## Dependencies
+
+- `../types.ts` — `AgentWallet`, `TradeResult`, `JitoBundleConfig`, `SniperConfig` (P01)
+- `../infra/event-bus.ts` — `SwarmEventBus` (P04)
+- `../infra/logger.ts` — `SwarmLogger` (P07)
+- `../infra/error-handler.ts` — `SwarmErrorHandler` (P09)
+- `@solana/web3.js` — `Connection`, `PublicKey`
+- `bn.js` — `BN`
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/agents/sniper-agent.ts`

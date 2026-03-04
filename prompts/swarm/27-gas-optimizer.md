@@ -20,6 +20,12 @@ Create `packages/pump-agent-swarm/src/trading/gas-optimizer.ts` — dynamically 
 
 - **Creates**: `packages/pump-agent-swarm/src/trading/gas-optimizer.ts`
 
+## Dependencies
+
+- `../infra/logger.ts` — `SwarmLogger` (P07)
+- `../infra/metrics.ts` — `MetricsCollector` (P08)
+- `@solana/web3.js` — `Connection`, `Transaction`, `VersionedTransaction`, `TransactionInstruction`, `ComputeBudgetProgram`
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/trading/gas-optimizer.ts`

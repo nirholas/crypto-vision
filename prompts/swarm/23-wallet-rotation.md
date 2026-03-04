@@ -20,6 +20,11 @@ Create `packages/pump-agent-swarm/src/trading/wallet-rotation.ts` — manages wh
 
 - **Creates**: `packages/pump-agent-swarm/src/trading/wallet-rotation.ts`
 
+## Dependencies
+
+- `../types.ts` — `AgentWallet`, `TradeDirection` (P01)
+- `../infra/logger.ts` — `SwarmLogger` (P07)
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/trading/wallet-rotation.ts`

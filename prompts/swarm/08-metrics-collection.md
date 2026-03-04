@@ -20,6 +20,11 @@ Create `packages/pump-agent-swarm/src/infra/metrics.ts` — an in-process metric
 
 - **Creates**: `packages/pump-agent-swarm/src/infra/metrics.ts`
 
+## Dependencies
+
+- `../types.ts` — core types for metric labels (P01)
+- `./event-bus.ts` — `SwarmEventBus` for metric event emission (P04)
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/infra/metrics.ts`

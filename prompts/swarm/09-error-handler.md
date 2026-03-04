@@ -20,6 +20,13 @@ Create `packages/pump-agent-swarm/src/infra/error-handler.ts` — centralized er
 
 - **Creates**: `packages/pump-agent-swarm/src/infra/error-handler.ts`
 
+## Dependencies
+
+- `../types.ts` — core types (P01)
+- `./event-bus.ts` — `SwarmEventBus` for error event emission (P04)
+- `./logger.ts` — `SwarmLogger` for structured error logging (P07)
+- `./metrics.ts` — `MetricsCollector` for error rate tracking (P08)
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/infra/error-handler.ts`
