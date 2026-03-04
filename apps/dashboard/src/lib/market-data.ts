@@ -10,8 +10,51 @@
  */
 
 const COINGECKO_BASE = 'https://api.coingecko.com/api/v3';
+const COINCAP_BASE = 'https://api.coincap.io/v2';
 const DEFILLAMA_BASE = 'https://api.llama.fi';
 const ALTERNATIVE_ME = 'https://api.alternative.me';
+
+// CoinGecko to CoinCap ID mapping for common coins
+const COINGECKO_TO_COINCAP_ID: Record<string, string> = {
+  bitcoin: 'bitcoin',
+  ethereum: 'ethereum',
+  solana: 'solana',
+  cardano: 'cardano',
+  polkadot: 'polkadot',
+  dogecoin: 'dogecoin',
+  ripple: 'ripple',
+  litecoin: 'litecoin',
+  bnb: 'binance-coin',
+  'binance-coin': 'binance-coin',
+  xrp: 'ripple',
+  avalanche2: 'avalanche',
+  chainlink: 'chainlink',
+  uniswap: 'uniswap',
+  polygon: 'polygon',
+  sui: 'sui',
+  near: 'near-protocol',
+  aptos: 'aptos',
+  arbitrum: 'arbitrum',
+  optimism: 'optimism',
+  cosmos: 'cosmos',
+  tezos: 'tezos',
+  algorand: 'algorand',
+  fantom: 'fantom',
+  monero: 'monero',
+  zcash: 'zcash',
+  stellar: 'stellar',
+  filecoin: 'filecoin',
+  hedera: 'hedera-hashgraph',
+  iota: 'iota',
+  vechain: 'vechain',
+  theta: 'theta-token',
+  tron: 'tron',
+  usd_coin: 'usd-coin',
+  tether: 'tether',
+  'binance-usd': 'binance-usd',
+  dai: 'dai',
+  usde: 'usde',
+};
 
 // =============================================================================
 // CACHE TTL CONFIGURATION (in seconds)
@@ -567,6 +610,129 @@ export interface DerivativeTicker {
 }
 
 // =============================================================================
+// COINCAP API ADAPTER (Fallback when CoinGecko is rate limited)
+// =============================================================================
+
+/**
+ * Convert CoinGecko coin ID to CoinCap asset ID
+ */
+function getCoinCapId(coinGeckoId: string): string {
+  return COINGECKO_TO_COINCAP_ID[coinGeckoId] || coinGeckoId;
+}
+
+/**
+ * Fetch price data from CoinCap as fallback
+ * CoinCap provides real-time price data without rate limiting
+ */
+async function getSimplePricesFromCoinCap(): Promise<SimplePrices> {
+  try {
+    const [btcRes, ethRes, solRes] = await Promise.all([
+      fetch(`${COINCAP_BASE}/assets/bitcoin`),
+      fetch(`${COINCAP_BASE}/assets/ethereum`),
+      fetch(`${COINCAP_BASE}/assets/solana`),
+    ]);
+
+    if (!btcRes.ok || !ethRes.ok || !solRes.ok) {
+      throw new Error('CoinCap request failed');
+    }
+
+    const [btc, eth, sol] = await Promise.all([
+      btcRes.json() as Promise<{ data: { priceUsd: string; changePercent24Hr: string } }>,
+      ethRes.json() as Promise<{ data: { priceUsd: string; changePercent24Hr: string } }>,
+      solRes.json() as Promise<{ data: { priceUsd: string; changePercent24Hr: string } }>,
+    ]);
+
+    return {
+      bitcoin: {
+        usd: parseFloat(btc.data.priceUsd),
+        usd_24h_change: parseFloat(btc.data.changePercent24Hr),
+      },
+      ethereum: {
+        usd: parseFloat(eth.data.priceUsd),
+        usd_24h_change: parseFloat(eth.data.changePercent24Hr),
+      },
+      solana: {
+        usd: parseFloat(sol.data.priceUsd),
+        usd_24h_change: parseFloat(sol.data.changePercent24Hr),
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching from CoinCap:', error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch coin prices from CoinCap for multiple coins
+ */
+async function getPricesForCoinsFromCoinCap(
+  coinIds: string[],
+): Promise<Record<string, { usd: number; usd_24h_change: number }>> {
+  try {
+    // Map CoinGecko IDs to CoinCap IDs
+    const coincapIds = coinIds.map(id => getCoinCapId(id));
+
+    // Fetch from CoinCap's assets endpoint
+    const responses = await Promise.all(
+      coincapIds.map(id => 
+        fetch(`${COINCAP_BASE}/assets/${id}`, { signal: AbortSignal.timeout(5000) }).catch(() => null)
+      )
+    );
+
+    const result: Record<string, { usd: number; usd_24h_change: number }> = {};
+
+    for (let i = 0; i < responses.length; i++) {
+      const res = responses[i];
+      if (!res || !res.ok) continue;
+
+      try {
+        const data = await res.json() as { data: { priceUsd: string; changePercent24Hr: string } };
+        const originalId = coinIds[i];
+        result[originalId] = {
+          usd: parseFloat(data.data.priceUsd),
+          usd_24h_change: parseFloat(data.data.changePercent24Hr),
+        };
+      } catch {
+        // Skip this coin if parsing fails
+      }
+    }
+
+    if (Object.keys(result).length === 0) {
+      throw new Error('No valid price data from CoinCap');
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Error fetching prices from CoinCap:', error);
+    throw error;
+  }
+}
+
+/**
+ * Helper function to safely make requests with timeout
+ */
+async function fetchWithTimeoutUtil(
+  url: string,
+  timeoutMs = 5000
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'CryptoVision/1.0',
+      },
+    });
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// =============================================================================
 // CACHE (Smart caching with variable TTL)
 // =============================================================================
 
@@ -930,6 +1096,7 @@ async function fetchAndCache<T>(
 
 /**
  * Get simple prices for major coins (fast endpoint)
+ * Falls back to CoinCap if CoinGecko is rate limited or unavailable
  * @returns Simple price data for BTC, ETH, and SOL
  */
 export async function getSimplePrices(): Promise<SimplePrices> {
@@ -938,21 +1105,45 @@ export async function getSimplePrices(): Promise<SimplePrices> {
   if (cached) return cached.data;
 
   try {
+    // Try CoinGecko first
     const response = await fetchWithTimeout(
       `${COINGECKO_BASE}/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true`
     );
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch prices');
+    if (response.ok) {
+      const data = await response.json();
+      setCache(cacheKey, data, CACHE_TTL.prices);
+      return data;
     }
 
-    const data = await response.json();
-    setCache(cacheKey, data, CACHE_TTL.prices);
-    return data;
+    // If rate limited or error, try CoinCap fallback
+    if (response.status === 429 || !response.ok) {
+      console.warn('CoinGecko rate limited or unavailable, falling back to CoinCap');
+      const fallbackData = await getSimplePricesFromCoinCap();
+      setCache(cacheKey, fallbackData, CACHE_TTL.prices);
+      return fallbackData;
+    }
+
+    throw new Error('Failed to fetch prices');
   } catch (error) {
-    console.error('Error fetching simple prices:', error);
-    // Throw error instead of returning fake price data
-    throw new Error(`Failed to fetch real-time prices: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error('Error fetching simple prices, trying CoinCap fallback:', error);
+    
+    try {
+      const fallbackData = await getSimplePricesFromCoinCap();
+      setCache(cacheKey, fallbackData, CACHE_TTL.prices);
+      return fallbackData;
+    } catch (fallbackError) {
+      console.error('CoinCap fallback also failed:', fallbackError);
+      
+      // Return cached data if available, even if stale
+      const staleCache = cache.get(cacheKey) as CacheEntry<SimplePrices> | undefined;
+      if (staleCache) {
+        console.warn('Serving stale cache for simple prices');
+        return staleCache.data;
+      }
+      
+      throw new Error(`Failed to fetch real-time prices: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 }
 
@@ -1037,6 +1228,7 @@ export async function getGlobalMarketData(): Promise<GlobalMarketData | null> {
 
 /**
  * Get prices for multiple coins
+ * Falls back to CoinCap if CoinGecko is rate limited or unavailable
  * @param coinIds - Array of CoinGecko coin IDs
  * @param currency - Target currency (default: usd)
  * @returns Object with coin prices and 24h changes
@@ -1052,20 +1244,45 @@ export async function getPricesForCoins(
   if (cached) return cached.data;
 
   try {
+    // Try CoinGecko first
     const response = await fetchWithTimeout(
       `${COINGECKO_BASE}/simple/price?ids=${coinIds.join(',')}&vs_currencies=${currency}&include_24hr_change=true`
     );
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch prices');
+    if (response.ok) {
+      const data = await response.json();
+      setCache(cacheKey, data, CACHE_TTL.prices);
+      return data;
     }
 
-    const data = await response.json();
-    setCache(cacheKey, data, CACHE_TTL.prices);
-    return data;
+    // If rate limited or error, try CoinCap fallback
+    if (response.status === 429 || !response.ok) {
+      console.warn('CoinGecko rate limited or unavailable for prices, falling back to CoinCap');
+      const fallbackData = await getPricesForCoinsFromCoinCap(coinIds);
+      setCache(cacheKey, fallbackData, CACHE_TTL.prices);
+      return fallbackData;
+    }
+
+    throw new Error('Failed to fetch prices');
   } catch (error) {
-    console.error('Error fetching prices for coins:', error);
-    return {};
+    console.error('Error fetching prices for coins, trying CoinCap fallback:', error);
+    
+    try {
+      const fallbackData = await getPricesForCoinsFromCoinCap(coinIds);
+      setCache(cacheKey, fallbackData, CACHE_TTL.prices);
+      return fallbackData;
+    } catch (fallbackError) {
+      console.error('CoinCap fallback also failed:', fallbackError);
+      
+      // Return cached data if available, even if stale
+      const staleCache = cache.get(cacheKey) as CacheEntry<Record<string, { usd: number; usd_24h_change: number }>> | undefined;
+      if (staleCache) {
+        console.warn(`Serving stale cache for prices-${coinIds.slice(0, 3).join(',')}`);
+        return staleCache.data;
+      }
+      
+      return {};
+    }
   }
 }
 

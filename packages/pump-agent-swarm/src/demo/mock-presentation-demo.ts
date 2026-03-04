@@ -14,8 +14,6 @@
  * - Post-demo summary and analysis
  */
 
-import { EventEmitter } from 'eventemitter3';
-
 // Simulated event structure for demo
 interface DemoEvent {
   type: 'token:created' | 'trade:executed' | 'trade:completed' | 'curve:graduated' | 'phase:change';
@@ -25,7 +23,6 @@ interface DemoEvent {
 
 // Simple mock implementation of PresentationMode features
 class MockPresentationDemo {
-  private eventBus = new EventEmitter();
   private startTime = Date.now();
   private events: DemoEvent[] = [];
   private metrics = {

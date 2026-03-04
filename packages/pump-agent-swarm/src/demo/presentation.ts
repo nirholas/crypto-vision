@@ -206,7 +206,9 @@ export class PresentationMode {
         clearTimeout(durationTimeoutId);
 
         // Generate final summary
-        return await this.generateSummary(result);
+        const summary = await this.generateSummary(result);
+        this.renderSummary(summary);
+        return summary;
       } finally {
         clearTimeout(durationTimeoutId);
       }

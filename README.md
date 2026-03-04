@@ -1059,8 +1059,24 @@ crypto-vision/
 │   ├── fuzz/                   # Fuzz testing
 │   └── load/                   # Load tests (smoke, soak, stress)
 ├── docs/                       # Documentation
-│   ├── PERFORMANCE.md          # Performance guide
-│   └── SELF_HOSTING.md         # Self-hosting guide
+│   ├── AGENTS.md               # 43+ AI agents guide
+│   ├── API_REFERENCE.md        # Complete 300+ endpoint reference
+│   ├── ARCHITECTURE.md         # System architecture & data flow
+│   ├── CONFIGURATION.md        # Environment variables reference
+│   ├── DATABASE.md             # PostgreSQL & BigQuery schemas
+│   ├── DATA_PIPELINE.md        # Workers, ingestion, Pub/Sub
+│   ├── DATA_SOURCES.md         # 37+ upstream data sources
+│   ├── DEPLOYMENT.md           # Docker, Cloud Run, K8s deployment
+│   ├── DEVELOPER_WORKFLOW.md   # Day-to-day dev commands
+│   ├── INFRASTRUCTURE.md       # Terraform, K8s, CI/CD
+│   ├── ML_TRAINING.md          # Model training & fine-tuning
+│   ├── PACKAGES.md             # All 8 packages deep-dive
+│   ├── PERFORMANCE.md          # Performance & optimization
+│   ├── REPOSITORY_GUIDE.md     # Full repo structure
+│   ├── SELF_HOSTING.md         # Self-hosting guide
+│   ├── TELEGRAM_BOT.md         # Sect Bot documentation
+│   ├── TESTING.md              # Test strategy & coverage
+│   └── X402_PAYMENTS.md        # x402 micropayment system
 ├── prompts/                    # Engineering prompt guides
 ├── docker-compose.yml          # API + Redis stack
 ├── docker-compose.ingest.yml   # Ingestion workers
@@ -1085,7 +1101,7 @@ crypto-vision/
 
 ## Contributing
 
-See [agents/CONTRIBUTING.md](agents/CONTRIBUTING.md) for contribution guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and [SECURITY.md](SECURITY.md) for security policy.
 
 ---
 

@@ -52,7 +52,6 @@ import type {
 import {
   createAgentWallet,
 } from '../wallet-manager.js';
-import { SwarmEventBus } from '../infra/event-bus.js';
 import { SwarmLogger } from '../infra/logger.js';
 
 // ─── Configuration ────────────────────────────────────────────
@@ -207,7 +206,6 @@ function truncateAddress(address: string, start = 4, end = 4): string {
 export class DemoMode {
   private readonly config: DemoConfig;
   private readonly connection: Connection;
-  private readonly eventBus: SwarmEventBus;
   private readonly logger: SwarmLogger;
 
   // State
@@ -225,7 +223,7 @@ export class DemoMode {
   private tokenMint: string | null = null;
   private bondingCurve: string | null = null;
   private narrative: any = null;
-  private _strategyDecision: unknown = null;
+  private strategyDecision: unknown = null;
 
   // Trading state
   private tradeHistory: TradeResult[] = [];
@@ -242,7 +240,6 @@ export class DemoMode {
 
     this.sessionId = uuidv4();
     this.connection = new Connection(this.config.rpcUrl, 'confirmed');
-    this.eventBus = new SwarmEventBus();
     this.logger = new SwarmLogger({
       level: this.config.verbose ? 'debug' : 'info',
     });
@@ -566,6 +563,7 @@ export class DemoMode {
     };
 
     this.strategyDecision = decision;
+    this.logger.info('AI strategy decision', { action: (this.strategyDecision as Record<string, unknown>).action });
 
     await sleep(2000); // Simulate thinking
 

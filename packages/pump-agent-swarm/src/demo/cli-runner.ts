@@ -37,6 +37,7 @@ import {
 } from '../strategies.js';
 import type {
   SwarmConfig,
+  SwarmEvent,
   SwarmStatus,
   TradeResult,
   RpcEndpoint,
@@ -142,9 +143,9 @@ export class SwarmCLI {
   private coordinator: SwarmCoordinator | null = null;
   private eventBus: SwarmEventBus;
   private healthMonitor: HealthMonitor | null = null;
-  private _strategyBrain: StrategyBrain | null = null;
+  private strategyBrain: StrategyBrain | null = null;
   private pnlDashboard: PnLDashboard | null = null;
-  private _logger: SwarmLogger;
+  private logger: SwarmLogger;
   private rpcPool: RpcPool | null = null;
 
   private startedAt = 0;
@@ -153,14 +154,15 @@ export class SwarmCLI {
   private statusInterval: ReturnType<typeof setInterval> | null = null;
   private durationTimeout: ReturnType<typeof setTimeout> | null = null;
   private isShuttingDown = false;
-  private _isRunning = false;
+  private isRunning = false;
   private lastStatus: SwarmStatus | null = null;
 
   constructor() {
     this.sessionId = `swarm-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     this.eventBus = SwarmEventBus.getInstance();
-    this._logger = SwarmLogger.create('cli-runner', 'cli');
+    this.logger = SwarmLogger.create('cli-runner', 'cli');
 
+    this.logger.info('CLI session created', { sessionId: this.sessionId });
     this.setupSignalHandlers();
   }
 
@@ -488,7 +490,7 @@ export class SwarmCLI {
    * Graceful shutdown sequence: stop trading → reclaim funds → export report → exit
    */
   async shutdown(): Promise<void> {
-    if (this.isShuttingDown) return;
+    if (this.isShuttingDown || !this.isRunning) return;
     this.isShuttingDown = true;
 
     console.log('');
@@ -617,6 +619,9 @@ export class SwarmCLI {
         },
         this.eventBus,
       );
+    }
+    if (this.strategyBrain) {
+      console.log(green('  ✓ Strategy brain initialized'));
     }
 
     // Initialize P&L dashboard
