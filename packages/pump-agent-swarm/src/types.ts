@@ -191,8 +191,8 @@ export interface SwarmConfig {
   strategy: TradingStrategy;
   /** x402 analytics API base URL (if using paid analytics) */
   analyticsApiUrl?: string;
-  /** x402 payment wallet (EVM, for paying analytics APIs) */
-  x402PrivateKey?: string;
+  /** Solana private key for x402 USDC payments (base58) */
+  solanaPrivateKey?: string;
   /** Whether to skip x402 payments (dev mode) */
   devMode?: boolean;
   /** Log level */
@@ -591,14 +591,16 @@ export interface DashboardConfig {
 export interface AnalyticsConfig {
   /** x402 analytics API base URL */
   apiBaseUrl: string;
-  /** EVM private key for x402 payments */
-  evmPrivateKey?: string;
+  /** Solana private key for x402 USDC payments (base58) */
+  solanaPrivateKey?: string;
   /** Max USDC per request */
   maxPaymentPerRequest: string;
   /** Total USDC budget */
   totalBudget: string;
   /** Poll interval in ms */
   pollIntervalMs: number;
+  /** Solana network */
+  network?: 'mainnet-beta' | 'devnet';
 }
 
 export interface EmergencyExitConfig {

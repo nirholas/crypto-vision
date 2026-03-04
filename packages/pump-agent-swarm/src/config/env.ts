@@ -201,14 +201,16 @@ export function loadSwarmConfigFromEnv(): SwarmMasterConfig {
     authToken: dashboardAuthToken,
   };
 
-  // Analytics (x402)
+  // Analytics (x402 — Solana-native USDC payments)
   const x402ApiUrl = envStrOpt('X402_API_URL');
-  const x402PrivateKey = envStrOpt('X402_PRIVATE_KEY');
+  const x402SolanaKey = envStrOpt('X402_SOLANA_PRIVATE_KEY') ?? envStrOpt('MASTER_SEED_PHRASE');
+  const x402Network = network;
   const analytics = x402ApiUrl
     ? {
         ...DEFAULT_ANALYTICS_CONFIG,
         apiBaseUrl: x402ApiUrl,
-        evmPrivateKey: x402PrivateKey,
+        solanaPrivateKey: x402SolanaKey,
+        network: x402Network,
       }
     : undefined;
 

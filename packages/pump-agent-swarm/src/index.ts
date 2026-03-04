@@ -25,9 +25,9 @@
  *     slippageBps: 500,
  *   },
  *   strategy: STRATEGY_ORGANIC,
- *   // Optional: pay for premium analytics via x402
+ *   // Optional: pay for premium analytics via x402 (Solana USDC)
  *   analyticsApiUrl: 'https://api.cryptovision.dev',
- *   x402PrivateKey: process.env.X402_PRIVATE_KEY,
+ *   solanaPrivateKey: process.env.SOLANA_PRIVATE_KEY,
  * });
  *
  * // Listen to events
@@ -146,8 +146,33 @@ export type {
   TransactionCostEstimate,
 } from './trading/gas-optimizer.js';
 
-// ─── Analytics (x402) ─────────────────────────────────────────
-export { AnalyticsClient } from './analytics/x402-client.js';
+// ─── Analytics (x402 — Solana-native USDC micropayments) ─────
+export {
+  SolanaX402Client,
+  SolanaX402Server,
+  USDC_MINT_MAINNET,
+  USDC_MINT_DEVNET,
+  MEMO_PROGRAM_ID,
+  USDC_DECIMALS,
+  CAIP2_SOLANA_MAINNET,
+  CAIP2_SOLANA_DEVNET,
+} from './x402/index.js';
+export type {
+  SolanaX402PaymentRequired,
+  SolanaPaymentScheme,
+  SolanaX402PaymentProof,
+  SolanaPaymentPayload,
+  PaymentVerificationResult,
+  SolanaX402ClientConfig,
+  SolanaX402ServerConfig,
+  SolanaX402ClientEvents,
+  ScreenerEndpoint,
+  X402DiscoveryDocument,
+  TradingSignalResponse,
+  WhaleAnalysisResponse,
+  GraduationOddsResponse,
+  X402ClientStats,
+} from './x402/index.js';
 
 // ─── Intelligence ─────────────────────────────────────────────
 export { StrategyBrain, DEFAULT_STRATEGY_BRAIN_CONFIG } from './intelligence/strategy-brain.js';

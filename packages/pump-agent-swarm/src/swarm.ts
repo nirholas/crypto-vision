@@ -72,7 +72,7 @@ import BN from 'bn.js';
 import { EventEmitter } from 'eventemitter3';
 import { CreatorAgent } from './agents/creator-agent.js';
 import { TraderAgent } from './agents/trader-agent.js';
-import { AnalyticsClient } from './analytics/x402-client.js';
+import { SolanaX402Client } from './x402/client.js';
 import {
   generateWalletPool,
   refreshBalances,
@@ -100,7 +100,7 @@ export class SwarmCoordinator extends EventEmitter<SwarmEvents> {
   private pool: WalletPool | null = null;
   private creatorAgent: CreatorAgent | null = null;
   private traderAgents: TraderAgent[] = [];
-  private analyticsClient: AnalyticsClient | null = null;
+  private analyticsClient: SolanaX402Client | null = null;
 
   private mintResult: MintResult | null = null;
   private phase: SwarmStatus['phase'] = 'initializing';
@@ -209,19 +209,22 @@ export class SwarmCoordinator extends EventEmitter<SwarmEvents> {
       await fundTraders(this.connection, this.pool, totalTraderFunding);
     }
 
-    // Initialize analytics client if configured
+    // Initialize Solana x402 analytics client if configured
     if (this.config.analyticsApiUrl) {
-      this.analyticsClient = new AnalyticsClient({
+      this.analyticsClient = new SolanaX402Client({
         apiBaseUrl: this.config.analyticsApiUrl,
-        evmPrivateKey: this.config.x402PrivateKey,
+        rpcUrl: this.config.rpcUrl,
+        wsUrl: this.config.wsUrl,
+        solanaPrivateKey: this.config.solanaPrivateKey,
         maxPaymentPerRequest: '0.05',
         maxTotalBudget: '5.00',
         devMode: this.config.devMode,
+        network: 'mainnet-beta',
       });
 
       // Wire up analytics events
-      this.analyticsClient.on('payment:sent', (amount, recipient) => {
-        this.emit('analytics:x402-payment', amount, recipient);
+      this.analyticsClient.on('payment:confirmed', (signature, amount) => {
+        this.emit('analytics:x402-payment', amount, signature);
       });
     }
   }
