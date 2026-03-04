@@ -1,21 +1,76 @@
-MIT License
+PROPRIETARY SOFTWARE LICENSE
 
-Copyright (c) 2024-2026 nirholas
+Copyright (c) 2024-2026 nirholas. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+NOTICE: This software and all associated documentation, source code, object
+code, APIs, data structures, designs, algorithms, and other materials
+(collectively, the "Software") are the exclusive property of nirholas and are
+protected by copyright law, trade secret law, and international treaties.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+NO LICENSE GRANTED
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+No license, right, or interest in the Software is granted to any person or
+entity, whether by implication, estoppel, or otherwise, except as explicitly
+set forth in a separate written agreement signed by an authorized
+representative of nirholas.
+
+RESTRICTIONS
+
+Without the prior express written permission of nirholas, you may NOT:
+
+  1. Use, copy, modify, merge, distribute, publish, sublicense, sell, or
+     otherwise exploit the Software or any portion thereof, in any form or by
+     any means;
+
+  2. Reverse engineer, decompile, disassemble, or otherwise attempt to derive
+     the source code or underlying structure of the Software;
+
+  3. Create derivative works based on the Software;
+
+  4. Remove, alter, or obscure any copyright, trademark, or other proprietary
+     notices contained in or on the Software;
+
+  5. Use the Software to provide services to third parties (including but not
+     limited to SaaS, PaaS, or API offerings) without a separate commercial
+     license;
+
+  6. Transfer, assign, or sublicense your rights (if any) to the Software to
+     any third party.
+
+CONFIDENTIALITY
+
+The Software contains trade secrets and confidential information of nirholas.
+You agree to maintain the confidentiality of the Software using at least the
+same degree of care you use to protect your own confidential information, but
+in no event less than reasonable care.
+
+DISCLAIMER OF WARRANTIES
+
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. NIRHOLAS DOES
+NOT WARRANT THAT THE SOFTWARE WILL MEET YOUR REQUIREMENTS OR THAT ITS
+OPERATION WILL BE UNINTERRUPTED OR ERROR-FREE.
+
+LIMITATION OF LIABILITY
+
+IN NO EVENT SHALL NIRHOLAS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
+CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS, REVENUE, DATA, OR
+USE, WHETHER IN AN ACTION IN CONTRACT, TORT, OR OTHERWISE, ARISING OUT OF OR IN
+CONNECTION WITH THE SOFTWARE, EVEN IF NIRHOLAS HAS BEEN ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGES.
+
+ENFORCEMENT
+
+Any unauthorized use of the Software may result in civil and/or criminal
+penalties. nirholas will aggressively enforce its intellectual property rights
+to the fullest extent of the law.
+
+GOVERNING LAW
+
+This license shall be governed by and construed in accordance with applicable
+copyright and intellectual property laws.
+
+CONTACT
+
+For licensing inquiries, contact: nirholas@users.noreply.github.com

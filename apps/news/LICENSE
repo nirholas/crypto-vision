@@ -1,64 +1,76 @@
-Dual License
+PROPRIETARY SOFTWARE LICENSE
 
-Copyright (c) 2025-2026 nirholas
+Copyright (c) 2024-2026 nirholas. All rights reserved.
 
-This software is available under two licensing options:
+NOTICE: This software and all associated documentation, source code, object
+code, APIs, data structures, designs, algorithms, and other materials
+(collectively, the "Software") are the exclusive property of nirholas and are
+protected by copyright law, trade secret law, and international treaties.
 
-================================================================================
-OPTION 1: NON-COMMERCIAL LICENSE (Free)
-================================================================================
+NO LICENSE GRANTED
 
-Permission is hereby granted, free of charge, to any person or organization
-obtaining a copy of this software and associated documentation files (the
-"Software"), to use, copy, modify, merge, and distribute the Software for
-NON-COMMERCIAL PURPOSES ONLY, subject to the following conditions:
+No license, right, or interest in the Software is granted to any person or
+entity, whether by implication, estoppel, or otherwise, except as explicitly
+set forth in a separate written agreement signed by an authorized
+representative of nirholas.
 
-1. The above copyright notice and this permission notice shall be included in
-   all copies or substantial portions of the Software.
+RESTRICTIONS
 
-2. "Non-commercial" means personal use, academic research, educational purposes,
-   or use by non-profit organizations. It explicitly excludes:
-   - Use by for-profit companies or commercial entities
-   - Use in products or services that generate revenue
-   - Use that provides competitive advantage to a commercial entity
+Without the prior express written permission of nirholas, you may NOT:
 
-3. You may not sublicense, sell, or distribute the Software for a fee.
+  1. Use, copy, modify, merge, distribute, publish, sublicense, sell, or
+     otherwise exploit the Software or any portion thereof, in any form or by
+     any means;
 
-4. Any modifications or derivative works must be distributed under these same
-   non-commercial terms.
+  2. Reverse engineer, decompile, disassemble, or otherwise attempt to derive
+     the source code or underlying structure of the Software;
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  3. Create derivative works based on the Software;
+
+  4. Remove, alter, or obscure any copyright, trademark, or other proprietary
+     notices contained in or on the Software;
+
+  5. Use the Software to provide services to third parties (including but not
+     limited to SaaS, PaaS, or API offerings) without a separate commercial
+     license;
+
+  6. Transfer, assign, or sublicense your rights (if any) to the Software to
+     any third party.
+
+CONFIDENTIALITY
+
+The Software contains trade secrets and confidential information of nirholas.
+You agree to maintain the confidentiality of the Software using at least the
+same degree of care you use to protect your own confidential information, but
+in no event less than reasonable care.
+
+DISCLAIMER OF WARRANTIES
+
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. NIRHOLAS DOES
+NOT WARRANT THAT THE SOFTWARE WILL MEET YOUR REQUIREMENTS OR THAT ITS
+OPERATION WILL BE UNINTERRUPTED OR ERROR-FREE.
 
-================================================================================
-OPTION 2: COMMERCIAL LICENSE (Paid)
-================================================================================
+LIMITATION OF LIABILITY
 
-For commercial use, including but not limited to:
-- Integration into commercial products or services
-- Use by for-profit companies
-- Revenue-generating applications
-- Enterprise deployments
+IN NO EVENT SHALL NIRHOLAS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
+CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS, REVENUE, DATA, OR
+USE, WHETHER IN AN ACTION IN CONTRACT, TORT, OR OTHERWISE, ARISING OUT OF OR IN
+CONNECTION WITH THE SOFTWARE, EVEN IF NIRHOLAS HAS BEEN ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGES.
 
-A separate commercial license is required.
+ENFORCEMENT
 
-To obtain a commercial license, please contact nich:
-- X: https://x.com/nichxbt
-- GitHub: https://github.com/nirholas
+Any unauthorized use of the Software may result in civil and/or criminal
+penalties. nirholas will aggressively enforce its intellectual property rights
+to the fullest extent of the law.
 
-Commercial licenses are available with flexible terms including:
-- Per-seat licensing
-- Enterprise-wide licensing
-- Custom integration support
-- Priority support options
+GOVERNING LAW
 
-================================================================================
+This license shall be governed by and construed in accordance with applicable
+copyright and intellectual property laws.
 
-By using this Software, you agree to abide by the terms of the applicable
-license. If you are unsure which license applies to your use case, please
-contact us for clarification.
+CONTACT
+
+For licensing inquiries, contact: nirholas@users.noreply.github.com
