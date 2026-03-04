@@ -154,7 +154,7 @@ export interface Skill {
 
 export interface SkillBundle {
   /** Bundle identifier (e.g., "bnb-defi") */
-  id: string;
+  id?: string;
 
   /** Human-readable name */
   name: string;
@@ -163,7 +163,7 @@ export interface SkillBundle {
   description: string;
 
   /** Version string */
-  version: string;
+  version?: string;
 
   /** Skills in this bundle */
   skills: Skill[];

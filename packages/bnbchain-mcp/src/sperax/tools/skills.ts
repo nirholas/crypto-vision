@@ -32,7 +32,7 @@ type SkillDomain = typeof SKILL_DOMAINS[number];
 // Types
 // ============================================================================
 
-interface SkillTool {
+export interface SkillTool {
   /** MCP tool name */
   name: string;
   /** Why this tool is needed for the skill */
@@ -41,14 +41,14 @@ interface SkillTool {
   required: boolean;
 }
 
-interface SkillExample {
+export interface SkillExample {
   /** Natural language prompt that triggers this skill */
   prompt: string;
   /** Expected tool call sequence */
   toolChain: string[];
 }
 
-interface Skill {
+export interface Skill {
   /** Unique skill identifier (kebab-case) */
   id: string;
   /** Human-readable skill name */

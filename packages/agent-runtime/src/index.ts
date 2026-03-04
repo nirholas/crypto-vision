@@ -139,3 +139,43 @@ export {
   signPaymentHeader,
   verifyPaymentHeader,
 } from './utils/crypto.js';
+
+// ─── Agent Skills ─────────────────────────────────────────────────
+export { SkillRegistry } from './skills/registry.js';
+export type {
+  SkillCategory,
+  SkillParameterSchema,
+  SkillDefinition,
+  SkillResult,
+  SkillContext,
+  SkillHandler,
+  Skill,
+  SkillBundle,
+  SkillFilter,
+  SkillRegistryStats,
+} from './skills/types.js';
+export {
+  defiSkills,
+  tradingSkills,
+  stakingSkills,
+  bridgeSkills,
+  portfolioSkills,
+  securitySkills,
+  walletSkills,
+  marketDataSkills,
+  governanceSkills,
+  nftSkills,
+  defiBundleSkills,
+  tradingBundleSkills,
+  stakingBundleSkills,
+  bridgeBundleSkills,
+  portfolioBundleSkills,
+  securityBundleSkills,
+  walletBundleSkills,
+  marketDataBundleSkills,
+  governanceBundleSkills,
+  nftBundleSkills,
+  bnbChainBundle,
+  getAllBuiltinSkills,
+  getAllBuiltinBundles,
+} from './skills/builtins/index.js';

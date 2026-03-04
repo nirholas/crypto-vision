@@ -57,6 +57,8 @@ import { resolveChain } from './utils/chains.js';
 import { privateKeyToAddress, generateDevPrivateKey } from './utils/crypto.js';
 import { createAgentServer, type AgentServerConfig } from './server.js';
 import { createLogger } from './middleware/logging.js';
+import { SkillRegistry } from './skills/registry.js';
+import type { Skill, SkillBundle, SkillContext } from './skills/types.js';
 
 export interface AgentStartOptions {
   /** Port to listen on (default: 3000) */
@@ -93,6 +95,7 @@ export class ERC8004Agent extends EventEmitter<AgentEvents> {
   private readonly pricingManager: PricingManager;
   private readonly facilitator: PaymentFacilitator;
   private readonly logger;
+  private readonly skillRegistry: SkillRegistry;
 
   private _identity: AgentIdentity | null = null;
   private _agentCard: AgentCard | null = null;
@@ -123,6 +126,9 @@ export class ERC8004Agent extends EventEmitter<AgentEvents> {
     this.reputationManager = new ReputationManager(config.chain, config.privateKey);
     this.validationManager = new ValidationManager(config.chain, config.privateKey);
     this.taskManager = new TaskManager();
+
+    // Initialize skill registry
+    this.skillRegistry = new SkillRegistry();
 
     // Initialize x402 pricing
     this.pricingManager = new PricingManager(chain.chainId);
@@ -167,6 +173,52 @@ export class ERC8004Agent extends EventEmitter<AgentEvents> {
     this.taskManager.registerHandler('*', handler);
   }
 
+  // ─── Skill Management ───────────────────────────────────────────
+
+  /**
+   * Register a single structured skill with the agent.
+   * Skills are wired to the task manager automatically on start().
+   */
+  addSkill(skill: Skill): void {
+    this.skillRegistry.register(skill);
+    this.logger.info('Skill registered', { id: skill.definition.id, category: skill.definition.category });
+  }
+
+  /**
+   * Register a bundle of related skills.
+   */
+  addSkillBundle(bundle: SkillBundle): void {
+    this.skillRegistry.registerBundle(bundle);
+    this.logger.info('Skill bundle registered', {
+      name: bundle.name,
+      count: bundle.skills.length,
+    });
+  }
+
+  /**
+   * Register all built-in BNB Chain skills.
+   */
+  addBuiltinSkills(): void {
+    // Lazy import to avoid loading all builtins unless requested
+    import('./skills/builtins/index.js').then(({ bnbChainBundle }) => {
+      this.addSkillBundle(bnbChainBundle);
+      this.logger.info('All built-in skills registered', {
+        count: bnbChainBundle.skills.length,
+      });
+    }).catch((err) => {
+      this.logger.error('Failed to load built-in skills', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    });
+  }
+
+  /**
+   * Get the skill registry for advanced skill management.
+   */
+  get skills(): SkillRegistry {
+    return this.skillRegistry;
+  }
+
   // ─── Lifecycle ──────────────────────────────────────────────────
 
   /**
@@ -196,15 +248,36 @@ export class ERC8004Agent extends EventEmitter<AgentEvents> {
       this.logger.info('Skipping on-chain registration (dev mode)');
     }
 
-    // Step 2: Generate agent card
+    // Step 2: Wire registered skills to task manager
+    if (this.skillRegistry.getAll().length > 0) {
+      const skillContext: SkillContext = {
+        chain: this.config.chain,
+        chainId: resolveChain(this.config.chain).chainId,
+        agentAddress: this.address,
+        privateKey: this.config.privateKey,
+        logger: this.logger,
+        callSkill: async (skillId, params) => {
+          return this.skillRegistry.execute(skillId, params, skillContext);
+        },
+        getConfig: (key) => process.env[key],
+      };
+      this.skillRegistry.wireToTaskManager(this.taskManager, skillContext);
+      this.logger.info('Skills wired to task manager', {
+        count: this.skillRegistry.getAll().length,
+        categories: Object.keys(this.skillRegistry.getByCategory()),
+      });
+    }
+
+    // Step 3: Generate agent card (includes registry skills)
     this._agentCard = generateAgentCard({
       config: this.config,
       baseUrl: effectiveBaseUrl,
       agentId: this._identity?.agentId,
       agentRegistry: this.identityManager.chainConfig.agentRegistry,
+      registrySkills: this.skillRegistry.toAgentSkills(),
     });
 
-    // Step 3: Build and start server
+    // Step 4: Build and start server
     const chain = resolveChain(this.config.chain);
     const serverConfig: AgentServerConfig = {
       agentCard: this._agentCard,

@@ -36,6 +36,10 @@ export { pluginsTools } from './plugins.js';
 export { newsTools } from './news.js';
 export { skillsTools } from './skills.js';
 
+// Re-export types required for declaration emit
+export type { SkillTool, SkillExample, Skill } from './skills.js';
+export type { PluginMeta } from './plugins.js';
+
 // Import all tools for aggregation (Protocol)
 import { usdsTools } from './usds.js';
 import { spaTools } from './spa.js';

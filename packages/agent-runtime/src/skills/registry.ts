@@ -57,16 +57,17 @@ export class SkillRegistry {
    * Register a bundle of related skills.
    */
   registerBundle(bundle: SkillBundle): void {
-    if (this.bundles.has(bundle.id)) {
-      this.logger.warn(`Overwriting existing bundle: ${bundle.id}`);
+    const bundleId = bundle.id ?? bundle.name;
+    if (this.bundles.has(bundleId)) {
+      this.logger.warn(`Overwriting existing bundle: ${bundleId}`);
     }
 
     for (const skill of bundle.skills) {
       this.register(skill);
     }
 
-    this.bundles.set(bundle.id, bundle);
-    this.logger.info(`Registered bundle: ${bundle.id}`, {
+    this.bundles.set(bundleId, bundle);
+    this.logger.info(`Registered bundle: ${bundleId}`, {
       skillCount: bundle.skills.length,
     });
   }

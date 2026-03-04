@@ -14,13 +14,15 @@ export interface AgentCardOptions {
   agentId?: number;
   agentRegistry?: string;
   version?: string;
+  /** Skills from the SkillRegistry (overrides auto-generated skills with same ID) */
+  registrySkills?: AgentSkill[];
 }
 
 /**
  * Generate an A2A-compliant agent card with ERC-8004 extensions.
  */
 export function generateAgentCard(options: AgentCardOptions): AgentCard {
-  const { config, baseUrl, agentId, agentRegistry, version = '1.0.0' } = options;
+  const { config, baseUrl, agentId, agentRegistry, version = '1.0.0', registrySkills = [] } = options;
 
   const skills: AgentSkill[] = (config.capabilities ?? []).map((cap) => ({
     id: cap,
@@ -45,6 +47,16 @@ export function generateAgentCard(options: AgentCardOptions): AgentCard {
           tags: [route.split('/')[0]],
         });
       }
+    }
+  }
+
+  // Merge registry skills — registry takes precedence for duplicate IDs
+  for (const regSkill of registrySkills) {
+    const idx = skills.findIndex((s) => s.id === regSkill.id);
+    if (idx !== -1) {
+      skills[idx] = regSkill;
+    } else {
+      skills.push(regSkill);
     }
   }
 

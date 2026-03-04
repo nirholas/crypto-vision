@@ -31,7 +31,7 @@ const PLUGIN_CATEGORIES = [
 // Types
 // ============================================================================
 
-interface PluginMeta {
+export interface PluginMeta {
   avatar: string;
   title: string;
   description: string;
