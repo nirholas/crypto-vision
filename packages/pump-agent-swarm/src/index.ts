@@ -209,6 +209,50 @@ export {
   PRESET_STRATEGIES,
 } from './strategies.js';
 
+// ─── Profit Consolidation ─────────────────────────────────────
+export { ProfitConsolidator } from './trading/profit-consolidator.js';
+export type {
+  ProfitConsolidatorConfig,
+  WalletPnL,
+  ConsolidationResult,
+  WalletConsolidationEntry,
+  ConsolidationError,
+} from './trading/profit-consolidator.js';
+
+// ─── Coordination ─────────────────────────────────────────────
+export { AuditLogger } from './coordination/audit-logger.js';
+export type {
+  AuditCategory,
+  AuditSeverity,
+  AuditEntry,
+  TradeAuditData,
+  TradeAuditSummary,
+  DecisionAuditData,
+} from './coordination/audit-logger.js';
+export { SwarmConfigManager } from './coordination/swarm-config-manager.js';
+
+// ─── Intelligence ─────────────────────────────────────────────
+export { PortfolioOptimizer } from './intelligence/portfolio-optimizer.js';
+
+// ─── Event Bus ────────────────────────────────────────────────
+export { SwarmEventBus } from './infra/event-bus.js';
+export { SwarmStateMachine } from './infra/state-machine.js';
+
+// ─── Telegram ─────────────────────────────────────────────────
+export { TelegramBot } from './telegram/bot.js';
+export { TelegramNotificationService } from './telegram/notifications.js';
+export { routeCommand, COMMAND_HANDLERS } from './telegram/commands.js';
+export type { SwarmAccessor, CommandHandler } from './telegram/commands.js';
+export { formatter as telegramFormatter } from './telegram/formatter.js';
+export type {
+  TelegramBotConfig,
+  TelegramNotification,
+  NotificationLevel,
+  CommandContext,
+  SwarmStatusSnapshot,
+  TradeNotification,
+} from './telegram/types.js';
+
 // ─── Types ────────────────────────────────────────────────────
 export type {
   // Wallet Types

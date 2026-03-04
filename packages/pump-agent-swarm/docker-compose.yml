@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  # ── Main swarm coordinator ───────────────────────────────────
+  swarm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pump-swarm
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - swarm-data:/app/data
+    networks:
+      - swarm-net
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+  # ── CLI one-shot runner (for manual commands) ────────────────
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pump-swarm-cli
+    env_file: .env
+    entrypoint: ["node", "dist/cli.js"]
+    profiles: ["cli"]
+    networks:
+      - swarm-net
+
+volumes:
+  swarm-data:
+
+networks:
+  swarm-net:
+    driver: bridge
