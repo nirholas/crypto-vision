@@ -274,17 +274,35 @@ src/
 │   └── trader/         # Trading agents
 ├── trading/            # Trading strategies
 ├── bundle/             # Bundle launch coordination
-├── intelligence/       # Market intelligence
+├── intelligence/       # Market intelligence (11 modules)
 ├── coordination/       # Swarm coordination
 ├── dashboard/          # Web dashboard
 ├── demo/               # Demo scripts
 ├── api/                # REST API
-├── infra/              # Infrastructure helpers
+├── infra/              # Infrastructure helpers (event bus, logger)
 ├── telegram/           # Telegram bot
 ├── x402/               # x402 payment layer
 └── analytics/
     └── x402-client.ts  # Production x402 client (336 lines)
 ```
+
+### Intelligence Modules
+
+The `intelligence/` directory contains 11 modules for market analysis and decision-making:
+
+| Module | Description |
+|---|---|
+| **alpha-scanner.ts** | Continuous Pump.fun opportunity scanner with 5 strategies: Early Entry (<10 min, <$10k mcap), Graduation Play (>70% toward Raydium), Narrative Match (trending keywords), Volume Surge (3x+ avg), Revival (renewed interest on dormant tokens). Emits `alpha:opportunity-found` events with TTL-based expiry and deduplication. |
+| **token-evaluator.ts** | Evaluates individual tokens across 6 criteria (market cap, liquidity, holder distribution, creator history, social signals, technical indicators). Produces a composite score (0-100) with weighted scoring and risk classification. |
+| **strategy-brain.ts** | Central decision-making engine that combines signals from all intelligence modules to generate trading decisions. Maintains portfolio state and position sizing rules. |
+| **sentiment-analyzer.ts** | Analyzes token/market sentiment from Pump.fun comments, social metrics, and engagement patterns. Produces sentiment scores with confidence levels. |
+| **signal-generator.ts** | Generates buy/sell/hold signals from multiple data sources. Combines alpha scanner opportunities with token evaluations and sentiment data. |
+| **trend-detector.ts** | Detects momentum trends using moving averages, volume patterns, and price action analysis. Identifies trend reversals and continuation patterns. |
+| **narrative-generator.ts** | Identifies and tracks trending narratives across the Pump.fun ecosystem. Maps tokens to narrative categories (AI, meme, political, tech, gaming, DePIN, RWA). |
+| **portfolio-optimizer.ts** | Optimizes portfolio allocation across active positions using risk-adjusted returns. Implements position sizing, rebalancing triggers, and correlation analysis. |
+| **risk-manager.ts** | Risk management system with stop-loss tracking, maximum drawdown limits, exposure caps, and position-level risk scoring. |
+| **market-regime.ts** | Classifies current market conditions (bull/bear/sideways/volatile) to adjust strategy parameters. |
+| **index.ts** | Barrel export for all intelligence modules. |
 
 ### x402 Client
 

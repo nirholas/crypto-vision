@@ -499,16 +499,43 @@ Client ──► Request ──► 402 Payment Required (price, payTo, network)
 
 ## Security Architecture
 
-See [SECURITY.md](../SECURITY.md) for the full security policy.
+See [Security Guide](SECURITY_GUIDE.md) for the full security deep-dive.
 
 Key security measures:
 
-- **API Authentication** — API key validation on all `/api/*` routes
-- **Rate Limiting** — 200 req/min per IP, configurable per route
+- **API Authentication** — API key validation on all `/api/*` routes (see [API Authentication](API_AUTHENTICATION.md))
+- **Rate Limiting** — Sliding-window, tier-based (30-10,000 rpm), Redis Lua script + in-memory fallback
 - **Input Validation** — Zod schema validation on all request parameters
 - **Security Headers** — CSP, HSTS, X-Frame-Options, X-Content-Type-Options
 - **Secret Management** — environment variables, GCP Secret Manager in production
 - **No Secret Logging** — structured logs exclude sensitive fields
+- **Error Redaction** — upstream provider names and internal details never leak to clients
 - **Token Security** — GoPlus integration for honeypot/phishing detection
 - **Wallet Security** — encrypted key storage, role-based wallet isolation (pump-agent-swarm)
 - **Anti-Detection** — wallet fingerprint diversity to prevent Sybil detection (pump-agent-swarm)
+
+---
+
+## Further Reading
+
+| Topic | Document |
+|---|---|
+| API endpoints and response formats | [API Reference](API_REFERENCE.md) |
+| Authentication and rate limits | [API Authentication](API_AUTHENTICATION.md) |
+| Anomaly detection engine | [Anomaly Detection](ANOMALY_DETECTION.md) |
+| WebSocket real-time feeds | [WebSocket](WEBSOCKET.md) |
+| Prometheus metrics and logging | [Monitoring](MONITORING.md) |
+| Security architecture | [Security Guide](SECURITY_GUIDE.md) |
+| Data sources and adapters | [Data Sources](DATA_SOURCES.md) |
+| Background workers | [Data Pipeline](DATA_PIPELINE.md) |
+| BigQuery warehouse | [Database](DATABASE.md) |
+| Package documentation | [Packages](PACKAGES.md) |
+| ML training pipeline | [ML Training](ML_TRAINING.md) |
+| Infrastructure setup | [Infrastructure](INFRASTRUCTURE.md) |
+| Deployment guide | [Deployment](DEPLOYMENT.md) |
+| Configuration reference | [Configuration](CONFIGURATION.md) |
+| Testing guide | [Testing](TESTING.md) |
+| Telegram bot | [Telegram Bot](TELEGRAM_BOT.md) |
+| Self-hosting | [Self Hosting](SELF_HOSTING.md) |
+| Performance tuning | [Performance](PERFORMANCE.md) |
+| Troubleshooting | [Troubleshooting](TROUBLESHOOTING.md) |

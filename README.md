@@ -1102,6 +1102,8 @@ Comprehensive documentation is available in the [`docs/`](docs/) directory:
 | Document | Description |
 |----------|-------------|
 | [AGENTS.md](docs/AGENTS.md) | 58 AI agents — categories, architecture, orchestration, localization |
+| [ANOMALY_DETECTION.md](docs/ANOMALY_DETECTION.md) | Real-time statistical anomaly detection — 16 event types, algorithms, processors |
+| [API_AUTHENTICATION.md](docs/API_AUTHENTICATION.md) | 4-tier API key authentication, rate limiting, key management API |
 | [API_REFERENCE.md](docs/API_REFERENCE.md) | Complete 538+ endpoint reference across 40 route modules |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture, data flow, caching, circuit breakers |
 | [COINGECKO_RATE_LIMITING.md](docs/COINGECKO_RATE_LIMITING.md) | CoinGecko API rate limiting strategy and optimization |
@@ -1113,12 +1115,16 @@ Comprehensive documentation is available in the [`docs/`](docs/) directory:
 | [DEVELOPER_WORKFLOW.md](docs/DEVELOPER_WORKFLOW.md) | Day-to-day development commands and workflows |
 | [INFRASTRUCTURE.md](docs/INFRASTRUCTURE.md) | Terraform, GCP resources, K8s manifests, CI/CD pipelines |
 | [ML_TRAINING.md](docs/ML_TRAINING.md) | Model fine-tuning (Gemini, Llama, Mistral), GPU training, vLLM inference |
+| [MONITORING.md](docs/MONITORING.md) | Prometheus metrics, structured logging, health checks, alerting |
 | [PACKAGES.md](docs/PACKAGES.md) | All 8 packages — agent-runtime, MCP servers, market-data, sweep, ucai |
 | [PERFORMANCE.md](docs/PERFORMANCE.md) | Benchmarks, optimization techniques, caching strategies |
 | [REPOSITORY_GUIDE.md](docs/REPOSITORY_GUIDE.md) | Full repository structure walkthrough |
+| [SECURITY_GUIDE.md](docs/SECURITY_GUIDE.md) | Security architecture, threat mitigations, best practices |
 | [SELF_HOSTING.md](docs/SELF_HOSTING.md) | Complete self-hosting guide with data migration |
 | [TELEGRAM_BOT.md](docs/TELEGRAM_BOT.md) | Sect Bot — Telegram bot commands, features, database |
 | [TESTING.md](docs/TESTING.md) | Test strategy, coverage, unit/integration/e2e/fuzz/load tests |
+| [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Common issues, diagnostics, and solutions |
+| [WEBSOCKET.md](docs/WEBSOCKET.md) | Real-time WebSocket feeds — prices, Bitcoin, trades, alerts |
 | [X402_PAYMENTS.md](docs/X402_PAYMENTS.md) | x402 micropayment protocol integration |
 
 ---
