@@ -114,6 +114,16 @@ export type {
   Proposal,
 } from './coordination/consensus-engine.js';
 
+export { HealthMonitor } from './coordination/health-monitor.js';
+export type {
+  HealthMonitorConfig,
+  HealthStatus,
+  HealthReport,
+  ComponentHealth,
+  HealthIssue,
+  HealthCheckFn,
+} from './coordination/health-monitor.js';
+
 // ─── Trading ──────────────────────────────────────────────────
 export { GasOptimizer, DEFAULT_GAS_CONFIG } from './trading/gas-optimizer.js';
 export type {
