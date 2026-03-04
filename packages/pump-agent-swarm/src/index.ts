@@ -149,6 +149,10 @@ export type {
   CategoryTrend,
 } from './intelligence/narrative-generator.js';
 
+// ─── Demo & Presentation ──────────────────────────────────────
+export { PresentationMode, DEFAULT_PRESENTATION_CONFIG } from './demo/presentation.js';
+export type { PresentationConfig, PresentationSummary } from './demo/presentation.js';
+
 // ─── Trading ──────────────────────────────────────────────────
 export { VolumeGenerator } from './trading/volume-generator.js';
 export type {
