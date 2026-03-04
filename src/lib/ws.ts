@@ -17,6 +17,8 @@ import WebSocket from "ws";
 import { logger } from "@/lib/logger";
 import { getRedis, getRedisSubscriber } from "@/lib/redis";
 import type { WSContext } from "hono/ws";
+import { channelManager } from "@/lib/ws-channels";
+import { startBinanceWsFeed, stopBinanceWsFeed, getBinanceWsStatus } from "@/sources/binance-ws";
 
 // ─── Broadcast Throttling ────────────────────────────────────
 // CoinCap can emit hundreds of ticks/second across all coins.
@@ -704,7 +706,11 @@ function scheduleReconnect(source: "coincap" | "mempool"): void {
 // ─── Heartbeat — client-side ping/pong ───────────────────────
 
 const HEARTBEAT_INTERVAL_MS = 30_000;
+/** Clients must respond within 90s to avoid being removed. */
+const HEARTBEAT_TIMEOUT_MS = 90_000;
 let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+let channelHeartbeatTimer: ReturnType<typeof setInterval> | null = null;
+let staleCleanupTimer: ReturnType<typeof setInterval> | null = null;
 
 function startHeartbeat(): void {
   if (heartbeatTimer) return;
@@ -729,6 +735,14 @@ function stopHeartbeat(): void {
     clearInterval(heartbeatTimer);
     heartbeatTimer = null;
   }
+  if (channelHeartbeatTimer) {
+    clearInterval(channelHeartbeatTimer);
+    channelHeartbeatTimer = null;
+  }
+  if (staleCleanupTimer) {
+    clearInterval(staleCleanupTimer);
+    staleCleanupTimer = null;
+  }
 }
 
 // ─── Lifecycle ───────────────────────────────────────────────
@@ -741,6 +755,31 @@ export async function startUpstreams(): Promise<void> {
   startPriceThrottle();
   startHeartbeat();
 
+  // Start ChannelManager heartbeat (for unified /ws endpoint)
+  channelHeartbeatTimer = setInterval(() => {
+    const ping = JSON.stringify({
+      type: "ping",
+      timestamp: new Date().toISOString(),
+    });
+    for (const client of channelManager.getAllClients()) {
+      try {
+        if (client.ws.readyState === 1) {
+          client.ws.send(ping);
+        }
+      } catch {
+        // will be cleaned up by stale check
+      }
+    }
+  }, HEARTBEAT_INTERVAL_MS);
+
+  // Periodically remove stale ChannelManager clients that missed heartbeats
+  staleCleanupTimer = setInterval(() => {
+    const removed = channelManager.removeStaleClients(HEARTBEAT_TIMEOUT_MS);
+    if (removed > 0) {
+      logger.info({ removed }, "WS: cleaned up stale channel clients");
+    }
+  }, HEARTBEAT_TIMEOUT_MS);
+
   // Only the leader connects to upstream WebSockets
   const elected = await tryAcquireLeadership();
   if (elected) {
@@ -748,6 +787,7 @@ export async function startUpstreams(): Promise<void> {
     connectCoinCap();
     connectMempool();
     startDexPolling();
+    startBinanceWsFeed();
     startLeaderRenewal();
   } else {
     logger.info("This instance is a WS follower — relying on Pub/Sub fan-out");
@@ -760,6 +800,7 @@ export async function startUpstreams(): Promise<void> {
           connectCoinCap();
           connectMempool();
           startDexPolling();
+          startBinanceWsFeed();
           startLeaderRenewal();
         }
       }
@@ -779,6 +820,7 @@ export async function stopUpstreams(): Promise<void> {
   disconnectCoinCap();
   disconnectMempool();
   stopDexPolling();
+  stopBinanceWsFeed();
 
   // Release leadership
   if (isLeader) {
@@ -794,7 +836,7 @@ export async function stopUpstreams(): Promise<void> {
     isLeader = false;
   }
 
-  // Close all client connections
+  // Close all legacy topic clients
   for (const [, topicClients] of clients) {
     for (const entry of topicClients) {
       try {
@@ -805,14 +847,20 @@ export async function stopUpstreams(): Promise<void> {
     }
     topicClients.clear();
   }
+
+  // Close all ChannelManager clients
+  channelManager.closeAll(1001, "Server shutting down");
 }
 
 export function wsStats(): {
   clients: Record<Topic, number>;
+  channelClients: number;
+  channelSubscriptions: Record<string, number>;
   upstreams: {
     coinCap: string;
     mempool: string;
     dexPolling: boolean;
+    binanceWs: ReturnType<typeof getBinanceWsStatus>;
   };
   leader: boolean;
   instanceId: string;
@@ -824,6 +872,8 @@ export function wsStats(): {
       trades: clients.get("trades")!.size,
       alerts: clients.get("alerts")?.size ?? 0,
     },
+    channelClients: channelManager.getActiveConnections(),
+    channelSubscriptions: channelManager.getSubscriptionCounts(),
     upstreams: {
       coinCap: coinCapAuthFailed
         ? "AUTH_FAILED"
@@ -834,6 +884,7 @@ export function wsStats(): {
         ? ["CONNECTING", "OPEN", "CLOSING", "CLOSED"][mempoolWs.readyState]
         : "DISCONNECTED",
       dexPolling: dexPollTimer !== null,
+      binanceWs: getBinanceWsStatus(),
     },
     leader: isLeader,
     instanceId: INSTANCE_ID,

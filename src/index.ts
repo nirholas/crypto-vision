@@ -169,11 +169,58 @@ app.get("/health", async (c) => {
   );
   activeWebsocketConnections.set(totalWsConnections);
 
+  // ─── Per-service health checks ───────────────────────────
+  const checks: Record<string, { status: string; latencyMs?: number; error?: string; quota?: string }> = {};
+
+  // Redis check
+  if (cacheStats.redisConnected) {
+    try {
+      const redisStart = Date.now();
+      await cache.set("health:ping", "pong", 10);
+      const val = await cache.get<string>("health:ping");
+      const redisLatency = Date.now() - redisStart;
+      checks.redis = val === "pong"
+        ? { status: "up", latencyMs: redisLatency }
+        : { status: "degraded", latencyMs: redisLatency, error: "read-back mismatch" };
+    } catch (err: unknown) {
+      checks.redis = { status: "down", error: extractErrorMessage(err) };
+    }
+  } else if (process.env.REDIS_URL) {
+    checks.redis = { status: "down", error: "Redis configured but not connected" };
+  } else {
+    checks.redis = { status: "up", latencyMs: 0 }; // Memory-only mode — always healthy
+  }
+
+  // Memory cache check (always healthy)
+  checks.memory = { status: "up", latencyMs: 0 };
+
+  // CoinGecko upstream check (circuit breaker state)
+  const cgBreaker = cbs["api.coingecko.com"] ?? cbs["pro-api.coingecko.com"];
+  let cgRateLimitInfo: { remaining?: number; limit?: number } | null = null;
+  try {
+    const { getCoinGeckoRateLimitStats } = await import("./lib/coingecko-rate-limit.js");
+    const rlStats = getCoinGeckoRateLimitStats();
+    if (rlStats && typeof rlStats === "object") {
+      cgRateLimitInfo = rlStats as { remaining?: number; limit?: number };
+    }
+  } catch {
+    // Module not available
+  }
+  checks.coingecko = {
+    status: cgBreaker?.state === "open" ? "down" : "up",
+    ...(cgBreaker && { error: cgBreaker.state === "open" ? `Circuit open (${cgBreaker.failures} failures)` : undefined }),
+    ...(cgRateLimitInfo?.remaining != null && cgRateLimitInfo?.limit != null && {
+      quota: `${cgRateLimitInfo.remaining}/${cgRateLimitInfo.limit}`,
+    }),
+  };
+
   return c.json(
     {
-      status: healthy ? "ok" : "degraded",
-      uptime: process.uptime(),
+      status: healthy ? "healthy" : "degraded",
+      version: APP_VERSION,
+      uptime: Math.round(process.uptime()),
       timestamp: new Date().toISOString(),
+      checks,
       cache: cacheStats,
       circuitBreakers: cbs,
       degradedRoutes: degradedSources,
@@ -188,14 +235,6 @@ app.get("/health", async (c) => {
         heapUsed: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
       },
       fetchMetrics: fetchMetrics(),
-      coingeckoRateLimit: (() => {
-        try {
-          const { getCoinGeckoRateLimitStats } = require("./lib/coingecko-rate-limit.js");
-          return getCoinGeckoRateLimitStats();
-        } catch {
-          return null;
-        }
-      })(),
       env: process.env.NODE_ENV || "development",
     },
     healthy ? 200 : 503,

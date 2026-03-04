@@ -75,6 +75,12 @@ spec:
                   name: crypto-vision-secrets
                   key: OPENROUTER_API_KEY
                   optional: true
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: crypto-vision-secrets
+                  key: DATABASE_URL
+                  optional: true
           resources:
             requests:
               cpu: 500m

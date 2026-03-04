@@ -23,8 +23,7 @@ resources:
   - hpa.yml
   - cronjobs.yml
   - policies.yml
-  # Uncomment for persistent Redis storage:
-  # - redis-pvc.yml
+  - redis-pvc.yml
 
 images:
   - name: crypto-vision

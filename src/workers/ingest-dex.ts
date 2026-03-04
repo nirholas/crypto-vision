@@ -14,6 +14,7 @@ import { ingestDexPairs } from "../lib/bq-ingest.js";
 import { log } from "../lib/logger.js";
 import { Topics } from "../lib/pubsub.js";
 import { IngestionWorker, runWorkerCLI, type WorkerConfig } from "./worker-base.js";
+import { channelManager } from "../lib/ws-channels.js";
 
 class DexIngestionWorker extends IngestionWorker {
     constructor() {
@@ -64,6 +65,21 @@ class DexIngestionWorker extends IngestionWorker {
             }));
             allRows.push(...rows);
             log.debug({ count: pairs.length }, "Fetched DexScreener trending pairs");
+
+            // Broadcast large DEX trades to WebSocket subscribers
+            for (const p of pairs.slice(0, 5)) {
+              const volume = typeof p.volume === "object" ? (p.volume as Record<string, unknown>)?.h24 : p.volume_24h;
+              if (Number(volume) > 50_000) {
+                channelManager.broadcast("trades", {
+                  pair: String(p.pairAddress ?? p.address),
+                  chain: String(p.chainId ?? p.chain),
+                  dex: String(p.dexId ?? p.dex),
+                  price: String(p.priceUsd ?? p.price_usd ?? "0"),
+                  volume24h: String(volume ?? "0"),
+                  source: "dexscreener",
+                });
+              }
+            }
         } else if (dexTrending.status === "rejected") {
             log.warn({ err: dexTrending.reason?.message }, "Failed to fetch DexScreener trending");
         }

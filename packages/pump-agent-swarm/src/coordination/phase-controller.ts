@@ -128,6 +128,7 @@ const ALLOWED_TRANSITIONS: Record<SwarmPhase, readonly SwarmPhase[]> = {
   exiting: ['reclaiming', 'error'],
   reclaiming: ['completed', 'error'],
   completed: ['idle'],
+  stopped: ['idle'],
   paused: ['idle', 'scanning', 'trading', 'exiting', 'error'],
   error: ['reclaiming', 'exiting', 'idle'],
   emergency_exit: ['reclaiming', 'error'],
@@ -204,6 +205,7 @@ function buildDefaultConditions(): Map<SwarmPhase, PhaseCondition[]> {
   ]);
 
   m.set('paused', []);
+  m.set('stopped', []);
   m.set('error', []);
   m.set('emergency_exit', []);
 

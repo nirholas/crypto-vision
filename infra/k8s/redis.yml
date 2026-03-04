@@ -58,10 +58,8 @@ spec:
               mountPath: /data
       volumes:
         - name: redis-data
-          emptyDir: {}
-          # For persistent storage, use a PVC instead:
-          # persistentVolumeClaim:
-          #   claimName: redis-pvc
+          persistentVolumeClaim:
+            claimName: redis-pvc
 ---
 apiVersion: v1
 kind: Service

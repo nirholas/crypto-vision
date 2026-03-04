@@ -10,7 +10,10 @@ export default function Error({
   reset: () => void;
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface px-4">
+    <div
+      className="min-h-screen flex items-center justify-center px-4"
+      style={{ background: 'var(--bg-primary)' }}
+    >
       <ErrorFallback
         error={error}
         onRetry={reset}

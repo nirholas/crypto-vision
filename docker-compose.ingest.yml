@@ -212,3 +212,7 @@ services:
       pubsub-emulator:
         condition: service_healthy
     restart: unless-stopped
+
+volumes:
+  ingest-postgres-data:
+    driver: local

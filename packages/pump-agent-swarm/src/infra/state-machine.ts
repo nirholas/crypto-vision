@@ -144,9 +144,10 @@ function buildDefaultTransitions(): PhaseTransition[] {
     { from: 'emergency_exit', to: 'reclaiming' },
   ];
 
-  // Any operational phase → paused, error, emergency_exit
+  // Any operational phase → paused, stopped, error, emergency_exit
   for (const phase of ALL_OPERATIONAL_PHASES) {
     transitions.push({ from: phase, to: 'paused' });
+    transitions.push({ from: phase, to: 'stopped' });
     transitions.push({ from: phase, to: 'error' });
     transitions.push({ from: phase, to: 'emergency_exit' });
   }

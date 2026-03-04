@@ -17,6 +17,7 @@ import {
   ingestMarketSnapshots,
   ingestFearGreed,
 } from "../lib/bq-ingest.js";
+import { channelManager } from "../lib/ws-channels.js";
 
 class MarketIngestionWorker extends IngestionWorker {
   constructor() {
@@ -54,6 +55,34 @@ class MarketIngestionWorker extends IngestionWorker {
         }));
         allRows.push(...rows);
         log.debug({ count: coins.length }, "Fetched market snapshots");
+
+        // Broadcast prices to WebSocket channel subscribers
+        const priceData: Record<string, { usd: number; change24h: number }> = {};
+        for (const c of coins) {
+          priceData[c.id] = {
+            usd: c.current_price ?? 0,
+            change24h: c.price_change_percentage_24h ?? 0,
+          };
+        }
+        channelManager.broadcast("prices", priceData);
+
+        // Extract top movers (>5% change) → broadcast to "market" channel
+        const topMovers = coins
+          .filter((c) => Math.abs(c.price_change_percentage_24h ?? 0) > 5)
+          .slice(0, 10)
+          .map((c) => ({
+            coinId: c.id,
+            symbol: c.symbol,
+            name: c.name,
+            price: c.current_price,
+            change24h: c.price_change_percentage_24h,
+          }));
+        if (topMovers.length > 0) {
+          channelManager.broadcast("market", {
+            event: "top_movers",
+            movers: topMovers,
+          });
+        }
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);

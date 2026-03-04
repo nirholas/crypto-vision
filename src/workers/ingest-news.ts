@@ -14,6 +14,7 @@ import { Tables } from "../lib/bigquery.js";
 import { Topics } from "../lib/pubsub.js";
 import { log } from "../lib/logger.js";
 import { ingestNewsArticles } from "../lib/bq-ingest.js";
+import { channelManager } from "../lib/ws-channels.js";
 
 class NewsIngestionWorker extends IngestionWorker {
   constructor() {
@@ -58,6 +59,17 @@ class NewsIngestionWorker extends IngestionWorker {
       }));
       allRows.push(...rows);
       log.debug({ count: articles.length }, "Fetched general news");
+
+      // Broadcast news items to WebSocket subscribers
+      for (const a of articles.slice(0, 10)) {
+        channelManager.broadcast("news", {
+          title: a.title,
+          description: a.description,
+          url: a.url,
+          source: a.source ?? a.sourceName,
+          publishedAt: a.publishedAt,
+        });
+      }
     } else if (general.status === "rejected") {
       log.warn({ err: general.reason?.message }, "Failed to fetch general news");
     }

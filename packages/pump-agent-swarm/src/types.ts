@@ -232,7 +232,7 @@ export interface TokenAnalytics {
 
 export interface SwarmStatus {
   /** Current phase */
-  phase: 'initializing' | 'minting' | 'trading' | 'graduating' | 'completed' | 'stopped' | 'error';
+  phase: SwarmPhase;
   /** Token mint (once created) */
   mint?: string;
   /** Total trades executed */
@@ -404,6 +404,7 @@ export type SwarmPhase =
   | 'exiting'
   | 'reclaiming'
   | 'completed'
+  | 'stopped'
   | 'paused'
   | 'error'
   | 'emergency_exit';

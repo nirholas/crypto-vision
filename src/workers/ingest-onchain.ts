@@ -14,6 +14,7 @@ import { ingestBitcoinNetwork, ingestGasPrices } from "../lib/bq-ingest.js";
 import { log } from "../lib/logger.js";
 import { Topics } from "../lib/pubsub.js";
 import { IngestionWorker, runWorkerCLI, type WorkerConfig } from "./worker-base.js";
+import { channelManager } from "../lib/ws-channels.js";
 
 class OnchainIngestionWorker extends IngestionWorker {
     constructor() {
@@ -64,6 +65,18 @@ class OnchainIngestionWorker extends IngestionWorker {
             }));
             allRows.push(...rows);
             log.debug({ count: data.length }, "Fetched multi-chain gas prices");
+
+            // Broadcast gas prices to WebSocket subscribers
+            const gasPayload: Record<string, { low: unknown; average: unknown; high: unknown }> = {};
+            for (const g of data) {
+              const chain = String(g.chain ?? "ethereum");
+              gasPayload[chain] = {
+                low: g.low,
+                average: g.average,
+                high: g.high,
+              };
+            }
+            channelManager.broadcast("gas", gasPayload);
         } else if (gasData.status === "rejected") {
             log.warn({ err: gasData.reason?.message }, "Failed to fetch gas prices");
         }

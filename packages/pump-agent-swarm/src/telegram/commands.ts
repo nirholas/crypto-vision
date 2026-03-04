@@ -152,7 +152,7 @@ const handleTrades: CommandHandler = async (_ctx, swarm) => {
         const time = new Date(trade.timestamp).toLocaleTimeString('en-US', { hour12: false });
         const agentShort = trade.agentId.slice(0, 8);
         lines.push(
-            `${emoji} \`${agentShort}\` ${trade.direction.toUpperCase()} ${trade.amountSol.toFixed(4)} SOL ${status}`,
+            `${emoji} \`${time}\` \`${agentShort}\` ${trade.direction.toUpperCase()} ${trade.amountSol.toFixed(4)} SOL ${status}`,
         );
     }
 

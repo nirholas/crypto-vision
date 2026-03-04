@@ -2,6 +2,7 @@
 
 import React, { Component, ReactNode, ErrorInfo } from 'react';
 import Link from 'next/link';
+import { AlertTriangle, RotateCcw, Home } from 'lucide-react';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -73,35 +74,34 @@ function DefaultErrorFallback({ error, onReset }: DefaultErrorFallbackProps) {
     <div className="min-h-[400px] flex items-center justify-center p-6">
       <div className="max-w-md w-full text-center">
         {/* Error icon */}
-        <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-loss/10 flex items-center justify-center">
-          <svg
-            className="w-8 h-8 text-loss"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-            />
-          </svg>
+        <div
+          className="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center"
+          style={{ background: 'var(--loss-bg)' }}
+        >
+          <AlertTriangle className="w-8 h-8" style={{ color: 'var(--loss)' }} />
         </div>
 
-        <h2 className="text-xl font-bold text-text-primary mb-2">Something went wrong</h2>
+        <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+          Something went wrong
+        </h2>
 
-        <p className="text-text-secondary mb-6">
+        <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>
           We encountered an unexpected error. Please try again or return to the homepage.
         </p>
 
         {/* Error details (development only) */}
         {process.env.NODE_ENV === 'development' && error && (
           <details className="mb-6 text-left">
-            <summary className="cursor-pointer text-sm text-text-muted hover:text-text-secondary">
+            <summary
+              className="cursor-pointer text-sm hover:opacity-80 transition-opacity"
+              style={{ color: 'var(--text-muted)' }}
+            >
               Error details
             </summary>
-            <pre className="mt-2 p-3 bg-surface-alt rounded-lg text-xs text-loss overflow-auto max-h-40">
+            <pre
+              className="mt-2 p-3 rounded-lg text-xs overflow-auto max-h-40"
+              style={{ background: 'var(--surface)', color: 'var(--loss)' }}
+            >
               {error.message}
               {error.stack && `\n\n${error.stack}`}
             </pre>
@@ -113,15 +113,26 @@ function DefaultErrorFallback({ error, onReset }: DefaultErrorFallbackProps) {
           {onReset && (
             <button
               onClick={onReset}
-              className="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2"
+              style={{
+                background: 'var(--primary)',
+                color: 'var(--bg-primary)',
+              }}
             >
+              <RotateCcw className="w-4 h-4" />
               Try again
             </button>
           )}
           <Link
             href="/"
-            className="px-4 py-2 bg-surface-alt hover:bg-surface-alt text-text-secondary font-medium rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            style={{
+              background: 'var(--surface)',
+              color: 'var(--text-secondary)',
+              border: '1px solid var(--surface-border)',
+            }}
           >
+            <Home className="w-4 h-4" />
             Go home
           </Link>
         </div>
@@ -148,35 +159,36 @@ export function ErrorFallback({
   description = 'We encountered an unexpected error. Please try again or return to the homepage.',
 }: ErrorFallbackProps) {
   return (
-    <div className="max-w-md w-full text-center">
+    <div className="max-w-md w-full text-center animate-fade-in">
       {/* Error icon */}
-      <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-loss/10 flex items-center justify-center">
-        <svg
-          className="w-8 h-8 text-loss"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-          />
-        </svg>
+      <div
+        className="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center"
+        style={{ background: 'var(--loss-bg)' }}
+      >
+        <AlertTriangle className="w-8 h-8" style={{ color: 'var(--loss)' }} />
       </div>
 
-      <h2 className="text-xl font-bold text-text-primary mb-2">{title}</h2>
+      <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+        {title}
+      </h2>
 
-      <p className="text-text-secondary mb-6">{description}</p>
+      <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>
+        {description}
+      </p>
 
       {/* Error details (development only) */}
       {process.env.NODE_ENV === 'development' && error && (
         <details className="mb-6 text-left">
-          <summary className="cursor-pointer text-sm text-text-muted hover:text-text-secondary">
+          <summary
+            className="cursor-pointer text-sm hover:opacity-80 transition-opacity"
+            style={{ color: 'var(--text-muted)' }}
+          >
             Error details
           </summary>
-          <pre className="mt-2 p-3 bg-surface-alt rounded-lg text-xs text-loss overflow-auto max-h-40">
+          <pre
+            className="mt-2 p-3 rounded-lg text-xs overflow-auto max-h-40"
+            style={{ background: 'var(--surface)', color: 'var(--loss)' }}
+          >
             {error.message}
             {error.stack && `\n\n${error.stack}`}
           </pre>
@@ -188,15 +200,26 @@ export function ErrorFallback({
         {onRetry && (
           <button
             onClick={onRetry}
-            className="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2"
+            style={{
+              background: 'var(--primary)',
+              color: 'var(--bg-primary)',
+            }}
           >
+            <RotateCcw className="w-4 h-4" />
             Try again
           </button>
         )}
         <Link
           href="/"
-          className="px-4 py-2 bg-surface-alt hover:bg-surface-alt text-text-secondary font-medium rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors"
+          style={{
+            background: 'var(--surface)',
+            color: 'var(--text-secondary)',
+            border: '1px solid var(--surface-border)',
+          }}
         >
+          <Home className="w-4 h-4" />
           Go home
         </Link>
       </div>
