@@ -3,6 +3,9 @@
  *
  * Generates, funds, and manages a pool of Solana wallets for the swarm.
  * The creator wallet mints the token; trader wallets trade it.
+ *
+ * Enhanced with HD wallet derivation, assignment tracking, concurrent
+ * transaction safety, encrypted key storage, and fund distribution strategies.
  */
 
 import {
@@ -10,13 +13,19 @@ import {
   Connection,
   SystemProgram,
   Transaction,
+  PublicKey,
   sendAndConfirmTransaction,
   LAMPORTS_PER_SOL,
 } from '@solana/web3.js';
-// PublicKey imported dynamically only when needed
 import BN from 'bn.js';
 import bs58 from 'bs58';
-import type { AgentWallet, WalletPool } from './types.js';
+import * as bip39 from 'bip39';
+import { derivePath } from 'ed25519-hd-key';
+import nacl from 'tweetnacl';
+import { createCipheriv, createDecipheriv, randomBytes, scryptSync, createHash } from 'node:crypto';
+import { writeFile, readFile } from 'node:fs/promises';
+import EventEmitter from 'eventemitter3';
+import type { AgentWallet, WalletPool, WalletVaultConfig, WalletAssignment, AgentRole } from './types.js';
 
 /** Minimum SOL balance to keep in each wallet for rent + fees */
 const MIN_RENT_LAMPORTS = new BN(5_000_000); // 0.005 SOL

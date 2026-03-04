@@ -46,9 +46,17 @@ const autoCallTimers = new Map<string, ReturnType<typeof setTimeout>>();
 export function createBot(token: string): Bot {
   const bot = new Bot(token);
 
-  // Error handler
+  // Error handler — log but never re-throw to keep polling alive
   bot.catch((err) => {
-    log.error({ err: err.error, ctx: err.ctx?.update?.update_id }, "Bot error");
+    log.error(
+      {
+        err: err.error,
+        updateId: err.ctx?.update?.update_id,
+        chatId: err.ctx?.chat?.id,
+        userId: err.ctx?.from?.id,
+      },
+      "Bot error in update handler",
+    );
   });
 
   // ─── Middleware: Register users and groups ─────────────────
@@ -65,10 +73,16 @@ export function createBot(token: string): Bot {
       }
 
       if (ctx.chat && (ctx.chat.type === "group" || ctx.chat.type === "supergroup")) {
-        const group = await findOrCreateGroup(
-          ctx.chat.id.toString(),
-          ctx.chat.title,
-        );
+        let group;
+        try {
+          group = await findOrCreateGroup(
+            ctx.chat.id.toString(),
+            ctx.chat.title,
+          );
+        } catch (dbErr) {
+          log.error({ err: dbErr, chatId: ctx.chat.id }, "DB error in middleware — skipping update");
+          return; // skip this update but keep polling alive
+        }
 
         if (ctx.from) {
           const user = await findOrCreateUser(ctx.from.id.toString());

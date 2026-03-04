@@ -74,19 +74,64 @@ export {
 
 // ─── Types ────────────────────────────────────────────────────
 export type {
+  // Wallet Types
   AgentWallet,
   WalletPool,
+  // Token Types
   TokenConfig,
   MintResult,
   BundleBuyConfig,
+  // Trading Types
   TradeDirection,
   TradeOrder,
   TradeResult,
+  // Bonding Curve
   BondingCurveState,
+  // Strategy Types
   TradingStrategy,
+  // Swarm Configuration
   SwarmConfig,
+  // Analytics Types
   TokenAnalytics,
   SwarmStatus,
   TraderStats,
+  // Events
   SwarmEvents,
+  // RPC Pool Types
+  RpcEndpoint,
+  RpcPoolConfig,
+  // Event Bus Types
+  SwarmEventCategory,
+  SwarmEvent,
+  EventSubscription,
+  // State Machine Types
+  SwarmPhase,
+  PhaseTransition,
+  StateMachineConfig,
+  // Agent Identity Types
+  AgentRole,
+  AgentIdentity,
+  // Wallet Vault Types
+  WalletVaultConfig,
+  WalletAssignment,
+  // Configuration Types
+  SwarmMasterConfig,
+  ScannerConfig,
+  IntelligenceConfig,
+  DashboardConfig,
+  AnalyticsConfig,
+  EmergencyExitConfig,
+  // Narrative Types
+  TokenNarrative,
+  // Bundle Types
+  JitoBundleConfig,
+  BundlePlan,
+  BundleParticipant,
+  // Market Making Types
+  MarketMakingConfig,
+  WashTradeRoute,
+  TradeCycle,
+  // Dashboard Types
+  DashboardState,
+  SwarmMetrics,
 } from './types.js';

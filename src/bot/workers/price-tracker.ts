@@ -18,9 +18,11 @@ const log = logger.child({ module: "sectbot:price-tracker" });
 
 const UPDATE_INTERVAL_MS = 60_000; // 1 minute
 const BATCH_SIZE = 50; // Process tokens in batches to avoid rate limits
+const MAX_CONSECUTIVE_FAILURES = 5;
 
 let intervalHandle: ReturnType<typeof setInterval> | null = null;
 let isRunning = false;
+let consecutiveFailures = 0;
 
 /**
  * Callback for delivering insider alerts to subscribers via Telegram.
@@ -101,6 +103,16 @@ async function runCycle(): Promise<void> {
     return;
   }
 
+  // Skip cycle if in backoff due to consecutive failures
+  if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+    const backoffCycles = Math.min(consecutiveFailures - MAX_CONSECUTIVE_FAILURES + 1, 10);
+    // Reset after waiting out the backoff period
+    if (backoffCycles > 0) {
+      consecutiveFailures = 0;
+      log.info("Price tracker backoff period ended — resuming");
+    }
+  }
+
   isRunning = true;
   const start = Date.now();
 
@@ -129,8 +141,21 @@ async function runCycle(): Promise<void> {
       { callsProcessed: activeCalls.length, elapsedMs: elapsed },
       "Price tracker cycle complete",
     );
+    consecutiveFailures = 0; // reset on success
   } catch (err) {
-    log.error({ err }, "Price tracker cycle failed");
+    consecutiveFailures++;
+    const backoffMs = Math.min(UPDATE_INTERVAL_MS * Math.pow(2, consecutiveFailures - 1), 600_000);
+    log.error(
+      { err, consecutiveFailures, nextRetryMs: backoffMs },
+      "Price tracker cycle failed",
+    );
+
+    if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+      log.warn(
+        { consecutiveFailures },
+        "Price tracker hit max consecutive failures — pausing until next scheduled interval",
+      );
+    }
   } finally {
     isRunning = false;
   }

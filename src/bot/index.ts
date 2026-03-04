@@ -19,7 +19,12 @@ import { getGroupById } from "./services/group-service.js";
 
 const log = logger.child({ module: "sectbot" });
 
+const BOT_RESTART_DELAY_MS = 5_000;
+const BOT_MAX_RESTART_ATTEMPTS = 10;
+
 let botInstance: Bot | null = null;
+let restartAttempts = 0;
+let restartTimer: ReturnType<typeof setTimeout> | null = null;
 
 /**
  * Start the Sect Bot — connects to Telegram, starts workers.
@@ -129,10 +134,22 @@ export async function startBot(): Promise<Bot> {
     { command: "reset", description: "Reset settings (admin)" },
   ]);
 
-  // Start long polling
+  // Start long polling with automatic restart on failure
+  startPolling(bot);
+
+  return bot;
+}
+
+/**
+ * Start long-polling with automatic reconnection.
+ * If polling stops unexpectedly (network error, 409 conflict, etc.)
+ * it will retry with exponential back-off up to BOT_MAX_RESTART_ATTEMPTS.
+ */
+function startPolling(bot: Bot): void {
   bot.start({
     onStart: (botInfo) => {
-      log.info({ username: botInfo.username }, "Sect Bot started");
+      restartAttempts = 0; // reset on successful start
+      log.info({ username: botInfo.username }, "Sect Bot polling started");
     },
     allowed_updates: [
       "message",
@@ -140,9 +157,61 @@ export async function startBot(): Promise<Bot> {
       "chat_member",
       "my_chat_member",
     ],
+    drop_pending_updates: true,
   });
 
-  return bot;
+  // grammY resolves the internal polling promise when polling stops.
+  // We hook into the bot's internal runner to detect unexpected stops.
+  // grammY provides no `onStop` in start(), so we poll the `isRunning` flag.
+  const watchdog = setInterval(() => {
+    // bot.isInited() is true once the bot has started at least once.
+    // If isInited but the internal polling supplier is gone, polling died.
+    if (botInstance === bot && !isBotPolling(bot)) {
+      clearInterval(watchdog);
+      handlePollingDeath(bot);
+    }
+  }, 10_000);
+  watchdog.unref();
+}
+
+/** Check if grammY's polling loop is still alive */
+function isBotPolling(bot: Bot): boolean {
+  // grammY sets `bot.isRunning` (getter) to true while polling.
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (bot as any).pollingRunning === true;
+  } catch {
+    // Fallback: if we can't determine, assume alive
+    return true;
+  }
+}
+
+/** Handle unexpected polling death — restart with backoff */
+function handlePollingDeath(bot: Bot): void {
+  if (botInstance !== bot) return; // bot was replaced or stopped intentionally
+
+  restartAttempts++;
+  if (restartAttempts > BOT_MAX_RESTART_ATTEMPTS) {
+    log.error(
+      { attempts: restartAttempts },
+      "Bot polling died and max restart attempts reached — giving up",
+    );
+    return;
+  }
+
+  const delay = Math.min(BOT_RESTART_DELAY_MS * Math.pow(2, restartAttempts - 1), 300_000);
+  log.warn(
+    { attempt: restartAttempts, delayMs: delay },
+    "Bot polling stopped unexpectedly — scheduling restart",
+  );
+
+  restartTimer = setTimeout(() => {
+    restartTimer = null;
+    if (botInstance !== bot) return;
+    log.info({ attempt: restartAttempts }, "Restarting bot polling...");
+    startPolling(bot);
+  }, delay);
+  restartTimer.unref();
 }
 
 /**
@@ -151,12 +220,19 @@ export async function startBot(): Promise<Bot> {
 export async function stopBot(): Promise<void> {
   log.info("Stopping Sect Bot...");
 
+  // Cancel any pending restart timer
+  if (restartTimer) {
+    clearTimeout(restartTimer);
+    restartTimer = null;
+  }
+
   stopPriceTracker();
   stopHardcoreWorker();
 
   if (botInstance) {
-    await botInstance.stop();
-    botInstance = null;
+    const bot = botInstance;
+    botInstance = null; // signal to watchdog that stop was intentional
+    await bot.stop();
   }
 
   await closeDb();

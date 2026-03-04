@@ -865,4 +865,17 @@ async function gracefulShutdown(signal: string) {
 process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
+// ─── Process-Level Error Handlers (prevent silent crashes) ───
+
+process.on("unhandledRejection", (reason, promise) => {
+  log.error({ reason, promise: String(promise) }, "Unhandled promise rejection — keeping process alive");
+});
+
+process.on("uncaughtException", (err, origin) => {
+  log.fatal({ err, origin }, "Uncaught exception");
+  // Give the logger time to flush, then exit non-zero so the
+  // container orchestrator can restart us cleanly.
+  setTimeout(() => process.exit(1), 1_000).unref();
+});
+
 export default app;

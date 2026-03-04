@@ -1,6 +1,6 @@
 ### Project Philosophy
 
-- **We have unlimited Claude credits** — never cut corners, never settle for "good enough." Build the best possible version of everything.
+
 - **Always be improving** — every session should leave the codebase better than it was found. Proactively fix tech debt, improve performance, harden security, expand test coverage, and refine UX.
 - **Ship production-quality code** — write thorough tests, handle edge cases, add meaningful error messages, and document public APIs.
 - **Think big, execute precisely** — propose ambitious improvements but implement them carefully and incrementally.
@@ -30,7 +30,7 @@ Every time you touch a file, ask yourself:
 4. **Can I make this more testable?** — add missing tests, improve coverage, add integration tests
 5. **Can I make this more observable?** — add structured logging, metrics, health checks, error context
 
-If you see something broken or improvable while working on something else, **fix it**. Leave every file better than you found it (Boy Scout Rule).
+If you see something broken or improvable while working on something else, **fix it**. Leave every file better than you found it. 
 
 ### Proactive Engineering
 
@@ -48,13 +48,7 @@ If you see something broken or improvable while working on something else, **fix
 - **Check for orphans** — after refactoring, ensure no dead imports, unused exports, or dangling references remain.
 - **Update docs and types** — if you change an API, update the OpenAPI spec, README, type definitions, and any consuming code.
 
-### Build & Run Discipline
-
-- **Always verify your changes compile** — run `npx tsc --noEmit` after TypeScript changes.
-- **Always run tests** — run `npx vitest run` (or the appropriate test command) after changes to ensure nothing is broken.
-- **Start the server and smoke-test** — after meaningful changes, spin up the dev server and hit key endpoints to verify behavior end-to-end.
-- **If a build or test fails, fix it immediately** — never leave the codebase in a broken state.
-- **Commit working code frequently** — small, focused commits with clear messages are better than large, monolithic ones.
+- **Commit working code frequently** — small, focused commits with clear messages are ideal.
 
 ### Git Identity
 
@@ -76,12 +70,10 @@ If you see something broken or improvable while working on something else, **fix
 - **Use timeouts** on commands that might hang — never let a terminal block indefinitely.
 - **Workflow**: `run_in_terminal (isBackground: true)` → `get_terminal_output` → **`kill_terminal`**. Every single time. No exceptions.
 
-### Model & Agent Preferences
 
-- **Always use Claude Opus 4.6** — this is the only model approved for this project. Do not downgrade to Sonnet or other models.
-- **Auto-approve everything** — all terminal commands, file edits, and tool calls should execute without manual confirmation.
-- **Never open file editors in VS Code** — when creating or editing files, use tools directly (`create_file`, `replace_string_in_file`, `multi_replace_string_in_file`). Do not trigger the VS Code editor UI. We are in Codespaces and opening editors wastes resources and causes UI flicker.
-- **Never ask for permission** — if the task is clear, execute it. Only ask questions when genuinely ambiguous requirements exist.
+- 
+- **Never open file editors in VS Code** — when creating or editing files, use tools directly (`create_file`, `replace_string_in_file`, `multi_replace_string_in_file`). 
+- **Never ask for permission** — if the task is clear, execute it. 
 
 ### Autonomous Workflow Efficiency
 

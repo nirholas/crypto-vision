@@ -30,11 +30,21 @@ export function getDb(): PostgresJsDatabase<typeof schema> {
     );
   }
 
+  const log = logger.child({ module: "sectbot:db" });
+
   _client = postgres(url, {
     max: 20,
-    idle_timeout: 20,
-    connect_timeout: 10,
+    idle_timeout: 30,
+    connect_timeout: 15,
+    max_lifetime: 60 * 30,       // recycle connections every 30 min
+    backoff: (attemptNum: number) => {
+      // Exponential backoff for reconnection: 500ms, 1s, 2s, ... up to 30s
+      return Math.min(500 * Math.pow(2, attemptNum), 30_000);
+    },
     onnotice: () => {},
+    onclose: () => {
+      log.warn("Database connection closed — driver will attempt reconnect");
+    },
   });
 
   _db = drizzle(_client, { schema });
