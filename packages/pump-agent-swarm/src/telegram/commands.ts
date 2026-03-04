@@ -33,8 +33,31 @@ export interface SwarmAccessor {
         totalPnlSol: number;
         wallets: Array<{ address: string; pnlSol: number }>;
     };
+    getRecentTrades(limit?: number): Array<{
+        timestamp: number;
+        agentId: string;
+        direction: 'buy' | 'sell';
+        amountSol: number;
+        tokenAmount: number;
+        success: boolean;
+        signature: string;
+    }>;
+    getAgentDetails(): Array<{
+        id: string;
+        role: string;
+        status: string;
+        trades: number;
+        pnlSol: number;
+    }>;
+    getActiveAlerts(): Array<{
+        id: string;
+        severity: string;
+        message: string;
+        createdAt: number;
+    }>;
     pause(): void;
     resume(): void;
+    stop(): Promise<void>;
     emergencyExit(): Promise<void>;
 }
 
@@ -111,14 +134,116 @@ const handleHelp: CommandHandler = async () => {
     return formatter.formatHelp();
 };
 
+const handleTrades: CommandHandler = async (_ctx, swarm) => {
+    const trades = swarm.getRecentTrades(10);
+
+    if (trades.length === 0) {
+        return `*📈 Recent Trades*\n\nNo trades executed yet\\.`;
+    }
+
+    const lines = [
+        `*📈 Recent Trades* \\(last ${trades.length}\\)`,
+        ``,
+    ];
+
+    for (const trade of trades) {
+        const emoji = trade.direction === 'buy' ? '🟢' : '🔴';
+        const status = trade.success ? '✅' : '❌';
+        const time = new Date(trade.timestamp).toLocaleTimeString('en-US', { hour12: false });
+        const agentShort = trade.agentId.slice(0, 8);
+        lines.push(
+            `${emoji} \`${agentShort}\` ${trade.direction.toUpperCase()} ${trade.amountSol.toFixed(4)} SOL ${status}`,
+        );
+    }
+
+    const totalVol = trades.reduce((sum, t) => sum + t.amountSol, 0);
+    lines.push(``, `*Volume:* ${totalVol.toFixed(4)} SOL`);
+
+    return lines.join('\n');
+};
+
+const handleAgents: CommandHandler = async (_ctx, swarm) => {
+    const agents = swarm.getAgentDetails();
+
+    if (agents.length === 0) {
+        return `*🤖 Agents*\n\nNo agents active\\.`;
+    }
+
+    const lines = [
+        `*🤖 Agent Overview* \\(${agents.length} agents\\)`,
+        ``,
+    ];
+
+    for (const agent of agents) {
+        const statusEmoji = agent.status === 'active' ? '🟢' : agent.status === 'paused' ? '🟡' : '🔴';
+        const pnlStr = agent.pnlSol >= 0 ? `\\+${agent.pnlSol.toFixed(4)}` : agent.pnlSol.toFixed(4);
+        lines.push(
+            `${statusEmoji} *${agent.role}* \`${agent.id.slice(0, 8)}\``,
+            `   Trades: ${agent.trades} \\| PnL: ${pnlStr} SOL`,
+        );
+    }
+
+    return lines.join('\n');
+};
+
+const handleAlerts: CommandHandler = async (_ctx, swarm) => {
+    const alerts = swarm.getActiveAlerts();
+
+    if (alerts.length === 0) {
+        return `*🔔 Alerts*\n\n✅ No active alerts`;
+    }
+
+    const severityEmoji: Record<string, string> = {
+        critical: '🚨',
+        warning: '⚠️',
+        info: 'ℹ️',
+    };
+
+    const lines = [
+        `*🔔 Active Alerts* \\(${alerts.length}\\)`,
+        ``,
+    ];
+
+    for (const alert of alerts.slice(0, 10)) {
+        const emoji = severityEmoji[alert.severity] ?? '📋';
+        const age = Math.floor((Date.now() - alert.createdAt) / 60_000);
+        const ageStr = age < 1 ? '<1m ago' : `${age}m ago`;
+        lines.push(
+            `${emoji} *${alert.severity.toUpperCase()}* — ${age > 0 ? ageStr : 'just now'}`,
+            `   ${alert.message.slice(0, 100)}`,
+        );
+    }
+
+    if (alerts.length > 10) {
+        lines.push(``, `_\\.\\.\\. and ${alerts.length - 10} more alerts_`);
+    }
+
+    return lines.join('\n');
+};
+
+const handleExit: CommandHandler = async (_ctx, swarm) => {
+    await swarm.stop();
+    return `🛑 *Graceful shutdown initiated*\nThe swarm is winding down\\.`;
+};
+
+const handleStop: CommandHandler = async (_ctx, swarm) => {
+    swarm.pause();
+    return `⏸ *Trading stopped*\nUse /resume to restart trading\\.`;
+};
+
 // ─── Command Registry ────────────────────────────────────────
 
 export const COMMAND_HANDLERS: Record<string, CommandHandler> = {
     status: handleStatus,
     pnl: handlePnl,
     wallets: handleWallets,
+    trades: handleTrades,
+    agents: handleAgents,
+    alerts: handleAlerts,
     pause: handlePause,
     resume: handleResume,
+    stop: handleStop,
+    exit: handleExit,
     emergency: handleEmergency,
     help: handleHelp,
     start: handleHelp, // /start is the default Telegram entry point

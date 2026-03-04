@@ -38,6 +38,7 @@ const navItems = [
             { label: 'Dominance', href: '/dominance', icon: null },
             { label: 'Top Movers', href: '/movers', icon: null },
             { label: 'Exchanges', href: '/markets/exchanges', icon: null },
+            { label: 'Live Feed', href: '/live', icon: null },
           ],
         },
         {
@@ -49,6 +50,7 @@ const navItems = [
             { label: 'Volatility', href: '/volatility', icon: null },
             { label: 'Compare Coins', href: '/compare', icon: null },
             { label: 'Social Buzz', href: '/buzz', icon: null },
+            { label: 'Advanced Analytics', href: '/analytics', icon: null },
           ],
         },
       ],
@@ -117,6 +119,7 @@ const navItems = [
             { label: 'Lending', href: '/defi?sector=lending', icon: null },
             { label: 'DEXs', href: '/defi?sector=dex', icon: null },
             { label: 'Yield', href: '/defi?sector=yield', icon: null },
+            { label: 'Yield Tracker', href: '/yields', icon: null },
           ],
         },
       ],

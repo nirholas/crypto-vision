@@ -6,9 +6,8 @@ module.exports = {
     extend: {
       colors: {
         // ═══════════════════════════════════════════════════════════════
-        // CRYPTO DATA AGGREGATOR - DESIGN TOKENS
-        // All colors reference CSS variables from globals.css
-        // This ensures a single source of truth for theming
+        // CRYPTO VISION - TRADING TERMINAL DESIGN TOKENS
+        // Bloomberg-style dark theme with teal/purple accent
         // ═══════════════════════════════════════════════════════════════
 
         // Background hierarchy
@@ -36,19 +35,19 @@ module.exports = {
           disabled: 'var(--text-disabled)',
         },
 
-        // Brand colors
+        // Brand colors (teal accent)
         brand: {
           DEFAULT: 'var(--brand)',
-          50: 'rgba(247, 147, 26, 0.05)',
-          100: 'rgba(247, 147, 26, 0.1)',
-          200: 'rgba(247, 147, 26, 0.2)',
-          300: '#F9B154',
-          400: '#F8A23B',
+          50: 'rgba(0, 212, 170, 0.05)',
+          100: 'rgba(0, 212, 170, 0.1)',
+          200: 'rgba(0, 212, 170, 0.2)',
+          300: '#33dfbe',
+          400: '#1ad9b4',
           500: 'var(--brand)',
           600: 'var(--brand-hover)',
-          700: '#D47912',
-          800: '#B0640F',
-          900: '#8C500C',
+          700: '#00b890',
+          800: '#009976',
+          900: '#007a5e',
         },
         primary: {
           DEFAULT: 'var(--primary)',
@@ -56,6 +55,7 @@ module.exports = {
         },
         secondary: {
           DEFAULT: 'var(--secondary)',
+          hover: 'var(--secondary-hover)',
         },
 
         // Semantic colors
@@ -69,6 +69,7 @@ module.exports = {
         },
         warning: {
           DEFAULT: 'var(--warning)',
+          bg: 'var(--warning-bg)',
         },
         info: {
           DEFAULT: 'var(--info)',
@@ -76,12 +77,12 @@ module.exports = {
 
         // Chart colors (for data viz)
         chart: {
-          blue: 'var(--primary)',
+          blue: '#3b82f6',
           green: 'var(--gain)',
           red: 'var(--loss)',
           orange: 'var(--warning)',
-          purple: '#8B5CF6',
-          teal: '#14B8A6',
+          purple: 'var(--secondary)',
+          teal: 'var(--primary)',
           pink: '#EC4899',
           cyan: '#06B6D4',
         },
@@ -98,6 +99,7 @@ module.exports = {
 
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        mono: ['JetBrains Mono', 'SF Mono', 'Fira Code', 'monospace'],
       },
 
       fontSize: {
@@ -107,6 +109,7 @@ module.exports = {
         body: ['1rem', { lineHeight: '1.6' }],
         caption: ['0.875rem', { lineHeight: '1.5' }],
         tiny: ['0.75rem', { lineHeight: '1.4' }],
+        micro: ['0.6875rem', { lineHeight: '1.3' }],
       },
 
       spacing: {
@@ -114,6 +117,9 @@ module.exports = {
         88: '22rem',
         100: '25rem',
         120: '30rem',
+        sidebar: 'var(--sidebar-width)',
+        'sidebar-collapsed': 'var(--sidebar-collapsed-width)',
+        topbar: 'var(--topbar-height)',
       },
 
       borderRadius: {
@@ -130,15 +136,16 @@ module.exports = {
       },
 
       boxShadow: {
-        // Card shadows for dark theme
-        soft: '0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)',
-        card: '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2)',
-        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3)',
-        glow: '0 0 15px rgba(56, 97, 251, 0.15)',
-        'glow-lg': '0 0 30px rgba(56, 97, 251, 0.2)',
-        'glow-green': '0 0 15px rgba(22, 199, 132, 0.15)',
-        'glow-red': '0 0 15px rgba(234, 57, 67, 0.15)',
-        elevated: '0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3)',
+        soft: '0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3)',
+        card: '0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3)',
+        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4)',
+        glow: '0 0 15px rgba(0, 212, 170, 0.15)',
+        'glow-lg': '0 0 30px rgba(0, 212, 170, 0.2)',
+        'glow-green': '0 0 15px rgba(0, 214, 143, 0.15)',
+        'glow-red': '0 0 15px rgba(255, 61, 113, 0.15)',
+        'glow-purple': '0 0 15px rgba(123, 97, 255, 0.15)',
+        elevated: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4)',
+        'inner-glow': 'inset 0 1px 0 0 rgba(255, 255, 255, 0.03)',
       },
 
       animation: {
@@ -149,7 +156,6 @@ module.exports = {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         shimmer: 'shimmer 2s infinite',
         'spin-slow': 'spin 3s linear infinite',
-        // New premium animations
         'float': 'float 6s ease-in-out infinite',
         'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
         'slide-up-fade': 'slideUpFade 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -158,6 +164,7 @@ module.exports = {
         'shake': 'shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97)',
         'count-up': 'countUp 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
         'border-glow': 'borderGlow 3s ease-in-out infinite',
+        'status-pulse': 'statusPulse 2s ease-in-out infinite',
       },
 
       keyframes: {
@@ -180,7 +187,6 @@ module.exports = {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-4px)' },
         },
-        // New premium keyframes
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-10px)' },
@@ -211,14 +217,18 @@ module.exports = {
           '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
         },
         borderGlow: {
-          '0%, 100%': { 
-            'border-color': 'rgba(56, 97, 251, 0.3)',
-            'box-shadow': '0 0 10px rgba(56, 97, 251, 0.1)'
+          '0%, 100%': {
+            'border-color': 'rgba(0, 212, 170, 0.3)',
+            'box-shadow': '0 0 10px rgba(0, 212, 170, 0.1)',
           },
-          '50%': { 
-            'border-color': 'rgba(56, 97, 251, 0.6)',
-            'box-shadow': '0 0 20px rgba(56, 97, 251, 0.3)'
+          '50%': {
+            'border-color': 'rgba(0, 212, 170, 0.6)',
+            'box-shadow': '0 0 20px rgba(0, 212, 170, 0.3)',
           },
+        },
+        statusPulse: {
+          '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+          '50%': { transform: 'scale(1.8)', opacity: '0' },
         },
       },
 

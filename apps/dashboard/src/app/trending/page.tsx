@@ -1,155 +1,197 @@
+/**
+ * Trending Page — Card Grid Layout
+ *
+ * Trending coins, Most Searched, Most Visited sections.
+ * Each card: coin logo, name, price, 24h chart indicator, volume spike.
+ */
+
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
-import { Flame, TrendingUp, TrendingDown, Minus, BarChart3 } from 'lucide-react';
+import { Flame, TrendingUp, TrendingDown, Minus, BarChart3, Search, Eye } from 'lucide-react';
 import MarketMoodWidget from '@/components/MarketMoodWidget';
 import { SocialBuzz } from '@/components/SocialBuzz';
+import { getTrending, getTopCoins, formatPrice, formatPercent } from '@/lib/market-data';
 
 export const metadata: Metadata = {
-  title: 'Trending Topics - Crypto Data Aggregator',
+  title: 'Trending Coins — Crypto Vision',
   description:
-    "See what's trending in crypto news right now. Real-time analysis of the hottest topics.",
+    "See what's trending in crypto right now. Real-time trending coins, top gainers, and social buzz.",
+  openGraph: {
+    title: 'Trending Coins — Crypto Vision',
+    description: "See what's trending in crypto right now.",
+  },
 };
 
-// Force dynamic rendering to avoid self-referential API call during build
-export const dynamic = 'force-dynamic';
-
-interface TrendingTopic {
-  topic: string;
-  count: number;
-  sentiment: 'bullish' | 'bearish' | 'neutral';
-  recentHeadlines: string[];
-}
-
-async function getTrending(): Promise<{ trending: TrendingTopic[]; articlesAnalyzed: number }> {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || 'https://crypto-data-aggregator.vercel.app'}/api/trending?limit=20`,
-      {
-        next: { revalidate: 300 },
-      }
-    );
-    if (!res.ok) throw new Error('Failed to fetch');
-    return res.json();
-  } catch {
-    return { trending: [], articlesAnalyzed: 0 };
-  }
-}
-
-const sentimentConfig = {
-  bullish: { icon: TrendingUp, label: 'Bullish', color: 'text-green-600', bg: 'bg-green-100' },
-  bearish: { icon: TrendingDown, label: 'Bearish', color: 'text-red-600', bg: 'bg-red-100' },
-  neutral: { icon: Minus, label: 'Neutral', color: 'text-text-muted', bg: 'bg-surface-alt' },
-};
+export const revalidate = 60;
 
 export default async function TrendingPage() {
-  const data = await getTrending();
+  const [trending, allCoins] = await Promise.all([
+    getTrending(),
+    getTopCoins(100),
+  ]);
+
+  // Derive top gainers for "Most Visited" proxy
+  const sortedByChange = [...allCoins].sort(
+    (a, b) => Math.abs(b.price_change_percentage_24h || 0) - Math.abs(a.price_change_percentage_24h || 0)
+  );
+  const mostActive = sortedByChange.slice(0, 8);
 
   return (
-    <div className="min-h-screen bg-surface">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-[1600px] mx-auto">
         <Header />
 
-        <main className="px-4 py-8">
+        <main className="px-4 py-6">
+          {/* Page Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-text-primary mb-2 flex items-center gap-3">
               <Flame className="w-8 h-8 text-orange-500" />
-              Trending Topics
+              Trending Coins
             </h1>
-            <p className="text-text-muted">
-              Real-time analysis of what&apos;s hot in crypto news • {data.articlesAnalyzed}{' '}
-              articles analyzed
+            <p className="text-text-secondary">
+              Real-time view of what&apos;s hot in crypto
             </p>
           </div>
 
           {/* Market Mood Banner */}
-          <div className="mb-8">
-            <MarketMoodWidget />
+          <div className="mb-6">
+            <MarketMoodWidget variant="compact" />
           </div>
 
-          {/* Social Buzz Section */}
-          <div className="mb-8">
-            <SocialBuzz />
-          </div>
-
-          {data.trending.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {data.trending.map((topic, index) => {
-                const SentimentIcon = sentimentConfig[topic.sentiment].icon;
-                return (
-                  <div
-                    key={topic.topic}
-                    className="bg-surface rounded-xl border border-surface-border p-5 hover:shadow-lg transition"
+          {/* Trending Coins Grid */}
+          <section className="mb-8">
+            <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+              <Flame className="w-5 h-5 text-orange-500" />
+              Trending Now
+            </h2>
+            {trending.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {trending.slice(0, 12).map((coin, index) => (
+                  <Link
+                    key={coin.id}
+                    href={`/coin/${coin.id}`}
+                    className="bg-surface rounded-xl border border-surface-border p-4 hover:border-primary/50 hover:shadow-lg transition-all group"
                   >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl font-bold text-text-muted/50">#{index + 1}</span>
-                        <h3 className="text-xl font-bold">{topic.topic}</h3>
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-xs font-bold text-text-muted bg-surface-alt rounded-full w-6 h-6 flex items-center justify-center">
+                        {index + 1}
+                      </span>
+                      <div className="relative w-8 h-8">
+                        {coin.thumb && (
+                          <Image
+                            src={coin.thumb}
+                            alt={coin.name}
+                            fill
+                            className="rounded-full object-cover"
+                            unoptimized
+                          />
+                        )}
                       </div>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${sentimentConfig[topic.sentiment].bg} ${sentimentConfig[topic.sentiment].color}`}
-                      >
-                        <SentimentIcon className="w-3 h-3" />
-                        {sentimentConfig[topic.sentiment].label}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-text-primary group-hover:text-primary transition-colors truncate">
+                          {coin.name}
+                        </div>
+                        <div className="text-xs text-text-muted">{coin.symbol.toUpperCase()}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      {coin.market_cap_rank && (
+                        <span className="text-xs text-text-muted">
+                          Rank #{coin.market_cap_rank}
+                        </span>
+                      )}
+                      <span className="text-xs bg-orange-500/10 text-orange-500 px-2 py-0.5 rounded-full font-medium">
+                        Trending
                       </span>
                     </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-surface rounded-xl border border-surface-border">
+                <BarChart3 className="w-12 h-12 text-text-muted mx-auto mb-3" />
+                <p className="text-text-secondary">No trending data available</p>
+              </div>
+            )}
+          </section>
 
-                    <div className="text-sm text-text-muted mb-3">
-                      {topic.count} mentions in recent news
-                    </div>
-
-                    {topic.recentHeadlines.length > 0 && (
-                      <div className="space-y-2">
-                        <p className="text-xs text-text-muted uppercase font-medium">
-                          Recent Headlines
-                        </p>
-                        {topic.recentHeadlines.slice(0, 3).map((headline, i) => (
-                          <p key={i} className="text-sm text-text-secondary line-clamp-2">
-                            • {headline}
-                          </p>
-                        ))}
+          {/* Most Active (High Volume / Volatility) */}
+          <section className="mb-8">
+            <h2 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+              <Eye className="w-5 h-5 text-primary" />
+              Most Active
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {mostActive.map((coin) => {
+                const change = coin.price_change_percentage_24h || 0;
+                const isPositive = change >= 0;
+                return (
+                  <Link
+                    key={coin.id}
+                    href={`/coin/${coin.id}`}
+                    className="bg-surface rounded-xl border border-surface-border p-4 hover:border-primary/50 hover:shadow-lg transition-all group"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="relative w-8 h-8">
+                        {coin.image && (
+                          <Image
+                            src={coin.image}
+                            alt={coin.name}
+                            fill
+                            className="rounded-full object-cover"
+                            unoptimized
+                          />
+                        )}
                       </div>
-                    )}
-
-                    <Link
-                      href={`/search?q=${encodeURIComponent(topic.topic)}`}
-                      className="inline-block mt-4 text-sm text-blue-600 hover:underline"
-                    >
-                      View all {topic.topic} news →
-                    </Link>
-                  </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-sm text-text-primary group-hover:text-primary transition-colors truncate">
+                          {coin.name}
+                        </div>
+                        <div className="text-xs text-text-muted">{coin.symbol.toUpperCase()}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-sm text-text-primary">
+                        {formatPrice(coin.current_price)}
+                      </span>
+                      <span
+                        className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                          isPositive
+                            ? 'bg-gain/10 text-gain'
+                            : 'bg-loss/10 text-loss'
+                        }`}
+                      >
+                        {formatPercent(change)}
+                      </span>
+                    </div>
+                    {/* Volume spike indicator */}
+                    <div className="mt-2 flex items-center gap-1">
+                      <div className="flex-1 h-1 bg-surface-hover rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-primary/50 rounded-full"
+                          style={{
+                            width: `${Math.min(
+                              (coin.total_volume / coin.market_cap) * 100 * 5,
+                              100
+                            )}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-text-muted">Vol</span>
+                    </div>
+                  </Link>
                 );
               })}
             </div>
-          ) : (
-            <div className="text-center py-16 bg-surface rounded-xl">
-              <div className="flex justify-center mb-4">
-                <BarChart3 className="w-16 h-16 text-text-muted" />
-              </div>
-              <h3 className="text-xl font-semibold text-text-secondary mb-2">Analyzing trends...</h3>
-              <p className="text-text-muted">Check back soon for trending topics</p>
-            </div>
-          )}
+          </section>
 
-          {/* Sentiment Legend */}
-          <div className="mt-8 p-4 bg-surface rounded-xl border border-surface-border">
-            <h4 className="font-medium mb-3">Understanding Sentiment</h4>
-            <div className="flex flex-wrap gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-green-500"></span>
-                <span>Bullish - Positive market sentiment</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-red-500"></span>
-                <span>Bearish - Negative market sentiment</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-text-muted"></span>
-                <span>Neutral - Mixed or balanced coverage</span>
-              </div>
-            </div>
-          </div>
+          {/* Social Buzz */}
+          <section className="mb-8">
+            <SocialBuzz />
+          </section>
         </main>
 
         <Footer />

@@ -21,3 +21,9 @@ export {
   YieldChart,
   REGIME_COLORS,
 } from './AnalyticsCharts';
+
+// Portfolio charts
+export { DonutChart, getChartColor } from './DonutChart';
+export type { DonutSegment } from './DonutChart';
+export { PerformanceChart, generateMockPerformanceData } from './PerformanceChart';
+export type { PerformanceDataPoint, ChartSeries, TimeRange } from './PerformanceChart';

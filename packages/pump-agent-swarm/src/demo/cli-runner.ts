@@ -387,7 +387,7 @@ export class SwarmCLI {
     );
     console.log(
       dim('  Commands: ') +
-        `${bold('[s]')}tatus ${bold('[p]')}nl ${bold('[c]')}onfig ${bold('[e]')}xit ${bold('[h]')}elp`,
+        `${bold('[s]')}tatus ${bold('[a]')}gents ${bold('[t]')}rades ${bold('[p]')}nl ${bold('[c]')}onfig e${bold('[x]')}port ${bold('[e]')}xit ${bold('[h]')}elp`,
     );
   }
 
@@ -451,8 +451,24 @@ export class SwarmCLI {
         this.displayPnL();
         break;
 
+      case 'a':
+        this.displayAgents();
+        break;
+
+      case 't':
+        this.displayTrades();
+        break;
+
       case 'c':
         this.displayConfig();
+        break;
+
+      case 'x':
+        await this.exportReport();
+        break;
+
+      case ' ':
+        this.togglePause();
         break;
 
       case 'e':
@@ -850,16 +866,123 @@ export class SwarmCLI {
     this.printConfigSummary(this.config);
   }
 
+  /**
+   * Show per-agent status summary.
+   */
+  displayAgents(): void {
+    const status = this.lastStatus;
+
+    console.log('');
+    console.log(bold(cyan('  ═══ AGENT STATUS ═══')));
+    console.log('');
+
+    if (!status?.traderStats || Object.keys(status.traderStats).length === 0) {
+      console.log(yellow('  No agents active yet.'));
+      return;
+    }
+
+    console.log(
+      `  ${'Agent'.padEnd(14)} ${'Phase'.padEnd(10)} ${'Buys'.padStart(5)} ${'Sells'.padStart(6)} ${'Win Rate'.padStart(10)} ${'P&L (SOL)'.padStart(12)}`,
+    );
+    console.log(`  ${'─'.repeat(60)}`);
+
+    for (const [name, stats] of Object.entries(status.traderStats)) {
+      const spent = Number(stats.solSpent.toString()) / LAMPORTS_PER_SOL;
+      const recv = Number(stats.solReceived.toString()) / LAMPORTS_PER_SOL;
+      const pnl = recv - spent;
+      const totalTrades = stats.totalBuys + stats.totalSells;
+      const winRate = totalTrades > 0 ? ((stats.totalSells / totalTrades) * 100).toFixed(0) + '%' : 'N/A';
+
+      console.log(
+        `  ${cyan(name.padEnd(14))} ${'active'.padEnd(10)} ${String(stats.totalBuys).padStart(5)} ${String(stats.totalSells).padStart(6)} ${winRate.padStart(10)} ${profitColor(pnl).padStart(12)}`,
+      );
+    }
+
+    console.log('');
+  }
+
+  /**
+   * Show recent trades list.
+   */
+  displayTrades(): void {
+    console.log('');
+    console.log(bold(cyan('  ═══ RECENT TRADES ═══')));
+    console.log('');
+
+    if (this.tradeLog.length === 0) {
+      console.log(yellow('  No trades recorded yet.'));
+      return;
+    }
+
+    const recent = this.tradeLog.slice(-20).reverse();
+    console.log(
+      `  ${'Time'.padEnd(10)} ${'Agent'.padEnd(12)} ${'Dir'.padEnd(5)} ${'SOL Amount'.padStart(12)} ${'Tokens'.padStart(14)}`,
+    );
+    console.log(`  ${'─'.repeat(55)}`);
+
+    for (const trade of recent) {
+      const time = new Date(trade.timestamp).toLocaleTimeString('en-US', { hour12: false });
+      const dirColor = trade.direction === 'BUY' ? green : red;
+
+      console.log(
+        `  ${dim(time.padEnd(10))} ${trade.agentName.padEnd(12)} ${dirColor(trade.direction.padEnd(5))} ${trade.solAmount.toFixed(4).padStart(12)} ${trade.tokenAmount.toLocaleString().padStart(14)}`,
+      );
+    }
+
+    console.log('');
+    console.log(dim(`  Showing ${recent.length} of ${this.tradeLog.length} total trades`));
+    console.log('');
+  }
+
+  /**
+   * Toggle pause/resume of trading.
+   */
+  private togglePause(): void {
+    if (!this.coordinator) {
+      console.log(yellow('\n  No swarm running.\n'));
+      return;
+    }
+
+    // Check current phase to determine if paused
+    if (this.lastStatus?.phase === 'paused') {
+      // Resume
+      this.eventBus.emit('command:resume', 'lifecycle', 'cli-runner', {});
+      console.log(green('\n  ▶️  Trading resumed\n'));
+    } else {
+      // Pause
+      this.eventBus.emit('command:pause', 'lifecycle', 'cli-runner', {});
+      console.log(yellow('\n  ⏸  Trading paused. Press [space] to resume.\n'));
+    }
+  }
+
+  /**
+   * Export session report on demand.
+   */
+  private async exportReport(): Promise<void> {
+    console.log(dim('\n  Exporting session report...'));
+    try {
+      const reportPath = await this.exportSessionReport();
+      console.log(green(`  ✓ Report saved: ${reportPath}\n`));
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      console.log(red(`  ✗ Export failed: ${error.message}\n`));
+    }
+  }
+
   private displayHelp(): void {
     console.log('');
     console.log(bold(cyan('  ═══ RUNTIME COMMANDS ═══')));
-    console.log(`  ${bold('s')}  — Detailed status dump`);
-    console.log(`  ${bold('p')}  — P&L breakdown by agent`);
-    console.log(`  ${bold('c')}  — Show current configuration`);
-    console.log(`  ${bold('e')}  — Trigger exit strategy and shutdown`);
-    console.log(`  ${bold('d')}  — Show dashboard URL`);
-    console.log(`  ${bold('h')}  — Show this help text`);
-    console.log(`  ${bold('q')}  — Emergency stop (immediate halt)`);
+    console.log(`  ${bold('s')}      — Detailed status dump`);
+    console.log(`  ${bold('a')}      — Agent status overview`);
+    console.log(`  ${bold('t')}      — Recent trades list`);
+    console.log(`  ${bold('p')}      — P&L breakdown by agent`);
+    console.log(`  ${bold('c')}      — Show current configuration`);
+    console.log(`  ${bold('x')}      — Export session report to JSON`);
+    console.log(`  ${bold('space')}  — Toggle pause/resume trading`);
+    console.log(`  ${bold('d')}      — Show dashboard URL`);
+    console.log(`  ${bold('e')}      — Trigger exit strategy and shutdown`);
+    console.log(`  ${bold('h')}      — Show this help text`);
+    console.log(`  ${bold('q')}      — Emergency stop (immediate halt)`);
     console.log('');
   }
 
