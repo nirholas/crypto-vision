@@ -20,10 +20,6 @@ import {
   Connection,
   PublicKey,
 } from '@solana/web3.js';
-import {
-  getAssociatedTokenAddressSync,
-  getAccount,
-} from '@solana/spl-token';
 import { OnlinePumpSdk, getTokenPrice, getGraduationProgress, bondingCurvePda } from '@pump-fun/pump-sdk';
 import BN from 'bn.js';
 import type { X402EndpointConfig } from '../x402-middleware.js';
@@ -562,7 +558,8 @@ export function createPumpRoutes(config: PumpRoutesConfig): Hono {
     }
 
     try {
-      const _bondingCurve = await sdk.fetchBondingCurve(mintPubkey);
+      // Fetch bonding curve to verify token exists on Pump.fun
+      await sdk.fetchBondingCurve(mintPubkey);
       const topHolders = await fetchTopHolders(connection, mintPubkey, 20);
 
       // Detect snipers — holders who got in very early

@@ -49,7 +49,7 @@ async function main() {
       audience: (process.env.AUDIENCE as 'technical' | 'investor' | 'general') || 'technical',
     });
 
-    const summary = await presenter.runPresentation();
+    await presenter.runPresentation();
     console.log('\n\n✅ Presentation complete!');
     return;
   }
