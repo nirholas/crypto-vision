@@ -1450,34 +1450,70 @@ export async function getTopChains(limit = 20): Promise<ChainTVL[]> {
 
 /**
  * Get comprehensive market overview (combines multiple endpoints)
+ * Handles failures gracefully with fallbacks and stale cache
  */
 export async function getMarketOverview(): Promise<MarketOverview> {
-  const [prices, global, fearGreed, topCoins, trending] = await Promise.all([
-    getSimplePrices(),
-    getGlobalMarketData(),
-    getFearGreedIndex(),
-    getTopCoins(10),
-    getTrending(),
-  ]);
+  try {
+    const [prices, global, fearGreed, topCoins, trending] = await Promise.allSettled([
+      getSimplePrices(),
+      getGlobalMarketData(),
+      getFearGreedIndex(),
+      getTopCoins(10),
+      getTrending(),
+    ]);
 
-  return {
-    global: global || {
-      active_cryptocurrencies: 0,
-      markets: 0,
-      total_market_cap: {},
-      total_volume: {},
-      market_cap_percentage: {},
-      market_cap_change_percentage_24h_usd: 0,
-      updated_at: Date.now(),
-    },
-    fearGreed,
-    topCoins,
-    trending,
-    btcPrice: prices.bitcoin?.usd || 0,
-    ethPrice: prices.ethereum?.usd || 0,
-    btcChange24h: prices.bitcoin?.usd_24h_change || 0,
-    ethChange24h: prices.ethereum?.usd_24h_change || 0,
-  };
+    // Extract values with fallbacks for any failures
+    const pricesValue = prices.status === 'fulfilled' ? prices.value : {
+      bitcoin: { usd: 0, usd_24h_change: 0 },
+      ethereum: { usd: 0, usd_24h_change: 0 },
+      solana: { usd: 0, usd_24h_change: 0 },
+    };
+
+    const globalValue = global.status === 'fulfilled' ? global.value : null;
+    const fearGreedValue = fearGreed.status === 'fulfilled' ? fearGreed.value : null;
+    const topCoinsValue = topCoins.status === 'fulfilled' ? topCoins.value : [];
+    const trendingValue = trending.status === 'fulfilled' ? trending.value : [];
+
+    return {
+      global: globalValue || {
+        active_cryptocurrencies: 0,
+        markets: 0,
+        total_market_cap: {},
+        total_volume: {},
+        market_cap_percentage: {},
+        market_cap_change_percentage_24h_usd: 0,
+        updated_at: Date.now(),
+      },
+      fearGreed: fearGreedValue,
+      topCoins: topCoinsValue,
+      trending: trendingValue,
+      btcPrice: pricesValue.bitcoin?.usd || 0,
+      ethPrice: pricesValue.ethereum?.usd || 0,
+      btcChange24h: pricesValue.bitcoin?.usd_24h_change || 0,
+      ethChange24h: pricesValue.ethereum?.usd_24h_change || 0,
+    };
+  } catch (error) {
+    console.error('Error getting market overview:', error);
+    // Return minimal but valid overview structure
+    return {
+      global: {
+        active_cryptocurrencies: 0,
+        markets: 0,
+        total_market_cap: {},
+        total_volume: {},
+        market_cap_percentage: {},
+        market_cap_change_percentage_24h_usd: 0,
+        updated_at: Date.now(),
+      },
+      fearGreed: null,
+      topCoins: [],
+      trending: [],
+      btcPrice: 0,
+      ethPrice: 0,
+      btcChange24h: 0,
+      ethChange24h: 0,
+    };
+  }
 }
 
 // =============================================================================
@@ -1609,19 +1645,21 @@ export async function getHistoricalPrice(
 
 /**
  * Get trading pairs/tickers for a coin
+ * CoinCap doesn't provide exchange tickers, so we rely on cache and error handling
  * @param coinId - CoinGecko coin ID
  * @param page - Page number for pagination
  * @returns Ticker data with exchange information
  */
 export async function getCoinTickers(coinId: string, page: number = 1): Promise<TickerData> {
   const cacheKey = `tickers-${coinId}-${page}`;
-
   const cached = getCached<TickerData>(cacheKey);
   if (cached) return cached.data;
 
   try {
     const response = await fetchWithTimeout(
-      `${COINGECKO_BASE}/coins/${coinId}/tickers?page=${page}&include_exchange_logo=true&order=volume_desc`
+      `${COINGECKO_BASE}/coins/${coinId}/tickers?page=${page}&include_exchange_logo=true&order=volume_desc`,
+      10000,
+      3 // Allow 3 retries for rate limit errors
     );
 
     if (!response.ok) {
@@ -1633,6 +1671,15 @@ export async function getCoinTickers(coinId: string, page: number = 1): Promise<
     return data;
   } catch (error) {
     console.error('Error fetching coin tickers:', error);
+    
+    // Try to return cached data even if stale
+    const staleCache = cache.get(cacheKey) as CacheEntry<TickerData> | undefined;
+    if (staleCache) {
+      console.warn(`Serving stale ticker cache for ${coinId}`);
+      return staleCache.data;
+    }
+    
+    // Return empty tickers as graceful fallback (better than error)
     return { name: coinId, tickers: [] };
   }
 }
