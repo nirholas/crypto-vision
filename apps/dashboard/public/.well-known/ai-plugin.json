@@ -1,0 +1,28 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Crypto Data Aggregator",
+  "name_for_model": "crypto_data_aggregator",
+  "description_for_human": "Real-time cryptocurrency market data for 10,000+ coins and 200+ DeFi protocols. Track prices, analyze markets, and manage portfolios.",
+  "description_for_model": "Crypto Data Aggregator provides comprehensive cryptocurrency market data via REST API. Use this to get real-time prices, market caps, trading volumes, historical data, DeFi protocol TVL, trending coins, and market sentiment. Supports x402 payment protocol for premium access. All endpoints return JSON. Key endpoints: /api/market/coins for listings, /api/market/snapshot/{coinId} for details, /api/market/history/{coinId} for historical data, /api/defi/protocols for DeFi rankings, /api/trending for trending coins, /api/sentiment for Fear & Greed Index.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "/openapi.json"
+  },
+  "x402": {
+    "enabled": true,
+    "networks": ["eip155:8453", "eip155:84532"],
+    "assets": ["USDC"],
+    "facilitator": "https://x402.org/facilitator",
+    "pricing": {
+      "basic": "$0.001",
+      "premium": "$0.01",
+      "bulk": "$0.10"
+    }
+  },
+  "logo_url": "/icons/icon-512x512.png",
+  "contact_email": "support@example.com",
+  "legal_info_url": "/LICENSE"
+}

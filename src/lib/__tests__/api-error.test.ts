@@ -24,9 +24,10 @@ function buildApp(handler: (c: any) => Response) {
   return app;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function getJSON(app: ReturnType<typeof buildApp>) {
   const res = await app.request("/test");
-  return { status: res.status, body: await res.json(), headers: res.headers };
+  return { status: res.status, body: (await res.json()) as Record<string, any>, headers: res.headers };
 }
 
 // ─── ERROR_CODES constant ────────────────────────────────────

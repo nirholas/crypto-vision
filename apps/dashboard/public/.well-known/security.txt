@@ -1,0 +1,10 @@
+# Security Policy for Crypto Data Aggregator
+# https://securitytxt.org/
+
+Contact: https://github.com/nirholas/crypto-data-aggregator/security/advisories/new
+Expires: 2027-12-31T23:59:59.000Z
+Encryption: https://github.com/nirholas.gpg
+Preferred-Languages: en
+Canonical: https://crypto-data-aggregator.vercel.app/.well-known/security.txt
+Policy: https://github.com/nirholas/crypto-data-aggregator/blob/main/docs/SECURITY.md
+Acknowledgments: https://github.com/nirholas/crypto-data-aggregator/blob/main/CONTRIBUTORS.md

@@ -23,6 +23,7 @@ import { log } from "./logger.js";
  */
 interface ProviderResponse {
   [key: string]: ProviderResponse | ProviderResponse[] | string | number | boolean | null | undefined;
+  [index: number]: ProviderResponse;
 }
 
 interface AIProvider {

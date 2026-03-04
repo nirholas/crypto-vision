@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+title: Crypto Data Aggregator
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - family-names: Nicholas
+    given-names: ""
+    orcid: ""
+    email: nirholas@users.noreply.github.com
+repository-code: "https://github.com/nirholas/crypto-data-aggregator"
+url: "https://crypto-data-aggregator.vercel.app"
+abstract: >-
+  Real-time cryptocurrency market data aggregator providing
+  free access to 10,000+ coins, 200+ DeFi protocols,
+  historical charts, portfolio tracking, and market analytics.
+  Features MCP server support for AI agents and x402 payment
+  protocol for micropayments.
+keywords:
+  - cryptocurrency
+  - market-data
+  - bitcoin
+  - ethereum
+  - defi
+  - portfolio
+  - api
+  - mcp
+  - ai-agents
+  - x402
+license: MIT
+version: 1.0.0
+date-released: "2026-01-01"

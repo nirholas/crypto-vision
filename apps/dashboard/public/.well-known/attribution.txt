@@ -1,0 +1,26 @@
+# API Providers
+# Links to the APIs we use for data - give credit!
+/.well-known/attribution.json
+
+# Data Sources
+https://www.coingecko.com/
+https://defillama.com/
+https://www.binance.com/
+https://coinpaprika.com/
+https://coincap.io/
+https://www.coinlore.com/
+https://min-api.cryptocompare.com/
+https://messari.io/
+https://www.coinglass.com/
+https://etherscan.io/
+https://blockchair.com/
+https://mempool.space/
+https://blockchain.info/
+https://alternative.me/crypto/fear-and-greed-index/
+
+# Powered By
+https://vercel.com/
+https://nextjs.org/
+https://reactjs.org/
+https://tailwindcss.com/
+https://www.typescriptlang.org/

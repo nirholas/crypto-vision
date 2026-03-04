@@ -1,0 +1,475 @@
+# Crypto Data Aggregator - Extended AI Context
+
+> Comprehensive documentation for AI agents to discover and consume this API
+
+## Overview
+
+Crypto Data Aggregator is an open-source, real-time cryptocurrency market data platform. It aggregates data from multiple sources including CoinGecko, DeFiLlama, and social APIs to provide comprehensive market intelligence.
+
+## x402 Payment Protocol Integration
+
+This API implements the x402 payment protocol, enabling AI agents to autonomously discover, pay for, and consume API endpoints.
+
+### Payment Flow
+
+1. Agent sends GET request to endpoint
+2. Server responds with 402 + PAYMENT-REQUIRED header
+3. Agent prepares payment payload with crypto wallet
+4. Agent resends request with PAYMENT-SIGNATURE header
+5. Server verifies payment via facilitator
+6. Server returns data with PAYMENT-RESPONSE header
+
+### Supported Networks
+
+| Network | Chain ID | Asset |
+|---------|----------|-------|
+| Base | eip155:8453 | USDC |
+| Base Sepolia | eip155:84532 | USDC |
+
+### Pricing Tiers
+
+| Endpoint Type | Price | Use Case |
+|--------------|-------|----------|
+| Basic Market Data | $0.001/request | Single coin lookup |
+| Bulk Data | $0.005/request | Multiple coins, rankings |
+| Historical Data | $0.01/request | Charts, OHLC data |
+| Real-time WebSocket | $0.01/hour | Live price feeds |
+| Export/Download | $0.10/export | Bulk data downloads |
+
+## API Reference
+
+### Base URL
+```
+https://your-domain.com/api/
+```
+
+### Authentication
+No API keys required. Use x402 payment headers for premium endpoints.
+
+---
+
+## Market Data Endpoints
+
+### GET /api/market/coins
+
+Get list of coins with market data.
+
+**Query Parameters:**
+- `type` (string, default: "top") - "list" for all coins, "top" for market cap ranking
+- `limit` (number, default: 100) - Number of results (max 250)
+
+**Example Request:**
+```bash
+curl "https://api.example.com/api/market/coins?type=top&limit=10"
+```
+
+**Response:**
+```json
+{
+  "coins": [
+    {
+      "id": "bitcoin",
+      "symbol": "btc",
+      "name": "Bitcoin",
+      "current_price": 45000,
+      "market_cap": 850000000000,
+      "market_cap_rank": 1,
+      "total_volume": 25000000000,
+      "price_change_percentage_24h": 2.5,
+      "circulating_supply": 19000000
+    }
+  ],
+  "total": 100
+}
+```
+
+---
+
+### GET /api/market/snapshot/{coinId}
+
+Get detailed data for a single coin.
+
+**Path Parameters:**
+- `coinId` (string, required) - CoinGecko coin ID (e.g., "bitcoin", "ethereum")
+
+**Example Request:**
+```bash
+curl "https://api.example.com/api/market/snapshot/bitcoin"
+```
+
+**Response:**
+```json
+{
+  "id": "bitcoin",
+  "symbol": "btc",
+  "name": "Bitcoin",
+  "description": "Bitcoin is the first...",
+  "market_data": {
+    "current_price": { "usd": 45000 },
+    "market_cap": { "usd": 850000000000 },
+    "total_volume": { "usd": 25000000000 },
+    "price_change_percentage_24h": 2.5,
+    "ath": { "usd": 69000 },
+    "atl": { "usd": 67 }
+  },
+  "links": {
+    "homepage": ["https://bitcoin.org"],
+    "twitter_screen_name": "bitcoin"
+  }
+}
+```
+
+---
+
+### GET /api/market/history/{coinId}
+
+Get historical price, market cap, and volume data.
+
+**Path Parameters:**
+- `coinId` (string, required) - CoinGecko coin ID
+
+**Query Parameters:**
+- `days` (number, default: 7) - Range: 1, 7, 14, 30, 90, 180, 365, max
+- `interval` (string, optional) - "minutely", "hourly", "daily"
+
+**Example Request:**
+```bash
+curl "https://api.example.com/api/market/history/bitcoin?days=30&interval=daily"
+```
+
+**Response:**
+```json
+{
+  "prices": [[1705881600000, 42500.25], [1705885200000, 42650.5]],
+  "market_caps": [[1705881600000, 832000000000]],
+  "total_volumes": [[1705881600000, 24500000000]]
+}
+```
+
+---
+
+### GET /api/market/ohlc/{coinId}
+
+Get OHLC (candlestick) data for charts.
+
+**Path Parameters:**
+- `coinId` (string, required) - CoinGecko coin ID
+
+**Query Parameters:**
+- `days` (number, default: 7) - Range: 1, 7, 14, 30, 90, 180, 365
+
+**Example Request:**
+```bash
+curl "https://api.example.com/api/market/ohlc/bitcoin?days=30"
+```
+
+**Response:**
+```json
+{
+  "ohlc": [
+    {
+      "timestamp": 1705881600000,
+      "open": 42500,
+      "high": 43200,
+      "low": 42300,
+      "close": 43100
+    }
+  ]
+}
+```
+
+---
+
+### GET /api/market/search
+
+Search for coins, exchanges, and categories.
+
+**Query Parameters:**
+- `q` (string, required) - Search query (min 2 characters)
+
+**Example Request:**
+```bash
+curl "https://api.example.com/api/market/search?q=ethereum"
+```
+
+**Response:**
+```json
+{
+  "coins": [
+    {
+      "id": "ethereum",
+      "name": "Ethereum",
+      "symbol": "eth",
+      "market_cap_rank": 2
+    }
+  ],
+  "exchanges": [],
+  "categories": []
+}
+```
+
+---
+
+### GET /api/market/compare
+
+Compare multiple coins side by side.
+
+**Query Parameters:**
+- `ids` (string, required) - Comma-separated coin IDs (max 25)
+
+**Example Request:**
+```bash
+curl "https://api.example.com/api/market/compare?ids=bitcoin,ethereum,solana"
+```
+
+**Response:**
+```json
+{
+  "coins": [
+    {
+      "id": "bitcoin",
+      "symbol": "btc",
+      "name": "Bitcoin",
+      "current_price": 45000,
+      "market_cap": 850000000000,
+      "price_change_percentage_24h": 2.5,
+      "price_change_percentage_7d": 5.2,
+      "price_change_percentage_30d": 12.5
+    }
+  ]
+}
+```
+
+---
+
+### GET /api/market/tickers/{coinId}
+
+Get trading pairs for a coin.
+
+**Path Parameters:**
+- `coinId` (string, required) - CoinGecko coin ID
+
+**Query Parameters:**
+- `page` (number, default: 1) - Page number
+
+**Example Request:**
+```bash
+curl "https://api.example.com/api/market/tickers/bitcoin"
+```
+
+**Response:**
+```json
+{
+  "name": "Bitcoin",
+  "tickers": [
+    {
+      "base": "BTC",
+      "target": "USDT",
+      "market": { "name": "Binance" },
+      "last": 45000,
+      "volume": 15000,
+      "trust_score": "green"
+    }
+  ]
+}
+```
+
+---
+
+### GET /api/market/social/{coinId}
+
+Get community and developer statistics.
+
+**Path Parameters:**
+- `coinId` (string, required) - CoinGecko coin ID
+
+**Example Request:**
+```bash
+curl "https://api.example.com/api/market/social/bitcoin"
+```
+
+---
+
+## DeFi Endpoints
+
+### GET /api/defi/protocols
+
+Get DeFi protocol rankings by TVL.
+
+**Query Parameters:**
+- `limit` (number, default: 100) - Number of results
+- `chain` (string, optional) - Filter by chain
+
+**Example Request:**
+```bash
+curl "https://api.example.com/api/defi/protocols?limit=20"
+```
+
+---
+
+### GET /api/defi/chains
+
+Get chain TVL data.
+
+**Example Request:**
+```bash
+curl "https://api.example.com/api/defi/chains"
+```
+
+---
+
+## Trending & Sentiment Endpoints
+
+### GET /api/trending
+
+Get trending coins.
+
+**Example Request:**
+```bash
+curl "https://api.example.com/api/trending"
+```
+
+---
+
+### GET /api/sentiment
+
+Get Fear & Greed Index and market sentiment.
+
+**Example Request:**
+```bash
+curl "https://api.example.com/api/sentiment"
+```
+
+**Response:**
+```json
+{
+  "value": 65,
+  "classification": "Greed",
+  "timestamp": "2026-01-23T12:00:00.000Z"
+}
+```
+
+---
+
+## Charts Endpoints
+
+### GET /api/charts/{coinId}
+
+Get chart data for visualization.
+
+**Path Parameters:**
+- `coinId` (string, required) - CoinGecko coin ID
+
+**Query Parameters:**
+- `days` (number, default: 7) - Time range
+
+---
+
+## Error Handling
+
+All endpoints return consistent error responses:
+
+```json
+{
+  "error": "Error message",
+  "code": "ERROR_CODE",
+  "status": 400
+}
+```
+
+### Error Codes
+
+| Code | Description |
+|------|-------------|
+| 400 | Bad Request - Invalid parameters |
+| 402 | Payment Required - x402 payment needed |
+| 404 | Not Found - Resource doesn't exist |
+| 429 | Rate Limited - Too many requests |
+| 500 | Server Error - Internal error |
+
+---
+
+## Rate Limits
+
+| Tier | Requests/Minute | With x402 Payment |
+|------|-----------------|-------------------|
+| Free | 30 | N/A |
+| Basic | 100 | $0.001/request |
+| Premium | Unlimited | $0.01/request |
+
+---
+
+## x402 Integration Example
+
+### For AI Agents
+
+```typescript
+import { wrapAxiosWithPayment, x402Client } from "@x402/axios";
+import { registerExactEvmScheme } from "@x402/evm/exact/client";
+import axios from "axios";
+import { privateKeyToAccount } from "viem/accounts";
+
+// Setup payment account
+const account = privateKeyToAccount("0xYourPrivateKey");
+const client = new x402Client();
+registerExactEvmScheme(client, { signer: account });
+
+// Create payment-enabled HTTP client
+const api = wrapAxiosWithPayment(
+  axios.create({ baseURL: "https://your-domain.com/api" }),
+  client
+);
+
+// Make paid request - payment handled automatically
+const response = await api.get("/market/snapshot/bitcoin");
+console.log(response.data);
+```
+
+### Discovery via Bazaar
+
+This API is registered with the x402 Bazaar for automatic discovery:
+
+```typescript
+import { HTTPFacilitatorClient } from "@x402/core/http";
+import { withBazaar } from "@x402/extensions";
+
+const facilitatorClient = new HTTPFacilitatorClient({
+  url: "https://x402.org/facilitator"
+});
+const client = withBazaar(facilitatorClient);
+
+// Discover this API
+const resources = await client.extensions.discovery.listResources({ 
+  type: "http" 
+});
+
+// Find crypto data endpoints
+const cryptoEndpoints = resources.items.filter(item => 
+  item.resource.includes("crypto-data-aggregator")
+);
+```
+
+---
+
+## Data Sources
+
+| Source | Data Type |
+|--------|-----------|
+| CoinGecko | Market data, prices, rankings |
+| DeFiLlama | DeFi TVL, protocol data |
+| Alternative.me | Fear & Greed Index |
+| Social APIs | Community metrics |
+
+---
+
+## Repository
+
+- GitHub: https://github.com/nirholas/crypto-data-aggregator
+- License: MIT
+- Documentation: /docs/
+
+---
+
+## Support
+
+For issues or feature requests, open an issue on GitHub.

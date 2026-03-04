@@ -1,0 +1,62 @@
+# Crypto Data Aggregator
+
+> Real-time cryptocurrency market data aggregator with x402 payment protocol support
+
+## About
+
+Crypto Data Aggregator is an open-source platform providing real-time data for 10,000+ cryptocurrencies and 200+ DeFi protocols. Built with Next.js 16, TypeScript, and React 19.
+
+## x402 Payment Protocol
+
+This API supports the x402 payment protocol for micropayments. AI agents can discover and consume endpoints autonomously using cryptocurrency payments.
+
+- Protocol: x402 (HTTP 402 Payment Required)
+- Networks: Base (eip155:8453), Base Sepolia (eip155:84532)
+- Payment: USDC micropayments from $0.001
+- No API keys required - just pay and access
+
+## Capabilities
+
+- Live cryptocurrency prices for 10,000+ coins
+- Market cap rankings and volume data
+- DeFi protocol TVL from 200+ protocols
+- Historical price data and OHLC charts
+- Trending coins and sentiment analysis
+- Portfolio tracking and watchlists
+- Price alerts and notifications
+
+## API Endpoints
+
+All endpoints are prefixed with `/api/`
+
+### Market Data
+- GET /api/market/coins - List coins with market data
+- GET /api/market/snapshot/{coinId} - Detailed coin data
+- GET /api/market/history/{coinId} - Historical prices
+- GET /api/market/ohlc/{coinId} - OHLC candlestick data
+- GET /api/market/search - Search coins
+- GET /api/market/compare - Compare multiple coins
+- GET /api/market/tickers/{coinId} - Trading pairs
+- GET /api/market/social/{coinId} - Social/community data
+
+### DeFi
+- GET /api/defi/protocols - DeFi protocol rankings
+- GET /api/defi/chains - Chain TVL data
+
+### Trending & Sentiment
+- GET /api/trending - Trending coins
+- GET /api/sentiment - Fear & Greed Index
+
+### Charts
+- GET /api/charts/{coinId} - Chart data
+
+## Documentation
+
+- Full API docs: /docs/API.md
+- Extended AI context: /llms-full.txt
+- x402 Integration: /docs/X402_INTEGRATION.md
+
+## Contact
+
+- Repository: https://github.com/nirholas/crypto-data-aggregator
+- License: MIT

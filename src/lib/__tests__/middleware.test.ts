@@ -37,6 +37,12 @@ import { FetchError } from "@/lib/fetcher.js";
 import { logger as mockLogger } from "@/lib/logger.js";
 import { globalErrorHandler, requestLogger, requestTimeout } from "@/lib/middleware.js";
 
+type MockedLogger = typeof mockLogger & {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [K in keyof typeof mockLogger]: any;
+};
+const mLog = mockLogger as MockedLogger;
+
 // ─── requestLogger ──────────────────────────────────────────
 
 describe("requestLogger", () => {

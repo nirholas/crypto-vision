@@ -1,0 +1,622 @@
+/* Custom Fonts - Must be at the top */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+/* ============================================
+   Crypto Data Aggregator - BLACK BACKGROUND, WHITE TEXT
+   Single theme - no dark/light mode switching
+   ============================================ */
+
+/* Base Styles - BLACK BACKGROUND, WHITE TEXT */
+html, body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+/* Force ALL text to be white - no grey text */
+*, *::before, *::after {
+  color: inherit;
+}
+
+h1, h2, h3, h4, h5, h6, p, span, div, label, li, td, th, a, button, input, select, textarea {
+  color: #ffffff !important;
+}
+
+/* Override any grey/gray text colors */
+[class*="text-gray-"],
+[class*="text-slate-"],
+[class*="text-neutral-"],
+[class*="text-zinc-"],
+.text-muted,
+.text-muted-foreground {
+  color: #ffffff !important;
+}
+
+/* Placeholder text - slightly dimmer but still readable */
+::placeholder {
+  color: rgba(255, 255, 255, 0.6) !important;
+  opacity: 1;
+}
+
+/* Override white backgrounds to near-black for components */
+.dark .bg-white,
+.bg-white {
+  background-color: #0a0a0a !important;
+}
+
+/* Force all elements to inherit dark border */
+* {
+  border-color: #1a1a1a;
+}
+
+/* ============================================
+   Card & Component Styling - Subtle glow effect
+   Black background with soft white glow for depth
+   ============================================ */
+
+/* Cards, panels, modals - subtle border glow effect */
+.card, 
+[class*="bg-neutral-800"],
+[class*="bg-neutral-900"],
+[class*="bg-gray-800"],
+[class*="bg-gray-900"],
+[class*="bg-slate-800"],
+[class*="bg-slate-900"] {
+  background-color: #0a0a0a !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06),
+              0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Slightly elevated cards for better hierarchy */
+[class*="rounded-xl"][class*="border"],
+[class*="rounded-2xl"][class*="border"],
+[class*="rounded-lg"][class*="border"] {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04),
+              0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced hover glow effect for cards */
+[class*="rounded-xl"]:hover,
+[class*="rounded-2xl"]:hover,
+[class*="rounded-lg"]:hover {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12),
+              0 0 20px rgba(255, 255, 255, 0.04),
+              0 8px 32px rgba(0, 0, 0, 0.5);
+  transform: translateY(-1px);
+}
+
+/* Glow utility class - apply with .glow-hover */
+.glow-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glow-hover:hover {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15),
+              0 0 30px rgba(255, 255, 255, 0.08),
+              0 10px 40px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Subtle pulse glow for interactive elements */
+.glow-pulse {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12),
+                0 0 15px rgba(255, 255, 255, 0.04);
+  }
+}
+
+/* Buttons - subtle glow */
+button, .btn, [role="button"] {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:hover, .btn:hover, [role="button"]:hover {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2),
+              0 0 20px rgba(255, 255, 255, 0.06),
+              0 4px 16px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+}
+
+button:active, .btn:active, [role="button"]:active {
+  transform: translateY(0);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Input fields - elevated appearance */
+input, select, textarea {
+  background-color: #050505 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1),
+              inset 0 1px 4px rgba(0, 0, 0, 0.4);
+  outline: none;
+}
+
+/* Tables */
+table {
+  border: 1px solid #1a1a1a;
+}
+
+th {
+  background-color: #0a0a0a;
+  border-bottom: 1px solid #222222;
+}
+
+tr {
+  border-bottom: 1px solid #111111;
+}
+
+tr:hover {
+  background-color: #0a0a0a;
+}
+
+/* Links */
+a {
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  color: #e0e0e0;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
+}
+
+/* Navigation links - subtle underline glow */
+nav a, .nav-link {
+  position: relative;
+  transition: all 0.25s ease;
+}
+
+nav a::after, .nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+nav a:hover::after, .nav-link:hover::after {
+  width: 80%;
+}
+
+/* Focus Styles - Accessibility */
+:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Skip Link - Accessibility */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  color: #000000;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0 0 0.25rem 0.25rem;
+  font-weight: 600;
+  z-index: 9999;
+  transition: top 150ms ease;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Custom Scrollbar - Black theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-gentle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+/* Animation Utilities */
+.animate-fade-in {
+  animation: fadeIn 200ms ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 300ms ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 300ms ease-out;
+}
+
+.animate-pulse-gentle {
+  animation: pulse-gentle 2s ease-in-out infinite;
+}
+
+/* Skeleton Loading - Black theme */
+.skeleton {
+  background: linear-gradient(90deg, #111111 25%, #222222 50%, #111111 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0.125rem;
+}
+
+/* Card Hover Effect */
+.card-hover {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgb(255 255 255 / 0.1);
+}
+
+/* Button Press Effect */
+.btn-press:active {
+  transform: scale(0.98);
+}
+
+/* Gradient Text - White on black */
+.gradient-text {
+  background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass Effect - Dark glass */
+.glass {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Hide Scrollbar but Keep Functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Horizontal Scroll Fade Indicators */
+.scroll-fade-x {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+}
+
+/* Price Change Colors - White text */
+.price-up {
+  color: #22c55e;
+}
+
+.price-up::before {
+  content: '▲ ';
+  font-size: 0.65em;
+}
+
+.price-down {
+  color: #ef4444;
+}
+
+.price-down::before {
+  content: '▼ ';
+  font-size: 0.65em;
+}
+
+/* Staggered Animation for Lists */
+.stagger-children > * {
+  animation: fadeInUp 300ms ease-out backwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 350ms; }
+.stagger-children > *:nth-child(9) { animation-delay: 400ms; }
+
+/* Mega Menu Animations */
+@keyframes megaMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes menuFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes megaMenuItemSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.mega-menu-enter {
+  animation: megaMenuFadeIn 200ms ease-out forwards;
+}
+
+.mega-menu-item {
+  animation: megaMenuItemSlide 250ms ease-out backwards;
+}
+
+.mega-menu-item:nth-child(1) { animation-delay: 50ms; }
+.mega-menu-item:nth-child(2) { animation-delay: 100ms; }
+.mega-menu-item:nth-child(3) { animation-delay: 150ms; }
+.mega-menu-item:nth-child(4) { animation-delay: 200ms; }
+.mega-menu-item:nth-child(5) { animation-delay: 250ms; }
+.mega-menu-item:nth-child(6) { animation-delay: 300ms; }
+
+/* Command Palette Animations */
+@keyframes commandPaletteFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.command-palette-enter {
+  animation: commandPaletteFadeIn 150ms ease-out forwards;
+}
+
+/* Ring Focus for Interactive Elements */
+.focus-ring {
+  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2;
+}
+
+/* ============================================
+   DARK MODE SUPPORT - WHITE TEXT ON BLACK
+   ============================================ */
+
+/* Dark Mode CSS Variables */
+.dark {
+  /* Background Colors - BLACK */
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #000000;
+  --color-bg-tertiary: #000000;
+  --color-bg-elevated: #000000;
+  
+  /* Text Colors - WHITE */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #ffffff;
+  --color-text-muted: #ffffff;
+  --color-text-placeholder: #ffffff;
+  
+  /* Border Colors - WHITE */
+  --color-border: #ffffff;
+  --color-border-light: #ffffff;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(255 255 255 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(255 255 255 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(255 255 255 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(255 255 255 / 0.1);
+  
+  /* Semantic Colors - WHITE */
+  --color-success: #ffffff;
+  --color-success-light: #ffffff;
+  --color-danger: #ffffff;
+  --color-danger-light: #ffffff;
+  --color-warning: #ffffff;
+  --color-warning-light: #ffffff;
+  
+  /* Brand Colors - WHITE */
+  --color-brand-50: #000000;
+  --color-brand-100: #000000;
+  --color-brand-200: #000000;
+  --color-brand-300: #ffffff;
+  --color-brand-400: #ffffff;
+  --color-brand-500: #ffffff;
+  --color-brand-600: #ffffff;
+  --color-brand-700: #ffffff;
+  --color-brand-800: #ffffff;
+  --color-brand-900: #ffffff;
+  
+  color-scheme: dark;
+}
+
+/* Dark mode base styles */
+.dark body {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* Dark mode scrollbar - WHITE */
+.dark ::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #ffffff;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #ffffff;
+}
+
+/* Dark mode skeleton loading */
+.dark .skeleton {
+  background: linear-gradient(90deg, #000000 25%, #ffffff 50%, #000000 75%);
+  background-size: 200% 100%;
+}
+
+/* Dark mode glass effect */
+.dark .glass {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+/* Dark mode gradient text */
+.dark .gradient-text {
+  background: #ffffff;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Dark mode focus ring */
+.dark :focus-visible {
+  outline-color: #ffffff;
+}
+
+/* Dark mode card hover */
+.dark .card-hover:hover {
+  box-shadow: 0 10px 15px -3px rgb(255 255 255 / 0.2);
+}
+
+/* Dark mode price colors - WHITE */
+.dark .price-up {
+  color: #ffffff;
+}
+
+.dark .price-down {
+  color: #ffffff;
+}
+
+/* System preference fallback - BLACK AND WHITE */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --shadow-sm: 0 1px 2px 0 rgb(255 255 255 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(255 255 255 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(255 255 255 / 0.1);
+  }
+  
+  :root:not(.light) ::-webkit-scrollbar-track {
+    background: #000000;
+  }
+  
+  :root:not(.light) ::-webkit-scrollbar-thumb {
+    background: #ffffff;
+  }
+  
+  :root:not(.light) ::-webkit-scrollbar-thumb:hover {
+    background: #ffffff;
+  }
+  
+  :root:not(.light) .skeleton {
+    background: linear-gradient(90deg, #000000 25%, #ffffff 50%, #000000 75%);
+    background-size: 200% 100%;
+  }
+  
+  :root:not(.light) .glass {
+    background: rgba(0, 0, 0, 0.9);
+  }
+}

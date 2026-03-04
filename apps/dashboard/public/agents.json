@@ -1,0 +1,178 @@
+{
+  "$schema": "https://x402.org/schemas/agents.json",
+  "name": "Crypto Data Aggregator",
+  "description": "Real-time cryptocurrency market data aggregator with x402 payment protocol support",
+  "version": "1.0.0",
+  "x402": {
+    "enabled": true,
+    "discoverable": true,
+    "facilitator": "https://api.cdp.coinbase.com/platform/v2/x402",
+    "networks": [
+      {
+        "id": "eip155:8453",
+        "name": "Base",
+        "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "assetName": "USDC"
+      },
+      {
+        "id": "eip155:84532",
+        "name": "Base Sepolia",
+        "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "assetName": "USDC"
+      }
+    ]
+  },
+  "capabilities": [
+    "cryptocurrency-prices",
+    "market-data",
+    "defi-analytics",
+    "historical-charts",
+    "sentiment-analysis",
+    "portfolio-tracking"
+  ],
+  "endpoints": {
+    "market": {
+      "coins": {
+        "method": "GET",
+        "path": "/api/market/coins",
+        "description": "Get list of coins with market data",
+        "price": "$0.001",
+        "parameters": {
+          "type": { "type": "string", "default": "top", "description": "list or top" },
+          "limit": {
+            "type": "number",
+            "default": 100,
+            "description": "Number of results (max 250)"
+          }
+        }
+      },
+      "snapshot": {
+        "method": "GET",
+        "path": "/api/market/snapshot/{coinId}",
+        "description": "Get detailed data for a single coin",
+        "price": "$0.001",
+        "parameters": {
+          "coinId": { "type": "string", "required": true, "description": "CoinGecko coin ID" }
+        }
+      },
+      "history": {
+        "method": "GET",
+        "path": "/api/market/history/{coinId}",
+        "description": "Get historical price data",
+        "price": "$0.01",
+        "parameters": {
+          "coinId": { "type": "string", "required": true, "description": "CoinGecko coin ID" },
+          "days": {
+            "type": "number",
+            "default": 7,
+            "description": "Range: 1, 7, 14, 30, 90, 180, 365"
+          },
+          "interval": { "type": "string", "description": "minutely, hourly, daily" }
+        }
+      },
+      "ohlc": {
+        "method": "GET",
+        "path": "/api/market/ohlc/{coinId}",
+        "description": "Get OHLC candlestick data",
+        "price": "$0.01",
+        "parameters": {
+          "coinId": { "type": "string", "required": true, "description": "CoinGecko coin ID" },
+          "days": {
+            "type": "number",
+            "default": 7,
+            "description": "Range: 1, 7, 14, 30, 90, 180, 365"
+          }
+        }
+      },
+      "search": {
+        "method": "GET",
+        "path": "/api/market/search",
+        "description": "Search for coins, exchanges, categories",
+        "price": "$0.001",
+        "parameters": {
+          "q": { "type": "string", "required": true, "description": "Search query (min 2 chars)" }
+        }
+      },
+      "compare": {
+        "method": "GET",
+        "path": "/api/market/compare",
+        "description": "Compare multiple coins side by side",
+        "price": "$0.005",
+        "parameters": {
+          "ids": {
+            "type": "string",
+            "required": true,
+            "description": "Comma-separated coin IDs (max 25)"
+          }
+        }
+      },
+      "tickers": {
+        "method": "GET",
+        "path": "/api/market/tickers/{coinId}",
+        "description": "Get trading pairs for a coin",
+        "price": "$0.001",
+        "parameters": {
+          "coinId": { "type": "string", "required": true, "description": "CoinGecko coin ID" },
+          "page": { "type": "number", "default": 1, "description": "Page number" }
+        }
+      },
+      "social": {
+        "method": "GET",
+        "path": "/api/market/social/{coinId}",
+        "description": "Get community and developer statistics",
+        "price": "$0.001",
+        "parameters": {
+          "coinId": { "type": "string", "required": true, "description": "CoinGecko coin ID" }
+        }
+      }
+    },
+    "defi": {
+      "protocols": {
+        "method": "GET",
+        "path": "/api/defi/protocols",
+        "description": "Get DeFi protocol rankings by TVL",
+        "price": "$0.005",
+        "parameters": {
+          "limit": { "type": "number", "default": 100, "description": "Number of results" },
+          "chain": { "type": "string", "description": "Filter by chain" }
+        }
+      },
+      "chains": {
+        "method": "GET",
+        "path": "/api/defi/chains",
+        "description": "Get chain TVL data",
+        "price": "$0.005"
+      }
+    },
+    "trending": {
+      "method": "GET",
+      "path": "/api/trending",
+      "description": "Get trending coins",
+      "price": "$0.001"
+    },
+    "sentiment": {
+      "method": "GET",
+      "path": "/api/sentiment",
+      "description": "Get Fear & Greed Index and market sentiment",
+      "price": "$0.001"
+    },
+    "charts": {
+      "method": "GET",
+      "path": "/api/charts/{coinId}",
+      "description": "Get chart data for visualization",
+      "price": "$0.01",
+      "parameters": {
+        "coinId": { "type": "string", "required": true, "description": "CoinGecko coin ID" },
+        "days": { "type": "number", "default": 7, "description": "Time range" }
+      }
+    }
+  },
+  "documentation": {
+    "llms": "/llms.txt",
+    "llmsFull": "/llms-full.txt",
+    "api": "/docs/API.md",
+    "x402": "/docs/X402_INTEGRATION.md"
+  },
+  "repository": "https://github.com/nirholas/crypto-data-aggregator",
+  "license": "MIT"
+}

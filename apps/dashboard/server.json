@@ -1,0 +1,47 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.nirholas/crypto-data-aggregator",
+  "title": "Crypto Data Aggregator",
+  "description": "Aggregates crypto data from multiple sources - prices, news, on-chain metrics",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "nich",
+      "url": "https://github.com/nirholas"
+    }
+  ],
+  "repository": {
+    "url": "https://github.com/nirholas/crypto-data-aggregator",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "links": {
+    "homepage": "https://github.com/nirholas/crypto-data-aggregator",
+    "bugs": "https://github.com/nirholas/crypto-data-aggregator/issues",
+    "npm": "https://www.npmjs.com/package/crypto-data-aggregator"
+  },
+  "icons": [
+    {
+      "url": "https://raw.githubusercontent.com/nirholas/g1t/d9a0ee206b8136472c04384905999369f198b3c9/milady.svg",
+      "type": "svg"
+    }
+  ],
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "crypto-data-aggregator",
+      "version": "1.0.0",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": []
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "keywords": ["crypto", "data", "aggregator", "prices", "news", "on-chain", "mcp"],
+      "category": "Data"
+    }
+  }
+}

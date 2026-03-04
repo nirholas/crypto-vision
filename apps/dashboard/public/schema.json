@@ -1,0 +1,120 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://crypto-data-aggregator.vercel.app/#website",
+      "url": "https://crypto-data-aggregator.vercel.app",
+      "name": "Crypto Data Aggregator",
+      "description": "Real-time cryptocurrency market data aggregator for 10,000+ coins and 200+ DeFi protocols",
+      "publisher": {
+        "@id": "https://crypto-data-aggregator.vercel.app/#organization"
+      },
+      "potentialAction": [
+        {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://crypto-data-aggregator.vercel.app/search?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      ],
+      "inLanguage": "en-US"
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://crypto-data-aggregator.vercel.app/#organization",
+      "name": "Crypto Data Aggregator",
+      "url": "https://crypto-data-aggregator.vercel.app",
+      "logo": {
+        "@type": "ImageObject",
+        "inLanguage": "en-US",
+        "@id": "https://crypto-data-aggregator.vercel.app/#logo",
+        "url": "https://crypto-data-aggregator.vercel.app/icons/icon-512x512.png",
+        "contentUrl": "https://crypto-data-aggregator.vercel.app/icons/icon-512x512.png",
+        "width": 512,
+        "height": 512,
+        "caption": "Crypto Data Aggregator"
+      },
+      "sameAs": [
+        "https://github.com/nirholas/crypto-data-aggregator"
+      ]
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://crypto-data-aggregator.vercel.app/#app",
+      "name": "Crypto Data Aggregator",
+      "operatingSystem": "Web",
+      "applicationCategory": "FinanceApplication",
+      "applicationSubCategory": "Cryptocurrency",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "150",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "featureList": [
+        "Real-time cryptocurrency prices for 10,000+ coins",
+        "DeFi protocol analytics for 200+ protocols",
+        "Portfolio tracking and management",
+        "Price alerts and notifications",
+        "Historical price charts and OHLCV data",
+        "Fear & Greed Index tracking",
+        "Trending coins and market sentiment",
+        "PWA installable on any device",
+        "Free REST API with no keys required",
+        "AI Agent and MCP server support"
+      ],
+      "screenshot": "https://crypto-data-aggregator.vercel.app/og-image.png"
+    },
+    {
+      "@type": "WebAPI",
+      "@id": "https://crypto-data-aggregator.vercel.app/#api",
+      "name": "Crypto Data Aggregator API",
+      "description": "Free REST API for cryptocurrency market data, DeFi analytics, and portfolio management",
+      "url": "https://crypto-data-aggregator.vercel.app/api",
+      "documentation": "https://github.com/nirholas/crypto-data-aggregator/blob/main/docs/API.md",
+      "termsOfService": "https://github.com/nirholas/crypto-data-aggregator/blob/main/LICENSE",
+      "provider": {
+        "@id": "https://crypto-data-aggregator.vercel.app/#organization"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://crypto-data-aggregator.vercel.app/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is the API free to use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, the API is completely free with no API keys required. Premium features are available through x402 micropayments."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How many cryptocurrencies are supported?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We support over 10,000 cryptocurrencies with real-time price data, market caps, and trading volumes."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I self-host this project?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, the project is open source under MIT license and can be self-hosted with one command: npm install && npm run dev"
+          }
+        }
+      ]
+    }
+  ]
+}

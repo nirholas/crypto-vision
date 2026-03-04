@@ -1,0 +1,28 @@
+# Humans.txt - http://humanstxt.org/
+# The people behind Crypto Data Aggregator
+
+/* TEAM */
+Lead Developer: Nicholas
+Site: https://github.com/nirholas
+Twitter: @nirholas
+Location: Global
+
+/* THANKS */
+CoinGecko - Market data API
+DeFiLlama - DeFi protocol data
+Coinbase - x402 payment protocol
+Vercel - Hosting platform
+Next.js - React framework
+Tailwind CSS - Styling
+
+/* SITE */
+Last update: 2026/01/24
+Standards: HTML5, CSS3, ES2024
+Components: React 19, Next.js 16, TypeScript 5
+Software: VS Code, GitHub Copilot
+
+/* OPEN SOURCE */
+Repository: https://github.com/nirholas/crypto-data-aggregator
+License: MIT
+Stars: Growing!
+Contributors: Welcome
