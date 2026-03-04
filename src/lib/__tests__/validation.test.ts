@@ -621,7 +621,7 @@ describe("validateBody()", () => {
       body: JSON.stringify({ question: "What is ETH?" }),
     });
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.ok).toBe(true);
     expect(body.data.question).toBe("What is ETH?");
   });
@@ -634,7 +634,7 @@ describe("validateBody()", () => {
       body: "not valid json{{{",
     });
     expect(res.status).toBe(400);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.code).toBe("INVALID_REQUEST");
   });
 
@@ -646,7 +646,7 @@ describe("validateBody()", () => {
       body: JSON.stringify({ question: "" }),
     });
     expect(res.status).toBe(400);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.code).toBe("VALIDATION_FAILED");
     expect(body.validationErrors).toBeDefined();
     expect(body.validationErrors.length).toBeGreaterThan(0);
@@ -660,7 +660,7 @@ describe("validateBody()", () => {
       body: JSON.stringify({ holdings: [] }),
     });
     expect(res.status).toBe(400);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.validationErrors).toBeDefined();
     expect(body.validationErrors[0].field).toBeDefined();
   });
@@ -683,7 +683,7 @@ describe("validateQuery()", () => {
     const app = buildApp("limit", LimitSchema);
     const res = await app.request("/test?limit=50");
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toBe(50);
   });
 
@@ -691,7 +691,7 @@ describe("validateQuery()", () => {
     const app = buildApp("limit", LimitSchema);
     const res = await app.request("/test");
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toBe(25);
   });
 
@@ -699,7 +699,7 @@ describe("validateQuery()", () => {
     const app = buildApp("limit", LimitSchema);
     const res = await app.request("/test?limit=999");
     expect(res.status).toBe(400);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.code).toBe("VALIDATION_FAILED");
   });
 });
@@ -721,7 +721,7 @@ describe("validateParam()", () => {
     const app = buildApp("coin", CoinIdSchema);
     const res = await app.request("/test/bitcoin");
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toBe("bitcoin");
   });
 
@@ -729,7 +729,7 @@ describe("validateParam()", () => {
     const app = buildApp("coin", CoinIdSchema);
     const res = await app.request("/test/..%2Fetc%2Fpasswd");
     expect(res.status).toBe(400);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.code).toBe("VALIDATION_FAILED");
   });
 });

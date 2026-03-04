@@ -71,7 +71,7 @@ describe("requestLogger", () => {
 
     await app.request("/test");
     expect(mockLogger.info).toHaveBeenCalled();
-    const logArgs = mockLogger.info.mock.calls[0];
+    const logArgs = mLog.info.mock.calls[0];
     expect(logArgs[0]).toMatchObject({
       method: "GET",
       path: "/test",
@@ -85,7 +85,7 @@ describe("requestLogger", () => {
 
     await app.request("/test");
     expect(mockLogger.warn).toHaveBeenCalled();
-    const logArgs = mockLogger.warn.mock.calls[0];
+    const logArgs = mLog.warn.mock.calls[0];
     expect(logArgs[0]).toMatchObject({
       method: "GET",
       path: "/test",
@@ -99,7 +99,7 @@ describe("requestLogger", () => {
 
     await app.request("/test");
     expect(mockLogger.error).toHaveBeenCalled();
-    const logArgs = mockLogger.error.mock.calls[0];
+    const logArgs = mLog.error.mock.calls[0];
     expect(logArgs[0]).toMatchObject({
       method: "GET",
       path: "/test",
@@ -115,7 +115,7 @@ describe("requestLogger", () => {
       headers: { "x-request-id": "req-abc-123" },
     });
     expect(mockLogger.info).toHaveBeenCalled();
-    const logArgs = mockLogger.info.mock.calls[0];
+    const logArgs = mLog.info.mock.calls[0];
     expect(logArgs[0].requestId).toBe("req-abc-123");
   });
 });
@@ -168,7 +168,7 @@ describe("globalErrorHandler", () => {
 
     const res = await app.request("/test");
     expect(res.status).toBe(404);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.code).toBe("NOT_FOUND");
     expect(body.error).toBe("Coin not found");
   });
@@ -183,7 +183,7 @@ describe("globalErrorHandler", () => {
 
       const res = await app.request("/test");
       expect(res.status).toBe(429);
-      const body = await res.json();
+      const body = (await res.json()) as Record<string, any>;
       expect(body.retryAfter).toBe(30);
       expect(body.details).toEqual({ ip: "1.2.3.4" });
     } finally {
@@ -198,7 +198,7 @@ describe("globalErrorHandler", () => {
 
     const res = await app.request("/test");
     expect(res.status).toBe(502);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.code).toBe("UPSTREAM_ERROR");
   });
 
@@ -209,7 +209,7 @@ describe("globalErrorHandler", () => {
 
     const res = await app.request("/test");
     expect(res.status).toBe(502);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.code).toBe("UPSTREAM_ERROR");
     expect(body.error).toContain("rate limited");
     expect(body.retryAfter).toBe(30);
@@ -222,7 +222,7 @@ describe("globalErrorHandler", () => {
 
     const res = await app.request("/test");
     expect(res.status).toBe(400);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.code).toBe("INVALID_JSON");
   });
 
@@ -233,7 +233,7 @@ describe("globalErrorHandler", () => {
 
     const res = await app.request("/test");
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.code).toBe("INTERNAL_ERROR");
   });
 
@@ -246,7 +246,7 @@ describe("globalErrorHandler", () => {
       });
 
       const res = await app.request("/test");
-      const body = await res.json();
+      const body = (await res.json()) as Record<string, any>;
       expect(body.error).toBe("dev-visible error");
     } finally {
       process.env.NODE_ENV = origEnv;
@@ -262,7 +262,7 @@ describe("globalErrorHandler", () => {
       });
 
       const res = await app.request("/test");
-      const body = await res.json();
+      const body = (await res.json()) as Record<string, any>;
       expect(body.error).toBe("An unexpected error occurred");
       expect(body.details).toBeUndefined();
     } finally {
