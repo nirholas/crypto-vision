@@ -954,7 +954,7 @@ export class WalletFunder {
       let closed = 0;
 
       // Process token accounts in small batches to avoid TX size limits
-      const accountBatches = chunk(tokenAccounts.value, 5);
+      const accountBatches = chunk([...tokenAccounts.value], 5);
 
       for (const batch of accountBatches) {
         const tx = new Transaction();

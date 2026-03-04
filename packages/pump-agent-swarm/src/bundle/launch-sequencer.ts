@@ -51,17 +51,13 @@ import type {
   TokenConfig,
   BundleBuyConfig,
   MintResult,
-  BondingCurveState,
-  SwarmPhase,
 } from '../types.js';
 import { CreatorAgent } from '../agents/creator-agent.js';
 import { WalletVault } from '../wallet-manager.js';
 import { DevBuyOptimizer } from './dev-buy-optimizer.js';
 import type { DevBuyRecommendation } from './dev-buy-optimizer.js';
 import { JitoClient } from './jito-client.js';
-import type { JitoBundleResult } from './jito-client.js';
 import { SupplyDistributor } from './supply-distributor.js';
-import type { DistributionResult } from './supply-distributor.js';
 import { SwarmEventBus } from '../infra/event-bus.js';
 import { SwarmLogger } from '../infra/logger.js';
 
@@ -475,7 +471,7 @@ export class LaunchSequencer {
           ? this.config.totalBundleBudgetSOL / traderWallets.length
           : this.config.perWalletBuySOL;
 
-      const bundleBuys = traderWallets.map((wallet, index) => {
+      const bundleBuys = traderWallets.map((_wallet, index) => {
         const variedAmount = applyVariance(perWalletBuySOL, 15);
         const simulatedTokens = this.devBuyOptimizer.calculateTokensForSOL(variedAmount);
         return {
@@ -659,11 +655,7 @@ export class LaunchSequencer {
         error: error instanceof Error ? error.message : String(error),
       });
 
-      this.logger.error('Launch failed', {
-        planId: plan.id,
-        phase: this.currentPhase,
-        error: error instanceof Error ? error.message : String(error),
-      });
+      this.logger.error(`Launch failed in phase ${this.currentPhase} for plan ${plan.id}`, error instanceof Error ? error : new Error(String(error)));
 
       return result;
     } finally {
@@ -1077,7 +1069,7 @@ export class LaunchSequencer {
       );
 
       // Try Jito bundle for same-slot execution
-      if (this.config.useJito && this.jitoClient.isAvailable()) {
+      if (this.config.useJito && await this.jitoClient.isAvailable()) {
         await this.executeBundleViaJito(plan, traderWallets);
       } else {
         // Sequential fallback with staggered timing
@@ -1274,7 +1266,6 @@ export class LaunchSequencer {
   ): Promise<void> {
     if (!this.mintResult) throw new Error('No mint result for Jito bundle');
 
-    const mintPubkey = new PublicKey(this.mintResult.mint);
     const transactions: Transaction[] = [];
 
     for (const buy of plan.bundleBuys) {
@@ -1282,17 +1273,6 @@ export class LaunchSequencer {
       if (!wallet) continue;
 
       const { blockhash } = await this.connection.getLatestBlockhash('confirmed');
-
-      const buyConfig: BundleBuyConfig = {
-        devBuyLamports: new BN(0),
-        bundleWallets: [
-          {
-            wallet,
-            amountLamports: new BN(solToLamports(buy.amountSOL)),
-          },
-        ],
-        slippageBps: plan.devBuy.slippageBps,
-      };
 
       // Build buy transaction manually for Jito submission
       const tx = new Transaction({
