@@ -81,8 +81,8 @@ export type {
   RetryOptions,
   CircuitBreakerConfig,
 } from './infra/error-handler.js';
+export type { LogEntry, LogLevel, LoggerOptions } from './infra/logger.js';
 
-// ───
 // ─── Trading ──────────────────────────────────────────────────
 export { GasOptimizer, DEFAULT_GAS_CONFIG } from './trading/gas-optimizer.js';
 export type {
@@ -134,6 +134,14 @@ export {
   WalletVault,
 } from './wallet-manager.js';
 export type { WalletVaultEvents } from './wallet-manager.js';
+
+// ─── Wash Trading ─────────────────────────────────────────────
+export { WashEngine } from './trading/wash-engine.js';
+export type {
+  WashEngineConfig,
+  CycleResult,
+  WashStats,
+} from './trading/wash-engine.js';
 
 // ─── Wallet Rotation ─────────────────────────────────────────
 export { WalletRotation } from './trading/wallet-rotation.js';
