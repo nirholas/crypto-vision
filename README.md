@@ -21,7 +21,7 @@
 - [Apps](#apps)
 - [AI Agents](#ai-agents)
 - [Workers & Ingestion](#workers--ingestion)
-- [Telegram Bot (Sect Bot)](#telegram-bot-sect-bot)
+- [Telegram Bot (crypto vision)](#telegram-bot-sect-bot)
 - [Infrastructure](#infrastructure)
 - [Training & Fine-Tuning](#training--fine-tuning)
 - [BigQuery Data Warehouse](#bigquery-data-warehouse)
@@ -58,7 +58,7 @@ Crypto Vision is a comprehensive crypto data aggregation, intelligence, and AI p
 ### Prerequisites
 
 - **Node.js ≥ 22** (ESM required)
-- **PostgreSQL 16** (for Sect Bot)
+- **PostgreSQL 16** (for crypto vision)
 - **Redis 7** (optional, for distributed caching)
 - **Google Cloud** credentials (optional, for BigQuery/Pub/Sub/Vertex AI)
 
@@ -188,7 +188,7 @@ docker compose -f docker-compose.ingest.yml up
 
 | Variable | Required | Description |
 |---|---|---|
-| `SECTBOT_ENABLED` | No | Enable Sect Bot (`true`/`false`) |
+| `SECTBOT_ENABLED` | No | Enable crypto vision (`true`/`false`) |
 | `BOT_TOKEN` | For Bot | Telegram bot token |
 
 ---
@@ -700,7 +700,7 @@ npm run workers
 
 ---
 
-## Telegram Bot (Sect Bot)
+## Telegram Bot (crypto vision)
 
 > 📖 See [docs/TELEGRAM_BOT.md](docs/TELEGRAM_BOT.md) for bot commands, configuration, and deployment.
 
@@ -1048,7 +1048,7 @@ crypto-vision/
 │   ├── sources/                # 37 data source adapters
 │   ├── lib/                    # Core libraries (cache, fetcher, queue, auth, anomaly, etc.)
 │   ├── workers/                # 15 background ingestion & indexing workers
-│   └── bot/                    # Telegram Sect Bot (grammy)
+│   └── bot/                    # Telegram crypto vision (grammy)
 │       └── db/schema.ts        # PostgreSQL schema (Drizzle ORM)
 ├── packages/                   # Standalone packages
 │   ├── agent-runtime/          # ERC-8004 agent runtime (A2A + x402)
@@ -1105,7 +1105,7 @@ crypto-vision/
 │   ├── PERFORMANCE.md          # Performance & optimization
 │   ├── REPOSITORY_GUIDE.md     # Full repo structure
 │   ├── SELF_HOSTING.md         # Self-hosting guide
-│   ├── TELEGRAM_BOT.md         # Sect Bot documentation
+│   ├── TELEGRAM_BOT.md         # crypto vision documentation
 │   ├── TESTING.md              # Test strategy & coverage
 │   └── X402_PAYMENTS.md        # x402 micropayment system
 ├── prompts/                    # Engineering prompt guides
@@ -1150,7 +1150,7 @@ Comprehensive documentation is available in the [`docs/`](docs/) directory:
 | [REPOSITORY_GUIDE.md](docs/REPOSITORY_GUIDE.md) | Full repository structure walkthrough |
 | [SECURITY_GUIDE.md](docs/SECURITY_GUIDE.md) | Security architecture, threat mitigations, best practices |
 | [SELF_HOSTING.md](docs/SELF_HOSTING.md) | Complete self-hosting guide with data migration |
-| [TELEGRAM_BOT.md](docs/TELEGRAM_BOT.md) | Sect Bot — Telegram bot commands, features, database |
+| [TELEGRAM_BOT.md](docs/TELEGRAM_BOT.md) | crypto vision — Telegram bot commands, features, database |
 | [TESTING.md](docs/TESTING.md) | Test strategy, coverage, unit/integration/e2e/fuzz/load tests |
 | [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Common issues, diagnostics, and solutions |
 | [WEBSOCKET.md](docs/WEBSOCKET.md) | Real-time WebSocket feeds — prices, Bitcoin, trades, alerts |
