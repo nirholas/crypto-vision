@@ -2,11 +2,43 @@
  * Market Data Service for Free Crypto News
  * Adapted from https://github.com/nirholas/crypto-market-data
  *
- * Integrates CoinGecko and DeFiLlama APIs for live market data
+ * Integrates CoinGecko, CoinCap, and DeFiLlama APIs for live market data
+ * with automatic fallback handling for rate limiting and service failures.
  *
  * @module market-data
- * @description Comprehensive cryptocurrency market data service with caching,
- * rate limiting, and Edge Runtime compatibility.
+ * @description Comprehensive cryptocurrency market data service with:
+ * - Dual API source support (CoinGecko primary, CoinCap fallback)
+ * - Automatic fallback when CoinGecko is rate limited (429) or unavailable
+ * - Smart caching with variable TTL based on data volatility
+ * - Stale-while-revalidate pattern for graceful degradation
+ * - Request deduplication to minimize duplicate API calls
+ * - Exponential backoff retry logic for transient failures
+ * - Edge Runtime compatibility
+ *
+ * ## Fallback Flow for Critical Endpoints
+ *
+ * When CoinGecko API is rate limited or returns errors:
+ * 1. Try CoinGecko first (preferred source due to better data)
+ * 2. If 429 (rate limited) or error, switch to CoinCap
+ * 3. If CoinCap fails, return cached data (even if stale)
+ * 4. If no cache available, throw error with graceful message
+ *
+ * Supported fallback endpoints:
+ * - getSimplePrices() - BTC, ETH, SOL prices with 24h changes
+ * - getPricesForCoins() - Multi-coin price fetches
+ * - Other endpoints use caching + error handling without cross-api fallback
+ *
+ * ## Rate Limiting Strategy
+ *
+ * CoinGecko Free Tier: ~10-30 calls/min (conservative ~20 calls/min limit)
+ * - Exponential backoff on 429 responses: 5s → 10s → 20s (max 5 minutes)
+ * - Minimum 2.5s between requests to avoid throttling
+ * - Request deduplication within 100ms window
+ *
+ * CoinCap: Generous rate limits, no strict throttling
+ * - Used as fallback for real-time price data
+ * - Covers all major coins via unified endpoint
+ * - Data mapped from CoinCap format to CoinGecko format
  */
 
 const COINGECKO_BASE = 'https://api.coingecko.com/api/v3';
