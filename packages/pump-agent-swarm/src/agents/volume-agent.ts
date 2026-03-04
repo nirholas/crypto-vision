@@ -207,8 +207,9 @@ export class VolumeAgent extends EventEmitter<VolumeAgentEvents> {
     }
 
     const stats = this.getVolumeStats();
+    const runtimeSec = ((Date.now() - this._startedAt) / 1_000).toFixed(1);
     console.log(
-      `[volume-agent] Stopped. Total volume: ${stats.totalVolumeSol.toFixed(4)} SOL, ` +
+      `[volume-agent] Stopped after ${runtimeSec}s. Total volume: ${stats.totalVolumeSol.toFixed(4)} SOL, ` +
       `trades: ${stats.tradesExecuted}`,
     );
 
