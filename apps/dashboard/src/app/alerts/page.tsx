@@ -463,7 +463,9 @@ function AlertCard({ alert, onRemove, onReactivate }: AlertCardProps) {
             </span>
           )}
           {alert.notifyBrowser && (
-            <Bell className="w-3 h-3 text-[var(--text-muted)]" title="Browser notification enabled" />
+            <span aria-label="Browser notification enabled">
+              <Bell className="w-3 h-3 text-[var(--text-muted)]" />
+            </span>
           )}
         </div>
         <p className="text-sm text-[var(--text-secondary)]">{getAlertDescription(alert)}</p>

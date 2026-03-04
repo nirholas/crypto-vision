@@ -6,6 +6,10 @@
  *   - Volume acceleration (buy/sell volume trend)
  *   - Price velocity (speed and direction of price movement)
  *   - RSI-like indicator (adapted for bonding curve reserve changes)
+ *   - MACD (12, 26, 9 EMA) adapted for bonding curve prices
+ *   - Bollinger Bands (20-period, 2 std dev)
+ *   - VWAP (volume-weighted average price from reserve flows)
+ *   - OBV (on-balance volume from reserve changes)
  *   - Whale detection (large wallet movements on the curve)
  *   - Graduation proximity (how close to Raydium migration)
  *
@@ -119,6 +123,76 @@ export interface GraduationSignal {
   signal: 'buy' | 'sell' | 'neutral';
 }
 
+export interface MACDSignal {
+  /** MACD line value (EMA12 - EMA26) */
+  macdLine: number;
+  /** Signal line (EMA9 of MACD) */
+  signalLine: number;
+  /** Histogram (MACD - Signal) */
+  histogram: number;
+  /** Crossover detection */
+  crossover: 'bullish' | 'bearish' | 'none';
+  signal: 'buy' | 'sell' | 'neutral';
+}
+
+export interface BollingerBandsSignal {
+  /** Upper band (SMA + 2σ) */
+  upper: number;
+  /** Middle band (20-period SMA) */
+  middle: number;
+  /** Lower band (SMA - 2σ) */
+  lower: number;
+  /** Band width (upper - lower) */
+  bandwidth: number;
+  /** %B: position within bands (0 = lower, 1 = upper) */
+  percentB: number;
+  signal: 'buy' | 'sell' | 'neutral';
+}
+
+export interface VWAPSignal {
+  /** Volume-weighted average price */
+  vwap: number;
+  /** Current price */
+  currentPrice: number;
+  /** Deviation from VWAP as fraction (positive = above) */
+  deviation: number;
+  signal: 'buy' | 'sell' | 'neutral';
+}
+
+export interface OBVSignal {
+  /** Current on-balance volume */
+  obv: number;
+  /** OBV change over recent lookback period */
+  obvChange: number;
+  /** OBV trend direction */
+  trend: 'rising' | 'falling' | 'flat';
+  signal: 'buy' | 'sell' | 'neutral';
+}
+
+export interface SignalAccuracyRecord {
+  /** Which indicator produced the signal */
+  indicator: string;
+  /** The predicted direction */
+  predictedSignal: 'buy' | 'sell' | 'neutral';
+  /** Actual outcome after the trade */
+  actualOutcome: 'profit' | 'loss' | 'neutral';
+  /** Whether prediction matched outcome */
+  correct: boolean;
+  /** When the prediction was made */
+  timestamp: number;
+}
+
+export interface SignalAccuracyStats {
+  /** Total predictions tracked */
+  totalPredictions: number;
+  /** Correctly predicted outcomes */
+  correctPredictions: number;
+  /** Accuracy ratio (0–1) */
+  accuracy: number;
+  /** Per-indicator accuracy breakdown */
+  byIndicator: Record<string, { total: number; correct: number; accuracy: number }>;
+}
+
 export interface TradingSignals {
   /** Overall signal direction */
   overall: 'strong-buy' | 'buy' | 'neutral' | 'sell' | 'strong-sell';
@@ -132,6 +206,10 @@ export interface TradingSignals {
     volumeAcceleration: VolumeSignal;
     priceVelocity: PriceVelocitySignal;
     rsi: RSISignal;
+    macd: MACDSignal;
+    bollingerBands: BollingerBandsSignal;
+    vwap: VWAPSignal;
+    obv: OBVSignal;
     whaleActivity: WhaleSignal;
     graduationProximity: GraduationSignal;
   };
@@ -167,12 +245,24 @@ export interface SignalConfig {
     sell: number;
     strongSell: number;
   };
+  /** MACD periods */
+  macdFastPeriod: number;
+  macdSlowPeriod: number;
+  macdSignalPeriod: number;
+  /** Bollinger Bands period */
+  bollingerPeriod: number;
+  /** Bollinger Bands standard deviation multiplier */
+  bollingerStdDev: number;
   /** Indicator weights for aggregation (must sum to 1.0) */
   weights: {
     momentum: number;
     volume: number;
     priceVelocity: number;
     rsi: number;
+    macd: number;
+    bollingerBands: number;
+    vwap: number;
+    obv: number;
     whale: number;
     graduation: number;
   };
@@ -186,6 +276,11 @@ const DEFAULT_CONFIG: SignalConfig = {
   rsiPeriod: 14,
   momentumPeriod: 10,
   whaleThresholdSOL: 5,
+  macdFastPeriod: 12,
+  macdSlowPeriod: 26,
+  macdSignalPeriod: 9,
+  bollingerPeriod: 20,
+  bollingerStdDev: 2,
   thresholds: {
     strongBuy: 80,
     buy: 60,
@@ -193,12 +288,16 @@ const DEFAULT_CONFIG: SignalConfig = {
     strongSell: 20,
   },
   weights: {
-    momentum: 0.25,
-    volume: 0.20,
-    priceVelocity: 0.15,
-    rsi: 0.20,
-    whale: 0.10,
-    graduation: 0.10,
+    momentum: 0.12,
+    volume: 0.10,
+    priceVelocity: 0.08,
+    rsi: 0.12,
+    macd: 0.15,
+    bollingerBands: 0.12,
+    vwap: 0.10,
+    obv: 0.09,
+    whale: 0.06,
+    graduation: 0.06,
   },
 };
 
@@ -233,6 +332,9 @@ export class SignalGenerator {
 
   /** Active monitoring intervals keyed by mint */
   private readonly monitors = new Map<string, ReturnType<typeof setInterval>>();
+
+  /** Per-mint accuracy tracking for signal predictions */
+  private readonly accuracyRecords = new Map<string, SignalAccuracyRecord[]>();
 
   constructor(
     connection: Connection,
@@ -620,6 +722,289 @@ export class SignalGenerator {
     }
   }
 
+  /**
+   * Compute MACD — Moving Average Convergence Divergence.
+   * Uses EMA(12) - EMA(26) for MACD line, EMA(9) of MACD for signal line.
+   * Detects bullish/bearish crossovers for signal generation.
+   */
+  computeMACD(snapshots: CurveSnapshot[]): MACDSignal {
+    const fastPeriod = this.config.macdFastPeriod;
+    const slowPeriod = this.config.macdSlowPeriod;
+    const signalPeriod = this.config.macdSignalPeriod;
+
+    if (snapshots.length < slowPeriod + signalPeriod) {
+      return { macdLine: 0, signalLine: 0, histogram: 0, signal: 'neutral', crossover: 'none' };
+    }
+
+    const prices = snapshots.map((s) => s.price);
+
+    const emaFast = this.computeEMA(prices, fastPeriod);
+    const emaSlow = this.computeEMA(prices, slowPeriod);
+
+    // MACD line = EMA(fast) - EMA(slow)
+    const macdValues: number[] = [];
+    for (let i = 0; i < prices.length; i++) {
+      macdValues.push(emaFast[i] - emaSlow[i]);
+    }
+
+    // Signal line = EMA(signalPeriod) of MACD values from where slow EMA is meaningful
+    const macdFromSlowPeriod = macdValues.slice(slowPeriod - 1);
+    const signalValues = this.computeEMA(macdFromSlowPeriod, signalPeriod);
+
+    const macdLine = macdValues[macdValues.length - 1];
+    const signalLine = signalValues[signalValues.length - 1];
+    const histogram = macdLine - signalLine;
+
+    // Detect crossover by comparing current vs previous MACD/signal relationship
+    let crossover: MACDSignal['crossover'] = 'none';
+    if (macdFromSlowPeriod.length >= 2 && signalValues.length >= 2) {
+      const prevMACD = macdFromSlowPeriod[macdFromSlowPeriod.length - 2];
+      const prevSignal = signalValues[signalValues.length - 2];
+      if (prevMACD <= prevSignal && macdLine > signalLine) {
+        crossover = 'bullish';
+      } else if (prevMACD >= prevSignal && macdLine < signalLine) {
+        crossover = 'bearish';
+      }
+    }
+
+    const signal: MACDSignal['signal'] =
+      crossover === 'bullish' ? 'buy' :
+      crossover === 'bearish' ? 'sell' :
+      histogram > 0 ? 'buy' :
+      histogram < 0 ? 'sell' :
+      'neutral';
+
+    return { macdLine, signalLine, histogram, signal, crossover };
+  }
+
+  /**
+   * Compute Bollinger Bands — 20-period SMA ± 2 standard deviations.
+   * %B indicates where price sits within the bands (0 = lower, 1 = upper).
+   * Prices near the lower band suggest oversold, upper suggests overbought.
+   */
+  computeBollingerBands(snapshots: CurveSnapshot[]): BollingerBandsSignal {
+    const period = this.config.bollingerPeriod;
+    const stdDevMultiplier = this.config.bollingerStdDev;
+
+    if (snapshots.length < period) {
+      return { upper: 0, middle: 0, lower: 0, bandwidth: 0, percentB: 0.5, signal: 'neutral' };
+    }
+
+    const prices = snapshots.slice(-period).map((s) => s.price);
+    const sma = prices.reduce((sum, p) => sum + p, 0) / period;
+
+    const variance = prices.reduce((sum, p) => sum + (p - sma) ** 2, 0) / period;
+    const stdDev = Math.sqrt(variance);
+
+    const upper = sma + stdDevMultiplier * stdDev;
+    const lower = sma - stdDevMultiplier * stdDev;
+    const currentPrice = prices[prices.length - 1];
+
+    const bandwidth = upper - lower;
+    const percentB = bandwidth > 0 ? (currentPrice - lower) / bandwidth : 0.5;
+
+    // Price near lower band = potential buy (oversold), near upper = potential sell (overbought)
+    const signal: BollingerBandsSignal['signal'] =
+      percentB <= 0.1 ? 'buy' :
+      percentB >= 0.9 ? 'sell' :
+      'neutral';
+
+    return { upper, middle: sma, lower, bandwidth, percentB, signal };
+  }
+
+  /**
+   * Compute VWAP — Volume-Weighted Average Price.
+   * Volume is approximated from absolute SOL reserve changes between snapshots.
+   * Price above VWAP indicates bullish momentum, below indicates bearish.
+   */
+  computeVWAP(snapshots: CurveSnapshot[]): VWAPSignal {
+    if (snapshots.length < 2) {
+      return { vwap: 0, currentPrice: 0, deviation: 0, signal: 'neutral' };
+    }
+
+    let cumulativePV = 0;
+    let cumulativeVolume = 0;
+
+    for (let i = 1; i < snapshots.length; i++) {
+      const volume = Math.abs(
+        lamportsToSol(snapshots[i].realSolReserves) -
+        lamportsToSol(snapshots[i - 1].realSolReserves),
+      );
+      const typicalPrice = snapshots[i].price;
+      cumulativePV += typicalPrice * volume;
+      cumulativeVolume += volume;
+    }
+
+    const vwap = cumulativeVolume > 0
+      ? cumulativePV / cumulativeVolume
+      : snapshots[snapshots.length - 1].price;
+    const currentPrice = snapshots[snapshots.length - 1].price;
+    const deviation = vwap > 0 ? (currentPrice - vwap) / vwap : 0;
+
+    // Price above VWAP = bullish signal, below = bearish signal
+    const signal: VWAPSignal['signal'] =
+      deviation > 0.02 ? 'buy' :
+      deviation < -0.02 ? 'sell' :
+      'neutral';
+
+    return { vwap, currentPrice, deviation, signal };
+  }
+
+  /**
+   * Compute OBV — On-Balance Volume.
+   * Cumulative volume indicator: adds volume on up periods, subtracts on down.
+   * Rising OBV confirms buying pressure, falling confirms selling.
+   */
+  computeOBV(snapshots: CurveSnapshot[]): OBVSignal {
+    if (snapshots.length < 3) {
+      return { obv: 0, obvChange: 0, trend: 'flat', signal: 'neutral' };
+    }
+
+    let obv = 0;
+    const obvHistory: number[] = [0];
+
+    for (let i = 1; i < snapshots.length; i++) {
+      const priceChange = snapshots[i].price - snapshots[i - 1].price;
+      const volume = Math.abs(
+        lamportsToSol(snapshots[i].realSolReserves) -
+        lamportsToSol(snapshots[i - 1].realSolReserves),
+      );
+
+      if (priceChange > 0) {
+        obv += volume;
+      } else if (priceChange < 0) {
+        obv -= volume;
+      }
+      // If price unchanged, OBV stays the same
+      obvHistory.push(obv);
+    }
+
+    // OBV trend over recent periods
+    const lookback = Math.min(this.config.momentumPeriod, obvHistory.length - 1);
+    const recentOBV = obvHistory.slice(-lookback - 1);
+    const obvChange = recentOBV[recentOBV.length - 1] - recentOBV[0];
+
+    const trend: OBVSignal['trend'] =
+      obvChange > 0.1 ? 'rising' :
+      obvChange < -0.1 ? 'falling' :
+      'flat';
+
+    // Rising OBV = buying pressure (bullish), falling = selling pressure (bearish)
+    const signal: OBVSignal['signal'] =
+      trend === 'rising' ? 'buy' :
+      trend === 'falling' ? 'sell' :
+      'neutral';
+
+    return { obv, obvChange, trend, signal };
+  }
+
+  // ── Accuracy Tracking ─────────────────────────────────────
+
+  /**
+   * Record the actual outcome of a previously generated signal for accuracy tracking.
+   * Call this after a trade resolves to track how well predictions performed.
+   */
+  recordSignalOutcome(
+    mint: string,
+    outcome: 'profit' | 'loss' | 'neutral',
+  ): void {
+    const latest = this.latestSignals.get(mint);
+    if (!latest) {
+      this.logger.warn('No cached signal to record outcome for', { mint });
+      return;
+    }
+
+    const indicators = latest.indicators;
+    const indicatorEntries: Array<[string, 'buy' | 'sell' | 'neutral']> = [
+      ['momentum', indicators.momentum.signal],
+      ['volumeAcceleration', indicators.volumeAcceleration.signal],
+      ['priceVelocity', indicators.priceVelocity.signal],
+      ['rsi', indicators.rsi.signal],
+      ['macd', indicators.macd.signal],
+      ['bollingerBands', indicators.bollingerBands.signal],
+      ['vwap', indicators.vwap.signal],
+      ['obv', indicators.obv.signal],
+      ['whaleActivity', indicators.whaleActivity.signal],
+      ['graduationProximity', indicators.graduationProximity.signal],
+    ];
+
+    let records = this.accuracyRecords.get(mint);
+    if (!records) {
+      records = [];
+      this.accuracyRecords.set(mint, records);
+    }
+
+    const now = Date.now();
+    for (const [indicator, predicted] of indicatorEntries) {
+      const correct =
+        (predicted === 'buy' && outcome === 'profit') ||
+        (predicted === 'sell' && outcome === 'loss') ||
+        (predicted === 'neutral' && outcome === 'neutral');
+
+      records.push({
+        indicator,
+        predictedSignal: predicted,
+        actualOutcome: outcome,
+        correct,
+        timestamp: now,
+      });
+    }
+
+    // Cap accuracy records to prevent unbounded growth
+    const maxRecords = this.config.historyLength * 10;
+    if (records.length > maxRecords) {
+      records.splice(0, records.length - maxRecords);
+    }
+
+    this.eventBus.emit(
+      'intelligence:signal-accuracy-recorded',
+      'intelligence' as import('../types.js').SwarmEventCategory,
+      'signal-generator',
+      { mint, outcome, recordCount: records.length },
+    );
+  }
+
+  /**
+   * Get accuracy statistics for signal predictions.
+   * Optionally filter by mint and/or indicator name.
+   */
+  getAccuracyStats(mint?: string, indicator?: string): SignalAccuracyStats {
+    const allRecords: SignalAccuracyRecord[] = [];
+
+    if (mint) {
+      const records = this.accuracyRecords.get(mint);
+      if (records) allRecords.push(...records);
+    } else {
+      for (const records of this.accuracyRecords.values()) {
+        allRecords.push(...records);
+      }
+    }
+
+    const filtered = indicator
+      ? allRecords.filter((r) => r.indicator === indicator)
+      : allRecords;
+
+    const byIndicator: SignalAccuracyStats['byIndicator'] = {};
+    let totalCorrect = 0;
+
+    for (const record of filtered) {
+      if (record.correct) totalCorrect++;
+
+      const stats = byIndicator[record.indicator] ?? { total: 0, correct: 0, accuracy: 0 };
+      stats.total++;
+      if (record.correct) stats.correct++;
+      stats.accuracy = stats.total > 0 ? stats.correct / stats.total : 0;
+      byIndicator[record.indicator] = stats;
+    }
+
+    return {
+      totalPredictions: filtered.length,
+      correctPredictions: totalCorrect,
+      accuracy: filtered.length > 0 ? totalCorrect / filtered.length : 0,
+      byIndicator,
+    };
+  }
+
   // ── Private Methods ───────────────────────────────────────
 
   /**
@@ -701,12 +1086,16 @@ export class SignalGenerator {
     const priceVelocity = this.computePriceVelocity(history);
     const rsiValue = this.computeRSI(history);
     const rsi = this.buildRSISignal(rsiValue);
+    const macd = this.computeMACD(history);
+    const bollingerBands = this.computeBollingerBands(history);
+    const vwap = this.computeVWAP(history);
+    const obv = this.computeOBV(history);
     const whaleActivity = await this.detectWhaleActivity(mint);
     const graduationProximity = this.computeGraduationProximity(history);
 
     // Aggregate score (0–100)
     const { score, confidence } = this.aggregateScore(
-      { momentum, volumeAcceleration, priceVelocity, rsi, whaleActivity, graduationProximity },
+      { momentum, volumeAcceleration, priceVelocity, rsi, macd, bollingerBands, vwap, obv, whaleActivity, graduationProximity },
       history.length,
     );
 
@@ -721,6 +1110,10 @@ export class SignalGenerator {
         volumeAcceleration,
         priceVelocity,
         rsi,
+        macd,
+        bollingerBands,
+        vwap,
+        obv,
         whaleActivity,
         graduationProximity,
       },
@@ -832,6 +1225,23 @@ export class SignalGenerator {
     // RSI maps directly: oversold (RSI 0-30) → high score, overbought (70-100) → low score
     const rsiScore = 100 - indicators.rsi.value;
 
+    // MACD: crossover gives bonus, histogram direction contributes
+    const macdBaseScore = signalToScore(indicators.macd.signal);
+    const macdCrossoverBonus =
+      indicators.macd.crossover === 'bullish' ? 15 :
+      indicators.macd.crossover === 'bearish' ? -15 : 0;
+    const macdScore = clamp(macdBaseScore + macdCrossoverBonus, 0, 100);
+
+    // Bollinger Bands: %B maps to score (0 = oversold/buy, 1 = overbought/sell)
+    const bbScore = clamp((1 - indicators.bollingerBands.percentB) * 100, 0, 100);
+
+    // VWAP: price above = bullish, below = bearish
+    const vwapScore = signalToScore(indicators.vwap.signal) +
+      clamp(indicators.vwap.deviation * 500, -25, 25); // Scale deviation to ±25
+
+    // OBV: rising = bullish, falling = bearish
+    const obvScore = signalToScore(indicators.obv.signal);
+
     const whaleScore = signalToScore(indicators.whaleActivity.signal);
     const graduationScore = signalToScore(indicators.graduationProximity.signal) +
       (indicators.graduationProximity.imminent ? 15 : 0); // Bonus for imminent graduation
@@ -841,6 +1251,10 @@ export class SignalGenerator {
       clamp(volumeScore, 0, 100) * weights.volume +
       clamp(priceScore, 0, 100) * weights.priceVelocity +
       clamp(rsiScore, 0, 100) * weights.rsi +
+      clamp(macdScore, 0, 100) * weights.macd +
+      clamp(bbScore, 0, 100) * weights.bollingerBands +
+      clamp(vwapScore, 0, 100) * weights.vwap +
+      clamp(obvScore, 0, 100) * weights.obv +
       clamp(whaleScore, 0, 100) * weights.whale +
       clamp(graduationScore, 0, 100) * weights.graduation;
 
@@ -855,6 +1269,10 @@ export class SignalGenerator {
       indicators.volumeAcceleration.signal,
       indicators.priceVelocity.signal,
       indicators.rsi.signal,
+      indicators.macd.signal,
+      indicators.bollingerBands.signal,
+      indicators.vwap.signal,
+      indicators.obv.signal,
       indicators.whaleActivity.signal,
       indicators.graduationProximity.signal,
     ];
@@ -885,6 +1303,22 @@ export class SignalGenerator {
     if (score > thresholds.sell) return 'neutral';
     if (score > thresholds.strongSell) return 'sell';
     return 'strong-sell';
+  }
+
+  /**
+   * Compute Exponential Moving Average for a data series.
+   * @param data - Array of numeric values
+   * @param period - EMA period (determines smoothing factor)
+   * @returns Array of EMA values (same length as input)
+   */
+  private computeEMA(data: number[], period: number): number[] {
+    if (data.length === 0) return [];
+    const k = 2 / (period + 1);
+    const result: number[] = [data[0]];
+    for (let i = 1; i < data.length; i++) {
+      result.push(data[i] * k + result[i - 1] * (1 - k));
+    }
+    return result;
   }
 
   /**

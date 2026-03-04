@@ -17,12 +17,13 @@ import { IngestionWorker, runWorkerCLI, type WorkerConfig } from "./worker-base.
 import { channelManager } from "../lib/ws-channels.js";
 
 class OnchainIngestionWorker extends IngestionWorker {
-    constructor() {
+    constructor(overrides?: Partial<WorkerConfig>) {
         const config: WorkerConfig = {
             name: "ingest-onchain",
             intervalMs: 5 * 60 * 1_000, // 5 minutes
             bqTable: Tables.GAS_PRICES,
             pubsubTopic: Topics.FREQUENT,
+            ...overrides,
         };
         super(config);
     }

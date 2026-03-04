@@ -16,12 +16,13 @@ import { Topics } from "../lib/pubsub.js";
 import { IngestionWorker, runWorkerCLI, type WorkerConfig } from "./worker-base.js";
 
 class GovernanceIngestionWorker extends IngestionWorker {
-    constructor() {
+    constructor(overrides?: Partial<WorkerConfig>) {
         const config: WorkerConfig = {
             name: "ingest-governance",
             intervalMs: 30 * 60 * 1_000, // 30 minutes
             bqTable: Tables.GOVERNANCE_PROPOSALS,
             pubsubTopic: Topics.HOURLY,
+            ...overrides,
         };
         super(config);
     }

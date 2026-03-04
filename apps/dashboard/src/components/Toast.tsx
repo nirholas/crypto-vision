@@ -8,6 +8,7 @@ import React, {
   useEffect,
   ReactNode,
 } from 'react';
+import { CheckCircle2, XCircle, AlertTriangle, Info, X } from 'lucide-react';
 
 // Toast types
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
@@ -48,7 +49,7 @@ export function useToastActions() {
   return {
     success: (title: string, message?: string) => addToast({ type: 'success', title, message }),
     error: (title: string, message?: string) =>
-      addToast({ type: 'error', title, message, duration: 6000 }),
+      addToast({ type: 'error', title, message, duration: 8000 }),
     warning: (title: string, message?: string) => addToast({ type: 'warning', title, message }),
     info: (title: string, message?: string) => addToast({ type: 'info', title, message }),
   };
@@ -72,8 +73,8 @@ interface ToastProviderProps {
 
 export function ToastProvider({
   children,
-  maxToasts = 5,
-  defaultDuration = 4000,
+  maxToasts = 3,
+  defaultDuration = 5000,
   position = 'bottom-right',
 }: ToastProviderProps) {
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -138,61 +139,27 @@ export function ToastProvider({
   );
 }
 
-// Icon components
-const icons: Record<ToastType, React.ReactNode> = {
-  success: (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-    </svg>
-  ),
-  error: (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-    </svg>
-  ),
-  warning: (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-      />
-    </svg>
-  ),
-  info: (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-    </svg>
-  ),
-};
-
-// Monochrome toast styles
-const typeStyles: Record<ToastType, { bg: string; icon: string; border: string }> = {
+// Colored type styles using CSS variables
+const typeConfig: Record<ToastType, { color: string; bgColor: string; icon: React.ReactNode }> = {
   success: {
-    bg: 'bg-surface',
-    icon: 'text-text-primary',
-    border: 'border-surface-border',
+    color: 'var(--gain)',
+    bgColor: 'var(--gain-bg)',
+    icon: <CheckCircle2 className="w-5 h-5" />,
   },
   error: {
-    bg: 'bg-surface',
-    icon: 'text-text-muted',
-    border: 'border-surface-border',
+    color: 'var(--loss)',
+    bgColor: 'var(--loss-bg)',
+    icon: <XCircle className="w-5 h-5" />,
   },
   warning: {
-    bg: 'bg-surface',
-    icon: 'text-text-secondary',
-    border: 'border-surface-border',
+    color: 'var(--warning)',
+    bgColor: 'var(--warning-bg)',
+    icon: <AlertTriangle className="w-5 h-5" />,
   },
   info: {
-    bg: 'bg-surface',
-    icon: 'text-text-secondary',
-    border: 'border-surface-border',
+    color: 'var(--info)',
+    bgColor: 'rgba(123, 97, 255, 0.1)',
+    icon: <Info className="w-5 h-5" />,
   },
 };
 
@@ -204,7 +171,7 @@ interface ToastItemProps {
 function ToastItem({ toast, onDismiss }: ToastItemProps) {
   const [isExiting, setIsExiting] = useState(false);
   const [progress, setProgress] = useState(100);
-  const style = typeStyles[toast.type];
+  const config = typeConfig[toast.type];
 
   // Auto-dismiss timer
   useEffect(() => {
@@ -223,6 +190,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
     }, 50);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toast.duration]);
 
   const handleDismiss = () => {
@@ -234,29 +202,41 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
     <div
       className={`
         pointer-events-auto w-80 max-w-[calc(100vw-2rem)]
-        rounded-xl shadow-lg border overflow-hidden
-        ${style.bg} ${style.border}
+        rounded-xl shadow-lg overflow-hidden
         transform transition-all duration-200
         ${isExiting ? 'translate-x-full opacity-0' : 'translate-x-0 opacity-100'}
       `}
+      style={{
+        background: 'var(--surface)',
+        border: '1px solid var(--surface-border)',
+      }}
       role="alert"
     >
       <div className="p-4">
         <div className="flex items-start gap-3">
-          {/* Icon */}
-          <div className={`flex-shrink-0 ${style.icon}`}>{icons[toast.type]}</div>
+          {/* Colored icon */}
+          <div className="flex-shrink-0" style={{ color: config.color }}>
+            {config.icon}
+          </div>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-text-primary">{toast.title}</p>
-            {toast.message && <p className="mt-1 text-sm text-text-secondary">{toast.message}</p>}
+            <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+              {toast.title}
+            </p>
+            {toast.message && (
+              <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                {toast.message}
+              </p>
+            )}
             {toast.action && (
               <button
                 onClick={() => {
                   toast.action!.onClick();
                   handleDismiss();
                 }}
-                className="mt-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                className="mt-2 text-sm font-medium transition-opacity hover:opacity-80"
+                style={{ color: 'var(--primary)' }}
               >
                 {toast.action.label}
               </button>
@@ -266,27 +246,24 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
           {/* Dismiss button */}
           <button
             onClick={handleDismiss}
-            className="flex-shrink-0 p-1 text-text-muted hover:text-text-secondary rounded-lg hover:bg-surface-hover transition-colors"
-            aria-label="Dismiss"
+            className="flex-shrink-0 p-1 rounded-lg transition-colors"
+            style={{ color: 'var(--text-muted)' }}
+            aria-label="Dismiss notification"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <X className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Progress bar */}
+      {/* Colored progress bar */}
       {toast.duration && (
-        <div className="h-1 bg-surface-hover">
+        <div className="h-0.5" style={{ background: 'var(--surface-hover)' }}>
           <div
-            className={`h-full transition-all duration-100 ${style.icon.replace('text-', 'bg-')}`}
-            style={{ width: `${progress}%` }}
+            className="h-full transition-all duration-100"
+            style={{
+              width: `${progress}%`,
+              background: config.color,
+            }}
           />
         </div>
       )}

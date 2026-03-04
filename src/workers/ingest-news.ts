@@ -17,12 +17,13 @@ import { ingestNewsArticles } from "../lib/bq-ingest.js";
 import { channelManager } from "../lib/ws-channels.js";
 
 class NewsIngestionWorker extends IngestionWorker {
-  constructor() {
+  constructor(overrides?: Partial<WorkerConfig>) {
     const config: WorkerConfig = {
       name: "ingest-news",
       intervalMs: 5 * 60 * 1_000, // 5 minutes
       bqTable: Tables.NEWS_ARTICLES,
       pubsubTopic: Topics.STANDARD,
+      ...overrides,
     };
     super(config);
   }

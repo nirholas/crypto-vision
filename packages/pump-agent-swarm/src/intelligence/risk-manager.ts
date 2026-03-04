@@ -43,6 +43,10 @@ export interface RiskLimits {
   maxConsecutiveLosses: number;
   /** Minimum time between trades per wallet (ms) */
   minTradeCooldown: number;
+  /** Maximum hold duration before time risk escalates (ms) — default 30 minutes */
+  maxHoldDuration: number;
+  /** Minimum SOL volume per position to avoid liquidity risk */
+  minLiquiditySOL: number;
 }
 
 export interface ProposedTradeAction {
@@ -108,6 +112,14 @@ export interface PortfolioRiskReport {
   circuitBreaker: CircuitBreakerStatus;
   /** Aggregate portfolio risk 0–100 */
   riskScore: number;
+  /** Detailed risk breakdown by category */
+  riskBreakdown: RiskBreakdown;
+  /** Correlation risk assessment */
+  correlationRisk: CorrelationRisk;
+  /** Liquidity risk assessment */
+  liquidityRisk: LiquidityRisk;
+  /** Time risk assessment */
+  timeRisk: TimeRisk;
   warnings: string[];
   timestamp: number;
 }
@@ -139,6 +151,58 @@ export interface StopLossAction {
   urgency: 'critical' | 'warning';
 }
 
+export interface CorrelationRisk {
+  /** Average price correlation between held positions (0–1) */
+  avgCorrelation: number;
+  /** Highest pairwise correlation */
+  maxCorrelation: number;
+  /** Pairs with correlation > 0.7 */
+  highlyCorrelatedPairs: Array<{ mint1: string; mint2: string; correlation: number }>;
+  /** Risk score contribution (0–100) */
+  score: number;
+}
+
+export interface LiquidityRisk {
+  /** Positions with very low trading volume */
+  illiquidPositions: Array<{ mint: string; volumeSOL: number; holdingPercent: number }>;
+  /** Average volume across all positions */
+  avgVolumeSOL: number;
+  /** Risk score contribution (0–100) */
+  score: number;
+}
+
+export interface TimeRisk {
+  /** Positions held longer than the target hold period */
+  overduePositions: Array<{ mint: string; holdDuration: number; maxHold: number }>;
+  /** Average hold duration across all positions (ms) */
+  avgHoldDuration: number;
+  /** Longest-held position duration (ms) */
+  maxHoldDuration: number;
+  /** Risk score contribution (0–100) */
+  score: number;
+}
+
+export interface RiskBreakdown {
+  /** Drawdown risk (0–100) */
+  drawdown: number;
+  /** Concentration / Herfindahl risk (0–100) */
+  concentration: number;
+  /** Deployment utilization risk (0–100) */
+  deployment: number;
+  /** Unrealized loss risk (0–100) */
+  unrealizedLoss: number;
+  /** Consecutive loss risk (0–100) */
+  consecutiveLoss: number;
+  /** Window loss risk (0–100) */
+  windowLoss: number;
+  /** Correlation risk (0–100) */
+  correlation: number;
+  /** Liquidity risk (0–100) */
+  liquidity: number;
+  /** Time risk (0–100) */
+  time: number;
+}
+
 export interface RiskMetrics {
   totalDeployed: number;
   totalValue: number;
@@ -149,6 +213,10 @@ export interface RiskMetrics {
   consecutiveLosses: number;
   windowLoss: number;
   riskScore: number;
+  riskBreakdown: RiskBreakdown;
+  correlationRisk: CorrelationRisk;
+  liquidityRisk: LiquidityRisk;
+  timeRisk: TimeRisk;
   timestamp: number;
 }
 

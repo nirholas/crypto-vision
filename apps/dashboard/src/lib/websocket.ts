@@ -1,13 +1,470 @@
 /**
- * WebSocket Server for Real-time News Updates
- * 
- * Provides live news push to connected clients.
- * Compatible with Vercel Edge, Node.js, and standalone deployment.
+ * Crypto Vision — Dashboard WebSocket Client
+ *
+ * Full-featured WebSocket client for the dashboard that connects
+ * to the unified /ws endpoint on the backend.
+ *
+ * Features:
+ *   - Auto-connect on creation
+ *   - Auto-reconnect with exponential backoff (1s, 2s, 4s, 8s, max 30s)
+ *   - Channel subscribe/unsubscribe
+ *   - Connection status events (connected, disconnected, reconnecting)
+ *   - Message parsing with type safety
+ *   - Heartbeat handling (respond to pings automatically)
+ *   - Buffer messages during reconnection, replay after reconnect
+ *
+ * Usage:
+ *   const ws = createWebSocketClient('ws://localhost:8080/ws');
+ *   ws.subscribe(['prices', 'news']);
+ *   ws.on('price', (data) => { ... });
+ *   ws.on('connectionChange', (status) => { ... });
+ *   ws.close();
+ *
+ * @copyright 2024-2026 nirholas. All rights reserved.
  */
 
-// Types
+// ─── Types ───────────────────────────────────────────────────
+
+export type ConnectionStatus = "connecting" | "connected" | "disconnected" | "reconnecting";
+
+export interface PriceData {
+  [coinId: string]: {
+    usd: number;
+    change24h: number;
+  };
+}
+
+export interface TradeData {
+  pair: string;
+  exchange: string;
+  price: string;
+  volume: string;
+  chain?: string;
+  dex?: string;
+  source?: string;
+  timestamp?: number;
+}
+
+export interface NewsData {
+  title: string;
+  description?: string;
+  url: string;
+  source: string;
+  publishedAt?: string;
+}
+
+export interface AlertData {
+  coinId: string;
+  type: string;
+  value: number;
+  message?: string;
+}
+
+export interface GasData {
+  [chain: string]: {
+    low: number;
+    average: number;
+    high: number;
+  };
+}
+
+export interface MarketData {
+  event: string;
+  movers?: Array<{
+    coinId: string;
+    symbol: string;
+    name: string;
+    price: number;
+    change24h: number;
+  }>;
+}
+
+export interface AnomalyData {
+  coinId: string;
+  type: string;
+  severity: string;
+  message: string;
+}
+
+export interface ServerMessage {
+  type: string;
+  channel?: string;
+  data?: unknown;
+  timestamp?: string;
+  channels?: string[];
+  errors?: string[];
+  message?: string;
+  clientId?: string;
+  availableChannels?: string[];
+}
+
+/** Event handler types for the WS client. */
+export interface WebSocketEventMap {
+  price: PriceData;
+  trade: TradeData;
+  news: NewsData;
+  alert: AlertData;
+  gas: GasData;
+  market: MarketData;
+  anomaly: AnomalyData;
+  connected: { clientId: string; availableChannels: string[] };
+  subscribed: { channels: string[]; errors?: string[] };
+  unsubscribed: { channels: string[] };
+  connectionChange: ConnectionStatus;
+  error: string;
+  raw: ServerMessage;
+}
+
+type EventHandler<T> = (data: T) => void;
+
+// ─── Buffered Subscription ──────────────────────────────────
+
+interface PendingSubscription {
+  type: "subscribe" | "unsubscribe";
+  channels: string[];
+}
+
+// ─── WebSocket Client ───────────────────────────────────────
+
+export interface CryptoWebSocketClient {
+  /** Subscribe to one or more channels. */
+  subscribe(channels: string[]): void;
+  /** Unsubscribe from one or more channels. */
+  unsubscribe(channels: string[]): void;
+  /** Add an event listener. */
+  on<K extends keyof WebSocketEventMap>(event: K, handler: EventHandler<WebSocketEventMap[K]>): void;
+  /** Remove an event listener. */
+  off<K extends keyof WebSocketEventMap>(event: K, handler: EventHandler<WebSocketEventMap[K]>): void;
+  /** Get the current connection status. */
+  getStatus(): ConnectionStatus;
+  /** Get the set of currently subscribed channels. */
+  getSubscribedChannels(): Set<string>;
+  /** Close the connection permanently (no auto-reconnect). */
+  close(): void;
+  /** Send authentication credentials. */
+  authenticate(apiKey: string): void;
+}
+
+/**
+ * Create a WebSocket client for the Crypto Vision API.
+ */
+export function createWebSocketClient(
+  url: string,
+  options?: { apiKey?: string },
+): CryptoWebSocketClient {
+  let ws: WebSocket | null = null;
+  let status: ConnectionStatus = "disconnected";
+  let reconnectAttempts = 0;
+  let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  let closed = false;
+
+  const MAX_RECONNECT_DELAY_MS = 30_000;
+  const BASE_RECONNECT_DELAY_MS = 1_000;
+
+  /** Channels the user wants to be subscribed to. */
+  const desiredChannels = new Set<string>();
+
+  /** Queue of actions to replay after reconnect. */
+  const pendingBuffer: PendingSubscription[] = [];
+
+  /** Event handlers. */
+  const handlers = new Map<string, Set<EventHandler<unknown>>>();
+
+  // ─── Event Emitter ─────────────────────────────────────
+
+  function emit<K extends keyof WebSocketEventMap>(event: K, data: WebSocketEventMap[K]): void {
+    const fns = handlers.get(event as string);
+    if (fns) {
+      for (const fn of fns) {
+        try {
+          fn(data);
+        } catch {
+          // Don't let handler errors crash the WS client
+        }
+      }
+    }
+  }
+
+  function setStatus(newStatus: ConnectionStatus): void {
+    if (status === newStatus) return;
+    status = newStatus;
+    emit("connectionChange", newStatus);
+  }
+
+  // ─── Connection ────────────────────────────────────────
+
+  function connect(): void {
+    if (closed) return;
+    if (ws?.readyState === WebSocket.OPEN || ws?.readyState === WebSocket.CONNECTING) return;
+
+    setStatus("connecting");
+
+    const connectUrl = options?.apiKey ? `${url}?apiKey=${encodeURIComponent(options.apiKey)}` : url;
+    ws = new WebSocket(connectUrl);
+
+    ws.onopen = () => {
+      setStatus("connected");
+      reconnectAttempts = 0;
+
+      // Re-subscribe to all desired channels
+      if (desiredChannels.size > 0) {
+        sendMessage({
+          type: "subscribe",
+          channels: [...desiredChannels],
+        });
+      }
+
+      // Replay buffered actions
+      while (pendingBuffer.length > 0) {
+        const action = pendingBuffer.shift();
+        if (action) {
+          sendMessage(action);
+        }
+      }
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data as string) as ServerMessage;
+        handleMessage(msg);
+      } catch {
+        // Ignore malformed messages
+      }
+    };
+
+    ws.onclose = () => {
+      ws = null;
+      if (!closed) {
+        setStatus("reconnecting");
+        scheduleReconnect();
+      } else {
+        setStatus("disconnected");
+      }
+    };
+
+    ws.onerror = () => {
+      // onclose will fire after this, triggering reconnect
+    };
+  }
+
+  function scheduleReconnect(): void {
+    if (closed) return;
+    if (reconnectTimer) return;
+
+    const delay = Math.min(
+      BASE_RECONNECT_DELAY_MS * 2 ** reconnectAttempts,
+      MAX_RECONNECT_DELAY_MS,
+    );
+    reconnectAttempts++;
+
+    reconnectTimer = setTimeout(() => {
+      reconnectTimer = null;
+      connect();
+    }, delay);
+  }
+
+  function sendMessage(msg: Record<string, unknown>): void {
+    if (ws?.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify(msg));
+    } else {
+      // Buffer subscribe/unsubscribe for replay
+      if (msg.type === "subscribe" || msg.type === "unsubscribe") {
+        pendingBuffer.push(msg as PendingSubscription);
+      }
+    }
+  }
+
+  // ─── Message Router ───────────────────────────────────
+
+  function handleMessage(msg: ServerMessage): void {
+    // Always emit the raw message
+    emit("raw", msg);
+
+    switch (msg.type) {
+      case "connected":
+        emit("connected", {
+          clientId: msg.clientId ?? "",
+          availableChannels: msg.availableChannels ?? [],
+        });
+        break;
+
+      case "ping":
+        // Auto-respond to server pings
+        sendMessage({ type: "ping" });
+        break;
+
+      case "pong":
+        // Ack from server — nothing to do
+        break;
+
+      case "subscribed":
+        emit("subscribed", {
+          channels: msg.channels ?? [],
+          errors: msg.errors,
+        });
+        break;
+
+      case "unsubscribed":
+        emit("unsubscribed", {
+          channels: msg.channels ?? [],
+        });
+        break;
+
+      case "price":
+      case "prices":
+        if (msg.data) {
+          emit("price", msg.data as PriceData);
+        }
+        break;
+
+      case "trade":
+      case "trades":
+        if (msg.data) {
+          emit("trade", msg.data as TradeData);
+        }
+        break;
+
+      case "news":
+        if (msg.data) {
+          emit("news", msg.data as NewsData);
+        }
+        break;
+
+      case "alert":
+      case "alerts":
+        if (msg.data) {
+          emit("alert", msg.data as AlertData);
+        }
+        break;
+
+      case "gas":
+        if (msg.data) {
+          emit("gas", msg.data as GasData);
+        }
+        break;
+
+      case "market":
+        if (msg.data) {
+          emit("market", msg.data as MarketData);
+        }
+        break;
+
+      case "anomaly":
+        if (msg.data) {
+          emit("anomaly", msg.data as AnomalyData);
+        }
+        break;
+
+      case "error":
+        emit("error", msg.message ?? "Unknown error");
+        break;
+    }
+  }
+
+  // ─── Public API ───────────────────────────────────────
+
+  function subscribe(channels: string[]): void {
+    for (const ch of channels) {
+      desiredChannels.add(ch);
+    }
+    sendMessage({ type: "subscribe", channels });
+  }
+
+  function unsubscribe(channels: string[]): void {
+    for (const ch of channels) {
+      desiredChannels.delete(ch);
+    }
+    sendMessage({ type: "unsubscribe", channels });
+  }
+
+  function on<K extends keyof WebSocketEventMap>(
+    event: K,
+    handler: EventHandler<WebSocketEventMap[K]>,
+  ): void {
+    if (!handlers.has(event as string)) {
+      handlers.set(event as string, new Set());
+    }
+    handlers.get(event as string)!.add(handler as EventHandler<unknown>);
+  }
+
+  function off<K extends keyof WebSocketEventMap>(
+    event: K,
+    handler: EventHandler<WebSocketEventMap[K]>,
+  ): void {
+    const fns = handlers.get(event as string);
+    if (fns) {
+      fns.delete(handler as EventHandler<unknown>);
+    }
+  }
+
+  function close(): void {
+    closed = true;
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
+    if (ws) {
+      ws.onclose = null;
+      ws.onerror = null;
+      ws.onmessage = null;
+      ws.close(1000, "Client closed");
+      ws = null;
+    }
+    setStatus("disconnected");
+    handlers.clear();
+  }
+
+  function authenticate(apiKey: string): void {
+    sendMessage({ type: "auth", apiKey });
+  }
+
+  // Auto-connect on creation
+  connect();
+
+  return {
+    subscribe,
+    unsubscribe,
+    on,
+    off,
+    getStatus: () => status,
+    getSubscribedChannels: () => new Set(desiredChannels),
+    close,
+    authenticate,
+  };
+}
+
+// ─── Convenience: singleton client for dashboard ─────────────
+
+let defaultClient: CryptoWebSocketClient | null = null;
+
+/**
+ * Get or create the default WebSocket client for the dashboard.
+ * Connects to the backend API server's /ws endpoint.
+ */
+export function getWebSocketClient(apiKey?: string): CryptoWebSocketClient {
+  if (!defaultClient) {
+    const protocol = typeof window !== "undefined" && window.location.protocol === "https:" ? "wss:" : "ws:";
+    const host = typeof window !== "undefined" ? window.location.host : "localhost:8080";
+    const url = `${protocol}//${host}/ws`;
+    defaultClient = createWebSocketClient(url, { apiKey });
+  }
+  return defaultClient;
+}
+
+/**
+ * Close the default WebSocket client.
+ */
+export function closeWebSocketClient(): void {
+  if (defaultClient) {
+    defaultClient.close();
+    defaultClient = null;
+  }
+}
+
+// ─── Legacy exports (backward compatibility) ────────────────
+
 export interface WSMessage {
-  type: 'news' | 'breaking' | 'price' | 'alert' | 'ping' | 'subscribe' | 'unsubscribe';
+  type: "news" | "breaking" | "price" | "alert" | "ping" | "subscribe" | "unsubscribe";
   payload: unknown;
   timestamp: string;
 }
@@ -36,254 +493,69 @@ export interface Subscription {
   coins: string[];
 }
 
-// Client management
-const clients = new Map<string, {
-  ws: WebSocket;
-  subscription: Subscription;
-  lastPing: number;
-}>();
-
-// Generate unique client ID
-function generateClientId(): string {
-  return `ws_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-}
-
-// Default subscription
-const defaultSubscription: Subscription = {
-  sources: [],
-  categories: [],
-  keywords: [],
-  coins: [],
-};
-
 /**
- * Handle new WebSocket connection
+ * @deprecated Use createWebSocketClient() instead.
  */
-export function handleConnection(ws: WebSocket): string {
-  const clientId = generateClientId();
-  
-  clients.set(clientId, {
-    ws,
-    subscription: { ...defaultSubscription },
-    lastPing: Date.now(),
-  });
-
-  // Send welcome message
-  sendToClient(clientId, {
-    type: 'ping',
-    payload: { 
-      clientId,
-      message: 'Connected to Free Crypto News WebSocket',
-      serverTime: new Date().toISOString(),
-    },
-    timestamp: new Date().toISOString(),
-  });
-
-  return clientId;
+export function handleConnection(_ws: WebSocket): string {
+  return `ws_${Date.now()}_legacy`;
 }
 
 /**
- * Handle client disconnection
+ * @deprecated Use createWebSocketClient() instead.
  */
-export function handleDisconnection(clientId: string): void {
-  clients.delete(clientId);
-}
+export function handleDisconnection(_clientId: string): void { /* no-op */ }
 
 /**
- * Handle incoming message from client
+ * @deprecated Use createWebSocketClient() instead.
  */
-export function handleMessage(clientId: string, message: string): void {
-  try {
-    const parsed: WSMessage = JSON.parse(message);
-    const client = clients.get(clientId);
-    
-    if (!client) return;
-
-    switch (parsed.type) {
-      case 'subscribe':
-        handleSubscribe(clientId, parsed.payload as Partial<Subscription>);
-        break;
-      case 'unsubscribe':
-        handleUnsubscribe(clientId, parsed.payload as Partial<Subscription>);
-        break;
-      case 'ping':
-        client.lastPing = Date.now();
-        sendToClient(clientId, {
-          type: 'ping',
-          payload: { pong: true },
-          timestamp: new Date().toISOString(),
-        });
-        break;
-    }
-  } catch (error) {
-    console.error('WebSocket message parse error:', error);
-  }
-}
+export function handleMessage(_clientId: string, _message: string): void { /* no-op */ }
 
 /**
- * Handle subscription request
+ * @deprecated Use createWebSocketClient() instead.
  */
-function handleSubscribe(clientId: string, sub: Partial<Subscription>): void {
-  const client = clients.get(clientId);
-  if (!client) return;
-
-  if (sub.sources) {
-    client.subscription.sources = [...new Set([...client.subscription.sources, ...sub.sources])];
-  }
-  if (sub.categories) {
-    client.subscription.categories = [...new Set([...client.subscription.categories, ...sub.categories])];
-  }
-  if (sub.keywords) {
-    client.subscription.keywords = [...new Set([...client.subscription.keywords, ...sub.keywords])];
-  }
-  if (sub.coins) {
-    client.subscription.coins = [...new Set([...client.subscription.coins, ...sub.coins])];
-  }
-
-  sendToClient(clientId, {
-    type: 'subscribe',
-    payload: { success: true, subscription: client.subscription },
-    timestamp: new Date().toISOString(),
-  });
-}
+export function broadcastNews(_news: NewsUpdate): void { /* no-op */ }
 
 /**
- * Handle unsubscribe request
+ * @deprecated Use createWebSocketClient() instead.
  */
-function handleUnsubscribe(clientId: string, sub: Partial<Subscription>): void {
-  const client = clients.get(clientId);
-  if (!client) return;
-
-  if (sub.sources) {
-    client.subscription.sources = client.subscription.sources.filter(s => !sub.sources!.includes(s));
-  }
-  if (sub.categories) {
-    client.subscription.categories = client.subscription.categories.filter(c => !sub.categories!.includes(c));
-  }
-  if (sub.keywords) {
-    client.subscription.keywords = client.subscription.keywords.filter(k => !sub.keywords!.includes(k));
-  }
-  if (sub.coins) {
-    client.subscription.coins = client.subscription.coins.filter(c => !sub.coins!.includes(c));
-  }
-
-  sendToClient(clientId, {
-    type: 'unsubscribe',
-    payload: { success: true, subscription: client.subscription },
-    timestamp: new Date().toISOString(),
-  });
-}
+export function broadcastPrice(_price: PriceUpdate): void { /* no-op */ }
 
 /**
- * Send message to specific client
+ * @deprecated Use createWebSocketClient() instead.
  */
-export function sendToClient(clientId: string, message: WSMessage): void {
-  const client = clients.get(clientId);
-  if (client && client.ws.readyState === WebSocket.OPEN) {
-    client.ws.send(JSON.stringify(message));
-  }
-}
+export function broadcastAlert(_clientId: string, _alert: { type: string; message: string; data?: unknown }): void { /* no-op */ }
 
 /**
- * Broadcast news update to relevant subscribers
+ * @deprecated Use createWebSocketClient() instead.
  */
-export function broadcastNews(news: NewsUpdate): void {
-  const message: WSMessage = {
-    type: news.isBreaking ? 'breaking' : 'news',
-    payload: news,
-    timestamp: new Date().toISOString(),
-  };
-
-  clients.forEach((client, clientId) => {
-    const sub = client.subscription;
-    const shouldSend = 
-      sub.sources.length === 0 || sub.sources.includes(news.source.toLowerCase()) ||
-      sub.categories.length === 0 || sub.categories.includes(news.category) ||
-      sub.keywords.some(kw => news.title.toLowerCase().includes(kw.toLowerCase()));
-
-    if (shouldSend && client.ws.readyState === WebSocket.OPEN) {
-      sendToClient(clientId, message);
-    }
-  });
-}
+export function sendToClient(_clientId: string, _message: WSMessage): void { /* no-op */ }
 
 /**
- * Broadcast price update to relevant subscribers
+ * Get connection stats (legacy).
+ * @deprecated Use getWebSocketClient().getStatus() instead.
  */
-export function broadcastPrice(price: PriceUpdate): void {
-  const message: WSMessage = {
-    type: 'price',
-    payload: price,
-    timestamp: new Date().toISOString(),
-  };
-
-  clients.forEach((client, clientId) => {
-    const sub = client.subscription;
-    if (sub.coins.length === 0 || sub.coins.includes(price.symbol.toLowerCase())) {
-      if (client.ws.readyState === WebSocket.OPEN) {
-        sendToClient(clientId, message);
-      }
-    }
-  });
-}
-
-/**
- * Broadcast alert to specific client
- */
-export function broadcastAlert(clientId: string, alert: { type: string; message: string; data?: unknown }): void {
-  sendToClient(clientId, {
-    type: 'alert',
-    payload: alert,
-    timestamp: new Date().toISOString(),
-  });
-}
-
-/**
- * Get connection stats
- */
-export function getStats(): { 
-  totalConnections: number; 
+export function getStats(): {
+  totalConnections: number;
   activeConnections: number;
   subscriptions: { sources: number; categories: number; keywords: number; coins: number };
 } {
-  let activeConnections = 0;
-  const subscriptions = { sources: 0, categories: 0, keywords: 0, coins: 0 };
-
-  clients.forEach((client) => {
-    if (client.ws.readyState === WebSocket.OPEN) {
-      activeConnections++;
-      subscriptions.sources += client.subscription.sources.length;
-      subscriptions.categories += client.subscription.categories.length;
-      subscriptions.keywords += client.subscription.keywords.length;
-      subscriptions.coins += client.subscription.coins.length;
-    }
-  });
-
   return {
-    totalConnections: clients.size,
-    activeConnections,
-    subscriptions,
+    totalConnections: 0,
+    activeConnections: 0,
+    subscriptions: { sources: 0, categories: 0, keywords: 0, coins: 0 },
   };
 }
 
 /**
- * Clean up stale connections (call periodically)
+ * @deprecated No-op — clients are managed automatically.
  */
-export function cleanupStaleConnections(maxIdleMs = 5 * 60 * 1000): number {
-  const now = Date.now();
-  let cleaned = 0;
-
-  clients.forEach((client, clientId) => {
-    if (now - client.lastPing > maxIdleMs || client.ws.readyState !== WebSocket.OPEN) {
-      clients.delete(clientId);
-      cleaned++;
-    }
-  });
-
-  return cleaned;
+export function cleanupStaleConnections(_maxIdleMs?: number): number {
+  return 0;
 }
 
-// Export client count for monitoring
+/**
+ * @deprecated Use getWebSocketClient().getStatus() instead.
+ */
 export function getClientCount(): number {
-  return clients.size;
+  return 0;
 }

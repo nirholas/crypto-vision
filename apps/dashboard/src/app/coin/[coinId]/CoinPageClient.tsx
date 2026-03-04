@@ -215,7 +215,7 @@ export default function CoinPageClient({
                   <h3 className="text-lg font-semibold text-text-primary mb-4">
                     {coinData.symbol.toUpperCase()} Price Chart
                   </h3>
-                  <PriceChart data={chartData} type="area" height={350} showGrid={true} />
+                  <PriceChart data={chartData} type="area" height={400} showGrid={true} />
                 </div>
               )}
 

@@ -1,14 +1,50 @@
+# ─────────────────────────────────────────────────────────────
+# Crypto Vision — GitHub Actions CI/CD
+#
+# On push to main and PRs:
+#   1. Lint (eslint)
+#   2. Typecheck (tsc --noEmit)
+#   3. Unit tests (vitest run)
+#   4. Build (tsc -p tsconfig.build.json)
+#   5. Docker build (verify Dockerfile works)
+#
+# On push to main only:
+#   6. Push Docker image to GHCR
+#   7. Deploy to staging
+# ─────────────────────────────────────────────────────────────
+
 name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  # ── Lint + Typecheck + Test + Build ────────────────────────
   ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - uses: actions/checkout@v4
@@ -21,14 +57,110 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Typecheck
-        run: npm run typecheck
-
       - name: Lint
         run: npm run lint
 
-      - name: Test
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
         run: npm run test
+        env:
+          REDIS_URL: redis://localhost:6379
+          NODE_ENV: test
 
       - name: Build
         run: npm run build
+
+  # ── Docker Build + Push ────────────────────────────────────
+  docker:
+    runs-on: ubuntu-latest
+    needs: ci
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build worker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.worker
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-worker:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-worker:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ── Deploy to Staging ──────────────────────────────────────
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: docker
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    timeout-minutes: 10
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to staging
+        run: |
+          echo "Deploying ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} to staging"
+          # Uncomment and configure for your deployment target:
+          #
+          # Cloud Run:
+          # gcloud run deploy crypto-vision-staging \
+          #   --image=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          #   --region=us-central1
+          #
+          # Kubernetes:
+          # kubectl set image deployment/crypto-vision \
+          #   api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          #   -n crypto-vision-staging
+
+      - name: Smoke test staging
+        run: |
+          echo "Running smoke tests against staging..."
+          # Uncomment when staging URL is configured:
+          # for i in 1 2 3 4 5; do
+          #   STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$STAGING_URL/health")
+          #   if [ "$STATUS" = "200" ]; then
+          #     echo "Staging health check passed"
+          #     exit 0
+          #   fi
+          #   echo "Attempt $i/5 — status $STATUS, retrying in 10s..."
+          #   sleep 10
+          # done
+          # echo "Staging health check FAILED"
+          # exit 1

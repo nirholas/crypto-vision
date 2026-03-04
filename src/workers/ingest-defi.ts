@@ -23,12 +23,13 @@ import {
 } from "../lib/bq-ingest.js";
 
 class DefiIngestionWorker extends IngestionWorker {
-  constructor() {
+  constructor(overrides?: Partial<WorkerConfig>) {
     const config: WorkerConfig = {
       name: "ingest-defi",
       intervalMs: 5 * 60 * 1_000, // 5 minutes
       bqTable: Tables.DEFI_PROTOCOLS,
       pubsubTopic: Topics.STANDARD,
+      ...overrides,
     };
     super(config);
   }

@@ -16,12 +16,13 @@ import { Topics } from "../lib/pubsub.js";
 import { IngestionWorker, runWorkerCLI, type WorkerConfig } from "./worker-base.js";
 
 class DerivativesIngestionWorker extends IngestionWorker {
-    constructor() {
+    constructor(overrides?: Partial<WorkerConfig>) {
         const config: WorkerConfig = {
             name: "ingest-derivatives",
             intervalMs: 10 * 60 * 1_000, // 10 minutes
             bqTable: Tables.DERIVATIVES_SNAPSHOTS,
             pubsubTopic: Topics.STANDARD,
+            ...overrides,
         };
         super(config);
     }

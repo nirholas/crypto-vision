@@ -16,12 +16,13 @@ import { Topics } from "../lib/pubsub.js";
 import { IngestionWorker, runWorkerCLI, type WorkerConfig } from "./worker-base.js";
 
 class MacroIngestionWorker extends IngestionWorker {
-    constructor() {
+    constructor(overrides?: Partial<WorkerConfig>) {
         const config: WorkerConfig = {
             name: "ingest-macro",
             intervalMs: 60 * 60 * 1_000, // 60 minutes
             bqTable: Tables.MARKET_SNAPSHOTS,
             pubsubTopic: Topics.HOURLY,
+            ...overrides,
         };
         super(config);
     }

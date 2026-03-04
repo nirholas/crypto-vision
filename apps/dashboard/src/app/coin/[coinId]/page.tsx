@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!coinData) {
       return {
-        title: 'Coin Not Found | Crypto Data Aggregator',
+        title: 'Coin Not Found — Crypto Vision',
         description: 'The requested cryptocurrency could not be found.',
       };
     }
@@ -69,7 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const name = coinData.name || coinId;
 
     return {
-      title: `${name} (${symbol}) Price, Chart & Market Cap | Crypto Data Aggregator`,
+      title: `${name} (${symbol}) Price, Chart & Market Cap — Crypto Vision`,
       description: `Get ${name} (${symbol}) price, market cap, trading volume, chart, and info. ${name} is currently trading at ${formatPrice(price)} with a ${change24h >= 0 ? '+' : ''}${change24h.toFixed(2)}% change in 24h.`,
       keywords: [
         name.toLowerCase(),
@@ -103,7 +103,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   } catch {
     const meta = coinMeta[coinId];
     return {
-      title: `${meta?.name || coinId} Price & News | Crypto Data Aggregator`,
+      title: `${meta?.name || coinId} Price & News — Crypto Vision`,
       description: `Latest ${meta?.name || coinId} news, price, and market data.`,
     };
   }
@@ -278,9 +278,9 @@ export default async function CoinPage({ params, searchParams }: Props) {
 
   // Breadcrumb data for enhanced SEO
   const breadcrumbs = [
-    { name: 'Home', url: 'https://crypto-data-aggregator.vercel.app' },
-    { name: 'Coins', url: 'https://crypto-data-aggregator.vercel.app/markets' },
-    { name: coinData.name, url: `https://crypto-data-aggregator.vercel.app/coin/${coinId}` },
+    { name: 'Home', url: '/' },
+    { name: 'Coins', url: '/markets' },
+    { name: coinData.name, url: `/coin/${coinId}` },
   ];
 
   return (
@@ -305,7 +305,7 @@ export default async function CoinPage({ params, searchParams }: Props) {
       />
 
       <div className="min-h-screen bg-background">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-[1600px] mx-auto">
           <Header />
 
           <CoinPageClient

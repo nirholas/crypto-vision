@@ -42,12 +42,13 @@ const TOP_COINS = [
 ];
 
 class BackfillWorker extends IngestionWorker {
-  constructor() {
+  constructor(overrides?: Partial<WorkerConfig>) {
     const config: WorkerConfig = {
       name: "backfill-historical",
       intervalMs: 24 * 60 * 60 * 1_000, // 24 hours (one-shot or daily)
       bqTable: Tables.OHLC_CANDLES,
       pubsubTopic: Topics.DAILY,
+      ...overrides,
     };
     super(config);
   }

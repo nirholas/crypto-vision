@@ -20,12 +20,13 @@ import {
 import { channelManager } from "../lib/ws-channels.js";
 
 class MarketIngestionWorker extends IngestionWorker {
-  constructor() {
+  constructor(overrides?: Partial<WorkerConfig>) {
     const config: WorkerConfig = {
       name: "ingest-market",
       intervalMs: 2 * 60 * 1_000, // 2 minutes
       bqTable: Tables.MARKET_SNAPSHOTS,
       pubsubTopic: Topics.FREQUENT,
+      ...overrides,
     };
     super(config);
   }

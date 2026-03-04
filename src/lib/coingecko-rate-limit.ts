@@ -51,8 +51,8 @@ let isProcessing = false;
 
 function refillTokens(): void {
   const now = Date.now();
-  const ellapsed = now - bucket.refillTime;
-  const tokensToAdd = (ellapsed / REFILL_INTERVAL) * TOKENS_PER_REFILL;
+  const elapsed = now - bucket.refillTime;
+  const tokensToAdd = (elapsed / REFILL_INTERVAL) * TOKENS_PER_REFILL;
 
   if (tokensToAdd > 0) {
     bucket.tokens = Math.min(CAPACITY, bucket.tokens + tokensToAdd);

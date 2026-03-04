@@ -302,3 +302,100 @@ describe("URL Encoding Edge Cases", () => {
         });
     }
 });
+
+// ─── Pagination Parameter Fuzzing ────────────────────────────
+
+describe("Pagination Parameter Fuzzing", () => {
+    const negativeAndEdgeCases = [
+        { param: "page=-1", desc: "negative page" },
+        { param: "page=0", desc: "zero page" },
+        { param: "page=999999999", desc: "enormous page" },
+        { param: "per_page=-1", desc: "negative per_page" },
+        { param: "per_page=0", desc: "zero per_page" },
+        { param: "per_page=999999999", desc: "enormous per_page" },
+        { param: "limit=-100", desc: "negative limit" },
+        { param: "limit=NaN", desc: "NaN limit" },
+        { param: "limit=Infinity", desc: "Infinity limit" },
+        { param: "page=1.5", desc: "float page" },
+        { param: "page[]=1&page[]=2", desc: "array page" },
+        { param: "page={\"a\":1}", desc: "object page" },
+        { param: "per_page=true", desc: "boolean per_page" },
+    ];
+
+    for (const { param, desc } of negativeAndEdgeCases) {
+        it(`GET /api/coins?${desc} → never 500`, async () => {
+            const { status } = await safeFetch(
+                `${BASE_URL}/api/coins?${param}`,
+                { headers: headers() },
+            );
+            expect(status).not.toBe(500);
+        });
+    }
+});
+
+// ─── Type Mismatch Fuzzing ───────────────────────────────────
+
+describe("Type Mismatch Fuzzing", () => {
+    it("query param receives array where string expected", async () => {
+        const { status } = await safeFetch(
+            `${BASE_URL}/api/search?q[]=a&q[]=b`,
+            { headers: headers() },
+        );
+        expect(status).not.toBe(500);
+    });
+
+    it("query param receives object where string expected", async () => {
+        const { status } = await safeFetch(
+            `${BASE_URL}/api/search?q[key]=value`,
+            { headers: headers() },
+        );
+        expect(status).not.toBe(500);
+    });
+
+    it("POST body with wrong field types", async () => {
+        const wrongTypes = [
+            { question: 12345 },
+            { question: true },
+            { question: null },
+            { question: ["array", "of", "strings"] },
+            { question: { nested: "object" } },
+        ];
+
+        for (const body of wrongTypes) {
+            const { status } = await safeFetch(`${BASE_URL}/api/ai/ask`, {
+                method: "POST",
+                headers: {
+                    ...headers(),
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+            });
+            expect(status).not.toBe(500);
+        }
+    });
+});
+
+// ─── No Stack Traces in Responses ────────────────────────────
+
+describe("No Stack Traces in Responses", () => {
+    const badPaths = [
+        "/api/coin/' OR 1=1 --",
+        "/api/coin/<script>alert(1)</script>",
+        "/api/coin/../../../etc/passwd",
+        `/api/search?q=${"a".repeat(50_000)}`,
+    ];
+
+    for (const path of badPaths) {
+        it(`no stack trace leaked for ${path.slice(0, 60)}...`, async () => {
+            const { body } = await safeFetch(
+                `${BASE_URL}${encodeURI(path)}`,
+                { headers: headers() },
+            );
+            // Stack traces typically include "at " followed by file paths
+            expect(body).not.toMatch(/at\s+\S+\s+\(.*\.ts:\d+:\d+\)/);
+            expect(body).not.toMatch(/at\s+\S+\s+\(.*\.js:\d+:\d+\)/);
+            expect(body).not.toContain("node_modules");
+            expect(body).not.toContain("Error: ");
+        });
+    }
+});

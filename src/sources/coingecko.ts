@@ -14,7 +14,13 @@
 import { ingestExchangeSnapshots, ingestMarketSnapshots, ingestOHLCCandles } from "../lib/bq-ingest.js";
 import { cache } from "../lib/cache.js";
 import { fetchJSON } from "../lib/fetcher.js";
-import { waitForCoinGeckoToken, updateRateLimitInfo } from "../lib/coingecko-rate-limit.js";
+import { logger } from "../lib/logger.js";
+import {
+  waitForCoinGeckoToken,
+  updateRateLimitInfo,
+  recordCoinGeckoSuccess,
+  recordCoinGeckoFailure,
+} from "../lib/coingecko-rate-limit.js";
 
 const BASE = process.env.COINGECKO_PRO === "true"
   ? "https://pro-api.coingecko.com/api/v3"
@@ -25,13 +31,23 @@ function headers(): Record<string, string> {
   return key ? { "x-cg-pro-api-key": key } : {};
 }
 
+/**
+ * Core CoinGecko fetch wrapper with rate limiting, header tracking,
+ * success/failure recording, and structured logging.
+ */
 function cg<T>(path: string, ttl: number): Promise<T> {
   return cache.wrap(`cg:${path}`, ttl, async () => {
-    // Rate limit: wait for available token before making request
     await waitForCoinGeckoToken();
 
-    const result = await fetchJSON<T>(`${BASE}${path}`, { headers: headers() });
-    return result;
+    try {
+      const result = await fetchJSON<T>(`${BASE}${path}`, { headers: headers() });
+      recordCoinGeckoSuccess();
+      return result;
+    } catch (err) {
+      recordCoinGeckoFailure();
+      logger.warn({ source: "coingecko", path, error: (err as Error).message }, "CoinGecko request failed");
+      throw err;
+    }
   });
 }
 
@@ -81,7 +97,7 @@ export async function getCoins(params: {
   const data = await cg<CoinMarket[]>(`/coins/markets?${p}`, 180); // 3 min cache (rate limiting)
 
   // Stream to BigQuery (fire-and-forget, non-blocking)
-  ingestMarketSnapshots(data as unknown as Record<string, unknown>[]);
+  try { ingestMarketSnapshots(data as unknown as Record<string, unknown>[]); } catch { /* non-critical */ }
 
   return data;
 }
@@ -212,7 +228,7 @@ export async function getOHLC(
   const data = await cg<[number, number, number, number, number][]>(`/coins/${id}/ohlc?vs_currency=usd&days=${days}`, 3600); // 1 hour cache (immutable historical data)
 
   // Stream to BigQuery (fire-and-forget)
-  ingestOHLCCandles(id, data);
+  try { ingestOHLCCandles(id, data); } catch { /* non-critical */ }
 
   return data;
 }
@@ -242,7 +258,7 @@ export async function getExchanges(
   }>>(`/exchanges?per_page=${perPage}&page=${page}`, 1800); // 30 min cache (stable data)
 
   // Stream to BigQuery (fire-and-forget)
-  ingestExchangeSnapshots(data as unknown as Record<string, unknown>[], "coingecko");
+  try { ingestExchangeSnapshots(data as unknown as Record<string, unknown>[], "coingecko"); } catch { /* non-critical */ }
 
   return data;
 }

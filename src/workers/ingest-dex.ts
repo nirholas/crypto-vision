@@ -17,12 +17,13 @@ import { IngestionWorker, runWorkerCLI, type WorkerConfig } from "./worker-base.
 import { channelManager } from "../lib/ws-channels.js";
 
 class DexIngestionWorker extends IngestionWorker {
-    constructor() {
+    constructor(overrides?: Partial<WorkerConfig>) {
         const config: WorkerConfig = {
             name: "ingest-dex",
             intervalMs: 2 * 60 * 1_000, // 2 minutes
             bqTable: Tables.DEX_PAIRS,
             pubsubTopic: Topics.FREQUENT,
+            ...overrides,
         };
         super(config);
     }
