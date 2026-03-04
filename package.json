@@ -24,7 +24,11 @@
     "export": "tsx scripts/export-all.ts",
     "export:dry-run": "tsx scripts/export-all.ts --dry-run",
     "export:download": "bash scripts/download-exports.sh",
-    "export:import-pg": "tsx scripts/import-to-postgres.ts"
+    "export:import-pg": "tsx scripts/import-to-postgres.ts",
+    "stego": "tsx scripts/stego.ts",
+    "stego:encode": "tsx scripts/stego.ts encode",
+    "stego:scan": "tsx scripts/stego.ts scan",
+    "stego:inject": "tsx scripts/stego.ts inject"
   },
   "dependencies": {
     "@google-cloud/aiplatform": "^6.5.0",
