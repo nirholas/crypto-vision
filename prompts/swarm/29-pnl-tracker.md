@@ -20,6 +20,13 @@ Create `packages/pump-agent-swarm/src/trading/pnl-tracker.ts` — real-time prof
 
 - **Creates**: `packages/pump-agent-swarm/src/trading/pnl-tracker.ts`
 
+## Dependencies
+
+- `../types.ts` — `TradeDirection` (P01)
+- `../infra/event-bus.ts` — `SwarmEventBus` (P04)
+- `../infra/logger.ts` — `SwarmLogger` (P07)
+- `bn.js` — `BN`
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/trading/pnl-tracker.ts`

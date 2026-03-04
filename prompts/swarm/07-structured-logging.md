@@ -20,6 +20,11 @@ Create `packages/pump-agent-swarm/src/infra/logger.ts` — a structured logging 
 
 - **Creates**: `packages/pump-agent-swarm/src/infra/logger.ts`
 
+## Dependencies
+
+- `../types.ts` — `SwarmPhase` (P01)
+- Node.js `util` and `process.stdout` for console output
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/infra/logger.ts`

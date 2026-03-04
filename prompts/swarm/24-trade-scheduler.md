@@ -20,6 +20,15 @@ Create `packages/pump-agent-swarm/src/trading/trade-scheduler.ts` — a central 
 
 - **Creates**: `packages/pump-agent-swarm/src/trading/trade-scheduler.ts`
 
+## Dependencies
+
+- `../types.ts` — `TradeDirection` (P01)
+- `../infra/event-bus.ts` — `SwarmEventBus` (P04)
+- `../infra/logger.ts` — `SwarmLogger` (P07)
+- `../infra/metrics.ts` — `MetricsCollector` (P08)
+- `@solana/web3.js` — `Connection`
+- `bn.js` — `BN`
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/trading/trade-scheduler.ts`

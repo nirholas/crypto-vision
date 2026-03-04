@@ -117,7 +117,94 @@ export {
 } from './config/index.js';
 export type { ValidationResult } from './config/index.js';
 
-// ─── Core Types ───────────────────────────────────────────────
+// ─── Trading ──────────────────────────────────────────────────
+export {
+  PriceTrajectoryController,
+  calculateBuyOutput,
+  calculateSellOutput,
+  calculateSolForPriceTarget,
+  simulatePriceAfterTrade,
+} from './trading/price-trajectory.js';
+export type {
+  TrajectoryCurve,
+  PriceTrajectoryPlan,
+  PriceCheckpoint,
+  TrajectoryProgress,
+} from './trading/price-trajectory.js';
+
+// ─── Bundle / Distribution ────────────────────────────────
+export { SupplyDistributor } from './bundle/supply-distributor.js';
+export type {
+  DistributionStrategy,
+  DistributionConfig,
+  DistributionPlan,
+  DistributionResult,
+  TokenDistribution,
+  DistributionAnalysis,
+} from './bundle/supply-distributor.js';
+
+// ─── Position Management ──────────────────────────────────────
+export { PositionManager } from './trading/position-manager.js';
+export type {
+  AggregatePosition,
+  WalletPosition,
+  RebalanceSuggestion,
+} from './trading/position-manager.js';
+
+// ─── Strategies ───────────────────────────────────────────────
+export {
+  STRATEGY_ORGANIC,
+  STRATEGY_VOLUME,
+  STRATEGY_GRADUATION,
+  STRATEGY_EXIT,
+  PRESET_STRATEGIES,
+} from './strategies.js';
+
+// ─── Profit Consolidation ─────────────────────────────────────
+export { ProfitConsolidator } from './trading/profit-consolidator.js';
+export type {
+  ProfitConsolidatorConfig,
+  WalletPnL,
+  ConsolidationResult,
+  WalletConsolidationEntry,
+  ConsolidationError,
+} from './trading/profit-consolidator.js';
+
+// ─── Coordination ─────────────────────────────────────────────
+export { AuditLogger } from './coordination/audit-logger.js';
+export type {
+  AuditCategory,
+  AuditSeverity,
+  AuditEntry,
+  TradeAuditData,
+  TradeAuditSummary,
+  DecisionAuditData,
+} from './coordination/audit-logger.js';
+export { SwarmConfigManager } from './coordination/swarm-config-manager.js';
+
+// ─── Intelligence ─────────────────────────────────────────────
+export { PortfolioOptimizer } from './intelligence/portfolio-optimizer.js';
+
+// ─── Event Bus ────────────────────────────────────────────────
+export { SwarmEventBus } from './infra/event-bus.js';
+export { SwarmStateMachine } from './infra/state-machine.js';
+
+// ─── Telegram ─────────────────────────────────────────────────
+export { TelegramBot } from './telegram/bot.js';
+export { TelegramNotificationService } from './telegram/notifications.js';
+export { routeCommand, COMMAND_HANDLERS } from './telegram/commands.js';
+export type { SwarmAccessor, CommandHandler } from './telegram/commands.js';
+export { formatter as telegramFormatter } from './telegram/formatter.js';
+export type {
+  TelegramBotConfig,
+  TelegramNotification,
+  NotificationLevel,
+  CommandContext,
+  SwarmStatusSnapshot,
+  TradeNotification,
+} from './telegram/types.js';
+
+// ─── Types ────────────────────────────────────────────────────
 export type {
   // Wallet Types
   AgentWallet,

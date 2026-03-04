@@ -20,6 +20,13 @@ Create `packages/pump-agent-swarm/src/trading/slippage-calculator.ts` — accura
 
 - **Creates**: `packages/pump-agent-swarm/src/trading/slippage-calculator.ts`
 
+## Dependencies
+
+- `../types.ts` — `BondingCurveState`, `TradeDirection` (P01)
+- `../infra/logger.ts` — `SwarmLogger` (P07)
+- `@solana/web3.js` — `Connection`, `PublicKey`
+- `bn.js` — `BN`
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/trading/slippage-calculator.ts`

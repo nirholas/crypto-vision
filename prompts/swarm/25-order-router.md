@@ -20,6 +20,15 @@ Create `packages/pump-agent-swarm/src/trading/order-router.ts` — routes trade 
 
 - **Creates**: `packages/pump-agent-swarm/src/trading/order-router.ts`
 
+## Dependencies
+
+- `../infra/rpc-pool.ts` — `RpcPool` (P02)
+- `../infra/event-bus.ts` — `SwarmEventBus` (P04)
+- `../infra/logger.ts` — `SwarmLogger` (P07)
+- `../infra/metrics.ts` — `MetricsCollector` (P08)
+- `../infra/error-handler.ts` — `SwarmErrorHandler` (P09)
+- `@solana/web3.js` — `Connection`, `Transaction`, `VersionedTransaction`, `Commitment`
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/trading/order-router.ts`

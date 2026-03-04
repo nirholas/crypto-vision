@@ -21,6 +21,14 @@ Create `packages/pump-agent-swarm/src/bundle/jito-client.ts` — a production cl
 
 - **Creates**: `packages/pump-agent-swarm/src/bundle/jito-client.ts`
 
+## Dependencies
+
+- `../types.ts` — `JitoBundleConfig` (P01)
+- `../infra/logger.ts` — `SwarmLogger` (P07)
+- `../infra/metrics.ts` — `MetricsCollector` (P08)
+- `../infra/error-handler.ts` — `SwarmErrorHandler` (P09)
+- `@solana/web3.js` — `Connection`, `Transaction`, `VersionedTransaction`, `PublicKey`
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/bundle/jito-client.ts`

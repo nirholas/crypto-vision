@@ -20,6 +20,15 @@ Create `packages/pump-agent-swarm/src/agents/sentinel-agent.ts` — a watchdog a
 
 - **Creates**: `packages/pump-agent-swarm/src/agents/sentinel-agent.ts`
 
+## Dependencies
+
+- `../types.ts` — `AgentWallet`, `EmergencyExitConfig` (P01)
+- `../infra/event-bus.ts` — `SwarmEventBus` (P04)
+- `../infra/logger.ts` — `SwarmLogger` (P07)
+- `../infra/metrics.ts` — `MetricsCollector` (P08)
+- `../infra/error-handler.ts` — `SwarmErrorHandler` (P09)
+- `@solana/web3.js` — `Connection`
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/agents/sentinel-agent.ts`

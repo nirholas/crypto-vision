@@ -20,6 +20,14 @@ Create `packages/pump-agent-swarm/src/trading/price-trajectory.ts` — plans and
 
 - **Creates**: `packages/pump-agent-swarm/src/trading/price-trajectory.ts`
 
+## Dependencies
+
+- `../types.ts` — `BondingCurveState` (P01)
+- `../infra/event-bus.ts` — `SwarmEventBus` (P04)
+- `../infra/logger.ts` — `SwarmLogger` (P07)
+- `@solana/web3.js` — `Connection`
+- `bn.js` — `BN`
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/trading/price-trajectory.ts`

@@ -20,6 +20,17 @@ Create `packages/pump-agent-swarm/src/bundle/supply-distributor.ts` — after a 
 
 - **Creates**: `packages/pump-agent-swarm/src/bundle/supply-distributor.ts`
 
+## Dependencies
+
+- `../types.ts` — `AgentWallet` (P01)
+- `../wallet-manager.ts` — `WalletVault` (P03)
+- `../infra/event-bus.ts` — `SwarmEventBus` (P04)
+- `../infra/logger.ts` — `SwarmLogger` (P07)
+- `../infra/error-handler.ts` — `SwarmErrorHandler` (P09)
+- `@solana/web3.js` — `Connection`
+- `@solana/spl-token` — `getAssociatedTokenAddress`, `createAssociatedTokenAccountInstruction`, `createTransferInstruction`
+- `bn.js` — `BN`
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/bundle/supply-distributor.ts`

@@ -20,6 +20,15 @@ Create `packages/pump-agent-swarm/src/agents/accumulator-agent.ts` — an agent 
 
 - **Creates**: `packages/pump-agent-swarm/src/agents/accumulator-agent.ts`
 
+## Dependencies
+
+- `../types.ts` — `AgentWallet`, `BondingCurveState` (P01)
+- `../infra/event-bus.ts` — `SwarmEventBus` (P04)
+- `../infra/logger.ts` — `SwarmLogger` (P07)
+- `../infra/error-handler.ts` — `SwarmErrorHandler` (P09)
+- `@solana/web3.js` — `Connection`
+- `bn.js` — `BN`
+
 ## Deliverables
 
 ### Create `packages/pump-agent-swarm/src/agents/accumulator-agent.ts`

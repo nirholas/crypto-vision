@@ -23,6 +23,15 @@ Extend `packages/pump-agent-swarm/src/types.ts` with comprehensive types for all
 
 The existing `types.ts` has: `AgentWallet`, `WalletPool`, `TokenConfig`, `MintResult`, `BundleBuyConfig`, `TradeOrder`, `TradeResult`, `BondingCurveState`, `TradingStrategy`, `SwarmConfig`, `TokenAnalytics`, `SwarmStatus`, `TraderStats`, `SwarmEvents`. These must be preserved and extended.
 
+## File Ownership
+
+- **Modifies**: `packages/pump-agent-swarm/src/types.ts`
+
+## Dependencies
+
+- None — this is the foundation type file that all other prompts depend on
+- Existing `types.ts` exports must be preserved
+
 ## Deliverables
 
 ### 1. Add Infrastructure Types
