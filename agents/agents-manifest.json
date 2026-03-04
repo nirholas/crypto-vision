@@ -254,6 +254,7 @@
   },
   "features": [
     "58 specialized AI agents",
+    "39 composable agent skills across 12 domains",
     "18 language translations",
     "RESTful JSON API",
     "No rate limiting",
@@ -262,7 +263,8 @@
     "Universal compatibility",
     "No vendor lock-in",
     "Machine-readable indexes",
-    "Automated i18n workflow"
+    "Automated i18n workflow",
+    "Skill-based agent discovery"
   ],
   "homepage": "https://github.com/nirholas/defi-agents",
   "license": "MIT",
@@ -272,6 +274,118 @@
     "url": "https://github.com/nirholas/defi-agents.git"
   },
   "schemaVersion": 1,
+  "skills": {
+    "totalSkills": 39,
+    "domains": {
+      "security": {
+        "count": 7,
+        "skills": [
+          "token-security-scan",
+          "honeypot-detection",
+          "rug-pull-analysis",
+          "address-security-check",
+          "approval-audit",
+          "dapp-safety-check",
+          "contract-verification"
+        ]
+      },
+      "defi": {
+        "count": 6,
+        "skills": [
+          "yield-discovery",
+          "protocol-analysis",
+          "tvl-tracking",
+          "swap-execution",
+          "pool-analysis",
+          "gas-estimation"
+        ]
+      },
+      "market-data": {
+        "count": 3,
+        "skills": [
+          "price-tracking",
+          "market-sentiment",
+          "whale-monitoring"
+        ]
+      },
+      "stablecoin": {
+        "count": 3,
+        "skills": [
+          "usds-operations",
+          "vault-monitoring",
+          "mint-simulation"
+        ]
+      },
+      "staking": {
+        "count": 3,
+        "skills": [
+          "spa-staking",
+          "yield-tracking",
+          "demeter-farming"
+        ]
+      },
+      "governance": {
+        "count": 1,
+        "skills": [
+          "governance-participation"
+        ]
+      },
+      "analytics": {
+        "count": 4,
+        "skills": [
+          "protocol-metrics",
+          "oracle-price-feeds",
+          "subgraph-queries",
+          "supply-analytics"
+        ]
+      },
+      "portfolio": {
+        "count": 2,
+        "skills": [
+          "portfolio-overview",
+          "portfolio-risk-assessment"
+        ]
+      },
+      "bridge": {
+        "count": 1,
+        "skills": [
+          "cross-chain-bridge"
+        ]
+      },
+      "nft": {
+        "count": 1,
+        "skills": [
+          "nft-exploration"
+        ]
+      },
+      "education": {
+        "count": 3,
+        "skills": [
+          "news-aggregation",
+          "agent-discovery",
+          "plugin-marketplace"
+        ]
+      },
+      "trading": {
+        "count": 5,
+        "skills": [
+          "full-token-audit",
+          "defi-risk-report",
+          "daily-defi-briefing",
+          "sperax-ecosystem-overview",
+          "swap-routing"
+        ]
+      }
+    },
+    "mcpTools": [
+      "skills_list",
+      "skills_get",
+      "skills_search",
+      "skills_by_agent",
+      "skills_get_domains"
+    ],
+    "levels": ["primary", "secondary", "supplementary"]
+  },
   "stats": {
     "totalAgents": 58,
     "supportedLanguages": 18,

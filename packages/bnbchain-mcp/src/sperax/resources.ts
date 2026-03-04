@@ -1253,6 +1253,97 @@ Use agents_get with identifier "usds-stablecoin-expert" to get full prompt
 | \`/{identifier}.json\` | Single agent details |
 `;
 
+export const SKILLS_DOCUMENTATION = `# Agent Skills Registry
+
+## Overview
+
+The Agent Skills Registry provides a structured mapping of agent capabilities to concrete MCP tools. Each skill represents a composable capability that agents declare and execute, enabling skill-based agent discovery and orchestration.
+
+**Total Skills:** 39 across 12 domains
+**MCP Tools:** 5 skill-discovery tools
+
+## Skill Domains
+
+| Domain | Skills | Description |
+|--------|--------|-------------|
+| 🔒 **security** | 7 | Token scans, honeypot detection, rug pull analysis, approval audits, dApp safety, contract verification |
+| 🏦 **defi** | 6 | Yield discovery, protocol analysis, TVL tracking, swap execution, pool analysis, gas estimation |
+| 📊 **market-data** | 3 | Price tracking, market sentiment, whale monitoring |
+| 💰 **stablecoin** | 3 | USDs operations, vault monitoring, mint simulation |
+| 🥩 **staking** | 3 | SPA staking, yield tracking, Demeter farming |
+| 🗳️ **governance** | 1 | Governance participation and proposal analysis |
+| 📈 **analytics** | 4 | Protocol metrics, oracle price feeds, subgraph queries, supply analytics |
+| 💼 **portfolio** | 2 | Portfolio overview, risk assessment |
+| 🌉 **bridge** | 1 | Cross-chain bridge operations |
+| 🎨 **nft** | 1 | NFT exploration and market analysis |
+| 📰 **education** | 3 | News aggregation, agent discovery, plugin marketplace |
+| 💱 **trading** | 5 | Full token audit, DeFi risk report, daily briefing, ecosystem overview, swap routing |
+
+## Available MCP Tools
+
+| Tool | Description |
+|------|-------------|
+| \`skills_list\` | List all skills with optional domain/complexity/risk filters |
+| \`skills_get\` | Get complete skill details by ID |
+| \`skills_search\` | Full-text search across skill names, descriptions, and tags |
+| \`skills_by_agent\` | Discover which skills an agent supports based on its tags |
+| \`skills_get_domains\` | List all skill domains with counts and descriptions |
+
+## Skill Structure
+
+Each skill contains:
+- **id** — Unique identifier (kebab-case)
+- **name** — Human-readable name
+- **description** — What this skill does
+- **domain** — Category (security, defi, trading, etc.)
+- **complexity** — Rating 1-5 (1=simple lookup, 5=multi-step orchestration)
+- **tools** — MCP tools required/optional for execution
+- **inputSchema** — Parameters the skill accepts
+- **outputFields** — Data fields the skill produces
+- **relatedSkills** — IDs of chainable/related skills
+- **examples** — Natural language prompts with expected tool chains
+- **tags** — Filtering keywords
+- **riskLevel** — low, medium, or high
+
+## Agent-Skill Mapping
+
+Each agent JSON definition includes a \`skills\` array that maps skill IDs to proficiency levels:
+
+\`\`\`json
+{
+  "skills": [
+    { "id": "usds-operations", "level": "primary" },
+    { "id": "vault-monitoring", "level": "secondary" },
+    { "id": "sperax-ecosystem-overview", "level": "supplementary" }
+  ]
+}
+\`\`\`
+
+**Levels:**
+- **primary** — Core competency, the agent's main focus
+- **secondary** — Supporting capability used frequently
+- **supplementary** — Available but not the agent's main strength
+
+## Usage Examples
+
+\`\`\`
+Use skills_list with domain "security" to find all security skills
+Use skills_get with skillId "token-security-scan" for full skill details
+Use skills_search with query "yield" to find yield-related skills
+Use skills_by_agent with agentId "usds-stablecoin-expert" to see agent capabilities
+Use skills_get_domains to see all domains and their skill counts
+\`\`\`
+
+## Skill Chaining
+
+Skills reference related skills via \`relatedSkills\`, enabling multi-step workflows:
+
+1. **token-security-scan** → rug-pull-analysis → honeypot-detection
+2. **yield-discovery** → protocol-analysis → tvl-tracking
+3. **usds-operations** → vault-monitoring → mint-simulation
+4. **portfolio-overview** → portfolio-risk-assessment → yield-tracking
+`;
+
 export const PLUGINS_DOCUMENTATION = `# SperaxOS Plugin Marketplace
 
 ## Overview
@@ -1489,6 +1580,13 @@ export const resources = [
     description: 'Documentation for the DeFi Agents API with 78+ AI agent definitions',
     mimeType: 'text/markdown',
     content: AGENTS_DOCUMENTATION,
+  },
+  {
+    uri: 'sperax://ecosystem/skills',
+    name: 'Agent Skills Registry',
+    description: 'Documentation for the Agent Skills Registry — 39 skills across 12 domains with MCP tool mappings',
+    mimeType: 'text/markdown',
+    content: SKILLS_DOCUMENTATION,
   },
   {
     uri: 'sperax://ecosystem/plugins',
