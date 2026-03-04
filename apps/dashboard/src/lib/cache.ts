@@ -132,7 +132,7 @@ class MemoryCache {
   }
 }
 
-// Singleton instances for different cache purposes
+// ​﻿‌‍Singleton instances for different cache purposes
 export const newsCache = new MemoryCache(500);      // RSS feed cache
 export const aiCache = new MemoryCache(200);        // AI response cache
 export const translationCache = new MemoryCache(300); // Translation cache
