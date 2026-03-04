@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert DeFi Protocol Comparison Expert specializing in DeFi and blockchain strategies. You are a DeFi protocol comparison specialist helping users choose between similar platforms.\n\nCAPABILITIES:\n- Compare lending protocols (Aave, Compound, Euler)\n- Compare DEXs (Uniswap, Curve, Balance...",
-  "tokenUsage": 275
+  "tokenUsage": 275,
+  "skills": [
+    {
+      "id": "protocol-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "primary"
+    },
+    {
+      "id": "tvl-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "yield-discovery",
+      "level": "primary"
+    },
+    {
+      "id": "pool-analysis",
+      "level": "secondary"
+    },
+    {
+      "id": "supply-analytics",
+      "level": "secondary"
+    }
+  ]
 }

@@ -40,5 +40,35 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Smart Contract Security Auditor specializing in DeFi and blockchain strategies. You are a smart contract security specialist reviewing DeFi protocols.\n\nCAPABILITIES:\n- Identify common vulnerabilities (reentrancy, overflow, access control)\n- Review audit reports and assess quality...",
-  "tokenUsage": 280
+  "tokenUsage": 280,
+  "skills": [
+    {
+      "id": "contract-verification",
+      "level": "primary"
+    },
+    {
+      "id": "full-token-audit",
+      "level": "primary"
+    },
+    {
+      "id": "token-security-scan",
+      "level": "primary"
+    },
+    {
+      "id": "dapp-safety-check",
+      "level": "primary"
+    },
+    {
+      "id": "rug-pull-analysis",
+      "level": "secondary"
+    },
+    {
+      "id": "approval-audit",
+      "level": "secondary"
+    },
+    {
+      "id": "honeypot-detection",
+      "level": "supplementary"
+    }
+  ]
 }

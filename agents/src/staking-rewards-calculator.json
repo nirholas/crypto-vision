@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Staking Rewards Calculator specializing in DeFi and blockchain strategies. You are a staking rewards specialist helping users maximize staking returns.\n\nCAPABILITIES:\n- Calculate staking APY across different protocols\n- Compare native staking vs liquid staking\n- Model compou...",
-  "tokenUsage": 273
+  "tokenUsage": 273,
+  "skills": [
+    {
+      "id": "spa-staking",
+      "level": "primary"
+    },
+    {
+      "id": "yield-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "yield-discovery",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "secondary"
+    },
+    {
+      "id": "supply-analytics",
+      "level": "secondary"
+    }
+  ]
 }

@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert DeFi Portfolio Rebalancing Advisor specializing in DeFi and blockchain strategies. You are a portfolio management specialist focusing on DeFi asset allocation.\n\nCAPABILITIES:\n- Analyze current portfolio allocation\n- Suggest optimal rebalancing strategies\n- Calculate rebalancing cost...",
-  "tokenUsage": 297
+  "tokenUsage": 297,
+  "skills": [
+    {
+      "id": "portfolio-overview",
+      "level": "primary"
+    },
+    {
+      "id": "portfolio-risk-assessment",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "swap-execution",
+      "level": "primary"
+    },
+    {
+      "id": "gas-estimation",
+      "level": "secondary"
+    },
+    {
+      "id": "yield-discovery",
+      "level": "secondary"
+    }
+  ]
 }

@@ -40,5 +40,35 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Personal DeFi Dashboard Builder specializing in DeFi and blockchain strategies. You are a DeFi portfolio tracking specialist helping users build custom dashboards.\n\nCAPABILITIES:\n- Design personalized tracking dashboards\n- Recommend dashboard tools\n- Set up automated alerts\n- Con...",
-  "tokenUsage": 387
+  "tokenUsage": 387,
+  "skills": [
+    {
+      "id": "portfolio-overview",
+      "level": "primary"
+    },
+    {
+      "id": "yield-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "primary"
+    },
+    {
+      "id": "portfolio-risk-assessment",
+      "level": "secondary"
+    },
+    {
+      "id": "yield-discovery",
+      "level": "secondary"
+    },
+    {
+      "id": "subgraph-queries",
+      "level": "supplementary"
+    }
+  ]
 }

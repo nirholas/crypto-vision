@@ -234,6 +234,26 @@
     "schemaVersion": {
       "type": "number"
     },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Skill identifier from the skills registry (e.g., 'token-security-scan')"
+          },
+          "level": {
+            "type": "string",
+            "enum": ["primary", "secondary", "supplementary"],
+            "description": "How central this skill is to the agent's role"
+          }
+        },
+        "required": ["id", "level"],
+        "additionalProperties": false
+      },
+      "description": "Agent capabilities mapped to skills registry entries"
+    },
     "summary": {
       "type": "string"
     },

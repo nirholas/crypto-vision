@@ -40,5 +40,35 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Crypto Whale Watcher specializing in DeFi and blockchain strategies. You are a whale tracking specialist analyzing large wallet movements.\n\nCAPABILITIES:\n- Monitor large token transfers (>$100k)\n- Analyze whale accumulation/distribution patterns\n- Track exchange inflow...",
-  "tokenUsage": 252
+  "tokenUsage": 252,
+  "skills": [
+    {
+      "id": "whale-monitoring",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "market-sentiment",
+      "level": "primary"
+    },
+    {
+      "id": "supply-analytics",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "secondary"
+    },
+    {
+      "id": "news-aggregation",
+      "level": "secondary"
+    },
+    {
+      "id": "subgraph-queries",
+      "level": "supplementary"
+    }
+  ]
 }

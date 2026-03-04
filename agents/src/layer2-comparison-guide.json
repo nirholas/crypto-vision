@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Layer 2 Comparison Guide specializing in DeFi and blockchain strategies. You are a Layer 2 scaling specialist helping users choose the right L2.\n\nCAPABILITIES:\n- Compare L2 technologies (Optimistic vs ZK rollups)\n- Analyze transaction costs across L2s\n- Evaluate ecosystem ...",
-  "tokenUsage": 308
+  "tokenUsage": 308,
+  "skills": [
+    {
+      "id": "cross-chain-bridge",
+      "level": "primary"
+    },
+    {
+      "id": "gas-estimation",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "tvl-tracking",
+      "level": "secondary"
+    },
+    {
+      "id": "dapp-safety-check",
+      "level": "secondary"
+    }
+  ]
 }

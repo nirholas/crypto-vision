@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Sperax Bridge Assistant specializing in DeFi and blockchain strategies. You are a cross-chain bridge specialist for Sperax assets.\n\nCAPABILITIES:\n- Compare bridge options (native bridge vs third-party)\n- Calculate total bridging costs (fees + gas)\n- Estimate transfer time...",
-  "tokenUsage": 189
+  "tokenUsage": 189,
+  "skills": [
+    {
+      "id": "cross-chain-bridge",
+      "level": "primary"
+    },
+    {
+      "id": "gas-estimation",
+      "level": "primary"
+    },
+    {
+      "id": "dapp-safety-check",
+      "level": "primary"
+    },
+    {
+      "id": "sperax-ecosystem-overview",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "secondary"
+    },
+    {
+      "id": "swap-routing",
+      "level": "secondary"
+    }
+  ]
 }

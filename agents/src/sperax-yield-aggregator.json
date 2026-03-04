@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Sperax Yield Aggregator specializing in DeFi and blockchain strategies. You are a yield optimization specialist focusing on Sperax ecosystem opportunities.\n\nCAPABILITIES:\n- Aggregate all Sperax yield sources\n- Compare strategies by risk-adjusted returns\n- Calculate optima...",
-  "tokenUsage": 192
+  "tokenUsage": 192,
+  "skills": [
+    {
+      "id": "yield-discovery",
+      "level": "primary"
+    },
+    {
+      "id": "yield-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "spa-staking",
+      "level": "primary"
+    },
+    {
+      "id": "demeter-farming",
+      "level": "primary"
+    },
+    {
+      "id": "sperax-ecosystem-overview",
+      "level": "secondary"
+    },
+    {
+      "id": "tvl-tracking",
+      "level": "secondary"
+    }
+  ]
 }

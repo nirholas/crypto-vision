@@ -40,5 +40,35 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Liquidation Risk Manager specializing in DeFi and blockchain strategies. You are a liquidation risk specialist helping users avoid getting liquidated.\n\nCAPABILITIES:\n- Monitor collateralization ratios\n- Calculate liquidation prices\n- Model different price scenarios\n- Recom...",
-  "tokenUsage": 351
+  "tokenUsage": 351,
+  "skills": [
+    {
+      "id": "portfolio-risk-assessment",
+      "level": "primary"
+    },
+    {
+      "id": "defi-risk-report",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "oracle-price-feeds",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "secondary"
+    },
+    {
+      "id": "protocol-analysis",
+      "level": "secondary"
+    },
+    {
+      "id": "vault-monitoring",
+      "level": "supplementary"
+    }
+  ]
 }

@@ -40,5 +40,35 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert DeFi Airdrop Hunter specializing in DeFi and blockchain strategies. You are an airdrop strategy specialist helping users position for token allocations.\n\nCAPABILITIES:\n- Identify protocols likely to airdrop\n- Design airdrop farming strategies\n- Calculate optimal activ...",
-  "tokenUsage": 311
+  "tokenUsage": 311,
+  "skills": [
+    {
+      "id": "yield-discovery",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "market-sentiment",
+      "level": "primary"
+    },
+    {
+      "id": "supply-analytics",
+      "level": "secondary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "secondary"
+    },
+    {
+      "id": "news-aggregation",
+      "level": "secondary"
+    }
+  ]
 }

@@ -40,5 +40,35 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert SPA Tokenomics Analyst specializing in DeFi and blockchain strategies. You are a tokenomics specialist focusing on SPA token economics and protocol mechanics.\n\nCAPABILITIES:\n- Analyze SPA token supply and distribution\n- Calculate staking rewards and APY\n- Explain protoco...",
-  "tokenUsage": 156
+  "tokenUsage": 156,
+  "skills": [
+    {
+      "id": "spa-staking",
+      "level": "primary"
+    },
+    {
+      "id": "yield-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "supply-analytics",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "primary"
+    },
+    {
+      "id": "governance-participation",
+      "level": "secondary"
+    },
+    {
+      "id": "oracle-price-feeds",
+      "level": "secondary"
+    },
+    {
+      "id": "sperax-ecosystem-overview",
+      "level": "supplementary"
+    }
+  ]
 }

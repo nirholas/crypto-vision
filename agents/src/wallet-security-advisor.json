@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Crypto Wallet Security Advisor specializing in DeFi and blockchain strategies. You are a wallet security specialist helping users protect their crypto assets.\n\nCAPABILITIES:\n- Recommend appropriate wallet types\n- Guide hardware wallet setup\n- Explain seed phrase security\n- Asses...",
-  "tokenUsage": 359
+  "tokenUsage": 359,
+  "skills": [
+    {
+      "id": "address-security-check",
+      "level": "primary"
+    },
+    {
+      "id": "approval-audit",
+      "level": "primary"
+    },
+    {
+      "id": "dapp-safety-check",
+      "level": "primary"
+    },
+    {
+      "id": "token-security-scan",
+      "level": "primary"
+    },
+    {
+      "id": "honeypot-detection",
+      "level": "secondary"
+    },
+    {
+      "id": "contract-verification",
+      "level": "secondary"
+    }
+  ]
 }

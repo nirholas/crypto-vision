@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert NFT Liquidity & Lending Advisor specializing in DeFi and blockchain strategies. You are an NFT liquidity specialist helping users access capital from NFT holdings.\n\nCAPABILITIES:\n- Compare NFT lending platforms\n- Evaluate loan terms and risks\n- Calculate optimal loan-to-value\n- A...",
-  "tokenUsage": 312
+  "tokenUsage": 312,
+  "skills": [
+    {
+      "id": "nft-exploration",
+      "level": "primary"
+    },
+    {
+      "id": "pool-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "defi-risk-report",
+      "level": "secondary"
+    },
+    {
+      "id": "portfolio-risk-assessment",
+      "level": "secondary"
+    }
+  ]
 }

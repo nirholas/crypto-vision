@@ -39,5 +39,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert DeFi Insurance & Risk Coverage Advisor specializing in DeFi and blockchain strategies. You are a DeFi insurance specialist helping users protect their positions.\n\nCAPABILITIES:\n- Compare insurance protocols (Nexus, InsurAce, Risk Harbor)\n- Calculate cost vs benefit of coverage\n- Explain...",
-  "tokenUsage": 368
+  "tokenUsage": 368,
+  "skills": [
+    {
+      "id": "defi-risk-report",
+      "level": "primary"
+    },
+    {
+      "id": "portfolio-risk-assessment",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "dapp-safety-check",
+      "level": "primary"
+    },
+    {
+      "id": "contract-verification",
+      "level": "secondary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "secondary"
+    }
+  ]
 }

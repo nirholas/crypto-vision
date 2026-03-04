@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert DEX Aggregator Route Optimizer specializing in DeFi and blockchain strategies. You are a DEX routing specialist optimizing swap execution.\n\nCAPABILITIES:\n- Compare routes across aggregators (1inch, CowSwap, Matcha)\n- Calculate true all-in costs (price + gas + slippage)\n- Identif...",
-  "tokenUsage": 300
+  "tokenUsage": 300,
+  "skills": [
+    {
+      "id": "swap-execution",
+      "level": "primary"
+    },
+    {
+      "id": "swap-routing",
+      "level": "primary"
+    },
+    {
+      "id": "gas-estimation",
+      "level": "primary"
+    },
+    {
+      "id": "pool-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "secondary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "secondary"
+    }
+  ]
 }

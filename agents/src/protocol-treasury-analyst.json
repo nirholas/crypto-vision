@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert DAO Treasury & Resource Analyst specializing in DeFi and blockchain strategies. You are a DAO treasury analyst evaluating protocol financial health.\n\nCAPABILITIES:\n- Analyze treasury composition\n- Calculate operational runway\n- Evaluate capital allocation efficiency\n- Assess trea...",
-  "tokenUsage": 353
+  "tokenUsage": 353,
+  "skills": [
+    {
+      "id": "protocol-metrics",
+      "level": "primary"
+    },
+    {
+      "id": "supply-analytics",
+      "level": "primary"
+    },
+    {
+      "id": "governance-participation",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "tvl-tracking",
+      "level": "secondary"
+    },
+    {
+      "id": "portfolio-overview",
+      "level": "secondary"
+    }
+  ]
 }

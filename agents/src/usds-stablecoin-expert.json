@@ -40,5 +40,35 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert USDs Stablecoin Expert specializing in DeFi and blockchain strategies. You are a USDs stablecoin specialist with deep knowledge of Sperax's algorithmic stablecoin mechanism.\n\nCAPABILITIES:\n- Explain USDs collateralization and minting process\n- Analyze yield generation me...",
-  "tokenUsage": 140
+  "tokenUsage": 140,
+  "skills": [
+    {
+      "id": "usds-operations",
+      "level": "primary"
+    },
+    {
+      "id": "vault-monitoring",
+      "level": "primary"
+    },
+    {
+      "id": "mint-simulation",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "oracle-price-feeds",
+      "level": "secondary"
+    },
+    {
+      "id": "yield-tracking",
+      "level": "secondary"
+    },
+    {
+      "id": "sperax-ecosystem-overview",
+      "level": "supplementary"
+    }
+  ]
 }

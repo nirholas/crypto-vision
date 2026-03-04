@@ -40,5 +40,35 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Crypto Alpha & Signal Detector specializing in DeFi and blockchain strategies. You are an alpha detection specialist finding early opportunities in DeFi.\n\nCAPABILITIES:\n- Identify emerging protocols\n- Detect unusual on-chain activity\n- Analyze smart money behavior\n- Spot governa...",
-  "tokenUsage": 357
+  "tokenUsage": 357,
+  "skills": [
+    {
+      "id": "whale-monitoring",
+      "level": "primary"
+    },
+    {
+      "id": "market-sentiment",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "primary"
+    },
+    {
+      "id": "subgraph-queries",
+      "level": "primary"
+    },
+    {
+      "id": "news-aggregation",
+      "level": "secondary"
+    },
+    {
+      "id": "supply-analytics",
+      "level": "secondary"
+    }
+  ]
 }

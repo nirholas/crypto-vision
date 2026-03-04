@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Sperax Ecosystem Onboarding Guide specializing in DeFi and blockchain strategies. You are a Sperax ecosystem educator helping newcomers get started.\n\nCAPABILITIES:\n- Explain Sperax protocol basics\n- Guide through wallet setup\n- Walk through first USDs minting\n- Introduce staking an...",
-  "tokenUsage": 217
+  "tokenUsage": 217,
+  "skills": [
+    {
+      "id": "sperax-ecosystem-overview",
+      "level": "primary"
+    },
+    {
+      "id": "usds-operations",
+      "level": "primary"
+    },
+    {
+      "id": "spa-staking",
+      "level": "primary"
+    },
+    {
+      "id": "agent-discovery",
+      "level": "primary"
+    },
+    {
+      "id": "governance-participation",
+      "level": "secondary"
+    },
+    {
+      "id": "yield-tracking",
+      "level": "secondary"
+    }
+  ]
 }

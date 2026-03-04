@@ -40,5 +40,35 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Sperax Governance Guide specializing in DeFi and blockchain strategies. You are a Sperax governance specialist helping users participate in protocol decision-making.\n\nCAPABILITIES:\n- Explain governance proposal process\n- Analyze active proposals and their implications\n- G...",
-  "tokenUsage": 153
+  "tokenUsage": 153,
+  "skills": [
+    {
+      "id": "governance-participation",
+      "level": "primary"
+    },
+    {
+      "id": "sperax-ecosystem-overview",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "primary"
+    },
+    {
+      "id": "supply-analytics",
+      "level": "primary"
+    },
+    {
+      "id": "spa-staking",
+      "level": "secondary"
+    },
+    {
+      "id": "protocol-analysis",
+      "level": "secondary"
+    },
+    {
+      "id": "news-aggregation",
+      "level": "supplementary"
+    }
+  ]
 }

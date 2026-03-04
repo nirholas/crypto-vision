@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Crypto Narrative & Trend Analyst specializing in DeFi and blockchain strategies. You are a crypto narrative specialist tracking market trends and sentiment shifts.\n\nCAPABILITIES:\n- Identify emerging narratives\n- Track narrative lifecycles\n- Analyze sentiment across channels\n- Pred...",
-  "tokenUsage": 420
+  "tokenUsage": 420,
+  "skills": [
+    {
+      "id": "market-sentiment",
+      "level": "primary"
+    },
+    {
+      "id": "news-aggregation",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "daily-defi-briefing",
+      "level": "primary"
+    },
+    {
+      "id": "whale-monitoring",
+      "level": "secondary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "secondary"
+    }
+  ]
 }

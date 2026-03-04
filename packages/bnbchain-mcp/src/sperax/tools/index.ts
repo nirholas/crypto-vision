@@ -8,10 +8,11 @@
  * - USDs, SPA, Demeter, Vault, Dripper, Oracle, Analytics, Governance, YieldReserve, Portfolio
  * - Subgraph, Supply, Swap
  *
- * Ecosystem Tools (18):
+ * Ecosystem Tools (23):
  * - Agents: DeFi AI agent definitions API
  * - Plugins: SperaxOS plugin marketplace
  * - News: Crypto news aggregation
+ * - Skills: Agent skills registry & discovery
  */
 
 // Domain-specific tool exports (Protocol)
@@ -33,6 +34,7 @@ export { swapTools } from './swap.js';
 export { agentsTools } from './agents.js';
 export { pluginsTools } from './plugins.js';
 export { newsTools } from './news.js';
+export { skillsTools } from './skills.js';
 
 // Import all tools for aggregation (Protocol)
 import { usdsTools } from './usds.js';
@@ -53,6 +55,7 @@ import { swapTools } from './swap.js';
 import { agentsTools } from './agents.js';
 import { pluginsTools } from './plugins.js';
 import { newsTools } from './news.js';
+import { skillsTools } from './skills.js';
 
 /**
  * All tools aggregated for server registration
@@ -76,6 +79,7 @@ import { newsTools } from './news.js';
  * - Agents: 5 tools (DeFi AI agent API)
  * - Plugins: 6 tools (SperaxOS plugin marketplace)
  * - News: 7 tools (crypto news aggregation)
+ * - Skills: 5 tools (agent skills registry & discovery)
  */
 export const allTools = [
   // Protocol tools
@@ -96,6 +100,7 @@ export const allTools = [
   ...agentsTools,
   ...pluginsTools,
   ...newsTools,
+  ...skillsTools,
 ];
 
 /**
@@ -124,6 +129,7 @@ export const ecosystemTools = [
   ...agentsTools,
   ...pluginsTools,
   ...newsTools,
+  ...skillsTools,
 ];
 
 /**
@@ -148,6 +154,7 @@ export const toolCategories = {
   agents: agentsTools.length,
   plugins: pluginsTools.length,
   news: newsTools.length,
+  skills: skillsTools.length,
   // Totals
   protocolTotal: 0,
   ecosystemTotal: 0,
@@ -163,6 +170,6 @@ toolCategories.protocolTotal =
   toolCategories.swap;
 
 toolCategories.ecosystemTotal = 
-  toolCategories.agents + toolCategories.plugins + toolCategories.news;
+  toolCategories.agents + toolCategories.plugins + toolCategories.news + toolCategories.skills;
 
 toolCategories.total = toolCategories.protocolTotal + toolCategories.ecosystemTotal;

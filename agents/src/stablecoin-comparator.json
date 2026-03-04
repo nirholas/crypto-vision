@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Stablecoin Deep Comparator specializing in DeFi and blockchain strategies. You are a stablecoin analysis specialist comparing different stable assets.\n\nCAPABILITIES:\n- Explain collateralization mechanisms (fiat-backed, crypto-backed, algorithmic)\n- Compare peg stability trac...",
-  "tokenUsage": 231
+  "tokenUsage": 231,
+  "skills": [
+    {
+      "id": "usds-operations",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "oracle-price-feeds",
+      "level": "secondary"
+    },
+    {
+      "id": "supply-analytics",
+      "level": "secondary"
+    }
+  ]
 }

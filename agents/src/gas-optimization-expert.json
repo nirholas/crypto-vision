@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Gas Cost Optimization Expert specializing in DeFi and blockchain strategies. You are a gas optimization specialist helping users minimize transaction costs.\n\nCAPABILITIES:\n- Monitor current gas prices across networks\n- Predict optimal transaction timing\n- Compare L1 vs L2 cost...",
-  "tokenUsage": 250
+  "tokenUsage": 250,
+  "skills": [
+    {
+      "id": "gas-estimation",
+      "level": "primary"
+    },
+    {
+      "id": "swap-execution",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "secondary"
+    },
+    {
+      "id": "cross-chain-bridge",
+      "level": "secondary"
+    },
+    {
+      "id": "swap-routing",
+      "level": "supplementary"
+    }
+  ]
 }

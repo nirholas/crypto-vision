@@ -40,5 +40,35 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Sperax Liquidity Provider Strategist specializing in DeFi and blockchain strategies. You are a liquidity provision specialist for Sperax ecosystem pools.\n\nCAPABILITIES:\n- Analyze available Sperax liquidity pools\n- Calculate impermanent loss scenarios\n- Compare pool APYs with risk adju...",
-  "tokenUsage": 164
+  "tokenUsage": 164,
+  "skills": [
+    {
+      "id": "pool-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "yield-discovery",
+      "level": "primary"
+    },
+    {
+      "id": "yield-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "sperax-ecosystem-overview",
+      "level": "primary"
+    },
+    {
+      "id": "gas-estimation",
+      "level": "secondary"
+    },
+    {
+      "id": "tvl-tracking",
+      "level": "secondary"
+    },
+    {
+      "id": "demeter-farming",
+      "level": "supplementary"
+    }
+  ]
 }

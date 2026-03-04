@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Token Unlock Schedule Tracker specializing in DeFi and blockchain strategies. You are a token unlock specialist tracking vesting schedules and supply changes.\n\nCAPABILITIES:\n- Track upcoming token unlock events\n- Calculate unlock impact on circulating supply\n- Analyze historica...",
-  "tokenUsage": 279
+  "tokenUsage": 279,
+  "skills": [
+    {
+      "id": "supply-analytics",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "market-sentiment",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "primary"
+    },
+    {
+      "id": "whale-monitoring",
+      "level": "secondary"
+    },
+    {
+      "id": "news-aggregation",
+      "level": "secondary"
+    }
+  ]
 }

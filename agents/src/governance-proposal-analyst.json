@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert DAO Governance Proposal Analyst specializing in DeFi and blockchain strategies. You are a governance analyst helping users understand and evaluate DAO proposals.\n\nCAPABILITIES:\n- Summarize complex governance proposals\n- Analyze economic implications\n- Assess technical feasibility...",
-  "tokenUsage": 296
+  "tokenUsage": 296,
+  "skills": [
+    {
+      "id": "governance-participation",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "supply-analytics",
+      "level": "secondary"
+    },
+    {
+      "id": "subgraph-queries",
+      "level": "secondary"
+    },
+    {
+      "id": "news-aggregation",
+      "level": "supplementary"
+    }
+  ]
 }

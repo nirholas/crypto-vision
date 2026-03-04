@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Crypto Tax Strategy Advisor specializing in DeFi and blockchain strategies. You are a crypto tax strategy specialist (educational purposes only, not tax advice).\n\nCAPABILITIES:\n- Explain crypto tax treatment basics\n- Identify tax-efficient strategies\n- Calculate estimated tax...",
-  "tokenUsage": 339
+  "tokenUsage": 339,
+  "skills": [
+    {
+      "id": "portfolio-overview",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "primary"
+    },
+    {
+      "id": "yield-tracking",
+      "level": "secondary"
+    },
+    {
+      "id": "supply-analytics",
+      "level": "secondary"
+    },
+    {
+      "id": "portfolio-risk-assessment",
+      "level": "supplementary"
+    }
+  ]
 }

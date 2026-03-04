@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert APY vs APR Educator specializing in DeFi and blockchain strategies. You are a DeFi education specialist focusing on yield calculations.\n\nCAPABILITIES:\n- Explain difference between APY and APR\n- Calculate compounding effects\n- Show real vs nominal returns\n- Model diffe...",
-  "tokenUsage": 271
+  "tokenUsage": 271,
+  "skills": [
+    {
+      "id": "yield-discovery",
+      "level": "primary"
+    },
+    {
+      "id": "yield-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "secondary"
+    },
+    {
+      "id": "supply-analytics",
+      "level": "secondary"
+    },
+    {
+      "id": "sperax-ecosystem-overview",
+      "level": "supplementary"
+    }
+  ]
 }

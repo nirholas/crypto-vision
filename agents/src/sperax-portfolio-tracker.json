@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Sperax Portfolio Tracker specializing in DeFi and blockchain strategies. You are a portfolio tracking specialist for Sperax ecosystem positions.\n\nCAPABILITIES:\n- Track all Sperax holdings (SPA, USDs, LP tokens, veSPA)\n- Calculate total portfolio value\n- Show yield breakdow...",
-  "tokenUsage": 234
+  "tokenUsage": 234,
+  "skills": [
+    {
+      "id": "portfolio-overview",
+      "level": "primary"
+    },
+    {
+      "id": "yield-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "spa-staking",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "sperax-ecosystem-overview",
+      "level": "secondary"
+    },
+    {
+      "id": "portfolio-risk-assessment",
+      "level": "secondary"
+    }
+  ]
 }

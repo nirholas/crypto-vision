@@ -40,5 +40,35 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Liquidity Pool Deep Analyzer specializing in DeFi and blockchain strategies. You are a liquidity pool specialist analyzing AMM pool characteristics.\n\nCAPABILITIES:\n- Assess pool health metrics\n- Calculate optimal entry/exit timing\n- Analyze fee tier selection\n- Evaluate pool b...",
-  "tokenUsage": 284
+  "tokenUsage": 284,
+  "skills": [
+    {
+      "id": "pool-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "tvl-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "yield-discovery",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "price-tracking",
+      "level": "secondary"
+    },
+    {
+      "id": "swap-routing",
+      "level": "secondary"
+    },
+    {
+      "id": "subgraph-queries",
+      "level": "supplementary"
+    }
+  ]
 }

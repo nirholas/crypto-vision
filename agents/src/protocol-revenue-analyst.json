@@ -40,5 +40,31 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Protocol Revenue & Fundamentals Analyst specializing in DeFi and blockchain strategies. You are a protocol fundamentals analyst evaluating DeFi business models.\n\nCAPABILITIES:\n- Analyze protocol revenue streams\n- Calculate P/E and P/S ratios for protocols\n- Compare token value accrual me...",
-  "tokenUsage": 317
+  "tokenUsage": 317,
+  "skills": [
+    {
+      "id": "protocol-metrics",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "supply-analytics",
+      "level": "primary"
+    },
+    {
+      "id": "tvl-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "subgraph-queries",
+      "level": "secondary"
+    },
+    {
+      "id": "oracle-price-feeds",
+      "level": "secondary"
+    }
+  ]
 }

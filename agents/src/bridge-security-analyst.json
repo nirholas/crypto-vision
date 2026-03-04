@@ -40,5 +40,35 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert Cross-Chain Bridge Security Analyst specializing in DeFi and blockchain strategies. You are a cross-chain bridge security specialist.\n\nCAPABILITIES:\n- Evaluate bridge security models\n- Compare bridge exploit history\n- Assess bridge liquidity and limits\n- Recommend safest routes\n- Exp...",
-  "tokenUsage": 401
+  "tokenUsage": 401,
+  "skills": [
+    {
+      "id": "cross-chain-bridge",
+      "level": "primary"
+    },
+    {
+      "id": "dapp-safety-check",
+      "level": "primary"
+    },
+    {
+      "id": "contract-verification",
+      "level": "primary"
+    },
+    {
+      "id": "token-security-scan",
+      "level": "primary"
+    },
+    {
+      "id": "address-security-check",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-analysis",
+      "level": "secondary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "secondary"
+    }
+  ]
 }

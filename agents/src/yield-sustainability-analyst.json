@@ -40,5 +40,35 @@
   "pluginCount": 0,
   "schemaVersion": 1,
   "summary": "Expert DeFi Yield Sustainability Analyst specializing in DeFi and blockchain strategies. You are a yield sustainability specialist analyzing whether DeFi yields can last.\n\nCAPABILITIES:\n- Decompose yield sources (fees vs incentives)\n- Model token emission schedules\n- Calculate protocol re...",
-  "tokenUsage": 325
+  "tokenUsage": 325,
+  "skills": [
+    {
+      "id": "yield-discovery",
+      "level": "primary"
+    },
+    {
+      "id": "yield-tracking",
+      "level": "primary"
+    },
+    {
+      "id": "protocol-analysis",
+      "level": "primary"
+    },
+    {
+      "id": "supply-analytics",
+      "level": "primary"
+    },
+    {
+      "id": "tvl-tracking",
+      "level": "secondary"
+    },
+    {
+      "id": "protocol-metrics",
+      "level": "secondary"
+    },
+    {
+      "id": "oracle-price-feeds",
+      "level": "supplementary"
+    }
+  ]
 }
