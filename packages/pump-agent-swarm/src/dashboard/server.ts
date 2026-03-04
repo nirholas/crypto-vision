@@ -9,9 +9,10 @@
  * - Factory function for quick setup with sensible defaults
  */
 
+import { createServer, type Server as HttpServer, type IncomingMessage, type ServerResponse } from 'node:http';
+
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { serve, type ServerType } from '@hono/node-server';
 
 import { registerApiRoutes, type DashboardContext, type SwarmOrchestrator } from './api-routes.js';
 import { SwarmLogger } from '../infra/logger.js';
@@ -243,7 +244,7 @@ export class DashboardServer {
   private readonly connections: Map<string, WebSocketConnection> = new Map();
   private orchestrator: SwarmOrchestrator | null = null;
   private dashboardContext: DashboardContext | null = null;
-  private server: ServerType | null = null;
+  private server: HttpServer | null = null;
   private broadcastInterval: ReturnType<typeof setInterval> | null = null;
   private connectionCounter = 0;
 
@@ -289,22 +290,51 @@ export class DashboardServer {
     }
 
     return new Promise<void>((resolve) => {
-      this.server = serve(
-        {
-          fetch: this.app.fetch,
+      this.server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
+        try {
+          const url = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
+          const headers = new Headers();
+          for (const [key, value] of Object.entries(req.headers)) {
+            if (value !== undefined) {
+              headers.set(key, Array.isArray(value) ? value.join(', ') : value);
+            }
+          }
+
+          const body =
+            req.method !== 'GET' && req.method !== 'HEAD'
+              ? await new Promise<string>((resolveBody) => {
+                  const chunks: Buffer[] = [];
+                  req.on('data', (chunk: Buffer) => chunks.push(chunk));
+                  req.on('end', () => resolveBody(Buffer.concat(chunks).toString()));
+                })
+              : undefined;
+
+          const request = new Request(url.toString(), {
+            method: req.method ?? 'GET',
+            headers,
+            body,
+          });
+
+          const response = await this.app.fetch(request);
+
+          res.writeHead(response.status, Object.fromEntries(response.headers.entries()));
+          const arrayBuffer = await response.arrayBuffer();
+          res.end(Buffer.from(arrayBuffer));
+        } catch (err) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, data: null, error: 'Internal server error', timestamp: Date.now() }));
+        }
+      });
+
+      this.server.listen(this.config.port, this.config.hostname, () => {
+        this.logger.info('Dashboard server started', {
           port: this.config.port,
           hostname: this.config.hostname,
-        },
-        () => {
-          this.logger.info('Dashboard server started', {
-            port: this.config.port,
-            hostname: this.config.hostname,
-            cors: this.config.corsEnabled,
-            websocket: this.config.websocketEnabled,
-          });
-          resolve();
-        },
-      );
+          cors: this.config.corsEnabled,
+          websocket: this.config.websocketEnabled,
+        });
+        resolve();
+      });
     });
   }
 

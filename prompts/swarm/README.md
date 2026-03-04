@@ -2,7 +2,7 @@
 
 ## Hackathon-Winning Demo: AI Agents Launch, Bundle, and Trade Memecoins
 
-72 prompts organized into 8 phases. Each prompt is self-contained, designed for a Claude agent session. Feed them sequentially within each phase; phases can overlap where noted.
+79 prompts organized into 9 phases. Each prompt is self-contained, designed for a Claude agent session. Feed them sequentially within each phase; phases can overlap where noted.
 
 ### Rules for All Agents
 
@@ -61,6 +61,7 @@
 | 6 — Coordination | 50-59 | A2A messaging: agent-to-agent protocol, swarm consensus, task delegation | Phase 2, 3, 4 |
 | 7 — Dashboard | 60-69 | Live UI: real-time WebSocket, trade visualization, agent status, P&L charts | Phase 3, 4, 5 |
 | 8 — Demo & Polish | 70-72 | Hackathon demo: CLI runner, one-click demo, presentation mode | All |
+| 9 — Production Hardening | 73-79 | Tests, DB persistence, Telegram bot, package setup, barrel exports, Docker, profit consolidation | All |
 
 ### File Ownership Map
 
@@ -107,7 +108,8 @@ packages/pump-agent-swarm/
 │   │   ├── slippage-calculator.ts       # P26
 │   │   ├── gas-optimizer.ts             # P27
 │   │   ├── position-manager.ts          # P28
-│   │   └── pnl-tracker.ts              # P29
+│   │   ├── pnl-tracker.ts              # P29
+│   │   └── profit-consolidator.ts      # P79
 │   ├── bundle/
 │   │   ├── bundle-coordinator.ts        # P30
 │   │   ├── jito-client.ts              # P31
@@ -158,6 +160,27 @@ packages/pump-agent-swarm/
 │   │   ├── cli-runner.ts               # P70
 │   │   ├── demo-mode.ts               # P71
 │   │   └── presentation.ts            # P72
+│   ├── persistence/
+│   │   ├── index.ts                    # P74
+│   │   ├── schema.ts                   # P74
+│   │   ├── database.ts                 # P74
+│   │   ├── repositories.ts             # P74
+│   │   └── migrations.ts              # P74
+│   ├── telegram/
+│   │   ├── index.ts                    # P75
+│   │   ├── bot.ts                      # P75
+│   │   ├── commands.ts                 # P75
+│   │   ├── notifications.ts            # P75
+│   │   └── formatters.ts              # P75
 │   └── examples/
 │       └── run-swarm.ts                # existing (update in P72)
+├── Dockerfile                            # P78
+├── docker-compose.yml                    # P78
+├── .env.example                          # P78
+├── vitest.config.ts                      # P73
+├── tsconfig.build.json                   # P76
+├── deploy/
+│   ├── cloudrun.yaml                    # P78
+│   └── k8s-deployment.yaml              # P78
+└── src/__tests__/                         # P73 (full test structure)
 ```
