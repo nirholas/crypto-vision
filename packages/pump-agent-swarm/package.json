@@ -96,11 +96,14 @@
     "eventemitter3": "^5.0.1",
     "hono": "^4.12.4",
     "nanoid": "^5.0.0",
+    "better-sqlite3": "^11.7.0",
+    "drizzle-orm": "^0.44.0",
     "tweetnacl": "^1.0.3",
     "uuid": "^13.0.0",
     "ws": "^8.18.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
     "@types/bn.js": "^5.1.6",
     "@types/node": "^22.0.0",
     "@types/uuid": "^10.0.0",
