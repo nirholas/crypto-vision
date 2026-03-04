@@ -119,6 +119,7 @@ html, body {
 @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes fadeInRight { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes loading-bar { 0% { transform: translateX(-100%); } 50% { transform: translateX(100%); } 100% { transform: translateX(300%); } }
 @keyframes live-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(0, 214, 143, 0.7); }
   50% { box-shadow: 0 0 0 8px rgba(0, 214, 143, 0); }

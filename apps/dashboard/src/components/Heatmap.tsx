@@ -30,33 +30,26 @@ const getChangeValue = (coin: Coin, timeframe: TimeFrame): number => {
 };
 
 const getBackgroundColor = (change: number): string => {
-  // Monochrome gradient: darker = more negative, lighter = more positive
-  // Using opacity on black/white for smooth gradient
+  // Red → Neutral → Green gradient for trading-terminal feel
   const absChange = Math.min(Math.abs(change), 20); // Cap at 20% for color scaling
   const intensity = absChange / 20; // 0-1 scale
 
   if (change >= 0) {
-    // Positive: white with varying opacity overlay
-    const lightness = 95 - intensity * 40; // 95% to 55%
-    return `hsl(0, 0%, ${lightness}%)`;
+    // Positive: green shades — hsl(142, sat, lightness)
+    const saturation = 30 + intensity * 50; // 30% to 80%
+    const lightness = 18 + intensity * 14; // 18% to 32% (dark-mode friendly)
+    return `hsl(142, ${saturation}%, ${lightness}%)`;
   } else {
-    // Negative: dark with varying intensity
-    const lightness = 45 - intensity * 35; // 45% to 10%
-    return `hsl(0, 0%, ${lightness}%)`;
+    // Negative: red shades — hsl(0, sat, lightness)
+    const saturation = 30 + intensity * 50; // 30% to 80%
+    const lightness = 18 + intensity * 14; // 18% to 32%
+    return `hsl(0, ${saturation}%, ${lightness}%)`;
   }
 };
 
-const getTextColor = (change: number): string => {
-  const absChange = Math.min(Math.abs(change), 20);
-  const intensity = absChange / 20;
-
-  if (change >= 0) {
-    // On light background, use dark text
-    return intensity > 0.3 ? 'text-background-secondary' : 'text-surface-border';
-  } else {
-    // On dark background, use light text
-    return 'text-white';
-  }
+const getTextColor = (_change: number): string => {
+  // All tiles use light text on dark-coloured backgrounds
+  return 'text-white';
 };
 
 const formatPercent = (pct: number): string => {

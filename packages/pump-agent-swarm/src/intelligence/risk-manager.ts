@@ -43,10 +43,6 @@ export interface RiskLimits {
   maxConsecutiveLosses: number;
   /** Minimum time between trades per wallet (ms) */
   minTradeCooldown: number;
-  /** Maximum hold duration before time risk escalates (ms) — default 30 minutes */
-  maxHoldDuration: number;
-  /** Minimum SOL volume per position to avoid liquidity risk */
-  minLiquiditySOL: number;
 }
 
 export interface ProposedTradeAction {
@@ -701,7 +697,12 @@ export class RiskManager {
 
     const drawdown = this.getDrawdown();
     const circuitBreaker = this.checkCircuitBreaker();
-    const riskScore = this.computePortfolioRiskScore(positionList, drawdown);
+    const correlationRisk = this.assessCorrelationRisk(positionList);
+    const liquidityRisk = this.assessLiquidityRisk(positionList);
+    const timeRisk = this.assessTimeRisk(positionList, now);
+    const { riskScore, breakdown } = this.computePortfolioRiskScoreDetailed(
+      positionList, drawdown, correlationRisk, liquidityRisk, timeRisk,
+    );
 
     // Compile warnings
     const warnings: string[] = [];
@@ -718,6 +719,15 @@ export class RiskManager {
     if (windowLoss >= this.config.maxLossPerWindow * 0.5) {
       warnings.push(`Window loss ${windowLoss.toFixed(4)} SOL (limit ${this.config.maxLossPerWindow} SOL)`);
     }
+    if (correlationRisk.score > 50) {
+      warnings.push(`High position correlation (${correlationRisk.avgCorrelation.toFixed(2)}) — portfolio not diversified`);
+    }
+    if (liquidityRisk.illiquidPositions.length > 0) {
+      warnings.push(`${liquidityRisk.illiquidPositions.length} position(s) below minimum liquidity threshold`);
+    }
+    if (timeRisk.overduePositions.length > 0) {
+      warnings.push(`${timeRisk.overduePositions.length} position(s) held beyond max hold duration`);
+    }
 
     return {
       totalDeployed,
@@ -730,6 +740,10 @@ export class RiskManager {
       drawdown,
       circuitBreaker,
       riskScore,
+      riskBreakdown: breakdown,
+      correlationRisk,
+      liquidityRisk,
+      timeRisk,
       warnings,
       timestamp: now,
     };

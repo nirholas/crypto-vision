@@ -16,7 +16,7 @@ import { CurrencyProvider } from '@/components/CurrencySelector';
 import { AppShell } from '@/components/AppShell';
 
 export const viewport: Viewport = {
-  themeColor: '#000000',
+  themeColor: '#00d4aa',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -27,8 +27,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: 'Crypto Data Aggregator',
-    template: '%s | Crypto Data Aggregator',
+    default: 'Crypto Vision',
+    template: '%s | Crypto Vision',
   },
   description:
     'Real-time cryptocurrency market data, DeFi analytics, portfolio tracking, and comprehensive market insights. Your complete crypto data dashboard.',
@@ -44,9 +44,9 @@ export const metadata: Metadata = {
     'coingecko',
     'trading',
   ],
-  authors: [{ name: 'Crypto Data Aggregator' }],
-  creator: 'Crypto Data Aggregator',
-  publisher: 'Crypto Data Aggregator',
+  authors: [{ name: 'Crypto Vision' }],
+  creator: 'Crypto Vision',
+  publisher: 'Crypto Vision',
   formatDetection: {
     email: false,
     address: false,
@@ -78,10 +78,10 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: 'Crypto Data Aggregator',
+    title: 'Crypto Vision',
     description: 'Real-time cryptocurrency market data, DeFi analytics, and portfolio tracking.',
     url: 'https://crypto-data-aggregator.vercel.app',
-    siteName: 'Crypto Data Aggregator',
+    siteName: 'Crypto Vision',
     type: 'website',
     locale: 'en_US',
     images: [
@@ -89,13 +89,13 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Crypto Data Aggregator - Real-time Market Data',
+        alt: 'Crypto Vision - Real-time Market Data',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Crypto Data Aggregator',
+    title: 'Crypto Vision',
     description: 'Real-time cryptocurrency market data, DeFi analytics, and portfolio tracking.',
     images: ['/og-image.png'],
   },
@@ -123,14 +123,14 @@ export const metadata: Metadata = {
       {
         rel: 'mask-icon',
         url: '/safari-pinned-tab.svg',
-        color: '#f7931a',
+        color: '#00d4aa',
       },
     ],
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'CryptoNews',
+    title: 'Crypto Vision',
     startupImage: [
       {
         url: '/splash/apple-splash-2048-2732.png',
@@ -170,14 +170,14 @@ export const metadata: Metadata = {
     ],
   },
   category: 'news',
-  classification: 'Cryptocurrency News',
+  classification: 'Cryptocurrency Dashboard',
   other: {
-    'msapplication-TileColor': '#f7931a',
+    'msapplication-TileColor': '#00d4aa',
     'msapplication-config': '/browserconfig.xml',
     'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',
-    'application-name': 'CryptoNews',
-    'apple-mobile-web-app-title': 'CryptoNews',
+    'application-name': 'Crypto Vision',
+    'apple-mobile-web-app-title': 'Crypto Vision',
   },
 };
 
@@ -216,7 +216,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'WebApplication',
-              name: 'Crypto Data Aggregator',
+              name: 'Crypto Vision',
               description:
                 'Real-time cryptocurrency market data aggregator for 10,000+ coins and 200+ DeFi protocols',
               url: 'https://crypto-data-aggregator.vercel.app',

@@ -85,7 +85,7 @@ function StatDivider() {
 function GlobalStatsBarSkeleton() {
   return (
     <div className="sticky top-0 z-50 bg-bg-secondary/95 backdrop-blur-md border-b border-surface-border">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[1600px] mx-auto">
         <div className="flex items-center gap-4 px-4 h-10 md:h-8 overflow-x-auto scrollbar-hide">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div

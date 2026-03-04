@@ -4,22 +4,6 @@
  * Provides global keyboard navigation for power users. Wraps the application
  * to enable keyboard-driven navigation throughout all pages.
  *
- * @module components/KeyboardShortcuts
- * @requires next/navigation
- * @requires ./ThemeProvider
- *
- * @example
- * // In layout.tsx
- * import { KeyboardShortcutsProvider } from '@/components/KeyboardShortcuts';
- *
- * export default function Layout({ children }) {
- *   return (
- *     <KeyboardShortcutsProvider>
- *       {children}
- *     </KeyboardShortcutsProvider>
- *   );
- * }
- *
  * ## Keyboard Shortcuts
  *
  * ### Navigation
@@ -28,7 +12,8 @@
  * | `j` | Select next article |
  * | `k` | Select previous article |
  * | `Enter` | Open selected article |
- * | `Escape` | Close modal / blur input |
+ * | `Escape` | Close any open modal/dialog |
+ * | `1-9` | Navigate to sidebar item by index |
  *
  * ### Quick Access (g + key)
  * | Key | Action |
@@ -47,18 +32,18 @@
  * | Key | Action |
  * |-----|--------|
  * | `/` or `Cmd+K` | Open search |
+ * | `Cmd/Ctrl+/` | Show shortcuts help |
+ * | `?` | Show shortcuts help |
  * | `d` | Toggle dark mode |
- * | `?` | Show shortcuts help modal |
  * | `w` | Toggle watchlist (on coin page) |
  * | `a` | Open alert modal (on coin page) |
- *
- * @see {@link https://docs.crypto-data-aggregator.com/user-guide#keyboard-shortcuts User Guide}
  */
 'use client';
 
 import { useEffect, useState, useCallback, createContext, useContext, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from './ThemeProvider';
+import { X, Keyboard } from 'lucide-react';
 
 interface ShortcutsContextType {
   showHelp: boolean;
@@ -80,6 +65,19 @@ export function useShortcuts() {
 interface KeyboardShortcutsProviderProps {
   children: ReactNode;
 }
+
+// Sidebar nav items for 1-9 shortcuts
+const sidebarRoutes = [
+  '/',            // 1 - Home
+  '/trending',    // 2 - Trending
+  '/sources',     // 3 - Sources
+  '/watchlist',   // 4 - Watchlist
+  '/portfolio',   // 5 - Portfolio
+  '/bookmarks',   // 6 - Bookmarks
+  '/compare',     // 7 - Compare
+  '/settings',    // 8 - Settings
+  '/admin',       // 9 - Admin
+];
 
 export function KeyboardShortcutsProvider({ children }: KeyboardShortcutsProviderProps) {
   const [showHelp, setShowHelp] = useState(false);
@@ -104,6 +102,13 @@ export function KeyboardShortcutsProvider({ children }: KeyboardShortcutsProvide
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setOpenSearch(true);
+        return;
+      }
+
+      // Cmd+/ or Ctrl+/ to show shortcuts help
+      if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+        e.preventDefault();
+        setShowHelp((prev) => !prev);
         return;
       }
 
@@ -167,9 +172,12 @@ export function KeyboardShortcutsProvider({ children }: KeyboardShortcutsProvide
           break;
 
         case 'Escape':
+          // Close all modals/dialogs
           setShowHelp(false);
           setOpenSearch(false);
           setGPressed(false);
+          // Dispatch global close event for other modals
+          window.dispatchEvent(new CustomEvent('closeAllModals'));
           break;
 
         case 'd':
@@ -198,25 +206,27 @@ export function KeyboardShortcutsProvider({ children }: KeyboardShortcutsProvide
         case 'j':
         case 'k':
           // Article navigation
-          const articles = document.querySelectorAll<HTMLElement>('[data-article]');
-          if (articles.length === 0) return;
+          {
+            const articles = document.querySelectorAll<HTMLElement>('[data-article]');
+            if (articles.length === 0) return;
 
-          const focusedIndex = Array.from(articles).findIndex(
-            (el) => el === document.activeElement || el.contains(document.activeElement)
-          );
+            const focusedIndex = Array.from(articles).findIndex(
+              (el) => el === document.activeElement || el.contains(document.activeElement)
+            );
 
-          let nextIndex: number;
-          if (e.key === 'j') {
-            nextIndex = focusedIndex === -1 ? 0 : Math.min(focusedIndex + 1, articles.length - 1);
-          } else {
-            nextIndex = focusedIndex === -1 ? 0 : Math.max(focusedIndex - 1, 0);
-          }
+            let nextIndex: number;
+            if (e.key === 'j') {
+              nextIndex = focusedIndex === -1 ? 0 : Math.min(focusedIndex + 1, articles.length - 1);
+            } else {
+              nextIndex = focusedIndex === -1 ? 0 : Math.max(focusedIndex - 1, 0);
+            }
 
-          const nextArticle = articles[nextIndex];
-          const link = nextArticle.querySelector<HTMLAnchorElement>('a');
-          if (link) {
-            link.focus();
-            nextArticle.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const nextArticle = articles[nextIndex];
+            const link = nextArticle.querySelector<HTMLAnchorElement>('a');
+            if (link) {
+              link.focus();
+              nextArticle.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
           }
           break;
 
@@ -224,6 +234,17 @@ export function KeyboardShortcutsProvider({ children }: KeyboardShortcutsProvide
           // Open focused article
           if (document.activeElement?.tagName === 'A') {
             (document.activeElement as HTMLAnchorElement).click();
+          }
+          break;
+
+        default:
+          // 1-9 sidebar navigation
+          if (!e.metaKey && !e.ctrlKey && !e.altKey) {
+            const num = parseInt(e.key, 10);
+            if (num >= 1 && num <= 9 && num <= sidebarRoutes.length) {
+              e.preventDefault();
+              router.push(sidebarRoutes[num - 1]);
+            }
           }
           break;
       }
@@ -255,6 +276,7 @@ function ShortcutsHelp({ onClose }: { onClose: () => void }) {
         { keys: ['Enter'], description: 'Open article' },
         { keys: ['⌘/Ctrl', 'K'], description: 'Open search', separator: '+' },
         { keys: ['/'], description: 'Open search' },
+        { keys: ['1-9'], description: 'Jump to sidebar item' },
       ],
     },
     {
@@ -277,6 +299,7 @@ function ShortcutsHelp({ onClose }: { onClose: () => void }) {
         { keys: ['d'], description: 'Toggle dark mode' },
         { keys: ['w'], description: 'Toggle watchlist (coin page)' },
         { keys: ['a'], description: 'Add price alert (coin page)' },
+        { keys: ['⌘/Ctrl', '/'], description: 'Show/hide shortcuts', separator: '+' },
         { keys: ['?'], description: 'Show shortcuts' },
         { keys: ['Esc'], description: 'Close dialog' },
       ],
@@ -285,54 +308,70 @@ function ShortcutsHelp({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(4px)' }}
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Keyboard shortcuts"
     >
       <div
-        className="bg-surface rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-auto"
+        className="rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-auto animate-fade-in"
+        style={{ background: 'var(--surface)' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-surface px-6 py-4 border-b border-surface-border flex items-center justify-between">
-          <h2 className="text-lg font-bold text-text-primary">⌨️ Keyboard Shortcuts</h2>
+        <div
+          className="sticky top-0 px-6 py-4 flex items-center justify-between"
+          style={{
+            background: 'var(--surface)',
+            borderBottom: '1px solid var(--surface-border)',
+          }}
+        >
+          <h2
+            className="text-lg font-bold flex items-center gap-2"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            <Keyboard className="w-5 h-5" style={{ color: 'var(--primary)' }} />
+            Keyboard Shortcuts
+          </h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-surface-alt transition-colors"
-            aria-label="Close"
+            className="p-2 rounded-lg transition-colors"
+            style={{ color: 'var(--text-muted)' }}
+            aria-label="Close shortcuts help"
           >
-            <svg
-              className="w-5 h-5 text-text-muted"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="p-6 space-y-6">
           {shortcuts.map((section) => (
             <div key={section.category}>
-              <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
+              <h3
+                className="text-xs font-semibold uppercase tracking-wider mb-3"
+                style={{ color: 'var(--text-muted)' }}
+              >
                 {section.category}
               </h3>
               <div className="space-y-2">
                 {section.items.map((shortcut) => (
                   <div key={shortcut.description} className="flex items-center justify-between">
-                    <span className="text-text-secondary">{shortcut.description}</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>{shortcut.description}</span>
                     <div className="flex items-center gap-1">
                       {shortcut.keys.map((key, i) => (
                         <span key={i}>
-                          <kbd className="px-2 py-1 text-xs font-semibold text-text-secondary bg-surface-alt rounded border border-surface-border">
+                          <kbd
+                            className="px-2 py-1 text-xs font-semibold rounded"
+                            style={{
+                              color: 'var(--text-secondary)',
+                              background: 'var(--surface-alt)',
+                              border: '1px solid var(--surface-border)',
+                            }}
+                          >
                             {key}
                           </kbd>
                           {i < shortcut.keys.length - 1 && (
-                            <span className="text-text-muted mx-1">
+                            <span className="mx-1 text-xs" style={{ color: 'var(--text-muted)' }}>
                               {'separator' in shortcut ? shortcut.separator : 'then'}
                             </span>
                           )}
@@ -346,10 +385,29 @@ function ShortcutsHelp({ onClose }: { onClose: () => void }) {
           ))}
         </div>
 
-        <div className="px-6 py-4 border-t border-surface-border bg-surface-alt/50 rounded-b-2xl">
-          <p className="text-sm text-text-muted text-center">
-            Press <kbd className="px-1.5 py-0.5 text-xs bg-surface-alt rounded">?</kbd> anytime to
-            show this help
+        <div
+          className="px-6 py-4 rounded-b-2xl text-center"
+          style={{
+            background: 'var(--surface-alt)',
+            borderTop: '1px solid var(--surface-border)',
+          }}
+        >
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            Press{' '}
+            <kbd
+              className="px-1.5 py-0.5 text-xs rounded"
+              style={{ background: 'var(--surface)', border: '1px solid var(--surface-border)' }}
+            >
+              ?
+            </kbd>{' '}
+            or{' '}
+            <kbd
+              className="px-1.5 py-0.5 text-xs rounded"
+              style={{ background: 'var(--surface)', border: '1px solid var(--surface-border)' }}
+            >
+              ⌘/
+            </kbd>{' '}
+            anytime to show this help
           </p>
         </div>
       </div>
