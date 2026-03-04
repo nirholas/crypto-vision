@@ -15,6 +15,16 @@ import { log } from "./logger.js";
 
 // ─── Provider Config ─────────────────────────────────────────
 
+/**
+ * Recursive type for dynamic provider API responses.
+ * Each AI provider (OpenAI, Anthropic, Google, etc.) returns a different
+ * response structure — this type allows safe deep property access
+ * without resorting to `any`.
+ */
+interface ProviderResponse {
+  [key: string]: ProviderResponse | ProviderResponse[] | string | number | boolean | null | undefined;
+}
+
 interface AIProvider {
   name: string;
   envKey: string;
@@ -27,9 +37,10 @@ interface AIProvider {
     maxTokens: number,
     temperature: number,
   ) => { url: string; init: FetchOptions };
-  // Provider response shapes vary (OpenAI, Anthropic, Gemini, etc.) — typed as Record for safety
-  extractText: (response: Record<string, unknown>) => string;
-  extractUsage: (response: Record<string, unknown>) => number | undefined;
+  // Provider response shapes vary (OpenAI, Anthropic, Gemini, etc.).
+  // Recursive index type allows safe deep access without `any`.
+  extractText: (response: ProviderResponse) => string;
+  extractUsage: (response: ProviderResponse) => number | undefined;
 }
 
 const PROVIDERS: AIProvider[] = [

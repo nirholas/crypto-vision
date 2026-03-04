@@ -227,8 +227,9 @@ export class ExportManager {
           .table(table)
           .extract(destination, { format: toBqExtractFormat(format), compression });
 
-        // Poll for completion
-        const [metadata] = await extractJob.getMetadata();
+        // Poll for completion — BigQuery Job types don't always expose getMetadata
+        // on the IJob interface, but the returned object is a full Job instance.
+        const [metadata] = await (extractJob as unknown as { getMetadata(): Promise<[{ status?: { errors?: Array<{ message?: string }> } }]> }).getMetadata();
 
         if (metadata.status?.errors?.length) {
           const errMsg = metadata.status.errors

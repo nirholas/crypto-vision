@@ -45,15 +45,15 @@ class NewsIngestionWorker extends IngestionWorker {
       const articles = general.value.articles;
       ingestNewsArticles(articles as unknown as Array<Record<string, unknown>>);
 
-      const rows = articles.map((a: Record<string, unknown>) => ({
+      const rows = articles.map((a) => ({
         type: "news_article",
         article_id: a.id ?? a.url ?? `${a.title}-${Date.now()}`,
         title: a.title,
-        description: a.description ?? a.summary,
-        url: a.url ?? a.link,
+        description: a.description,
+        url: a.url,
         source_name: a.source ?? a.sourceName,
-        category: a.category ?? "general",
-        published_at: a.publishedAt ?? a.published_at,
+        category: a.categories?.[0] ?? "general",
+        published_at: a.publishedAt,
         source: "rss",
       }));
       allRows.push(...rows);
@@ -65,15 +65,15 @@ class NewsIngestionWorker extends IngestionWorker {
     // 2. Breaking news
     if (breaking.status === "fulfilled" && breaking.value?.articles?.length) {
       const articles = breaking.value.articles;
-      const rows = articles.map((a: Record<string, unknown>) => ({
+      const rows = articles.map((a) => ({
         type: "breaking_news",
         article_id: a.id ?? a.url ?? `breaking-${Date.now()}`,
         title: a.title,
-        description: a.description ?? a.summary,
-        url: a.url ?? a.link,
+        description: a.description,
+        url: a.url,
         source_name: a.source ?? a.sourceName,
         category: "breaking",
-        published_at: a.publishedAt ?? a.published_at,
+        published_at: a.publishedAt,
         source: "rss",
       }));
       allRows.push(...rows);
@@ -85,7 +85,7 @@ class NewsIngestionWorker extends IngestionWorker {
     // 3. CryptoPanic posts
     if (cryptoPanic.status === "fulfilled" && cryptoPanic.value?.length) {
       const posts = cryptoPanic.value;
-      const rows = (posts as Array<Record<string, unknown>>).map((p) => ({
+      const rows = (posts as unknown as Array<Record<string, unknown>>).map((p) => ({
         type: "cryptopanic_post",
         article_id: p.id ?? p.url ?? `cp-${Date.now()}`,
         title: p.title,
@@ -106,7 +106,7 @@ class NewsIngestionWorker extends IngestionWorker {
     // 4. Trending posts
     if (trending.status === "fulfilled" && trending.value?.length) {
       const posts = trending.value;
-      const rows = (posts as Array<Record<string, unknown>>).map((p) => ({
+      const rows = (posts as unknown as Array<Record<string, unknown>>).map((p) => ({
         type: "trending_news",
         article_id: p.id ?? p.url ?? `trend-${Date.now()}`,
         title: p.title,

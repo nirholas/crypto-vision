@@ -56,7 +56,7 @@ export function logSearch(
         searched_at: new Date().toISOString(),
     };
 
-    insertRows("search_analytics", [row]).catch((err) => {
+    insertRows("search_analytics", [row as unknown as Record<string, unknown>]).catch((err) => {
         log.debug({ err }, "[search-analytics] Failed to log search event");
     });
 }
@@ -80,7 +80,7 @@ export function logSearchClick(
         searched_at: new Date().toISOString(),
     };
 
-    insertRows("search_analytics", [row]).catch((err) => {
+    insertRows("search_analytics", [row as unknown as Record<string, unknown>]).catch((err) => {
         log.debug({ err }, "[search-analytics] Failed to log click event");
     });
 }

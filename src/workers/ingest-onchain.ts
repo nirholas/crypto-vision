@@ -51,7 +51,7 @@ class OnchainIngestionWorker extends IngestionWorker {
 
         // 1. Multi-chain gas prices
         if (gasData.status === "fulfilled" && gasData.value?.length) {
-            const data = gasData.value as Array<Record<string, unknown>>;
+            const data = gasData.value as unknown as Array<Record<string, unknown>>;
             ingestGasPrices(data);
             const rows = data.map((g) => ({
                 type: "gas_price",

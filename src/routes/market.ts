@@ -1127,7 +1127,7 @@ marketRoutes.get("/dex/pairs/:chain", async (c) => {
   const data = await alt.dexPairsByChain(chain);
 
   return c.json({
-    data: (data.pairs || []).slice(0, 50).map((p: { pairAddress: string; baseToken: unknown; quoteToken: unknown; priceUsd: string; volume?: { h24?: number }; liquidity?: { usd?: number }; fdv?: number; txns?: { h24?: unknown } }) => ({
+    data: (data.pairs || []).slice(0, 50).map((p) => ({
       pairAddress: p.pairAddress,
       baseToken: p.baseToken,
       quoteToken: p.quoteToken,

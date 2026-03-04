@@ -25,7 +25,7 @@
  */
 
 import { Hono } from "hono";
-import { ApiError } from "../lib/api-error.js";
+import { AppError } from "../lib/api-error.js";
 
 export const ecosystemRoutes = new Hono();
 
@@ -108,7 +108,7 @@ ecosystemRoutes.get("/organisms/:id", async (c) => {
   // This will query the organism + skills + positions + recent trades
   // For now, return the expected structure
 
-  throw new ApiError(404, `Organism ${id} not found`);
+  throw new AppError("NOT_FOUND", `Organism ${id} not found`);
 });
 
 // ─── Organism Trade History ─────────────────────────────────
@@ -271,7 +271,7 @@ ecosystemRoutes.post("/organisms/:id/fund", async (c) => {
   try {
     body = (await c.req.json()) as Record<string, unknown>;
   } catch {
-    throw new ApiError(400, "Invalid JSON body");
+    throw new AppError("INVALID_REQUEST", "Invalid JSON body");
   }
 
   const walletAddress = body.walletAddress as string | undefined;
@@ -279,7 +279,7 @@ ecosystemRoutes.post("/organisms/:id/fund", async (c) => {
   const txSignature = body.txSignature as string | undefined;
 
   if (!walletAddress || !amountLamports || !txSignature) {
-    throw new ApiError(400, "Required: walletAddress, amountLamports, txSignature");
+    throw new AppError("INVALID_REQUEST", "Required: walletAddress, amountLamports, txSignature");
   }
 
   // Validate the transaction on-chain before crediting the organism
@@ -306,14 +306,14 @@ ecosystemRoutes.post("/organisms/:id/intervene", async (c) => {
   try {
     body = (await c.req.json()) as Record<string, unknown>;
   } catch {
-    throw new ApiError(400, "Invalid JSON body");
+    throw new AppError("INVALID_REQUEST", "Invalid JSON body");
   }
 
   const action = body.action as string | undefined;
   const ownerWallet = body.ownerWallet as string | undefined;
 
   if (!action || !ownerWallet) {
-    throw new ApiError(400, "Required: action, ownerWallet");
+    throw new AppError("INVALID_REQUEST", "Required: action, ownerWallet");
   }
 
   // Allowed interventions (each changes the agent's destiny):
@@ -327,7 +327,7 @@ ecosystemRoutes.post("/organisms/:id/intervene", async (c) => {
   ];
 
   if (!allowedActions.includes(action)) {
-    throw new ApiError(400, `Invalid action. Allowed: ${allowedActions.join(", ")}`);
+    throw new AppError("INVALID_REQUEST", `Invalid action. Allowed: ${allowedActions.join(", ")}`);
   }
 
   // Verify ownership before allowing intervention
@@ -350,7 +350,7 @@ ecosystemRoutes.post("/organisms/:id/intervene", async (c) => {
 ecosystemRoutes.get("/search", async (c) => {
   const q = c.req.query("q");
   if (!q || q.length < 2) {
-    throw new ApiError(400, "Search query must be at least 2 characters");
+    throw new AppError("INVALID_REQUEST", "Search query must be at least 2 characters");
   }
 
   return c.json({

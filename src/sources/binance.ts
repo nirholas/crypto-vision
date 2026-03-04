@@ -517,7 +517,7 @@ export async function getLiquidations(
   if (symbol) params.symbol = symbol;
   const data = await binanceFetch<ForceLiquidation[]>(FAPI_BASE, "/allForceOrders", params, 15);
   ingestDerivativesSnapshots(
-    data.map(d => ({ symbol: d.symbol, liquidations: Number(d.quantity), exchange: "binance" })),
+    data.map(d => ({ symbol: d.symbol, liquidations: Number(d.origQty), exchange: "binance" })),
     "binance",
   );
   return data;

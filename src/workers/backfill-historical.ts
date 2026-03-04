@@ -107,8 +107,8 @@ class BackfillWorker extends IngestionWorker {
       if (protocols?.length) {
         // Take top 200 by TVL
         const sorted = protocols
-          .filter((p: Record<string, unknown>) => typeof p.tvl === "number" && (p.tvl as number) > 0)
-          .sort((a: Record<string, unknown>, b: Record<string, unknown>) => (b.tvl as number) - (a.tvl as number))
+          .filter((p) => typeof p.tvl === "number" && p.tvl > 0)
+          .sort((a, b) => (b.tvl || 0) - (a.tvl || 0))
           .slice(0, 200);
 
         for (const protocol of sorted) {

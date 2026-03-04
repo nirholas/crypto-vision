@@ -391,7 +391,7 @@ Respond in JSON:
     return c.json({ data: parsed, model, tokensUsed, timestamp: new Date().toISOString() });
   } catch (err: unknown) {
     log.error({ err }, "AI compare failed");
-    return c.json({ error: err.message }, 500);
+    return c.json({ error: extractErrorMessage(err) }, 500);
   }
 });
 
@@ -430,7 +430,7 @@ Respond in JSON:
     return c.json({ data: parsed, model, tokensUsed, timestamp: new Date().toISOString() });
   } catch (err: unknown) {
     log.error({ err }, "AI explain failed");
-    return c.json({ error: err.message }, 500);
+    return c.json({ error: extractErrorMessage(err) }, 500);
   }
 });
 
@@ -487,7 +487,7 @@ Respond in JSON:
     return c.json({ data: parsed, model, tokensUsed, timestamp: new Date().toISOString() });
   } catch (err: unknown) {
     log.error({ err }, "AI risk assessment failed");
-    return c.json({ error: err.message }, 500);
+    return c.json({ error: extractErrorMessage(err) }, 500);
   }
 });
 
@@ -538,7 +538,7 @@ Respond in JSON:
     return c.json({ data: parsed, model, tokensUsed, timestamp: new Date().toISOString() });
   } catch (err: unknown) {
     log.error({ err }, "AI yield analysis failed");
-    return c.json({ error: err.message }, 500);
+    return c.json({ error: extractErrorMessage(err) }, 500);
   }
 });
 
@@ -593,7 +593,7 @@ Respond in JSON:
     return c.json({ data: parsed, model, tokensUsed, timestamp: new Date().toISOString() });
   } catch (err: unknown) {
     log.error({ err }, "AI portfolio review failed");
-    return c.json({ error: err.message }, 500);
+    return c.json({ error: extractErrorMessage(err) }, 500);
   }
 });
 
@@ -642,7 +642,7 @@ Respond in JSON:
     return c.json({ data: parsed, model, tokensUsed, timestamp: new Date().toISOString() });
   } catch (err: unknown) {
     log.error({ err }, "AI whale alert failed");
-    return c.json({ error: err.message }, 500);
+    return c.json({ error: extractErrorMessage(err) }, 500);
   }
 });
 
@@ -696,7 +696,7 @@ Respond in JSON:
     return c.json({ data: parsed, model, tokensUsed, timestamp: new Date().toISOString() });
   } catch (err: unknown) {
     log.error({ err }, "AI narrative failed");
-    return c.json({ error: err.message }, 500);
+    return c.json({ error: extractErrorMessage(err) }, 500);
   }
 });
 
@@ -741,7 +741,7 @@ Respond in JSON:
     return c.json({ data: parsed, model, tokensUsed, timestamp: new Date().toISOString() });
   } catch (err: unknown) {
     log.error({ err }, "AI fear greed explain failed");
-    return c.json({ error: err.message }, 500);
+    return c.json({ error: extractErrorMessage(err) }, 500);
   }
 });
 
@@ -793,7 +793,7 @@ Respond in JSON:
     return c.json({ data: parsed, model, tokensUsed, timestamp: new Date().toISOString() });
   } catch (err: unknown) {
     log.error({ err }, "AI chain compare failed");
-    return c.json({ error: err.message }, 500);
+    return c.json({ error: extractErrorMessage(err) }, 500);
   }
 });
 
@@ -835,7 +835,7 @@ Respond in JSON:
     return c.json({ data: parsed, model, tokensUsed, timestamp: new Date().toISOString() });
   } catch (err: unknown) {
     log.error({ err }, "AI stablecoin risk failed");
-    return c.json({ error: err.message }, 500);
+    return c.json({ error: extractErrorMessage(err) }, 500);
   }
 });
 
@@ -888,7 +888,7 @@ Respond in JSON:
     return c.json({ data: parsed, model, tokensUsed, timestamp: new Date().toISOString() });
   } catch (err: unknown) {
     log.error({ err }, "AI defi overview failed");
-    return c.json({ error: err.message }, 500);
+    return c.json({ error: extractErrorMessage(err) }, 500);
   }
 });
 
@@ -939,7 +939,7 @@ Respond in JSON:
     return c.json({ data: parsed, model, tokensUsed, timestamp: new Date().toISOString() });
   } catch (err: unknown) {
     log.error({ err }, "AI market regime failed");
-    return c.json({ error: err.message }, 500);
+    return c.json({ error: extractErrorMessage(err) }, 500);
   }
 });
 
@@ -979,7 +979,7 @@ Respond in JSON:
     return c.json({ data: parsed, model, tokensUsed, timestamp: new Date().toISOString() });
   } catch (err: unknown) {
     log.error({ err }, "AI correlation failed");
-    return c.json({ error: err.message }, 500);
+    return c.json({ error: extractErrorMessage(err) }, 500);
   }
 });
 
@@ -1029,6 +1029,6 @@ Respond in JSON:
     return c.json({ data: parsed, model, tokensUsed, timestamp: new Date().toISOString() });
   } catch (err: unknown) {
     log.error({ err }, "AI news analysis failed");
-    return c.json({ error: err.message }, 500);
+    return c.json({ error: extractErrorMessage(err) }, 500);
   }
 });

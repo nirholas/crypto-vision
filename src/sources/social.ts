@@ -317,7 +317,7 @@ export async function getAggregatedSocialStats(
     ]);
 
     const cg = cgProfile.status === "fulfilled" ? cgProfile.value : null;
-    const lunar = lunarMetrics.status === "fulfilled" ? lunarMetrics.value as LunarMetrics | null : null;
+    const lunar = lunarMetrics.status === "fulfilled" ? lunarMetrics.value as unknown as LunarMetrics | null : null;
 
     let ccData: AggregatedSocialStats["cryptoCompare"] = null;
     if (ccSocial.status === "fulfilled") {
@@ -820,7 +820,7 @@ export async function computeSocialPriceCorrelation(
       }>(`https://min-api.cryptocompare.com/data/v2/histoday?fsym=${symbol.toUpperCase()}&tsym=USD&limit=${days}`, {
         headers: (() => {
           const key = process.env.CRYPTOCOMPARE_API_KEY;
-          return key ? { authorization: `Apikey ${key}` } : {};
+          return key ? { authorization: `Apikey ${key}` } as Record<string, string> : undefined;
         })(),
       }),
     ]);

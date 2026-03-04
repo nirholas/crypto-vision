@@ -21,7 +21,7 @@ gasRoutes.get("/", async (c) => {
 
   // Feed anomaly detection with gas data per chain
   for (const est of estimates) {
-    if (est.gasPrice) processGas(est.chain, est.gasPrice);
+    if (est.average) processGas(est.chain, est.average);
   }
 
   return c.json({
@@ -120,10 +120,10 @@ gasRoutes.get("/eth/token/:address/holders", async (c) => {
   const data = await evm.getERC20TopHolders(address);
 
   return c.json({
-    data: (data.result || []).map((h: { TokenHolderAddress: string; TokenHolderQuantity: string; percentage?: number }) => ({
+    data: (data.result || []).map((h: { TokenHolderAddress: string; TokenHolderQuantity: string; percentage: string }) => ({
       address: h.TokenHolderAddress,
       quantity: h.TokenHolderQuantity,
-      percentage: h.percentage,
+      percentage: h.percentage ? Number(h.percentage) : undefined,
     })),
     contractAddress: address,
     source: "etherscan",

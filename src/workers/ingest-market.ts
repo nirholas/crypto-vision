@@ -111,8 +111,8 @@ class MarketIngestionWorker extends IngestionWorker {
       const { getTrending } = await import("../sources/coingecko.js");
       const trending = await getTrending();
       if (trending?.coins?.length) {
-        const rows = trending.coins.map((c: Record<string, unknown>) => {
-          const item = (c as { item: Record<string, unknown> }).item ?? c;
+        const rows = trending.coins.map((c) => {
+          const item = c.item;
           return {
             type: "trending_coin",
             coin_id: item.id,

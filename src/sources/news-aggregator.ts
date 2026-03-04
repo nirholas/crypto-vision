@@ -902,6 +902,29 @@ export async function getNews(options: {
 
 
 /**
+ * Search news articles by query string. Matches against title and description.
+ */
+export async function searchNews(query: string, limit = 20): Promise<NewsResponse> {
+  const all = await fetchAllSources();
+  const q = query.toLowerCase().trim();
+  const words = q.split(/\s+/).filter(Boolean);
+
+  const matches = all.filter((a) => {
+    const text = `${a.title} ${a.description}`.toLowerCase();
+    return words.every((w) => text.includes(w));
+  });
+
+  const limited = matches.slice(0, Math.min(limit, 100));
+
+  return {
+    articles: limited,
+    totalCount: matches.length,
+    sources: [...new Set(limited.map((a) => a.sourceName))],
+    timestamp: new Date().toISOString(),
+  };
+}
+
+/**
  * Get breaking news (last 2 hours).
  */
 export async function getBreakingNews(limit = 10): Promise<NewsResponse> {

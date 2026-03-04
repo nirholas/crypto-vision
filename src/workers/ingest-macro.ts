@@ -37,14 +37,14 @@ class MacroIngestionWorker extends IngestionWorker {
 
             // 1. Stock Indices
             if (overview.indices?.length) {
-                const rows = overview.indices.map((q: Record<string, unknown>) => ({
+                const rows = overview.indices.map((q) => ({
                     type: "macro_index",
                     symbol: q.symbol,
-                    name: q.shortName ?? q.longName,
-                    price: q.regularMarketPrice,
-                    change: q.regularMarketChange,
-                    change_percent: q.regularMarketChangePercent,
-                    market_state: q.marketState,
+                    name: q.name,
+                    price: q.price,
+                    change: q.change,
+                    change_percent: q.changePercent,
+                    market_state: undefined,
                     source: "yahoo_finance",
                 }));
                 allRows.push(...rows);
@@ -53,13 +53,13 @@ class MacroIngestionWorker extends IngestionWorker {
 
             // 2. Commodities
             if (overview.commodities?.length) {
-                const rows = overview.commodities.map((q: Record<string, unknown>) => ({
+                const rows = overview.commodities.map((q) => ({
                     type: "macro_commodity",
                     symbol: q.symbol,
-                    name: q.shortName ?? q.longName,
-                    price: q.regularMarketPrice,
-                    change: q.regularMarketChange,
-                    change_percent: q.regularMarketChangePercent,
+                    name: q.name,
+                    price: q.price,
+                    change: q.change,
+                    change_percent: q.changePercent,
                     source: "yahoo_finance",
                 }));
                 allRows.push(...rows);
@@ -68,12 +68,12 @@ class MacroIngestionWorker extends IngestionWorker {
 
             // 3. Bond Yields
             if (overview.bonds?.length) {
-                const rows = overview.bonds.map((q: Record<string, unknown>) => ({
+                const rows = overview.bonds.map((q) => ({
                     type: "macro_bond",
                     symbol: q.symbol,
-                    name: q.shortName ?? q.longName,
-                    yield_value: q.regularMarketPrice,
-                    change: q.regularMarketChange,
+                    name: q.name,
+                    yield_value: q.price,
+                    change: q.change,
                     source: "yahoo_finance",
                 }));
                 allRows.push(...rows);
@@ -81,14 +81,14 @@ class MacroIngestionWorker extends IngestionWorker {
             }
 
             // 4. Volatility (VIX)
-            if (overview.vix) {
-                const vix = overview.vix as Record<string, unknown>;
+            if (overview.volatility) {
+                const vix = overview.volatility;
                 allRows.push({
                     type: "macro_vix",
                     symbol: vix.symbol ?? "^VIX",
-                    value: vix.regularMarketPrice,
-                    change: vix.regularMarketChange,
-                    change_percent: vix.regularMarketChangePercent,
+                    value: vix.price,
+                    change: vix.change,
+                    change_percent: vix.changePercent,
                     source: "yahoo_finance",
                 });
                 log.debug("Fetched VIX");
@@ -96,13 +96,13 @@ class MacroIngestionWorker extends IngestionWorker {
 
             // 5. US Dollar Index
             if (overview.dxy) {
-                const dxy = overview.dxy as Record<string, unknown>;
+                const dxy = overview.dxy;
                 allRows.push({
                     type: "macro_dxy",
                     symbol: dxy.symbol ?? "DX-Y.NYB",
-                    value: dxy.regularMarketPrice,
-                    change: dxy.regularMarketChange,
-                    change_percent: dxy.regularMarketChangePercent,
+                    value: dxy.price,
+                    change: dxy.change,
+                    change_percent: dxy.changePercent,
                     source: "yahoo_finance",
                 });
                 log.debug("Fetched DXY");
@@ -110,14 +110,14 @@ class MacroIngestionWorker extends IngestionWorker {
 
             // 6. Crypto Benchmarks (BTC/ETH/SOL via Yahoo)
             if (overview.crypto?.length) {
-                const rows = overview.crypto.map((q: Record<string, unknown>) => ({
+                const rows = overview.crypto.map((q) => ({
                     type: "macro_crypto_benchmark",
                     symbol: q.symbol,
-                    name: q.shortName ?? q.longName,
-                    price: q.regularMarketPrice,
-                    change: q.regularMarketChange,
-                    change_percent: q.regularMarketChangePercent,
-                    volume: q.regularMarketVolume,
+                    name: q.name,
+                    price: q.price,
+                    change: q.change,
+                    change_percent: q.changePercent,
+                    volume: q.volume,
                     source: "yahoo_finance",
                 }));
                 allRows.push(...rows);

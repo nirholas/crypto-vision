@@ -115,7 +115,7 @@ class DerivativesIngestionWorker extends IngestionWorker {
             const [meta, assetCtxs] = hlMeta.value;
             if (assetCtxs?.length && meta?.universe?.length) {
                 const universe = meta.universe as Array<{ name: string }>;
-                const rows = assetCtxs.map((ctx: Record<string, unknown>, i: number) => ({
+                const rows = assetCtxs.map((ctx, i: number) => ({
                     type: "perp_meta",
                     symbol: universe[i]?.name ?? `asset-${i}`,
                     funding_rate: ctx.funding,
@@ -135,7 +135,7 @@ class DerivativesIngestionWorker extends IngestionWorker {
         // 5 & 6. Deribit Options (BTC + ETH)
         for (const [currency, result] of [["BTC", deribitBTC], ["ETH", deribitETH]] as const) {
             if (result.status === "fulfilled" && result.value?.length) {
-                const data = result.value as Array<Record<string, unknown>>;
+                const data = result.value as unknown as Array<Record<string, unknown>>;
                 const rows = data.slice(0, 100).map((d) => ({
                     type: "options_summary",
                     instrument_name: d.instrument_name,

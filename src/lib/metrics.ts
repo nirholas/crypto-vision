@@ -200,7 +200,7 @@ export async function getMetricsSummary(): Promise<Record<string, unknown>> {
         // Skip default process metrics in summary — they're in /metrics
         if (metric.name.startsWith("cv_")) continue;
 
-        if (metric.type === "counter" || metric.type === "gauge") {
+        if ((metric.type as string) === "counter" || (metric.type as string) === "gauge") {
             const values: Record<string, number> = {};
             for (const val of metric.values) {
                 const labelKey = Object.entries(val.labels)
@@ -213,7 +213,7 @@ export async function getMetricsSummary(): Promise<Record<string, unknown>> {
                 help: metric.help,
                 values,
             };
-        } else if (metric.type === "histogram") {
+        } else if ((metric.type as string) === "histogram") {
             const buckets: Record<string, Record<string, number>> = {};
             for (const val of metric.values) {
                 const labelKey = Object.entries(val.labels)
@@ -221,7 +221,7 @@ export async function getMetricsSummary(): Promise<Record<string, unknown>> {
                     .map(([k, v]) => `${k}=${v}`)
                     .join(",") || "total";
                 if (!buckets[labelKey]) buckets[labelKey] = {};
-                const metricName = val.metricName ?? metric.name;
+                const metricName = (val as { metricName?: string }).metricName ?? metric.name;
                 if (metricName.endsWith("_sum")) {
                     buckets[labelKey]["sum"] = val.value;
                 } else if (metricName.endsWith("_count")) {

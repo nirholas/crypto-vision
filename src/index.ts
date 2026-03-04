@@ -24,7 +24,7 @@ import "@/lib/env";
 import { etagMiddleware } from "@/lib/etag";
 import { degradedRouteCount, getDegradedRoutes } from "@/lib/fallback";
 import { circuitBreakerStats, fetchMetrics } from "@/lib/fetcher";
-import { activeWebsocketConnections, registry as metricsRegistry } from "@/lib/metrics";
+import { activeWebsocketConnections, getMetricsSummary, registry as metricsRegistry } from "@/lib/metrics";
 import { metricsMiddleware } from "@/lib/metrics-middleware";
 import { globalErrorHandler, requestLogger, requestTimeout } from "@/lib/middleware";
 import { aiQueue, heavyFetchQueue } from "@/lib/queue";

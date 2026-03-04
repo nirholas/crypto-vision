@@ -39,7 +39,7 @@ class GovernanceIngestionWorker extends IngestionWorker {
 
         // 1. Active proposals across major DAOs
         if (activeProposals.status === "fulfilled" && activeProposals.value) {
-            const spaceProposals = activeProposals.value as Record<string, Array<Record<string, unknown>>>;
+            const spaceProposals = activeProposals.value as unknown as Record<string, Array<Record<string, unknown>>>;
             const allProposals: Array<Record<string, unknown>> = [];
 
             for (const [spaceId, proposals] of Object.entries(spaceProposals)) {
@@ -77,7 +77,7 @@ class GovernanceIngestionWorker extends IngestionWorker {
 
         // 2. Top governance spaces (metadata)
         if (topSpaces.status === "fulfilled" && topSpaces.value?.length) {
-            const spaces = topSpaces.value as Array<Record<string, unknown>>;
+            const spaces = topSpaces.value as unknown as Array<Record<string, unknown>>;
             const rows = spaces.map((s) => ({
                 type: "governance_space",
                 space_id: s.id,

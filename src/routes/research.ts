@@ -394,9 +394,9 @@ researchRoutes.get("/news/categories", async (c) => {
   const { Data } = await cc.getNewsCategories();
 
   return c.json({
-    data: (Data || []).map((cat: { categoryName: string; wordsAssociatedWithCategory?: string }) => ({
+    data: (Data || []).map((cat: { categoryName: string; wordsAssociatedWithCategory: string[] }) => ({
       name: cat.categoryName,
-      keywords: cat.wordsAssociatedWithCategory?.split("|").slice(0, 10),
+      keywords: cat.wordsAssociatedWithCategory?.slice(0, 10),
     })),
     source: "cryptocompare",
     timestamp: new Date().toISOString(),
@@ -410,9 +410,9 @@ researchRoutes.get("/blockchains", async (c) => {
   const { Data } = await cc.getBlockchainAvailable();
 
   return c.json({
-    data: Object.entries(Data || {}).map(([symbol, info]: [string, { id?: string; data_available_from_ts?: number }]) => ({
+    data: Object.entries(Data || {}).map(([symbol, info]: [string, { id: number; symbol: string; data_available_from_ts: number }]) => ({
       symbol,
-      id: info.id,
+      id: String(info.id),
       dataAvailableFrom: info.data_available_from_ts
         ? new Date(info.data_available_from_ts * 1000).toISOString()
         : null,

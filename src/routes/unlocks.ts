@@ -19,7 +19,7 @@
  */
 
 import { Hono } from "hono";
-import { ApiError } from "../lib/api-error.js";
+import { AppError } from "../lib/api-error.js";
 import * as unlocks from "../sources/unlocks.js";
 
 export const unlocksRoutes = new Hono();
@@ -43,10 +43,7 @@ unlocksRoutes.get("/token/:symbol", async (c) => {
   const data = await unlocks.getTokenUnlocks(symbol);
 
   if (!data) {
-    throw new ApiError({
-      code: "NOT_FOUND",
-      message: `No unlock data found for token: ${symbol}`,
-    });
+    throw new AppError("NOT_FOUND", `No unlock data found for token: ${symbol}`);
   }
 
   return c.json({
@@ -115,10 +112,7 @@ unlocksRoutes.get("/vesting/:symbol", async (c) => {
   const data = await unlocks.getVestingSchedule(symbol);
 
   if (!data) {
-    throw new ApiError({
-      code: "NOT_FOUND",
-      message: `No vesting schedule found for token: ${symbol}`,
-    });
+    throw new AppError("NOT_FOUND", `No vesting schedule found for token: ${symbol}`);
   }
 
   return c.json({

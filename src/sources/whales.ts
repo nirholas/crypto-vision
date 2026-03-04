@@ -874,7 +874,7 @@ export async function getTopWalletsByChain(
       const stats = await getChainStats("bitcoin");
       return [{
         address: "blockchain-aggregate",
-        balance: (stats as Record<string, unknown>)?.data
+        balance: (stats as unknown as Record<string, unknown>)?.data
           ? 0
           : 0,
         label: "Bitcoin Network Stats",

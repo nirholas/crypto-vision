@@ -79,7 +79,28 @@ export async function getBTCStats(): Promise<{
     fetchJSON(`${BLOCKCHAIN}/stats?format=json`),
   );
   ingestBitcoinNetwork(data as unknown as Record<string, unknown>);
-  return data;
+  return data as typeof data & {
+    market_price_usd: number;
+    hash_rate: number;
+    total_fees_btc: number;
+    n_btc_mined: number;
+    n_tx: number;
+    n_blocks_mined: number;
+    totalbc: number;
+    n_blocks_total: number;
+    estimated_transaction_volume_usd: number;
+    miners_revenue_usd: number;
+    miners_revenue_btc: number;
+    trade_volume_usd: number;
+    trade_volume_btc: number;
+    difficulty: number;
+    minutes_between_blocks: number;
+    blocks_size: number;
+    total_bc_sent: number;
+    estimated_btc_sent: number;
+    nextretarget: number;
+    timestamp: number;
+  };
 }
 
 // ─── Bitcoin Address Balance ─────────────────────────────────
