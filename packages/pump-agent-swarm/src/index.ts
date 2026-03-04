@@ -73,6 +73,14 @@ export { RpcPool, DEFAULT_RPC_ENDPOINTS } from './infra/rpc-pool.js';
 export { SwarmLogger } from './infra/logger.js';
 export { MetricsCollector, Counter, Gauge, Histogram, Rate } from './infra/metrics.js';
 export type { MetricSnapshot } from './infra/metrics.js';
+export { SwarmErrorHandler, CircuitBreakerOpenError } from './infra/error-handler.js';
+export type {
+  ErrorSeverity,
+  ErrorCategory,
+  ClassifiedError,
+  RetryOptions,
+  CircuitBreakerConfig,
+} from './infra/error-handler.js';
 export Trading ──────────────────────────────────────────────────
 export { GasOptimizer, DEFAULT_GAS_CONFIG } from './trading/gas-optimizer.js';
 export type {
@@ -94,6 +102,16 @@ export type {
   VolumeBucket,
   VolumePlan,
 } from './trading/volume-generator.js';
+
+// ─── Bundle ───────────────────────────────────────────────────
+export { DevBuyOptimizer } from './bundle/dev-buy-optimizer.js';
+export type {
+  PumpFunCurveParams,
+  DevBuyParams,
+  DevBuyRecommendation,
+  DevBuySimulation,
+  DevBuyOptimizerConfig,
+} from './bundle/dev-buy-optimizer.js';
 export { TradeScheduler } from './trading/trade-scheduler.js';
 export type {
   ScheduledOrder,
@@ -150,6 +168,25 @@ export type {
   PriceCheckpoint,
   TrajectoryProgress,
 } from './trading/price-trajectory.js';
+
+// ─── Bundle / Distribution ────────────────────────────────
+export { SupplyDistributor } from './bundle/supply-distributor.js';
+export type {
+  DistributionStrategy,
+  DistributionConfig,
+  DistributionPlan,
+  DistributionResult,
+  TokenDistribution,
+  DistributionAnalysis,
+} from './bundle/supply-distributor.js';
+
+// ─── Position Management ──────────────────────────────────────
+export { PositionManager } from './trading/position-manager.js';
+export type {
+  AggregatePosition,
+  WalletPosition,
+  RebalanceSuggestion,
+} from './trading/position-manager.js';
 
 // ─── Strategies ───────────────────────────────────────────────
 export {
