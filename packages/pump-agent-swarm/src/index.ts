@@ -64,7 +64,9 @@ export {
   reclaimFunds,
   exportWalletKeys,
   getPoolSummary,
+  WalletVault,
 } from './wallet-manager.js';
+export type { WalletVaultEvents } from './wallet-manager.js';
 
 // ─── Strategies ───────────────────────────────────────────────
 export {
