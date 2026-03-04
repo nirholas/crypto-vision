@@ -58,6 +58,7 @@ export interface NarrativeEvaluation {
   strengths: string[];
   weaknesses: string[];
   improvements: string[];
+  [key: string]: unknown;
 }
 
 interface NarrativeAgentEvents {
@@ -985,7 +986,7 @@ Be critical. Score 0-100 overall. List specific strengths, weaknesses, and impro
     // Try Pump.fun's endpoint
     try {
       const formData = new FormData();
-      const blob = new Blob([imageBuffer], { type: 'image/png' });
+      const blob = new Blob([new Uint8Array(imageBuffer)], { type: 'image/png' });
       formData.append('file', blob, filename);
 
       const response = await fetch('https://pump.fun/api/ipfs', {
@@ -1007,7 +1008,7 @@ Be critical. Score 0-100 overall. List specific strengths, weaknesses, and impro
     const nftStorageKey = process.env['NFT_STORAGE_API_KEY'];
     if (nftStorageKey) {
       try {
-        const blob = new Blob([imageBuffer], { type: 'image/png' });
+        const blob = new Blob([new Uint8Array(imageBuffer)], { type: 'image/png' });
 
         const response = await fetch('https://api.nft.storage/upload', {
           method: 'POST',
