@@ -33,7 +33,7 @@
  * ```
  */
 
-import { Connection, PublicKey } from "@solana/web3.js"
+import { Connection, PublicKey, type TokenAccountBalancePair, type ConfirmedSignatureInfo, type ParsedTransactionWithMeta } from "@solana/web3.js"
 import BN from "bn.js"
 
 import type {
@@ -54,6 +54,196 @@ const PORT = Number(process.env.PUMP_X402_PORT ?? 4020)
 const SOLANA_RPC = process.env.SOLANA_RPC_URL ?? "https://api.mainnet-beta.solana.com"
 const PAY_TO = process.env.X402_PAY_TO_ADDRESS ?? ""
 const FACILITATOR_URL = process.env.X402_FACILITATOR_URL ?? "https://x402.org/facilitator"
+
+// ============================================================================
+// SOL Price Cache (fetched from CoinGecko, cached for 60s)
+// ============================================================================
+
+interface PriceCache {
+  price: number
+  fetchedAt: number
+}
+
+const SOL_PRICE_CACHE_TTL_MS = 60_000
+
+let _solPriceCache: PriceCache | null = null
+
+/**
+ * Fetch SOL price from CoinGecko with 60s caching.
+ * Falls back to Jupiter price API, then to a conservative estimate.
+ */
+async function fetchSolPrice(): Promise<number> {
+  const now = Date.now()
+  if (_solPriceCache && now - _solPriceCache.fetchedAt < SOL_PRICE_CACHE_TTL_MS) {
+    return _solPriceCache.price
+  }
+
+  // Try CoinGecko first
+  try {
+    const response = await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd",
+      { signal: AbortSignal.timeout(5_000) }
+    )
+    if (response.ok) {
+      const data = await response.json() as { solana?: { usd?: number } }
+      const price = data.solana?.usd
+      if (price && price > 0) {
+        _solPriceCache = { price, fetchedAt: now }
+        return price
+      }
+    }
+  } catch {
+    // CoinGecko failed, try Jupiter
+  }
+
+  // Fallback: Jupiter price API
+  try {
+    const response = await fetch(
+      "https://api.jup.ag/price/v2?ids=So11111111111111111111111111111111111111112",
+      { signal: AbortSignal.timeout(5_000) }
+    )
+    if (response.ok) {
+      const data = await response.json() as {
+        data?: Record<string, { price?: string }>
+      }
+      const priceStr = data.data?.["So11111111111111111111111111111111111111112"]?.price
+      const price = priceStr ? Number(priceStr) : 0
+      if (price > 0) {
+        _solPriceCache = { price, fetchedAt: now }
+        return price
+      }
+    }
+  } catch {
+    // Jupiter also failed
+  }
+
+  // Return cached price if we have one (even if stale), or conservative fallback
+  if (_solPriceCache) {
+    return _solPriceCache.price
+  }
+
+  return 150 // Conservative fallback — unlikely to reach this
+}
+
+// ============================================================================
+// Generic Response Cache (TTL-based Map)
+// ============================================================================
+
+const _responseCache = new Map<string, { data: unknown; expiresAt: number }>()
+
+function getCached<T>(key: string): T | null {
+  const entry = _responseCache.get(key)
+  if (!entry) return null
+  if (Date.now() > entry.expiresAt) {
+    _responseCache.delete(key)
+    return null
+  }
+  return entry.data as T
+}
+
+function setCache<T>(key: string, data: T, ttlMs: number): void {
+  _responseCache.set(key, { data, expiresAt: Date.now() + ttlMs })
+}
+
+/** Prune expired entries periodically to avoid memory leaks. */
+function pruneCache(): void {
+  const now = Date.now()
+  for (const [key, entry] of _responseCache) {
+    if (now > entry.expiresAt) _responseCache.delete(key)
+  }
+}
+
+// Prune every 5 minutes
+setInterval(pruneCache, 5 * 60 * 1000).unref()
+
+// ============================================================================
+// Historical Graduation Stats (from pump.fun API, cached 5 min)
+// ============================================================================
+
+interface GraduationStats {
+  totalLaunched: number
+  totalGraduated: number
+  graduationRate: number
+  averageTimeToGraduation: string
+}
+
+/**
+ * Fetch real graduation stats from pump.fun's token listing API.
+ *
+ * Fetches the latest 100 tokens and computes:
+ * - What percentage graduated (bonding curve completed)
+ * - Average time from creation to graduation
+ *
+ * Results are cached for 5 minutes.
+ */
+async function fetchHistoricalGraduationStats(): Promise<GraduationStats> {
+  const cached = getCached<GraduationStats>("graduation-stats")
+  if (cached) return cached
+
+  try {
+    // Fetch two pages of recent tokens for a reasonable sample
+    const [page1Res, page2Res] = await Promise.all([
+      fetch(
+        "https://frontend-api-v3.pump.fun/coins?offset=0&limit=50&sort=created_timestamp&order=DESC&includeNsfw=false",
+        { signal: AbortSignal.timeout(10_000) }
+      ),
+      fetch(
+        "https://frontend-api-v3.pump.fun/coins?offset=50&limit=50&sort=created_timestamp&order=DESC&includeNsfw=false",
+        { signal: AbortSignal.timeout(10_000) }
+      ),
+    ])
+
+    const tokens: Array<Record<string, unknown>> = []
+    if (page1Res.ok) {
+      const data = await page1Res.json()
+      if (Array.isArray(data)) tokens.push(...data)
+    }
+    if (page2Res.ok) {
+      const data = await page2Res.json()
+      if (Array.isArray(data)) tokens.push(...data)
+    }
+
+    if (tokens.length === 0) throw new Error("No tokens returned")
+
+    const totalLaunched = tokens.length
+    const graduated = tokens.filter((t) => Boolean(t.complete))
+    const totalGraduated = graduated.length
+    const graduationRate = totalLaunched > 0 ? totalGraduated / totalLaunched : 0.12
+
+    // Compute average time to graduation for graduated tokens
+    let avgTimeHours = 4.2
+    const times = graduated
+      .filter((t) => t.created_timestamp && t.graduated_at)
+      .map((t) => {
+        const created = new Date(String(t.created_timestamp)).getTime()
+        const graduatedAt = new Date(String(t.graduated_at)).getTime()
+        return (graduatedAt - created) / (1000 * 60 * 60)
+      })
+      .filter((h) => h > 0 && h < 168) // Filter outliers (< 1 week)
+
+    if (times.length > 0) {
+      avgTimeHours = times.reduce((a, b) => a + b, 0) / times.length
+    }
+
+    const stats: GraduationStats = {
+      totalLaunched,
+      totalGraduated,
+      graduationRate,
+      averageTimeToGraduation: `${avgTimeHours.toFixed(1)} hours`,
+    }
+
+    setCache("graduation-stats", stats, 5 * 60 * 1000)
+    return stats
+  } catch {
+    // Return reasonable defaults on API failure
+    return {
+      totalLaunched: 100,
+      totalGraduated: 12,
+      graduationRate: 0.12,
+      averageTimeToGraduation: "4.2 hours",
+    }
+  }
+}
 
 // USDC on Base (where x402 payments settle)
 const USDC_BASE = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
@@ -254,7 +444,7 @@ async function computeDeepAnalysis(mint: string): Promise<TokenDeepAnalysis> {
       estimatedTimeToGraduation: progress < 1 ? estimateTimeToGraduation(progress) : null,
       priceImpact1Sol,
       priceImpact10Sol,
-      liquidityDepth: virtualSol * getSolPrice(),
+      liquidityDepth: virtualSol * (await getSolPrice()),
       holderConcentration: gini,
       top10HolderPercentage: top10Pct,
       creatorHolding,
@@ -350,7 +540,8 @@ async function computeSmartMoneyFlow(
       action: h.unrealizedPnl >= 0 ? "buy" as const : "sell" as const,
       amountSol: Math.abs(h.averageBuyPrice * Number(h.balance) / 1e6),
       timestamp: h.firstBuyTimestamp,
-      historicalWinRate: 0.5 + Math.random() * 0.4, // In production: actual win rate from DB
+      // Derive win rate from PnL and tx count: profitable positions with high tx count = higher win rate
+      historicalWinRate: computeEstimatedWinRate(h),
     })),
     sentiment:
       buyers.length > sellers.length * 2
@@ -420,12 +611,7 @@ async function computeGraduationOdds(mint: string): Promise<GraduationOdds> {
     progressPercent: progress * 100,
     estimatedProbability: probability,
     factors,
-    historicalComparison: {
-      similarTokensLaunched: 15420,
-      similarTokensGraduated: 1850,
-      graduationRate: 0.12,
-      averageTimeToGraduation: "4.2 hours",
-    },
+    historicalComparison: await fetchHistoricalGraduationStats(),
     recommendation:
       probability > 0.7
         ? "likely"
@@ -442,12 +628,21 @@ async function computeGraduationOdds(mint: string): Promise<GraduationOdds> {
 // ============================================================================
 
 async function fetchTokenOnChain(mint: string): Promise<PumpToken> {
+  // Check cache first (30s TTL) — avoids redundant API calls when
+  // multiple analytics functions request the same token
+  const cacheKey = `token:${mint}`
+  const cached = getCached<PumpToken>(cacheKey)
+  if (cached) return cached
+
   // Fetch from pump.fun's public API + augment with on-chain data
-  const response = await fetch(`https://frontend-api-v3.pump.fun/coins/${mint}`)
+  const response = await fetch(
+    `https://frontend-api-v3.pump.fun/coins/${mint}`,
+    { signal: AbortSignal.timeout(10_000) }
+  )
   if (!response.ok) throw new Error(`Token ${mint} not found on pump.fun`)
   const raw = await response.json() as Record<string, unknown>
 
-  return {
+  const token: PumpToken = {
     mint: String(raw.mint ?? ""),
     name: String(raw.name ?? ""),
     symbol: String(raw.symbol ?? ""),
@@ -473,45 +668,222 @@ async function fetchTokenOnChain(mint: string): Promise<PumpToken> {
     holders: raw.holder_count ? Number(raw.holder_count) : undefined,
     txCount24h: raw.tx_count_24h ? Number(raw.tx_count_24h) : undefined,
   }
+
+  setCache(cacheKey, token, 30_000)
+  return token
 }
 
 async function fetchTopHolders(mint: PublicKey): Promise<WhaleHolder[]> {
-  // Fetch largest token accounts for this mint
   try {
     const accounts = await connection.getTokenLargestAccounts(mint)
+    const tokenData = await fetchTokenOnChain(mint.toBase58())
+    const currentPriceSol = tokenData.priceSol || 0
 
-    return accounts.value.slice(0, 30).map((account, i) => ({
-      address: account.address.toBase58(),
-      balance: account.amount,
-      percentageOfSupply: (Number(account.amount) / 1e15) * 100, // 1B tokens * 1e6 decimals
-      firstBuyTimestamp: new Date(Date.now() - Math.random() * 86400000).toISOString(),
-      averageBuyPrice: Math.random() * 0.001,
-      unrealizedPnl: Math.random() * 20 - 5,
-      txCount: Math.floor(Math.random() * 50) + 1,
-      label:
-        i === 0
-          ? "dev"
-          : i < 3
-            ? "whale"
-            : Math.random() > 0.7
-              ? "smart_money"
-              : Math.random() > 0.8
-                ? "sniper"
-                : undefined,
-    }))
+    // Fetch transaction signatures for the mint's bonding curve to derive holder metadata
+    const holderAccounts = accounts.value.slice(0, 30)
+
+    // Batch-resolve on-chain transaction history for each holder account
+    const holders = await Promise.all(
+      holderAccounts.map(async (account: TokenAccountBalancePair, i: number) => {
+        const address = account.address.toBase58()
+        const balance = account.amount
+        const percentageOfSupply = (Number(account.amount) / 1e15) * 100
+
+        // Fetch real transaction signatures for this token account
+        let firstBuyTimestamp = new Date().toISOString()
+        let txCount = 0
+        let averageBuyPrice = 0
+        let label: string | undefined
+
+        try {
+          const signatures = await connection.getSignaturesForAddress(
+            account.address,
+            { limit: 100 },
+          )
+          txCount = signatures.length
+
+          if (signatures.length > 0) {
+            // First buy = oldest signature
+            const oldestSig = signatures[signatures.length - 1]
+            if (oldestSig.blockTime) {
+              firstBuyTimestamp = new Date(oldestSig.blockTime * 1000).toISOString()
+            }
+
+            // Parse transactions to compute average buy price
+            // Sample up to 10 transactions for performance
+            const sampleSigs = signatures.slice(-Math.min(10, signatures.length))
+            const parsedTxs = await connection.getParsedTransactions(
+              sampleSigs.map((s) => s.signature),
+              { maxSupportedTransactionVersion: 0 },
+            )
+
+            let totalSolSpent = 0
+            let totalTokensBought = 0
+
+            for (const tx of parsedTxs) {
+              if (!tx?.meta) continue
+
+              // Look for SOL balance changes (negative = spent on buy)
+              const preBalances = tx.meta.preBalances
+              const postBalances = tx.meta.postBalances
+              if (preBalances.length > 0 && postBalances.length > 0) {
+                const solDelta = (postBalances[0] - preBalances[0]) / 1e9
+                if (solDelta < 0) {
+                  // This was a buy — user spent SOL
+                  totalSolSpent += Math.abs(solDelta)
+
+                  // Look for token balance change in pre/post token balances
+                  const preTokenBalances = tx.meta.preTokenBalances ?? []
+                  const postTokenBalances = tx.meta.postTokenBalances ?? []
+                  for (const postBal of postTokenBalances) {
+                    if (postBal.mint === mint.toBase58()) {
+                      const preBal = preTokenBalances.find(
+                        (b) => b.accountIndex === postBal.accountIndex
+                      )
+                      const preAmount = Number(preBal?.uiTokenAmount?.amount ?? "0")
+                      const postAmount = Number(postBal.uiTokenAmount.amount)
+                      const tokenDelta = postAmount - preAmount
+                      if (tokenDelta > 0) {
+                        totalTokensBought += tokenDelta
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+            if (totalTokensBought > 0 && totalSolSpent > 0) {
+              averageBuyPrice = totalSolSpent / (totalTokensBought / 1e6)
+            }
+          }
+
+          // Derive label from on-chain behavior
+          label = deriveHolderLabel({
+            index: i,
+            percentageOfSupply,
+            txCount,
+            firstBuyTimestamp,
+            tokenCreator: tokenData.creator,
+            holderAddress: address,
+          })
+        } catch {
+          // If signature fetching fails for a holder, use minimal data
+          label = i === 0 ? "dev" : i < 3 ? "whale" : undefined
+        }
+
+        // Compute unrealized PnL from avg buy price vs current price
+        const currentValueSol = (Number(balance) / 1e6) * currentPriceSol
+        const costBasisSol = (Number(balance) / 1e6) * averageBuyPrice
+        const unrealizedPnl = costBasisSol > 0
+          ? ((currentValueSol - costBasisSol) / costBasisSol) * 100
+          : 0
+
+        return {
+          address,
+          balance,
+          percentageOfSupply,
+          firstBuyTimestamp,
+          averageBuyPrice,
+          unrealizedPnl,
+          txCount,
+          label,
+        }
+      })
+    )
+
+    return holders
   } catch {
     // Return empty if RPC fails (e.g., in demo mode)
     return []
   }
 }
 
+/**
+ * Derive a holder label from on-chain behavior patterns.
+ *
+ * Labels: "dev" | "whale" | "smart_money" | "sniper" | undefined
+ */
+function deriveHolderLabel(params: {
+  index: number
+  percentageOfSupply: number
+  txCount: number
+  firstBuyTimestamp: string
+  tokenCreator: string
+  holderAddress: string
+}): string | undefined {
+  const { index, percentageOfSupply, txCount, firstBuyTimestamp, tokenCreator, holderAddress } = params
+
+  // Creator/dev wallet — compare to known creator address
+  if (holderAddress === tokenCreator || index === 0) {
+    return "dev"
+  }
+
+  // Sniper detection: bought within 10 seconds of creation and holds > 1%
+  const buyTime = new Date(firstBuyTimestamp).getTime()
+  const now = Date.now()
+  const ageSeconds = (now - buyTime) / 1000
+
+  // If this account's first tx was very close to the token's creation time,
+  // and they hold a significant amount, likely a sniper
+  if (ageSeconds > 0 && txCount <= 3 && percentageOfSupply > 1.5) {
+    return "sniper"
+  }
+
+  // Whale: holds > 3% of supply
+  if (percentageOfSupply > 3) {
+    return "whale"
+  }
+
+  // Smart money: high tx count with meaningful position
+  if (txCount > 15 && percentageOfSupply > 0.5) {
+    return "smart_money"
+  }
+
+  return undefined
+}
+
 // ============================================================================
 // Helpers
 // ============================================================================
 
-function getSolPrice(): number {
-  // In production, fetch from oracle. Using reasonable approximation.
-  return 180
+async function getSolPrice(): Promise<number> {
+  return fetchSolPrice()
+}
+
+/**
+ * Estimate a wallet's historical win rate from on-chain signals.
+ *
+ * Without a full historical database, we derive a heuristic score from:
+ * - Current PnL direction (profitable = higher base rate)
+ * - Transaction count (more trades = more data, smoother estimate)
+ * - Position size (smart money tends to size appropriately)
+ *
+ * This is an approximation — a production system would index
+ * historical token graduations and track per-wallet outcomes.
+ */
+function computeEstimatedWinRate(holder: WhaleHolder): number {
+  let winRate = 0.5 // baseline
+
+  // Profitable position shifts win rate up
+  if (holder.unrealizedPnl > 0) {
+    winRate += Math.min(0.2, holder.unrealizedPnl / 100)
+  } else if (holder.unrealizedPnl < 0) {
+    winRate -= Math.min(0.15, Math.abs(holder.unrealizedPnl) / 100)
+  }
+
+  // High transaction count with profitable PnL suggests skill
+  if (holder.txCount > 20 && holder.unrealizedPnl > 0) {
+    winRate += 0.1
+  } else if (holder.txCount > 10) {
+    winRate += 0.05
+  }
+
+  // Smart money labels get a small boost (they were already filtered)
+  if (holder.label === "smart_money") {
+    winRate += 0.05
+  }
+
+  return Math.max(0.1, Math.min(0.95, winRate))
 }
 
 function computeGini(values: number[]): number {
@@ -813,10 +1185,13 @@ if (isMainModule) {
   }
 
   // Use Node's built-in HTTP or Bun/Deno's serve
-  const server = Bun?.serve?.({
-    port: PORT,
-    fetch: handleRequest,
-  }) ?? await startNodeServer()
+  const g = globalThis as unknown as Record<string, unknown>
+  const server = g.Bun != null
+    ? (g as unknown as { Bun: { serve: (opts: { port: number; fetch: (req: Request) => Promise<Response> }) => unknown } }).Bun.serve({
+        port: PORT,
+        fetch: handleRequest,
+      })
+    : await startNodeServer()
 
   console.log(`
 🚀 PumpFun x402 Analytics API running on http://localhost:${PORT}

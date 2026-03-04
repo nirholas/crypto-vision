@@ -25,12 +25,13 @@
  * logs for a split-screen effect if you want.
  */
 
-import crypto from 'node:crypto';
+import * as crypto from 'node:crypto';
 
 // ─── Configuration ────────────────────────────────────────────
 
 const GAS_STATION_URL = process.env.GAS_STATION_URL ?? 'http://localhost:4020';
-const AGENT_NAME = 'SperaxOS Agent α';
+const AGENT_NAME = 'SperaxOS Agent \u03B1'; // α display name
+const AGENT_USER_AGENT = 'SperaxOS-Agent-Alpha/1.0'; // ASCII-safe for HTTP headers
 const AGENT_WALLET = '0x' + crypto.randomBytes(20).toString('hex');
 const INITIAL_BALANCE_USDC = 5.0;
 const NETWORK = 'eip155:84532'; // Base Sepolia
@@ -153,7 +154,7 @@ async function refuelAtPump(endpoint: string): Promise<RefuelResult> {
 
   // Step 1: Initial request → expect 402
   const initialResponse = await fetch(url, {
-    headers: { 'Accept': 'application/json', 'User-Agent': `${AGENT_NAME}/1.0` },
+    headers: { 'Accept': 'application/json', 'User-Agent': AGENT_USER_AGENT },
   });
 
   if (initialResponse.status !== 402) {
@@ -187,7 +188,7 @@ async function refuelAtPump(endpoint: string): Promise<RefuelResult> {
   const paidResponse = await fetch(url, {
     headers: {
       'Accept': 'application/json',
-      'User-Agent': `${AGENT_NAME}/1.0`,
+      'User-Agent': AGENT_USER_AGENT,
       'X-PAYMENT': paymentProof,
     },
   });
@@ -301,8 +302,12 @@ async function runGasStationDemo() {
     console.log(`  ${c('dim', step.reason)}`);
 
     // Show connecting animation
-    process.stdout.write(c('dim', '  Connecting... '));
-    await sleep(300);
+    process.stdout.write(c('dim', '  Connecting'));
+    for (let dot = 0; dot < 3; dot++) {
+      await sleep(150);
+      process.stdout.write(c('dim', '.'));
+    }
+    console.log('');
 
     try {
       // Hit the pump
@@ -310,8 +315,8 @@ async function runGasStationDemo() {
       receipts.push(result);
       totalSpent += result.priceUsd;
 
-      // Show payment
-      process.stdout.write('\r');
+      // Show x402 flow
+      console.log(`  ${c('dim', '↳')} ${c('dim', '402 → sign EIP-3009 → pay')} ${c('green', formatUsd(result.priceUsd))} ${c('dim', 'USDC')}`);
       console.log(`  ${c('green', '✓')} Payment: ${c('green', formatUsd(result.priceUsd))} USDC`);
       console.log(`  ${c('green', '✓')} Data received (${result.latencyMs}ms)`);
       console.log(`  ${c('dim', '  tx: ' + result.txHash.slice(0, 22) + '...')}`);

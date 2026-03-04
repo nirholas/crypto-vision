@@ -146,8 +146,8 @@ export interface GraduationOdds {
     description: string
   }>
   historicalComparison: {
-    similarTokensLaunched: number
-    similarTokensGraduated: number
+    totalLaunched: number
+    totalGraduated: number
     graduationRate: number
     averageTimeToGraduation: string
   }

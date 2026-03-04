@@ -5,6 +5,9 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "pump-swarm": "dist/cli.js"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -20,6 +23,7 @@
     "start:creator": "npx tsx src/agents/creator-agent.ts",
     "start:trader": "npx tsx src/agents/trader-agent.ts",
     "start:swarm": "npx tsx src/swarm.ts",
+    "cli": "npx tsx src/cli.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "type-check": "tsc --noEmit",

@@ -10,16 +10,14 @@
  */
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
+import { z } from "zod"
 
 export function registerPumpFunPrompts(server: McpServer): void {
   server.prompt(
     "pump_analyze_token",
     "Full analysis of a pump.fun token — starts with free data, then upgrades to premium x402 analytics",
     {
-      mint: {
-        description: "The Solana mint address of the pump.fun token",
-        required: true,
-      },
+      mint: z.string().describe("The Solana mint address of the pump.fun token"),
     },
     ({ mint }) => ({
       messages: [
@@ -86,10 +84,7 @@ export function registerPumpFunPrompts(server: McpServer): void {
     "pump_whale_alert",
     "Monitor whale activity on a specific pump.fun token and alert on significant movements",
     {
-      mint: {
-        description: "The Solana mint address to monitor",
-        required: true,
-      },
+      mint: z.string().describe("The Solana mint address to monitor"),
     },
     ({ mint }) => ({
       messages: [

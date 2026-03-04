@@ -208,6 +208,12 @@ export type {
 // ============================================================
 // Tool Marketplace Exports
 // ============================================================
+
+// ============================================================
+// PumpFun x402 Analytics Module
+// ============================================================
+export { registerPumpFun } from "./modules/pump-fun/index.js"
+
 export {
   // Main registration
   registerToolMarketplace,

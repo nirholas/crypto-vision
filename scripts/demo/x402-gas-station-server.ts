@@ -17,8 +17,8 @@
  *   npx tsx scripts/demo/x402-gas-station-agent.ts
  */
 
-import http from 'node:http';
-import crypto from 'node:crypto';
+import * as http from 'node:http';
+import * as crypto from 'node:crypto';
 
 // ─── Configuration ────────────────────────────────────────────
 
@@ -441,9 +441,8 @@ const server = http.createServer((req, res) => {
     console.log(`  ⛽ ${pump.name} — 402 Payment Required ($${pump.priceUsd.toFixed(3)})`);
 
     res.writeHead(402, {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json; charset=utf-8',
       'X-PAYMENT-REQUIRED': encodedRequirements,
-      'X-Payment-Required': 'true',
       'X-Price-USD': `$${pump.priceUsd.toFixed(3)}`,
       'WWW-Authenticate': `X402 realm="${pump.path}"`,
     });
