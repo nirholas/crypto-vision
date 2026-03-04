@@ -581,6 +581,7 @@ const cache = new Map<string, CacheEntry<unknown>>();
 
 /**
  * Get cached data with stale-while-revalidate support
+ * Returns expired data when rate limited to provide graceful degradation
  * @param key - Cache key
  * @returns Cached data or null if not found/expired
  */
@@ -595,10 +596,17 @@ function getCached<T>(key: string): { data: T; isStale: boolean } | null {
   const isExpired = now - cached.timestamp > cached.ttl * 1000;
   const isStale = now - cached.timestamp > cached.staleTimestamp * 1000;
 
-  // If completely expired (past stale window), return null
+  // If completely expired but we're rate limited, still return the data
+  // This provides graceful degradation instead of failing completely
   if (isExpired && now - cached.timestamp > cached.ttl * 2 * 1000) {
-    cache.delete(key);
-    return null;
+    // Only delete if we're not rate limited
+    if (rateLimitState.retryAfter < now) {
+      cache.delete(key);
+      return null;
+    }
+    // Return expired data when rate limited
+    console.warn(`Serving expired cache for ${key} due to rate limiting`);
+    return { data: cached.data, isStale: true };
   }
 
   return { data: cached.data, isStale };
@@ -637,16 +645,26 @@ interface RateLimitState {
   requestCount: number;
   windowStart: number;
   retryAfter: number;
+  backoffAttempts: number;
 }
 
 const rateLimitState: RateLimitState = {
   requestCount: 0,
   windowStart: Date.now(),
   retryAfter: 0,
+  backoffAttempts: 0,
 };
 
 const RATE_LIMIT_WINDOW = 60000; // 1 minute window
-const MAX_REQUESTS_PER_WINDOW = 25; // Conservative limit for free tier
+const MAX_REQUESTS_PER_WINDOW = 20; // Conservative limit for free tier
+const MIN_REQUEST_INTERVAL = 2500; // Minimum 2.5s between requests
+const MAX_RETRY_ATTEMPTS = 3;
+const BASE_BACKOFF_MS = 5000; // Start with 5 seconds
+
+let lastRequestTime = 0;
+
+// Request deduplication map to prevent concurrent requests for the same resource
+const pendingRequests = new Map<string, Promise<Response>>();
 
 /**
  * Check if we can make a request based on rate limiting
@@ -659,10 +677,16 @@ function canMakeRequest(): boolean {
     return false;
   }
 
+  // Check minimum interval between requests
+  if (now - lastRequestTime < MIN_REQUEST_INTERVAL) {
+    return false;
+  }
+
   // Reset window if expired
   if (now - rateLimitState.windowStart > RATE_LIMIT_WINDOW) {
     rateLimitState.requestCount = 0;
     rateLimitState.windowStart = now;
+    rateLimitState.backoffAttempts = 0;
   }
 
   return rateLimitState.requestCount < MAX_REQUESTS_PER_WINDOW;
@@ -673,16 +697,24 @@ function canMakeRequest(): boolean {
  */
 function recordRequest(): void {
   rateLimitState.requestCount++;
+  lastRequestTime = Date.now();
 }
 
 /**
  * Handle rate limit error with exponential backoff
  */
 function handleRateLimitError(retryAfterHeader?: string): void {
+  rateLimitState.backoffAttempts++;
   const retryAfterSeconds = retryAfterHeader ? parseInt(retryAfterHeader, 10) : 60;
-  const backoffMs = Math.min(retryAfterSeconds * 1000, 120000); // Max 2 minutes
+  const exponentialBackoff = BASE_BACKOFF_MS * Math.pow(2, rateLimitState.backoffAttempts - 1);
+  const backoffMs = Math.min(
+    Math.max(retryAfterSeconds * 1000, exponentialBackoff),
+    300000 // Max 5 minutes
+  );
   rateLimitState.retryAfter = Date.now() + backoffMs;
-  console.warn(`Rate limited. Backing off for ${backoffMs / 1000} seconds`);
+  console.warn(
+    `Rate limited. Backing off for ${(backoffMs / 1000).toFixed(1)}s (attempt ${rateLimitState.backoffAttempts})`
+  );
 }
 
 // =============================================================================
@@ -705,13 +737,49 @@ export class MarketDataError extends Error {
 
 /**
  * Fetch with timeout, rate limiting, and error handling
+ * Implements request deduplication and exponential backoff retry
  * @param url - URL to fetch
  * @param timeout - Timeout in milliseconds
+ * @param maxRetries - Maximum number of retries for 429 errors
  * @returns Response object
  */
-async function fetchWithTimeout(url: string, timeout = 10000): Promise<Response> {
+async function fetchWithTimeout(
+  url: string,
+  timeout = 10000,
+  maxRetries = 3
+): Promise<Response> {
+  // Check for duplicate requests and return pending promise if one exists
+  if (pendingRequests.has(url)) {
+    return pendingRequests.get(url)!;
+  }
+
+  // Create a promise for this request
+  const requestPromise = executeWithRetry(url, timeout, maxRetries);
+  pendingRequests.set(url, requestPromise);
+
+  try {
+    const response = await requestPromise;
+    return response;
+  } finally {
+    // Clean up pending request after short delay to allow other requests to deduplicate
+    setTimeout(() => {
+      pendingRequests.delete(url);
+    }, 100);
+  }
+}
+
+/**
+ * Execute fetch with exponential backoff retry for rate limit errors
+ */
+async function executeWithRetry(
+  url: string,
+  timeout: number,
+  maxRetries: number,
+  attempt = 0
+): Promise<Response> {
   // Check rate limit before making request
   if (!canMakeRequest()) {
+    // We're rate limited, throw but with retry flag so caller can handle
     throw new MarketDataError('Rate limit exceeded. Please try again later.', 429, true);
   }
 
@@ -730,13 +798,44 @@ async function fetchWithTimeout(url: string, timeout = 10000): Promise<Response>
       next: { revalidate: 60 }, // Next.js cache for 60 seconds
     });
 
-    // Handle rate limiting from API
+    // Handle rate limiting from API with retry
     if (response.status === 429) {
       handleRateLimitError(response.headers.get('retry-after') || undefined);
+
+      // Retry with exponential backoff if we have retries left
+      if (attempt < maxRetries) {
+        const backoffMs = Math.min(1000 * Math.pow(2, attempt), 30000); // Exponential backoff: 1s, 2s, 4s... max 30s
+        await new Promise(resolve => setTimeout(resolve, backoffMs));
+        return executeWithRetry(url, timeout, maxRetries, attempt + 1);
+      }
+
+      // Out of retries, throw
       throw new MarketDataError('Rate limited by CoinGecko API', 429, true);
     }
 
+    // Handle other error status codes
+    if (!response.ok && response.status >= 500) {
+      // Retry on server errors with exponential backoff
+      if (attempt < maxRetries) {
+        const backoffMs = Math.min(1000 * Math.pow(2, attempt), 10000);
+        await new Promise(resolve => setTimeout(resolve, backoffMs));
+        return executeWithRetry(url, timeout, maxRetries, attempt + 1);
+      }
+    }
+
     return response;
+  } catch (error) {
+    // Handle network/timeout errors with retry
+    if (
+      attempt < maxRetries &&
+      (error instanceof Error && error.name === 'AbortError' ||
+       error instanceof TypeError)
+    ) {
+      const backoffMs = Math.min(1000 * Math.pow(2, attempt), 10000);
+      await new Promise(resolve => setTimeout(resolve, backoffMs));
+      return executeWithRetry(url, timeout, maxRetries, attempt + 1);
+    }
+    throw error;
   } finally {
     clearTimeout(timeoutId);
   }
@@ -775,6 +874,7 @@ async function fetchWithCache<T>(
 
 /**
  * Fetch and cache data
+ * Returns stale cache or fallback on errors, especially rate limits
  */
 async function fetchAndCache<T>(
   url: string,
@@ -791,11 +891,27 @@ async function fetchAndCache<T>(
 
     const data = (await response.json()) as T;
     setCache(cacheKey, data, ttl);
+    
+    // Reset backoff on successful request
+    if (rateLimitState.backoffAttempts > 0) {
+      rateLimitState.backoffAttempts = Math.max(0, rateLimitState.backoffAttempts - 1);
+    }
+    
     return data;
   } catch (error) {
-    // If we have cached stale data, return it on error
+    // If rate limited, try to return any cached data, even if expired
+    if (error instanceof MarketDataError && error.isRateLimited) {
+      const cached = cache.get(cacheKey) as CacheEntry<T> | undefined;
+      if (cached) {
+        console.warn(`Serving stale cache for ${cacheKey} due to rate limiting`);
+        return cached.data;
+      }
+    }
+
+    // For other errors, return fresh-ish cached data if available
     const cached = getCached<T>(cacheKey);
     if (cached) {
+      console.warn(`Serving cached data for ${cacheKey} due to error: ${error}`);
       return cached.data;
     }
 
@@ -956,19 +1072,30 @@ export async function getPricesForCoins(
 /**
  * Get coin details
  * @param coinId - CoinGecko coin ID
- * @returns Detailed coin information
+ * @returns Detailed coin information or null if not available
  */
 export async function getCoinDetails(coinId: string) {
   const cacheKey = `coin-${coinId}`;
+
+  // Check cache first (including stale data)
   const cached = getCached<Record<string, unknown>>(cacheKey);
-  if (cached) return cached.data;
+  if (cached && !cached.isStale) {
+    return cached.data;
+  }
 
   try {
     const response = await fetchWithTimeout(
-      `${COINGECKO_BASE}/coins/${coinId}?localization=false&tickers=false&community_data=false&developer_data=false`
+      `${COINGECKO_BASE}/coins/${coinId}?localization=false&tickers=false&community_data=false&developer_data=false`,
+      10000,
+      3 // Allow 3 retries for rate limit errors
     );
 
     if (!response.ok) {
+      // If response is not ok, try to use stale cache
+      if (cached) {
+        console.warn(`Failed to fetch fresh coin details for ${coinId}, using stale cache`);
+        return cached.data;
+      }
       throw new Error('Failed to fetch coin details');
     }
 
@@ -976,6 +1103,28 @@ export async function getCoinDetails(coinId: string) {
     setCache(cacheKey, data, CACHE_TTL.global);
     return data;
   } catch (error) {
+    // If we have any cached data (even stale), return it on error
+    if (cached) {
+      console.warn(`Error fetching coin details for ${coinId}, returning stale cache:`, error instanceof Error ? error.message : error);
+      return cached.data;
+    }
+
+    // For rate limit errors, return a minimal response so metadata generation doesn't fail
+    if (error instanceof MarketDataError && error.isRateLimited) {
+      console.warn(`Rate limited for ${coinId}. Returning minimal data.`);
+      // Return minimal data structure for metadata generation fallback
+      return {
+        id: coinId,
+        name: coinId.charAt(0).toUpperCase() + coinId.slice(1),
+        symbol: coinId.substring(0, 3).toUpperCase(),
+        market_data: {
+          current_price: { usd: null },
+          market_cap: { usd: null },
+          price_change_percentage_24h: null,
+        },
+      };
+    }
+
     console.error('Error fetching coin details:', error);
     return null;
   }
@@ -1560,6 +1709,14 @@ export async function getCoinDeveloperData(coinId: string): Promise<DeveloperDat
     setCache(cacheKey, developerData, CACHE_TTL.social);
     return developerData;
   } catch (error) {
+    // If rate limited, try to return any cached data, even if expired
+    if (error instanceof MarketDataError && error.isRateLimited) {
+      const staleCache = cache.get(cacheKey) as CacheEntry<DeveloperData> | undefined;
+      if (staleCache) {
+        console.warn(`Serving stale developer data for ${coinId} due to rate limiting`);
+        return staleCache.data;
+      }
+    }
     console.error('Error fetching developer data:', error);
     return null;
   }
@@ -1599,6 +1756,14 @@ export async function getCoinCommunityData(coinId: string): Promise<CommunityDat
     setCache(cacheKey, communityData, CACHE_TTL.social);
     return communityData;
   } catch (error) {
+    // If rate limited, try to return any cached data, even if expired
+    if (error instanceof MarketDataError && error.isRateLimited) {
+      const staleCache = cache.get(cacheKey) as CacheEntry<CommunityData> | undefined;
+      if (staleCache) {
+        console.warn(`Serving stale community data for ${coinId} due to rate limiting`);
+        return staleCache.data;
+      }
+    }
     console.error('Error fetching community data:', error);
     return null;
   }

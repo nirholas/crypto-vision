@@ -14,7 +14,7 @@ import { getTokenPrice } from "../services/token-data.js";
 import { evaluateCallForInsiderAlert, getMatchingSubscribers, updateAlertNotifiedCount } from "../services/insider-alerts.js";
 import { logger } from "@/lib/logger";
 
-const log = logger.child({ module: "sectbot:price-tracker" });
+const log = logger.child({ module: "crypto-vision:price-tracker" });
 
 const UPDATE_INTERVAL_MS = 60_000; // 1 minute
 const BATCH_SIZE = 50; // Process tokens in batches to avoid rate limits

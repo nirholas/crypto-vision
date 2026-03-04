@@ -97,7 +97,7 @@ crypto-vision/
 │   ├── routes/                  # 38 route modules (market, defi, news, ai, etc.)
 │   ├── sources/                 # 37 upstream data source adapters
 │   ├── lib/                     # Shared infrastructure (cache, auth, fetcher, etc.)
-│   ├── bot/                     # SectBot Telegram bot
+│   ├── bot/                     # Crypto Vision Telegram bot
 │   └── workers/                 # 8 ingestion + 4 indexing workers
 ├── apps/
 │   ├── dashboard/               # Next.js crypto dashboard

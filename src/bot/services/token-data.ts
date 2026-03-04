@@ -11,7 +11,7 @@
 import { cache } from "@/lib/cache";
 import { logger } from "@/lib/logger";
 
-const log = logger.child({ module: "sectbot:token-data" });
+const log = logger.child({ module: "crypto-vision:token-data" });
 
 export interface TokenData {
   address: string;
@@ -244,7 +244,7 @@ export async function getTokenData(
   address: string,
   chain = "ethereum",
 ): Promise<TokenData | null> {
-  const cacheKey = `sectbot:token:${address}`;
+  const cacheKey = `crypto-vision:token:${address}`;
 
   return cache.wrap(cacheKey, 30, async () => {
     // Try DexScreener first (works across all chains without specifying chain)

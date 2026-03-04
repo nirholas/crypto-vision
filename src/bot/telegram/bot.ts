@@ -35,7 +35,7 @@ import {
   escapeHtml,
 } from "../messages/formatter.js";
 
-const log = logger.child({ module: "sectbot:bot" });
+const log = logger.child({ module: "crypto-vision:bot" });
 
 // Active auto-call timers (messageId -> timeout)
 const autoCallTimers = new Map<string, ReturnType<typeof setTimeout>>();

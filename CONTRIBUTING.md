@@ -126,7 +126,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 | `api` | Core API routes or middleware |
 | `sources` | Data source adapters |
 | `lib` | Shared library modules |
-| `bot` | SectBot Telegram bot |
+| `bot` | Crypto Vision Telegram bot |
 | `workers` | Ingestion/indexing workers |
 | `dashboard` | Dashboard app |
 | `news` | News app |

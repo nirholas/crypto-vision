@@ -219,12 +219,7 @@ function rawToTokens(raw: BN): number {
   return raw.toNumber() / ONE_TOKEN_RAW;
 }
 
-/**
- * Convert a bigint to BN for interop with existing types.
- */
-function _bigintToBN(val: bigint): BN {
-  return new BN(val.toString());
-}
+
 
 /**
  * Mean absolute error between target and actual distributions.

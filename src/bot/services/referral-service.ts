@@ -17,7 +17,7 @@ import {
 import { randomBytes } from "node:crypto";
 import { logger } from "@/lib/logger";
 
-const log = logger.child({ module: "sectbot:referral" });
+const log = logger.child({ module: "crypto-vision:referral" });
 
 const COMMISSION_RATE = 0.2; // 20%
 

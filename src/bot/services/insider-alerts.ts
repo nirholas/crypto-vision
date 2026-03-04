@@ -23,7 +23,7 @@ import {
 } from "../db/schema.js";
 import { logger } from "@/lib/logger";
 
-const log = logger.child({ module: "sectbot:insider-alerts" });
+const log = logger.child({ module: "crypto-vision:insider-alerts" });
 
 /**
  * Calculate the Wilson Score lower bound.

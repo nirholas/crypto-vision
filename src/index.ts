@@ -83,7 +83,7 @@ import { stakingRoutes } from "@/routes/staking";
 import { unlocksRoutes } from "@/routes/unlocks";
 import { whaleRoutes } from "@/routes/whales";
 import { createWsRoutes } from "@/routes/ws";
-import { sectbotRoutes } from "@/routes/sectbot";
+import { cryptoVisionRoutes } from "@/routes/crypto-vision";
 
 // ─── App ─────────────────────────────────────────────────────
 
@@ -188,6 +188,14 @@ app.get("/health", async (c) => {
         heapUsed: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
       },
       fetchMetrics: fetchMetrics(),
+      coingeckoRateLimit: (() => {
+        try {
+          const { getCoinGeckoRateLimitStats } = require("./lib/coingecko-rate-limit.js");
+          return getCoinGeckoRateLimitStats();
+        } catch {
+          return null;
+        }
+      })(),
       env: process.env.NODE_ENV || "development",
     },
     healthy ? 200 : 503,
@@ -735,7 +743,7 @@ app.route("/api/news-feed", newsFeedRoutes);
 app.route("/api/anomalies", anomalyRoutes);
 app.route("/api/search", searchRoutes);
 app.route("/api/admin/export", exportRoutes);
-app.route("/api/sectbot", sectbotRoutes);
+app.route("/api/crypto-vision", cryptoVisionRoutes);
 app.route("/", keysRoutes);
 
 // ─── Metrics Summary (JSON) ──────────────────────────────────
@@ -794,7 +802,7 @@ const server = serve(
     }, 300_000); // every 5 minutes
 
     // Start Crypto Vision if enabled
-    if (process.env.SECTBOT_ENABLED === "true" && process.env.TELEGRAM_BOT_TOKEN) {
+    if (process.env.CRYPTO_VISION_ENABLED === "true" && process.env.TELEGRAM_BOT_TOKEN) {
       startBot().catch((err) => {
         log.error({ err }, "Failed to start Crypto Vision");
       });

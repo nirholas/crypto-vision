@@ -30,7 +30,7 @@ export function getDb(): PostgresJsDatabase<typeof schema> {
     );
   }
 
-  const log = logger.child({ module: "sectbot:db" });
+  const log = logger.child({ module: "crypto-vision:db" });
 
   _client = postgres(url, {
     max: 20,

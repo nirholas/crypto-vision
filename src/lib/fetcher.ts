@@ -214,6 +214,17 @@ export async function fetchJSON<T>(
         m.total429s++;
         upstreamRequestsTotal.inc({ source: host, status: "429" });
         upstreamRequestDurationSeconds.observe({ source: host }, (Date.now() - fetchStart) / 1000);
+        
+        // Notify CoinGecko rate limiter of rate limit events
+        if (host === "api.coingecko.com" || host === "pro-api.coingecko.com") {
+          try {
+            const { updateRateLimitInfo } = await import("./coingecko-rate-limit.js");
+            updateRateLimitInfo(res.headers);
+          } catch {
+            // Silently ignore if rate limiter module isn't available
+          }
+        }
+        
         const retryAfter = Number(res.headers.get("Retry-After") || "5");
         logger.warn({ host, retryAfter }, "Rate limited — backing off");;
         await sleep(retryAfter * 1000);
@@ -230,6 +241,18 @@ export async function fetchJSON<T>(
 
       upstreamRequestsTotal.inc({ source: host, status: String(res.status) });
       upstreamRequestDurationSeconds.observe({ source: host }, (Date.now() - fetchStart) / 1000);
+      
+      // Notify CoinGecko rate limiter of successful requests
+      if (host === "api.coingecko.com" || host === "pro-api.coingecko.com") {
+        try {
+          const { updateRateLimitInfo, recordCoinGeckoSuccess } = await import("./coingecko-rate-limit.js");
+          updateRateLimitInfo(res.headers);
+          recordCoinGeckoSuccess();
+        } catch {
+          // Silently ignore if rate limiter module isn't available
+        }
+      }
+      
       recordSuccess(host);
       return (await res.json()) as T;
     } catch (err) {

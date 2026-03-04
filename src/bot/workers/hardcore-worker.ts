@@ -10,7 +10,7 @@
 import { checkExpiredSessions, endHardcoreRound } from "../services/hardcore-service.js";
 import { logger } from "@/lib/logger";
 
-const log = logger.child({ module: "sectbot:hardcore-worker" });
+const log = logger.child({ module: "crypto-vision:hardcore-worker" });
 
 const CHECK_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 let intervalHandle: ReturnType<typeof setInterval> | null = null;

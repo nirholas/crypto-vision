@@ -20,7 +20,7 @@ import {
 } from "../db/schema.js";
 import { logger } from "@/lib/logger";
 
-const log = logger.child({ module: "sectbot:hardcore" });
+const log = logger.child({ module: "crypto-vision:hardcore" });
 
 /**
  * Start a new hardcore round for a group.

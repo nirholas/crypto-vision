@@ -17,7 +17,7 @@ import { formatInsiderAlert } from "./messages/formatter.js";
 import { getUserById } from "./services/user-service.js";
 import { getGroupById } from "./services/group-service.js";
 
-const log = logger.child({ module: "sectbot" });
+const log = logger.child({ module: "crypto-vision" });
 
 const BOT_RESTART_DELAY_MS = 5_000;
 const BOT_MAX_RESTART_ATTEMPTS = 10;

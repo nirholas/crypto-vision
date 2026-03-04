@@ -6,11 +6,15 @@
  *
  * Provides: prices, market caps, coin details, trending, global stats,
  *           exchanges, categories, historical data.
+ *
+ * Rate limiting: Client-side token bucket ensures we respect upstream limits
+ * and never trigger 429s. Requests are queued and rate-limited transparently.
  */
 
 import { ingestExchangeSnapshots, ingestMarketSnapshots, ingestOHLCCandles } from "../lib/bq-ingest.js";
 import { cache } from "../lib/cache.js";
 import { fetchJSON } from "../lib/fetcher.js";
+import { waitForCoinGeckoToken, updateRateLimitInfo } from "../lib/coingecko-rate-limit.js";
 
 const BASE = process.env.COINGECKO_PRO === "true"
   ? "https://pro-api.coingecko.com/api/v3"
@@ -22,9 +26,13 @@ function headers(): Record<string, string> {
 }
 
 function cg<T>(path: string, ttl: number): Promise<T> {
-  return cache.wrap(`cg:${path}`, ttl, () =>
-    fetchJSON<T>(`${BASE}${path}`, { headers: headers() })
-  );
+  return cache.wrap(`cg:${path}`, ttl, async () => {
+    // Rate limit: wait for available token before making request
+    await waitForCoinGeckoToken();
+
+    const result = await fetchJSON<T>(`${BASE}${path}`, { headers: headers() });
+    return result;
+  });
 }
 
 // ─── Coins & Markets ─────────────────────────────────────────
@@ -70,7 +78,7 @@ export async function getCoins(params: {
   if (params.ids) p.set("ids", params.ids);
   if (params.category) p.set("category", params.category);
 
-  const data = await cg<CoinMarket[]>(`/coins/markets?${p}`, 60); // 1 min cache
+  const data = await cg<CoinMarket[]>(`/coins/markets?${p}`, 180); // 3 min cache (rate limiting)
 
   // Stream to BigQuery (fire-and-forget, non-blocking)
   ingestMarketSnapshots(data as unknown as Record<string, unknown>[]);
@@ -113,7 +121,7 @@ export interface CoinDetail {
 export function getCoinDetail(id: string): Promise<CoinDetail> {
   return cg(
     `/coins/${id}?localization=false&tickers=false&community_data=false&developer_data=false`,
-    120 // 2 min cache
+    600 // 10 min cache (stable data)
   );
 }
 
@@ -129,7 +137,7 @@ export function getPrice(
     vs_currencies: vsCurrencies,
     include_24hr_change: String(include24hChange),
   });
-  return cg(`/simple/price?${p}`, 30); // 30s cache
+  return cg(`/simple/price?${p}`, 60); // 1 min cache (rate limiting + reasonable freshness)
 }
 
 // ─── Trending ────────────────────────────────────────────────
@@ -148,7 +156,7 @@ export interface TrendingCoin {
 }
 
 export function getTrending(): Promise<{ coins: TrendingCoin[] }> {
-  return cg("/search/trending", 300); // 5 min cache
+  return cg("/search/trending", 600); // 10 min cache (stable data)
 }
 
 // ─── Global Stats ────────────────────────────────────────────
@@ -165,7 +173,7 @@ export interface GlobalData {
 }
 
 export function getGlobal(): Promise<GlobalData> {
-  return cg("/global", 120); // 2 min cache
+  return cg("/global", 600); // 10 min cache (stable market stats)
 }
 
 // ─── Search ──────────────────────────────────────────────────
@@ -173,7 +181,7 @@ export function getGlobal(): Promise<GlobalData> {
 export function searchCoins(query: string): Promise<{
   coins: Array<{ id: string; name: string; symbol: string; market_cap_rank: number }>;
 }> {
-  return cg(`/search?query=${encodeURIComponent(query)}`, 60);
+  return cg(`/search?query=${encodeURIComponent(query)}`, 300); // 5 min cache
 }
 
 // ─── Market Chart (historical) ───────────────────────────────
@@ -192,7 +200,7 @@ export function getMarketChart(
     days: String(days),
   });
   if (interval) p.set("interval", interval);
-  return cg(`/coins/${id}/market_chart?${p}`, 300);
+  return cg(`/coins/${id}/market_chart?${p}`, 1800); // 30 min cache (immutable historical data)
 }
 
 // ─── OHLC ────────────────────────────────────────────────────
@@ -201,7 +209,7 @@ export async function getOHLC(
   id: string,
   days: number = 7
 ): Promise<[number, number, number, number, number][]> {
-  const data = await cg<[number, number, number, number, number][]>(`/coins/${id}/ohlc?vs_currency=usd&days=${days}`, 300);
+  const data = await cg<[number, number, number, number, number][]>(`/coins/${id}/ohlc?vs_currency=usd&days=${days}`, 3600); // 1 hour cache (immutable historical data)
 
   // Stream to BigQuery (fire-and-forget)
   ingestOHLCCandles(id, data);
@@ -231,7 +239,7 @@ export async function getExchanges(
     trade_volume_24h_btc: number;
     trust_score: number;
     trust_score_rank: number;
-  }>>(`/exchanges?per_page=${perPage}&page=${page}`, 300);
+  }>>(`/exchanges?per_page=${perPage}&page=${page}`, 1800); // 30 min cache (stable data)
 
   // Stream to BigQuery (fire-and-forget)
   ingestExchangeSnapshots(data as unknown as Record<string, unknown>[], "coingecko");

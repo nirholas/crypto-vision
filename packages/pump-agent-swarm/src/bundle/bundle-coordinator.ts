@@ -43,8 +43,8 @@ import {
   sendAndConfirmTransaction,
   LAMPORTS_PER_SOL,
 } from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { PUMP_SDK, OnlinePumpSdk, bondingCurvePda } from '@pump-fun/pump-sdk';
+import { TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync } from '@solana/spl-token';
+import { PUMP_SDK, OnlinePumpSdk } from '@pump-fun/pump-sdk';
 import BN from 'bn.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -979,15 +979,21 @@ export class BundleCoordinator {
       try {
         // For Jito create+bundle, we can't fetch buy state because the token
         // doesn't exist yet. Build the buy instruction with predicted accounts.
-        const bondingCurve = bondingCurvePda(mintPubkey);
+        const associatedUser = getAssociatedTokenAddressSync(
+          mintPubkey,
+          wallet.keypair.publicKey,
+          false,
+          TOKEN_PROGRAM_ID,
+        );
 
         // Build a buy using the predicted bonding curve state after creation
         const global = await sdk.fetchGlobal();
-        const buyIxs = await PUMP_SDK.buyInstructions({
+        const buyIx = await PUMP_SDK.buyInstruction({
           global,
           mint: mintPubkey,
-          bondingCurve,
+          creator: creatorWallet.keypair.publicKey,
           user: wallet.keypair.publicKey,
+          associatedUser,
           amount: new BN(0),
           solAmount,
           slippage: this.config.slippageBps / 100,
@@ -1009,7 +1015,7 @@ export class BundleCoordinator {
           recentBlockhash: blockhash,
           feePayer: wallet.keypair.publicKey,
         });
-        buyTx.add(...computeIxs, ...buyIxs);
+        buyTx.add(...computeIxs, buyIx);
 
         // Add Jito tip to the last buy transaction
         if (i === buyerWallets.length - 1) {

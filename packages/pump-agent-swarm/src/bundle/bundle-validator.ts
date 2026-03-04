@@ -1010,7 +1010,6 @@ export class BundleValidator {
         const writableKeys = new Set<string>();
         const readableKeys = new Set<string>();
         const accountKeys = tx.message.getAccountKeys();
-        const _numWritable = tx.message.header.numRequiredSignatures;
 
         for (let k = 0; k < accountKeys.length; k++) {
           const key = accountKeys.get(k);

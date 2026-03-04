@@ -671,6 +671,9 @@ const rateLimitState: RateLimitState = {
 const RATE_LIMIT_WINDOW = 60000; // 1 minute window
 const MAX_REQUESTS_PER_WINDOW = 50; // Allow more requests since we have fallbacks
 
+// Request deduplication map to prevent concurrent requests for the same resource
+const pendingRequests = new Map<string, Promise<Response>>();
+
 /**
  * Check if we can make a request based on rate limiting
  */
@@ -728,17 +731,54 @@ export class MarketDataError extends Error {
 
 /**
  * Fetch with timeout, rate limiting, and error handling
+ * Implements request deduplication and exponential backoff retry
  * @param url - URL to fetch
  * @param timeout - Timeout in milliseconds
  * @param skipRateLimit - Skip internal rate limit check (for fallback APIs)
+ * @param maxRetries - Maximum number of retries for 429 errors
  * @returns Response object
  */
-async function fetchWithTimeout(url: string, timeout = 10000, skipRateLimit = false): Promise<Response> {
+async function fetchWithTimeout(
+  url: string,
+  timeout = 10000,
+  skipRateLimit = false,
+  maxRetries = 3
+): Promise<Response> {
+  // Check for duplicate requests and return pending promise if one exists
+  if (pendingRequests.has(url)) {
+    return pendingRequests.get(url)!;
+  }
+
+  // Create a promise for this request
+  const requestPromise = executeWithRetry(url, timeout, skipRateLimit, maxRetries);
+  pendingRequests.set(url, requestPromise);
+
+  try {
+    const response = await requestPromise;
+    return response;
+  } finally {
+    // Clean up pending request after short delay to allow other requests to deduplicate
+    setTimeout(() => {
+      pendingRequests.delete(url);
+    }, 100);
+  }
+}
+
+/**
+ * Execute fetch with exponential backoff retry for rate limit errors
+ */
+async function executeWithRetry(
+  url: string,
+  timeout: number,
+  skipRateLimit: boolean,
+  maxRetries: number,
+  attempt = 0
+): Promise<Response> {
   // Check rate limit before making request (only for primary CoinGecko API)
   if (!skipRateLimit && url.includes('coingecko.com') && !canMakeRequest()) {
     throw new MarketDataError('Rate limit exceeded. Please try again later.', 429, true);
   }
-  
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -746,7 +786,7 @@ async function fetchWithTimeout(url: string, timeout = 10000, skipRateLimit = fa
     if (!skipRateLimit && url.includes('coingecko.com')) {
       recordRequest();
     }
-    
+
     const response = await fetch(url, {
       signal: controller.signal,
       headers: {
@@ -755,16 +795,47 @@ async function fetchWithTimeout(url: string, timeout = 10000, skipRateLimit = fa
       },
       next: { revalidate: 120 }, // Next.js cache for 2 minutes
     });
-    
-    // Handle rate limiting from API
+
+    // Handle rate limiting from API with retry
     if (response.status === 429) {
       if (url.includes('coingecko.com')) {
         handleRateLimitError(response.headers.get('retry-after') || undefined);
       }
+
+      // Retry with exponential backoff if we have retries left
+      if (attempt < maxRetries) {
+        const backoffMs = Math.min(1000 * Math.pow(2, attempt), 30000); // Exponential backoff: 1s, 2s, 4s... max 30s
+        await new Promise(resolve => setTimeout(resolve, backoffMs));
+        return executeWithRetry(url, timeout, skipRateLimit, maxRetries, attempt + 1);
+      }
+
+      // Out of retries, throw
       throw new MarketDataError('Rate limited by API', 429, true);
     }
-    
+
+    // Handle other error status codes
+    if (!response.ok && response.status >= 500 && !skipRateLimit) {
+      // Retry on server errors with exponential backoff
+      if (attempt < maxRetries) {
+        const backoffMs = Math.min(1000 * Math.pow(2, attempt), 10000);
+        await new Promise(resolve => setTimeout(resolve, backoffMs));
+        return executeWithRetry(url, timeout, skipRateLimit, maxRetries, attempt + 1);
+      }
+    }
+
     return response;
+  } catch (error) {
+    // Handle network/timeout errors with retry
+    if (
+      attempt < maxRetries &&
+      (error instanceof Error && error.name === 'AbortError' ||
+       error instanceof TypeError)
+    ) {
+      const backoffMs = Math.min(1000 * Math.pow(2, attempt), 10000);
+      await new Promise(resolve => setTimeout(resolve, backoffMs));
+      return executeWithRetry(url, timeout, skipRateLimit, maxRetries, attempt + 1);
+    }
+    throw error;
   } finally {
     clearTimeout(timeoutId);
   }
@@ -1176,29 +1247,67 @@ export async function getGlobalMarketData(): Promise<GlobalMarketData | null> {
 /**
  * Get coin details
  * @param coinId - CoinGecko coin ID
- * @returns Detailed coin information
+ * @returns Detailed coin information or null if not available
  */
 export async function getCoinDetails(coinId: string) {
   const cacheKey = `coin-${coinId}`;
+
+  // Check cache first (including stale data)
   const cached = getCached<Record<string, unknown>>(cacheKey);
-  if (cached) return cached.data;
+  if (cached && !cached.isStale) {
+    return cached.data;
+  }
 
   try {
     const response = await fetchWithTimeout(
-      `${COINGECKO_BASE}/coins/${coinId}?localization=false&tickers=false&community_data=false&developer_data=false`
+      `${COINGECKO_BASE}/coins/${coinId}?localization=false&tickers=false&community_data=false&developer_data=false`,
+      10000,
+      false,
+      3 // Allow 3 retries for rate limit errors
     );
-    
+
     if (!response.ok) {
+      // If response is not ok, try to use stale cache or fallback
+      if (cached) {
+        console.warn(`Failed to fetch fresh coin details for ${coinId}, using stale cache`);
+        return cached.data;
+      }
       console.warn(`CoinGecko failed for ${coinId}, trying fallback...`);
       return await getCoinDetailsFallback(coinId);
     }
-    
+
     const data = await response.json();
     setCache(cacheKey, data, CACHE_TTL.global);
     return data;
   } catch (error) {
+    // If we have any cached data (even stale), return it on error
+    if (cached) {
+      console.warn(`Error fetching coin details for ${coinId}, returning stale cache:`, error instanceof Error ? error.message : error);
+      return cached.data;
+    }
+
+    // For rate limit errors, try fallback instead of throwing
+    if (error instanceof MarketDataError && error.isRateLimited) {
+      console.warn(`Rate limited for ${coinId}. Trying fallback source...`);
+      const fallback = await getCoinDetailsFallback(coinId);
+      if (fallback) return fallback;
+
+      // If fallback also fails, return minimal data structure for metadata generation
+      console.warn(`All sources rate limited or failed for ${coinId}. Returning minimal data.`);
+      return {
+        id: coinId,
+        name: coinId.charAt(0).toUpperCase() + coinId.slice(1),
+        symbol: coinId.substring(0, 3).toUpperCase(),
+        market_data: {
+          current_price: { usd: null },
+          market_cap: { usd: null },
+          price_change_percentage_24h: null,
+        },
+      };
+    }
+
     console.error('Error fetching coin details:', error);
-    // Try fallback source
+    // Try fallback source as last resort
     return await getCoinDetailsFallback(coinId);
   }
 }

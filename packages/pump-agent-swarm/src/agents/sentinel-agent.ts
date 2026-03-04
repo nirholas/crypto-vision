@@ -174,7 +174,6 @@ export class SentinelAgent extends EventEmitter<SentinelAgentEvents> {
   readonly id: string;
 
   private readonly config: EmergencyExitConfig;
-  private readonly _connection: Connection;
   private readonly eventBus: SwarmEventBus;
   private readonly logger: SwarmLogger;
 
@@ -207,13 +206,12 @@ export class SentinelAgent extends EventEmitter<SentinelAgentEvents> {
 
   constructor(
     config: EmergencyExitConfig,
-    connection: Connection,
+    _connection: Connection,
     eventBus: SwarmEventBus,
   ) {
     super();
     this.id = `sentinel-${uuid().slice(0, 8)}`;
     this.config = config;
-    this._connection = connection;
     this.eventBus = eventBus;
     this.logger = SwarmLogger.create(this.id, 'sentinel');
 

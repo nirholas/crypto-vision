@@ -11,7 +11,7 @@ import { getDb } from "../db/index.js";
 import { users, groupMembers, calls, type User, type NewUser } from "../db/schema.js";
 import { logger } from "@/lib/logger";
 
-const log = logger.child({ module: "sectbot:user-service" });
+const log = logger.child({ module: "crypto-vision:user-service" });
 
 /**
  * Find or create a user by Telegram ID. Upserts username/name on each interaction.

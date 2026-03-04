@@ -18,7 +18,7 @@ import {
 } from "../db/schema.js";
 import { logger } from "@/lib/logger";
 
-const log = logger.child({ module: "sectbot:group-service" });
+const log = logger.child({ module: "crypto-vision:group-service" });
 
 /**
  * Find or create a group by Telegram chat ID.

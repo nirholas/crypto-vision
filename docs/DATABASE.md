@@ -20,7 +20,7 @@ Both are optional for the core API — the API works without either by fetching 
 ### Connection
 
 ```
-DATABASE_URL=postgresql://sectbot:sectbot@localhost:5432/sectbot
+DATABASE_URL=postgresql://cryptovision:cryptovision@localhost:5432/cryptovision
 ```
 
 Schema is managed via **Drizzle ORM** (`drizzle.config.ts`). Migrations live in `src/bot/db/migrations/`.

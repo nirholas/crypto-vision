@@ -367,7 +367,7 @@ export function formatReferralStats(stats: {
     `👥 Referrals: ${stats.totalReferrals}\n` +
     `💰 Earnings: ${stats.totalEarnings.toFixed(4)} ETH\n` +
     `💳 Wallet: <code>${stats.walletAddress}</code>\n` +
-    `\n📌 Share your link: <code>https://t.me/sectleaderboardbot?start=${stats.referralCode ?? ""}</code>`
+    `\n📌 Share your link: <code>https://t.me/cryptovisionbot?start=${stats.referralCode ?? ""}</code>`
   );
 }
 

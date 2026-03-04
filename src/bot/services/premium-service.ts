@@ -17,7 +17,7 @@ import {
 } from "../db/schema.js";
 import { logger } from "@/lib/logger";
 
-const log = logger.child({ module: "sectbot:premium" });
+const log = logger.child({ module: "crypto-vision:premium" });
 
 /** Pricing in ETH */
 export const PRICING = {

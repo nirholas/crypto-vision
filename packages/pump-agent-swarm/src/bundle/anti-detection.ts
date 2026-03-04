@@ -11,7 +11,7 @@
 
 import { randomBytes } from 'node:crypto';
 
-import type { AgentWallet, TradeOrder, TradeDirection } from '../types.js';
+import type { AgentWallet, TradeOrder, TradeDirection, SwarmEventCategory } from '../types.js';
 import { SwarmEventBus } from '../infra/event-bus.js';
 import { SwarmLogger } from '../infra/logger.js';
 
@@ -388,7 +388,8 @@ export class AntiDetection {
    * trading patterns, and time-of-day weighting.
    */
   generateHumanTiming(): TradeTimingProfile {
-    const [jitterMin, jitterMax] = this.config.timingJitterRange;
+    const [_jitterMin, _jitterMax] = this.config.timingJitterRange;
+    void _jitterMin; void _jitterMax;
 
     // Humans take 2-15 seconds to "open the app and look around"
     const sessionStartDelay = secureRandomInt(2_000, 15_000);

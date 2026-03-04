@@ -12,7 +12,7 @@ import { type Call } from "../db/schema.js";
 import { formatMarketCap, formatMultiplier, formatPercentage } from "./token-data.js";
 import { logger } from "@/lib/logger";
 
-const log = logger.child({ module: "sectbot:pnl-card" });
+const log = logger.child({ module: "crypto-vision:pnl-card" });
 
 const CARD_WIDTH = 800;
 const CARD_HEIGHT = 500;

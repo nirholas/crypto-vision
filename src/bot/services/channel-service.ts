@@ -15,7 +15,7 @@ import {
 } from "../db/schema.js";
 import { logger } from "@/lib/logger";
 
-const log = logger.child({ module: "sectbot:call-channels" });
+const log = logger.child({ module: "crypto-vision:call-channels" });
 
 /**
  * Register a call channel for a group.

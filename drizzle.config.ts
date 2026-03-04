@@ -5,6 +5,6 @@ export default defineConfig({
   out: "./src/bot/db/migrations",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL || "postgres://localhost:5432/sectbot",
+    url: process.env.DATABASE_URL || "postgres://localhost:5432/cryptovision",
   },
 });

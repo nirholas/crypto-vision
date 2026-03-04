@@ -20,7 +20,7 @@ import { refreshUserStats } from "./user-service.js";
 import { updateMemberCallStats } from "./group-service.js";
 import { logger } from "@/lib/logger";
 
-const log = logger.child({ module: "sectbot:call-service" });
+const log = logger.child({ module: "crypto-vision:call-service" });
 
 export interface CreateCallInput {
   userId: string;

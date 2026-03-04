@@ -145,7 +145,7 @@ const EnvSchema = z.object({
   // Crypto Vision — Telegram bot
   TELEGRAM_BOT_TOKEN: z.string().optional(),
   DATABASE_URL: z.string().optional(),
-  SECTBOT_ENABLED: z.string().default("false"),
+  CRYPTO_VISION_ENABLED: z.string().default("false"),
 
   // GCP / BigQuery / AI platform
   GCP_PROJECT_ID: z.string().optional(),

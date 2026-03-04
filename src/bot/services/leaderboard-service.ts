@@ -13,7 +13,7 @@ import { calls, users, groupMembers } from "../db/schema.js";
 import { type TimeframeFilter, getTimeframeBoundary } from "./call-service.js";
 import { logger } from "@/lib/logger";
 
-const log = logger.child({ module: "sectbot:leaderboard" });
+const log = logger.child({ module: "crypto-vision:leaderboard" });
 
 export interface CallsLeaderboardEntry {
   rank: number;

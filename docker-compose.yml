@@ -43,7 +43,7 @@ services:
       - NODE_ENV=production
       - PORT=8080
       - REDIS_URL=redis://redis:6379
-      - DATABASE_URL=postgresql://sectbot:sectbot@postgres:5432/sectbot
+      - DATABASE_URL=postgresql://cryptovision:cryptovision@postgres:5432/cryptovision
     depends_on:
       redis:
         condition: service_healthy
@@ -67,13 +67,13 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: sectbot
-      POSTGRES_USER: sectbot
-      POSTGRES_PASSWORD: sectbot
+      POSTGRES_DB: cryptovision
+      POSTGRES_USER: cryptovision
+      POSTGRES_PASSWORD: cryptovision
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sectbot"]
+      test: ["CMD-SHELL", "pg_isready -U cryptovision"]
       interval: 10s
       timeout: 3s
       retries: 5
