@@ -1,6 +1,8 @@
 /**
- * Markets Page
- * Comprehensive markets dashboard for browsing, filtering, and discovering cryptocurrencies
+ * Home Page — Trading Dashboard Overview
+ *
+ * Three-column grid layout with global stats strip, price ticker table,
+ * trending/gainers/losers sidebar, and market mood widgets.
  */
 
 import Header from '@/components/Header';
@@ -26,33 +28,33 @@ import MarketMoodWidget from '@/components/MarketMoodWidget';
 import { BreakingNewsTicker } from '@/components/BreakingNewsTicker';
 import { SocialBuzzWidget } from '@/components/SocialBuzz';
 import type { SortField, SortOrder } from './markets/components/SortableHeader';
+import { HomePageClient } from './HomePageClient';
 
 export const metadata: Metadata = {
-  title: 'Crypto Data Aggregator - Live Market Data & Analytics',
+  title: 'Crypto Vision — Trading Dashboard',
   description:
-    'Real-time cryptocurrency prices, market data, DeFi analytics, portfolio tracking, and more. Your complete crypto data dashboard.',
+    'Real-time cryptocurrency trading dashboard with live prices, market data, Fear & Greed Index, trending coins, and analytics.',
   openGraph: {
-    title: 'Crypto Data Aggregator - Live Market Data & Analytics',
+    title: 'Crypto Vision — Trading Dashboard',
     description:
       'Real-time cryptocurrency prices, market data, DeFi analytics, and portfolio tracking.',
     images: [{
-      url: '/api/og?type=market&title=Crypto%20Data%20Aggregator&subtitle=Live%20Market%20Data%20%26%20Analytics',
+      url: '/api/og?type=market&title=Crypto%20Vision&subtitle=Trading%20Dashboard',
       width: 1200,
       height: 630,
-      alt: 'Crypto Data Aggregator - Live Market Dashboard',
+      alt: 'Crypto Vision — Trading Dashboard',
     }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Crypto Data Aggregator - Live Market Data & Analytics',
+    title: 'Crypto Vision — Trading Dashboard',
     description: 'Real-time cryptocurrency prices, market data, DeFi analytics, and portfolio tracking.',
-    images: ['/api/og?type=market&title=Crypto%20Data%20Aggregator&subtitle=Live%20Market%20Data%20%26%20Analytics'],
+    images: ['/api/og?type=market&title=Crypto%20Vision&subtitle=Trading%20Dashboard'],
   },
 };
 
-export const revalidate = 60; // Revalidate every minute
+export const revalidate = 60;
 
-// Define valid sort fields
 const VALID_SORT_FIELDS: SortField[] = [
   'market_cap_rank',
   'current_price',
@@ -78,7 +80,6 @@ interface MarketsPageProps {
   }>;
 }
 
-// Filter coins based on URL params
 function filterCoins(
   coins: TokenPrice[],
   params: {
@@ -90,7 +91,6 @@ function filterCoins(
 ): TokenPrice[] {
   let filtered = [...coins];
 
-  // Search filter
   if (params.search) {
     const query = params.search.toLowerCase();
     filtered = filtered.filter(
@@ -98,7 +98,6 @@ function filterCoins(
     );
   }
 
-  // Price range filter
   if (params.price && params.price !== 'all') {
     filtered = filtered.filter((coin) => {
       const price = coin.current_price;
@@ -117,7 +116,6 @@ function filterCoins(
     });
   }
 
-  // Market cap filter
   if (params.marketCap && params.marketCap !== 'all') {
     filtered = filtered.filter((coin) => {
       const cap = coin.market_cap;
@@ -136,7 +134,6 @@ function filterCoins(
     });
   }
 
-  // 24h change filter
   if (params.change && params.change !== 'all') {
     filtered = filtered.filter((coin) => {
       const change = coin.price_change_percentage_24h || 0;
@@ -154,7 +151,6 @@ function filterCoins(
   return filtered;
 }
 
-// Sort coins based on URL params
 function sortCoins(coins: TokenPrice[], sortField: SortField, order: SortOrder): TokenPrice[] {
   const sorted = [...coins];
 
@@ -205,10 +201,9 @@ function sortCoins(coins: TokenPrice[], sortField: SortField, order: SortOrder):
   return sorted;
 }
 
-export default async function MarketsPage({ searchParams }: MarketsPageProps) {
+export default async function HomePage({ searchParams }: MarketsPageProps) {
   const params = await searchParams;
 
-  // Parse URL params
   const currentPage = Math.max(1, parseInt(params.page || '1', 10));
   const sortField = (
     VALID_SORT_FIELDS.includes(params.sort as SortField) ? params.sort : 'market_cap_rank'
@@ -219,79 +214,69 @@ export default async function MarketsPage({ searchParams }: MarketsPageProps) {
     : 50;
   const category = params.category || 'all';
 
-  // Fetch data in parallel
+  // Fetch all data in parallel
   const [allCoins, trending, global, fearGreed] = await Promise.all([
-    getTopCoins(250), // Get more coins for filtering
+    getTopCoins(250),
     getTrending(),
     getGlobalMarketData(),
     getFearGreedIndex(),
   ]);
 
-  // Apply filters
+  // Apply filters and sorting
   let filteredCoins = filterCoins(allCoins, {
     search: params.search,
     price: params.price,
     marketCap: params.marketCap,
     change: params.change,
   });
-
-  // Apply sorting
   filteredCoins = sortCoins(filteredCoins, sortField, sortOrder);
 
-  // Pagination
   const totalCount = filteredCoins.length;
   const startIndex = (currentPage - 1) * perPage;
   const paginatedCoins = filteredCoins.slice(startIndex, startIndex + perPage);
+
+  // Derive gainers/losers from allCoins
+  const sortedByChange = [...allCoins].sort(
+    (a, b) => (b.price_change_percentage_24h || 0) - (a.price_change_percentage_24h || 0)
+  );
+  const topGainers = sortedByChange.filter(c => (c.price_change_percentage_24h || 0) > 0).slice(0, 5);
+  const topLosers = sortedByChange.filter(c => (c.price_change_percentage_24h || 0) < 0).slice(-5).reverse();
 
   return (
     <div className="min-h-screen bg-background">
       {/* Breaking News Ticker */}
       <BreakingNewsTicker />
-      
-      <div className="max-w-7xl mx-auto">
+
+      <div className="max-w-[1600px] mx-auto">
         <Header />
 
-        {/* Global Stats Bar */}
+        {/* Global Stats Strip */}
         <GlobalStatsBar global={global} fearGreed={fearGreed} />
 
         <main className="px-4 py-6">
-          {/* Page Header */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-text-primary mb-2 flex items-center gap-3">
-              <BarChart3 className="w-8 h-8 text-primary" />
-              Cryptocurrency Markets
-            </h1>
-            <p className="text-text-secondary">
-              Live prices, charts, and market data for {totalCount.toLocaleString()}{' '}
-              cryptocurrencies
-            </p>
-          </div>
+          {/* 3-Column Trading Dashboard Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-          {/* Trending Section with Market Mood */}
-          <div className="grid lg:grid-cols-4 gap-4 mb-6">
-            <div className="lg:col-span-3">
-              <Suspense fallback={<TrendingSectionSkeleton />}>
-                <TrendingSection trending={trending} coins={allCoins} />
+            {/* Column 1 (Wide) — Price Ticker Table */}
+            <div className="lg:col-span-8 xl:col-span-8 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-primary" />
+                  Market Overview
+                </h2>
+                <span className="text-xs text-text-muted">
+                  {totalCount.toLocaleString()} coins
+                </span>
+              </div>
+
+              <Suspense fallback={<CategoryTabsSkeleton />}>
+                <CategoryTabs activeCategory={category} />
               </Suspense>
-            </div>
-            <div className="lg:col-span-1">
-              <MarketMoodWidget variant="compact" showHistory />
-            </div>
-          </div>
 
-          {/* Category Tabs */}
-          <Suspense fallback={<CategoryTabsSkeleton />}>
-            <CategoryTabs activeCategory={category} />
-          </Suspense>
+              <Suspense fallback={<SearchFiltersSkeleton />}>
+                <SearchAndFilters coins={allCoins} />
+              </Suspense>
 
-          {/* Search and Filters */}
-          <Suspense fallback={<SearchFiltersSkeleton />}>
-            <SearchAndFilters coins={allCoins} />
-          </Suspense>
-
-          {/* Coins Table with Sidebar */}
-          <div className="grid lg:grid-cols-4 gap-6">
-            <div className="lg:col-span-3">
               <Suspense fallback={<TableSkeleton />}>
                 <CoinsTable
                   coins={paginatedCoins}
@@ -304,7 +289,22 @@ export default async function MarketsPage({ searchParams }: MarketsPageProps) {
                 />
               </Suspense>
             </div>
-            <div className="lg:col-span-1 space-y-4">
+
+            {/* Column 2+3 (Sidebar) — Trending, Gainers, Mood, Stats */}
+            <div className="lg:col-span-4 xl:col-span-4 space-y-4">
+              <Suspense fallback={<TrendingSectionSidebarSkeleton />}>
+                <TrendingSection trending={trending} coins={allCoins} />
+              </Suspense>
+
+              <MarketMoodWidget variant="compact" showHistory />
+
+              <HomePageClient
+                global={global}
+                fearGreed={fearGreed}
+                topGainers={topGainers}
+                topLosers={topLosers}
+              />
+
               <SocialBuzzWidget />
             </div>
           </div>
@@ -316,49 +316,7 @@ export default async function MarketsPage({ searchParams }: MarketsPageProps) {
   );
 }
 
-// Skeleton Components for Suspense
-function TrendingSectionSkeleton() {
-  return (
-    <div className="grid md:grid-cols-2 gap-4 mb-6">
-      {/* Hot Coins */}
-      <div className="bg-surface rounded-xl border border-surface-border p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="skeleton-enhanced w-5 h-5 rounded" />
-          <div className="skeleton-enhanced h-5 w-24 rounded" />
-        </div>
-        <div className="flex gap-2 overflow-hidden">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div
-              key={i}
-              className="skeleton-enhanced h-10 w-24 rounded-lg flex-shrink-0"
-              style={{ animationDelay: `${i * 50}ms` }}
-            />
-          ))}
-        </div>
-      </div>
-      {/* Top Gainers */}
-      <div className="bg-surface rounded-xl border border-surface-border p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="skeleton-enhanced w-5 h-5 rounded" />
-          <div className="skeleton-enhanced h-5 w-28 rounded" />
-        </div>
-        <div className="space-y-2">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div
-              key={i}
-              className="flex items-center gap-2"
-              style={{ animationDelay: `${i * 50}ms` }}
-            >
-              <div className="skeleton-enhanced w-6 h-6 rounded-full" />
-              <div className="skeleton-enhanced h-4 flex-1 rounded" />
-              <div className="skeleton-enhanced h-4 w-16 rounded" />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
+// ─── Skeleton Components ───────────────────────────────────────────────────────
 
 function CategoryTabsSkeleton() {
   return (
@@ -388,7 +346,6 @@ function SearchFiltersSkeleton() {
 function TableSkeleton() {
   return (
     <div className="bg-surface rounded-xl border border-surface-border overflow-hidden">
-      {/* Header */}
       <div className="p-4 border-b border-surface-border bg-surface-alt">
         <div className="flex items-center gap-4">
           <div className="skeleton-enhanced h-4 w-8 rounded" />
@@ -399,7 +356,6 @@ function TableSkeleton() {
           <div className="skeleton-enhanced h-4 w-20 rounded hidden lg:block" />
         </div>
       </div>
-      {/* Rows with staggered animation */}
       <div className="divide-y divide-surface-border">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
           <div
@@ -421,7 +377,6 @@ function TableSkeleton() {
           </div>
         ))}
       </div>
-      {/* Pagination skeleton */}
       <div className="p-4 border-t border-surface-border flex items-center justify-between">
         <div className="skeleton-enhanced h-4 w-32 rounded" />
         <div className="flex gap-2">
@@ -434,6 +389,47 @@ function TableSkeleton() {
           ))}
         </div>
         <div className="skeleton-enhanced h-4 w-24 rounded" />
+      </div>
+    </div>
+  );
+}
+
+function TrendingSectionSidebarSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="bg-surface rounded-xl border border-surface-border p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="skeleton-enhanced w-5 h-5 rounded" />
+          <div className="skeleton-enhanced h-5 w-24 rounded" />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div
+              key={i}
+              className="skeleton-enhanced h-10 w-24 rounded-lg flex-shrink-0"
+              style={{ animationDelay: `${i * 50}ms` }}
+            />
+          ))}
+        </div>
+      </div>
+      <div className="bg-surface rounded-xl border border-surface-border p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="skeleton-enhanced w-5 h-5 rounded" />
+          <div className="skeleton-enhanced h-5 w-28 rounded" />
+        </div>
+        <div className="space-y-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div
+              key={i}
+              className="flex items-center gap-2"
+              style={{ animationDelay: `${i * 50}ms` }}
+            >
+              <div className="skeleton-enhanced w-6 h-6 rounded-full" />
+              <div className="skeleton-enhanced h-4 flex-1 rounded" />
+              <div className="skeleton-enhanced h-4 w-16 rounded" />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
