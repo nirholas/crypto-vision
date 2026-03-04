@@ -149,7 +149,7 @@ describe("GET /api/perps/overview", () => {
     const res = await app.request("/api/perps/overview");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.bybit.count).toBe(2);
     expect(json.okx.count).toBe(1);
     expect(json.hyperliquid.count).toBe(2);
@@ -166,7 +166,7 @@ describe("GET /api/perps/overview", () => {
     const res = await app.request("/api/perps/overview");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     // All catch blocks return empty defaults
     expect(json.bybit.count).toBe(0);
     expect(json.okx.count).toBe(0);
@@ -188,7 +188,7 @@ describe("GET /api/perps/funding", () => {
     const res = await app.request("/api/perps/funding");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.length).toBeGreaterThan(0);
     expect(json.data[0]).toHaveProperty("symbol");
     expect(json).toHaveProperty("timestamp");
@@ -202,7 +202,7 @@ describe("GET /api/perps/funding", () => {
     const res = await app.request("/api/perps/funding");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toEqual([]);
   });
 });
@@ -221,7 +221,7 @@ describe("GET /api/perps/funding/:symbol", () => {
     const res = await app.request("/api/perps/funding/btc");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.symbol).toBe("BTC");
     expect(json.bybit).toHaveLength(1);
     expect(json.okx).toHaveLength(1);
@@ -238,7 +238,7 @@ describe("GET /api/perps/funding/:symbol", () => {
     const res = await app.request("/api/perps/funding/btc");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.symbol).toBe("BTC");
     expect(json.bybit).toEqual([]);
     expect(json.okx).toEqual([]);
@@ -261,7 +261,7 @@ describe("GET /api/perps/oi", () => {
     const res = await app.request("/api/perps/oi");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.bybit.length).toBeGreaterThan(0);
     expect(json.bybit[0]).toHaveProperty("symbol");
     expect(json.bybit[0]).toHaveProperty("openInterestValue");
@@ -275,7 +275,7 @@ describe("GET /api/perps/oi", () => {
     const res = await app.request("/api/perps/oi");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.bybit).toEqual([]);
     expect(json.okx).toEqual([]);
   });
@@ -296,7 +296,7 @@ describe("GET /api/perps/oi/:symbol", () => {
     const res = await app.request("/api/perps/oi/btc");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.symbol).toBe("BTC");
     expect(json.bybit).toHaveLength(1);
     expect(json.dydx).toHaveProperty("openInterest");
@@ -310,7 +310,7 @@ describe("GET /api/perps/oi/:symbol", () => {
     const res = await app.request("/api/perps/oi/btc");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.symbol).toBe("BTC");
     expect(json.bybit).toEqual([]);
     expect(json.dydx).toBeNull();
@@ -328,7 +328,7 @@ describe("GET /api/perps/markets", () => {
     const res = await app.request("/api/perps/markets");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("hyperliquid");
     expect(json.count).toBe(2);
     expect(json.data).toHaveLength(2);
@@ -353,7 +353,7 @@ describe("GET /api/perps/markets/dydx", () => {
     const res = await app.request("/api/perps/markets/dydx");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("dydx");
     expect(json.count).toBe(2);
   });
@@ -377,7 +377,7 @@ describe("GET /api/perps/markets/bybit", () => {
     const res = await app.request("/api/perps/markets/bybit");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("bybit");
     expect(json.count).toBe(2);
   });
@@ -401,7 +401,7 @@ describe("GET /api/perps/markets/okx", () => {
     const res = await app.request("/api/perps/markets/okx");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("okx");
     expect(json.count).toBe(1);
   });
@@ -430,7 +430,7 @@ describe("GET /api/perps/orderbook/:exchange/:symbol", () => {
     const res = await app.request("/api/perps/orderbook/bybit/BTC");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("bybit");
     expect(json.symbol).toBe("BTC");
     expect(json.data).toHaveProperty("bids");
@@ -442,7 +442,7 @@ describe("GET /api/perps/orderbook/:exchange/:symbol", () => {
     const res = await app.request("/api/perps/orderbook/okx/BTC");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("okx");
   });
 
@@ -452,7 +452,7 @@ describe("GET /api/perps/orderbook/:exchange/:symbol", () => {
     const res = await app.request("/api/perps/orderbook/dydx/BTC");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("dydx");
   });
 
@@ -462,7 +462,7 @@ describe("GET /api/perps/orderbook/:exchange/:symbol", () => {
     const res = await app.request("/api/perps/orderbook/deribit/BTC");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("deribit");
   });
 
@@ -470,7 +470,7 @@ describe("GET /api/perps/orderbook/:exchange/:symbol", () => {
     const res = await app.request("/api/perps/orderbook/unknown/BTC");
     expect(res.status).toBe(400);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toMatch(/unknown exchange/i);
   });
 });
@@ -488,7 +488,7 @@ describe("GET /api/perps/trades/:exchange/:symbol", () => {
     const res = await app.request("/api/perps/trades/bybit/BTC");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("bybit");
     expect(json.symbol).toBe("BTC");
     expect(json.data).toHaveLength(1);
@@ -500,7 +500,7 @@ describe("GET /api/perps/trades/:exchange/:symbol", () => {
     const res = await app.request("/api/perps/trades/dydx/BTC");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("dydx");
     expect(json.data).toHaveLength(1);
   });
@@ -513,7 +513,7 @@ describe("GET /api/perps/trades/:exchange/:symbol", () => {
     const res = await app.request("/api/perps/trades/hyperliquid/BTC");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("hyperliquid");
   });
 
@@ -521,7 +521,7 @@ describe("GET /api/perps/trades/:exchange/:symbol", () => {
     const res = await app.request("/api/perps/trades/unknown/BTC");
     expect(res.status).toBe(400);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toMatch(/unknown exchange/i);
   });
 });
@@ -539,7 +539,7 @@ describe("GET /api/perps/klines/:exchange/:symbol", () => {
     const res = await app.request("/api/perps/klines/bybit/BTC?interval=60&limit=100");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("bybit");
     expect(json.data).toHaveLength(1);
   });
@@ -552,7 +552,7 @@ describe("GET /api/perps/klines/:exchange/:symbol", () => {
     const res = await app.request("/api/perps/klines/okx/BTC?interval=60");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("okx");
   });
 
@@ -564,7 +564,7 @@ describe("GET /api/perps/klines/:exchange/:symbol", () => {
     const res = await app.request("/api/perps/klines/dydx/BTC?interval=60&limit=50");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("dydx");
     expect(json.data).toHaveLength(1);
   });
@@ -573,7 +573,7 @@ describe("GET /api/perps/klines/:exchange/:symbol", () => {
     const res = await app.request("/api/perps/klines/unknown/BTC");
     expect(res.status).toBe(400);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toMatch(/unknown exchange/i);
   });
 });
@@ -596,7 +596,7 @@ describe("GET /api/perps/options/:currency", () => {
     const res = await app.request("/api/perps/options/btc");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.currency).toBe("BTC");
     expect(json.totalInstruments).toBe(2);
     expect(json.bookSummary).toHaveLength(1);
@@ -611,7 +611,7 @@ describe("GET /api/perps/options/:currency", () => {
     const res = await app.request("/api/perps/options/btc");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.totalInstruments).toBe(0);
     expect(json.bookSummary).toEqual([]);
     expect(json.volatilityIndex).toBeNull();
@@ -633,7 +633,7 @@ describe("GET /api/perps/volatility/:currency", () => {
     const res = await app.request("/api/perps/volatility/btc");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.currency).toBe("BTC");
     expect(json.impliedVolatility).toBeTruthy();
     expect(json.historicalVolatility).toHaveLength(2);
@@ -662,7 +662,7 @@ describe("GET /api/perps/dydx/sparklines", () => {
     const res = await app.request("/api/perps/dydx/sparklines");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data["BTC-USD"]).toHaveLength(3);
     expect(json.period).toBe("ONE_DAY");
   });
@@ -701,7 +701,7 @@ describe("GET /api/perps/hl/user/:address", () => {
     const res = await app.request("/api/perps/hl/user/0x1234");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.state).toHaveProperty("marginSummary");
     expect(json.orders).toHaveLength(1);
   });
@@ -726,7 +726,7 @@ describe("GET /api/perps/hl/mids", () => {
     const res = await app.request("/api/perps/hl/mids");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.BTC).toBe("60000");
     expect(json).toHaveProperty("timestamp");
   });
@@ -750,7 +750,7 @@ describe("GET /api/perps/hl/stats", () => {
     const res = await app.request("/api/perps/hl/stats");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveProperty("totalVolume");
     expect(json).toHaveProperty("timestamp");
   });
@@ -777,7 +777,7 @@ describe("GET /api/perps/deribit/currencies", () => {
     const res = await app.request("/api/perps/deribit/currencies");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     expect(json).toHaveProperty("timestamp");
   });

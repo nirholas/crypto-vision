@@ -201,7 +201,6 @@ export function CandlestickChart({
 
       chart.priceScale('volume').applyOptions({
         scaleMargins: { top: 0.8, bottom: 0 },
-        drawTicks: false,
       });
 
       volumeSeries.setData(volumeData);
@@ -218,7 +217,7 @@ export function CandlestickChart({
 
       const candle = param.seriesData.get(candleSeries) as CandlestickData | undefined;
       const vol = showVolume
-        ? (param.seriesData.get(volumeSeries!) as HistogramData | undefined)
+        ? (param.seriesData.get(volumeSeriesRef.current!) as HistogramData | undefined)
         : undefined;
 
       if (candle) {

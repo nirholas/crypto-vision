@@ -47,7 +47,7 @@ describe("GET /api/derivatives/funding", () => {
     const res = await app.request("/api/derivatives/funding");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(1);
     expect(json.data[0].symbol).toBe("BTC");
     expect(json.data[0].exchanges).toHaveLength(2);
@@ -87,7 +87,7 @@ describe("GET /api/derivatives/funding/:symbol", () => {
     const res = await app.request("/api/derivatives/funding/eth");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.symbol).toBe("ETH");
     expect(json.data.exchanges).toHaveLength(1);
     expect(json.data.exchanges[0].exchange).toBe("Binance");
@@ -103,7 +103,7 @@ describe("GET /api/derivatives/funding/:symbol", () => {
     const res = await app.request("/api/derivatives/funding/NONEXISTENT");
     expect(res.status).toBe(404);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toContain("not found");
   });
 
@@ -131,7 +131,7 @@ describe("GET /api/derivatives/oi", () => {
     const res = await app.request("/api/derivatives/oi");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     // BTC first (higher OI)
     expect(json.data[0].symbol).toBe("BTC");
@@ -154,7 +154,7 @@ describe("GET /api/derivatives/oi", () => {
     const res = await app.request("/api/derivatives/oi?limit=3");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(3);
   });
 
@@ -182,7 +182,7 @@ describe("GET /api/derivatives/oi/:symbol", () => {
     const res = await app.request("/api/derivatives/oi/btc");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.symbol).toBe("BTC");
     expect(json.data).toHaveLength(2);
     // Sorted by OI
@@ -227,7 +227,7 @@ describe("GET /api/derivatives/liquidations", () => {
     const res = await app.request("/api/derivatives/liquidations");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     // BTC first (higher total liquidations)
     expect(json.data[0].symbol).toBe("BTC");
@@ -252,7 +252,7 @@ describe("GET /api/derivatives/liquidations", () => {
     const res = await app.request("/api/derivatives/liquidations?limit=2");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
   });
 
@@ -280,7 +280,7 @@ describe("GET /api/derivatives/long-short/:symbol", () => {
     const res = await app.request("/api/derivatives/long-short/btc");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.symbol).toBe("BTC");
     expect(json.interval).toBe("h1"); // default interval
     expect(json.data).toHaveLength(2);
@@ -297,7 +297,7 @@ describe("GET /api/derivatives/long-short/:symbol", () => {
     expect(res.status).toBe(200);
 
     expect(glass.getLongShortRatio).toHaveBeenCalledWith("ETH", "h4");
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.interval).toBe("h4");
   });
 

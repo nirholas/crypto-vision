@@ -64,7 +64,7 @@ describe("GET /api/dex/networks", () => {
     const res = await app.request("/api/dex/networks");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     expect(json.data[0]).toMatchObject({ id: "eth", name: "Ethereum" });
     expect(json.data[1]).toMatchObject({ id: "solana", name: "Solana" });
@@ -104,7 +104,7 @@ describe("GET /api/dex/trending-pools", () => {
     const res = await app.request("/api/dex/trending-pools");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(1);
     expect(json.data[0]).toMatchObject({
       id: "eth_0xabc",
@@ -149,7 +149,7 @@ describe("GET /api/dex/trending-pools/:network", () => {
     const res = await app.request("/api/dex/trending-pools/solana");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(1);
     expect(json.network).toBe("solana");
     expect(gt.getTrendingPools).toHaveBeenCalledWith("solana");
@@ -186,7 +186,7 @@ describe("GET /api/dex/new-pools", () => {
     const res = await app.request("/api/dex/new-pools");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(1);
     expect(json.data[0]).toMatchObject({
       id: "eth_new1",
@@ -228,7 +228,7 @@ describe("GET /api/dex/new-pools/:network", () => {
     const res = await app.request("/api/dex/new-pools/bsc");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(1);
     expect(json.network).toBe("bsc");
     expect(gt.getNewPools).toHaveBeenCalledWith("bsc");
@@ -267,7 +267,7 @@ describe("GET /api/dex/top-pools/:network", () => {
     const res = await app.request("/api/dex/top-pools/eth");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(1);
     expect(json.data[0].name).toBe("WETH/USDT");
     expect(gt.getTopPools).toHaveBeenCalledWith("eth");
@@ -301,7 +301,7 @@ describe("GET /api/dex/pool/:network/:address", () => {
     const res = await app.request("/api/dex/pool/eth/0xabcdef1234567890abcdef1234567890abcdef12");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     expect(json.data[0]).toMatchObject({
       timestamp: 1709251200,
@@ -360,7 +360,7 @@ describe("GET /api/dex/token/:network/:address", () => {
     const res = await app.request("/api/dex/token/eth/0xabcdef1234567890abcdef1234567890abcdef12");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.token).toMatchObject({
       name: "Wrapped Ether",
       symbol: "WETH",
@@ -376,7 +376,7 @@ describe("GET /api/dex/token/:network/:address", () => {
     const res = await app.request("/api/dex/token/eth/0xabcdef1234567890abcdef1234567890abcdef12");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.token).toBeNull();
     expect(json.data.pools).toHaveLength(0);
   });
@@ -407,7 +407,7 @@ describe("GET /api/dex/pool-search", () => {
     const res = await app.request("/api/dex/pool-search?q=pepe");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(1);
     expect(json.data[0].name).toBe("PEPE/WETH");
   });

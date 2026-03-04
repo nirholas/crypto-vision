@@ -60,7 +60,7 @@ describe("POST /api/keys", () => {
     });
     expect(res.status).toBe(201);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.key).toMatch(/^cv_basic_/);
     expect(json.tier).toBe("basic");
     expect(json).toHaveProperty("rateLimit");
@@ -79,7 +79,7 @@ describe("POST /api/keys", () => {
     });
     expect(res.status).toBe(201);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.key).toMatch(/^cv_pro_/);
     expect(json.tier).toBe("pro");
   });
@@ -103,7 +103,7 @@ describe("GET /api/keys/usage", () => {
     const res = await app.request("/api/keys/usage");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.tier).toBe("public");
     expect(json.usage).toBeNull();
     expect(json.message).toContain("No API key");
@@ -132,7 +132,7 @@ describe("GET /api/keys/usage", () => {
     const res = await testApp.request("/api/keys/usage");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.tier).toBe("basic");
     expect(json.usage.requests).toBe(42);
     expect(json.usage).toHaveProperty("remaining");
@@ -153,7 +153,7 @@ describe("GET /api/keys/usage", () => {
     const res = await testApp.request("/api/keys/usage");
     expect(res.status).toBe(401);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toBe("INVALID_API_KEY");
   });
 
@@ -176,7 +176,7 @@ describe("GET /api/keys/usage", () => {
     const res = await testApp.request("/api/keys/usage");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.usage.requests).toBe(0);
     expect(json.usage.remaining).toBe(auth.TIER_LIMITS.pro.rateLimit);
   });

@@ -177,7 +177,7 @@ describe("POST /api/agents/orchestrate", () => {
     });
 
     expect(res.status).toBe(200);
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toBeDefined();
     expect(json.data.answer).toBeTruthy();
     expect(json.data.answer).toContain("Unified Analysis");
@@ -219,7 +219,7 @@ describe("POST /api/agents/orchestrate", () => {
     });
 
     expect(res.status).toBe(200);
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.answer).toBeTruthy();
     expect(json.data.workflow.templateUsed).toBe("risk-assessment");
     // Risk assessment template has 4 agents
@@ -239,7 +239,7 @@ describe("POST /api/agents/orchestrate", () => {
     });
 
     expect(res.status).toBe(200);
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.answer).toBeTruthy();
   });
 
@@ -299,7 +299,7 @@ describe("POST /api/agents/orchestrate", () => {
     });
 
     expect(res.status).toBe(200);
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
 
     // Each agent entry should have id and status
     for (const agent of json.data.agentsUsed) {
@@ -351,7 +351,7 @@ describe("POST /api/agents/orchestrate", () => {
       });
 
       expect(res.status).toBe(200);
-      const json = await res.json();
+      const json = (await res.json()) as Record<string, any>;
       expect(json.data.answer).toBeTruthy();
       expect(json.data.workflow.templateUsed).toBe(template);
     }
@@ -365,14 +365,14 @@ describe("GET /api/agents/orchestrate/templates", () => {
     const res = await app.request("/api/agents/orchestrate/templates");
 
     expect(res.status).toBe(200);
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(4);
     expect(json.timestamp).toBeTruthy();
   });
 
   it("each template has required metadata", async () => {
     const res = await app.request("/api/agents/orchestrate/templates");
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
 
     for (const template of json.data) {
       expect(template.id).toBeTruthy();
@@ -386,7 +386,7 @@ describe("GET /api/agents/orchestrate/templates", () => {
 
   it("includes all expected template IDs", async () => {
     const res = await app.request("/api/agents/orchestrate/templates");
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     const ids = json.data.map((t: { id: string }) => t.id);
 
     expect(ids).toContain("yield-optimization");
@@ -407,7 +407,7 @@ describe("GET /api/agents/discover", () => {
     const res = await app.request("/api/agents/discover?q=yield+farming");
 
     expect(res.status).toBe(200);
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toBeInstanceOf(Array);
     expect(json.data.length).toBeGreaterThan(0);
     expect(json.query).toBe("yield farming");
@@ -424,7 +424,7 @@ describe("GET /api/agents/discover", () => {
     const res = await app.request("/api/agents/discover?q=defi&limit=3");
 
     expect(res.status).toBe(200);
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.length).toBeLessThanOrEqual(3);
   });
 
@@ -432,7 +432,7 @@ describe("GET /api/agents/discover", () => {
     const res = await app.request("/api/agents/discover?q=bridge+security");
 
     expect(res.status).toBe(200);
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
 
     for (const agent of json.data) {
       expect(agent.agentId).toBeTruthy();

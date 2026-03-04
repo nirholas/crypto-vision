@@ -70,7 +70,7 @@ describe("GET /api/coins", () => {
     const res = await app.request("/api/coins?page=1&per_page=10");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(1);
     expect(json.data[0]).toMatchObject({
       id: "bitcoin",
@@ -126,7 +126,7 @@ describe("GET /api/coin/:id", () => {
     const res = await app.request("/api/coin/ethereum");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.id).toBe("ethereum");
     expect(json.data.description).toBe("Smart contract platform");
     expect(json.data.marketData.price).toEqual({ usd: 3500 });
@@ -154,7 +154,7 @@ describe("GET /api/price", () => {
     const res = await app.request("/api/price?ids=bitcoin&vs_currencies=usd");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.bitcoin.usd).toBe(60000);
   });
 
@@ -162,7 +162,7 @@ describe("GET /api/price", () => {
     const res = await app.request("/api/price");
     expect(res.status).toBe(400);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toMatch(/ids/i);
   });
 });
@@ -193,7 +193,7 @@ describe("GET /api/trending", () => {
     const res = await app.request("/api/trending");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data[0]).toMatchObject({ id: "pepe", name: "Pepe" });
   });
 
@@ -225,7 +225,7 @@ describe("GET /api/global", () => {
     const res = await app.request("/api/global");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.totalMarketCap).toBe(2.5e12);
     expect(json.data.btcDominance).toBe(52.1);
   });
@@ -251,7 +251,7 @@ describe("GET /api/search", () => {
     const res = await app.request("/api/search?q=bitcoin");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data[0].id).toBe("bitcoin");
   });
 
@@ -259,7 +259,7 @@ describe("GET /api/search", () => {
     const res = await app.request("/api/search");
     expect(res.status).toBe(400);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toMatch(/q/i);
   });
 });
@@ -279,7 +279,7 @@ describe("GET /api/chart/:id", () => {
     const res = await app.request("/api/chart/bitcoin?days=30");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.prices).toHaveLength(1);
     expect(json.data.volumes).toHaveLength(1);
   });
@@ -305,7 +305,7 @@ describe("GET /api/ohlc/:id", () => {
     const res = await app.request("/api/ohlc/bitcoin?days=7");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data[0]).toMatchObject({
       open: 59000,
       high: 61000,
@@ -343,7 +343,7 @@ describe("GET /api/exchanges", () => {
     const res = await app.request("/api/exchanges");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data[0]).toMatchObject({ id: "binance", name: "Binance" });
   });
 
@@ -375,7 +375,7 @@ describe("GET /api/categories", () => {
     const res = await app.request("/api/categories");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data[0].name).toBe("Decentralized Finance");
   });
 
@@ -403,7 +403,7 @@ describe("GET /api/fear-greed", () => {
     const res = await app.request("/api/fear-greed?limit=1");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data[0]).toMatchObject({ value: 75, classification: "Greed" });
   });
 
@@ -443,7 +443,7 @@ describe("GET /api/dex/search", () => {
     const res = await app.request("/api/dex/search?q=pepe");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data[0]).toMatchObject({ chain: "ethereum", dex: "uniswap" });
   });
 
@@ -451,7 +451,7 @@ describe("GET /api/dex/search", () => {
     const res = await app.request("/api/dex/search");
     expect(res.status).toBe(400);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toMatch(/q/i);
   });
 });

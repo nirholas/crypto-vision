@@ -68,7 +68,7 @@ describe("GET /api/news", () => {
     const res = await app.request("/api/news");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.articles).toHaveLength(1);
     expect(json.articles[0].title).toBe("Bitcoin hits new ATH");
   });
@@ -79,7 +79,7 @@ describe("GET /api/news", () => {
     const res = await app.request("/api/news");
     expect(res.status).toBe(500);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toBeDefined();
   });
 });
@@ -97,7 +97,7 @@ describe("GET /api/news/search", () => {
     const res = await app.request("/api/news/search?q=bitcoin");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.articles).toHaveLength(1);
   });
 
@@ -105,7 +105,7 @@ describe("GET /api/news/search", () => {
     const res = await app.request("/api/news/search");
     expect(res.status).toBe(400);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toBeDefined();
   });
 });
@@ -121,7 +121,7 @@ describe("GET /api/news/bitcoin", () => {
     const res = await app.request("/api/news/bitcoin");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.articles).toHaveLength(1);
   });
 
@@ -144,7 +144,7 @@ describe("GET /api/news/defi", () => {
     const res = await app.request("/api/news/defi");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.articles).toHaveLength(1);
   });
 
@@ -167,7 +167,7 @@ describe("GET /api/news/breaking", () => {
     const res = await app.request("/api/news/breaking");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.articles).toHaveLength(1);
   });
 
@@ -193,7 +193,7 @@ describe("GET /api/news/trending", () => {
     const res = await app.request("/api/news/trending");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.topics[0]).toMatchObject({ topic: "bitcoin", count: 42 });
   });
 
@@ -221,7 +221,7 @@ describe("GET /api/news/sources", () => {
     const res = await app.request("/api/news/sources");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.sources).toHaveLength(1);
     expect(json.sources[0].id).toBe("coindesk");
     expect(json.count).toBe(1);
@@ -233,7 +233,7 @@ describe("GET /api/news/sources", () => {
     const res = await app.request("/api/news/sources");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.sources).toHaveLength(0);
     expect(json.count).toBe(0);
   });

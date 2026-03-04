@@ -46,7 +46,7 @@ describe("GET /api/onchain/gas", () => {
     const res = await app.request("/api/onchain/gas");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.bitcoin).toMatchObject({
       fastest: 50,
       halfHour: 30,
@@ -83,7 +83,7 @@ describe("GET /api/onchain/bitcoin/fees", () => {
     const res = await app.request("/api/onchain/bitcoin/fees");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toMatchObject({
       fastestFee: 50,
       halfHourFee: 30,
@@ -113,7 +113,7 @@ describe("GET /api/onchain/bitcoin/stats", () => {
     const res = await app.request("/api/onchain/bitcoin/stats");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.currentHashrate).toBe(5e20);
     expect(json.data.currentDifficulty).toBe(7e13);
   });
@@ -154,7 +154,7 @@ describe("GET /api/onchain/token/:address", () => {
     const res = await app.request("/api/onchain/token/0xtoken");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.token).toMatchObject({ name: "Pepe", symbol: "PEPE" });
     expect(json.data.pairs).toHaveLength(1);
     expect(json.data.pairs[0].chain).toBe("ethereum");
@@ -166,7 +166,7 @@ describe("GET /api/onchain/token/:address", () => {
     const res = await app.request("/api/onchain/token/0xnonexistent");
     expect(res.status).toBe(404);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toMatch(/not found/i);
     expect(json.data).toBeUndefined();
   });
@@ -194,7 +194,7 @@ describe("GET /api/onchain/prices", () => {
     const res = await app.request("/api/onchain/prices?coins=ethereum:0xabc");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data["ethereum:0xabc"]).toMatchObject({ price: 1800, symbol: "WETH" });
   });
 
@@ -202,7 +202,7 @@ describe("GET /api/onchain/prices", () => {
     const res = await app.request("/api/onchain/prices");
     expect(res.status).toBe(400);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toMatch(/coins/i);
   });
 });

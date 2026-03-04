@@ -77,7 +77,7 @@ describe("GET /api/security/token/:chainId/:address", () => {
     );
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.isOpenSource).toBe(true);
     expect(json.data.isHoneypot).toBe(false);
     expect(json.data.riskLevel).toBe("low");
@@ -135,7 +135,7 @@ describe("GET /api/security/token/:chainId/:address", () => {
     );
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.isHoneypot).toBe(true);
     expect(json.data.riskLevel).toBe("critical");
   });
@@ -166,7 +166,7 @@ describe("GET /api/security/address/:chainId/:address", () => {
     );
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.risks).toHaveLength(0);
     expect(json.data.riskLevel).toBe("safe");
     expect(json.chainId).toBe(1);
@@ -192,7 +192,7 @@ describe("GET /api/security/address/:chainId/:address", () => {
     );
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.risks).toContain("cybercrime");
     expect(json.data.risks).toContain("money_laundering");
     expect(json.data.risks).toContain("financial_crime");
@@ -231,7 +231,7 @@ describe("GET /api/security/nft/:chainId/:address", () => {
     );
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.isOpenSource).toBe(true);
     expect(json.data.isProxy).toBe(false);
     expect(json.data.privilegedMinting).toBe(false);
@@ -267,7 +267,7 @@ describe("GET /api/security/dapp", () => {
     );
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.isAudited).toBe(true);
     expect(json.data.trustListed).toBe(true);
     expect(json.data.safe).toBe(true);
@@ -290,7 +290,7 @@ describe("GET /api/security/dapp", () => {
     );
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.phishingSite).toBe(true);
     expect(json.data.safe).toBe(false);
   });
@@ -317,7 +317,7 @@ describe("GET /api/security/chains", () => {
     const res = await app.request("/api/security/chains");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     expect(json.aliases).toHaveProperty("ethereum", 1);
     expect(json).toHaveProperty("timestamp");
@@ -356,7 +356,7 @@ describe("GET /api/security/approval/:chainId/:address", () => {
     );
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(1);
     expect(json.data[0]).toMatchObject({
       contract: "0xspender1",

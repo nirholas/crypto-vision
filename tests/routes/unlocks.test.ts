@@ -107,7 +107,7 @@ describe("GET /upcoming", () => {
         const res = await req("/upcoming");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.upcoming).toHaveLength(1);
         expect(body.totalValueUSD).toBe(150_000_000);
         expect(body.days).toBe(30);
@@ -124,7 +124,7 @@ describe("GET /upcoming", () => {
         const res = await req("/upcoming?days=7");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.days).toBe(7);
         expect(unlocks.getUpcomingUnlocks).toHaveBeenCalledWith(7);
     });
@@ -139,7 +139,7 @@ describe("GET /upcoming", () => {
         const res = await req("/upcoming?days=999");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.days).toBe(365);
     });
 });
@@ -158,7 +158,7 @@ describe("GET /token/:symbol", () => {
         const res = await req("/token/arb");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data.protocol).toBe("Arbitrum");
         expect(body.data.events).toHaveLength(1);
         expect(body.data.totalLocked).toBe(500_000_000);
@@ -185,7 +185,7 @@ describe("GET /calendar", () => {
         const res = await req("/calendar");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.calendar).toBeDefined();
         expect(body.calendar["2026-03-16"]).toHaveLength(1);
         expect(body.totalEvents).toBe(1);
@@ -202,7 +202,7 @@ describe("GET /calendar", () => {
         const res = await req("/calendar?days=30");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.days).toBe(30);
     });
 });
@@ -218,7 +218,7 @@ describe("GET /large", () => {
         const res = await req("/large");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.largeUnlocks).toHaveLength(1);
         expect(body.thresholdUsd).toBe(10_000_000);
         expect(body.count).toBe(1);
@@ -234,7 +234,7 @@ describe("GET /large", () => {
         const res = await req("/large?threshold=50000000");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.thresholdUsd).toBe(50_000_000);
         expect(unlocks.getLargeUnlocks).toHaveBeenCalledWith(50_000_000, 90);
     });
@@ -249,7 +249,7 @@ describe("GET /large", () => {
         const res = await req("/large?threshold=50");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.thresholdUsd).toBe(100_000);
     });
 });
@@ -261,7 +261,7 @@ describe("GET /impact/:symbol", () => {
         const res = await req("/impact/arb");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data.symbol).toBe("ARB");
         expect(body.data.nextUnlock).toBeDefined();
         expect(body.data.nextUnlock.percentOfCirculating).toBe(2.5);
@@ -292,7 +292,7 @@ describe("GET /impact/:symbol", () => {
         const res = await req("/impact/btc");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data.nextUnlock).toBeNull();
         expect(body.data.impactAssessment.sellingPressure).toBe("none");
     });
@@ -309,7 +309,7 @@ describe("GET /cliff", () => {
         const res = await req("/cliff");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.cliffUnlocks).toHaveLength(1);
         expect(body.cliffUnlocks[0].cliff).toBe(true);
         expect(body.days).toBe(90);
@@ -323,7 +323,7 @@ describe("GET /vesting/:symbol", () => {
         const res = await req("/vesting/arb");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data.protocol).toBe("Arbitrum");
         expect(body.data.totalSupply).toBe(10_000_000_000);
         expect(body.data.circulatingSupply).toBe(6_000_000_000);
@@ -352,7 +352,7 @@ describe("GET /protocols", () => {
         const res = await req("/protocols");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.count).toBe(2);
         expect(body.data).toHaveLength(2);
     });
@@ -379,7 +379,7 @@ describe("GET /tracked", () => {
         const res = await req("/tracked");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.count).toBe(1);
         expect(body.timestamp).toBeDefined();
     });

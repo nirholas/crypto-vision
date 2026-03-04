@@ -64,7 +64,7 @@ describe("GET /api/cex/tickers", () => {
         const res = await app.request("/api/cex/tickers?limit=10");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(2);
         // Sorted by quoteVolume desc
         expect(json.data[0].symbol).toBe("BTCUSDT");
@@ -80,7 +80,7 @@ describe("GET /api/cex/tickers", () => {
         const res = await app.request("/api/cex/tickers?quote=USDT");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0].symbol).toBe("BTCUSDT");
     });
@@ -111,7 +111,7 @@ describe("GET /api/cex/ticker/:symbol", () => {
         const res = await app.request("/api/cex/ticker/btcusdt");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.symbol).toBe("BTCUSDT");
         expect(json.data.price).toBe(60000);
         expect(json.data.bid).toBe(59999);
@@ -123,7 +123,7 @@ describe("GET /api/cex/ticker/:symbol", () => {
         const res = await app.request("/api/cex/ticker/INVALID");
         expect(res.status).toBe(404);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.error).toContain("INVALID");
     });
 });
@@ -142,7 +142,7 @@ describe("GET /api/cex/price/:symbol", () => {
         const res = await app.request("/api/cex/price/btcusdt");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.symbol).toBe("BTCUSDT");
         expect(json.data.price).toBe(60000);
     });
@@ -169,7 +169,7 @@ describe("GET /api/cex/prices", () => {
         const res = await app.request("/api/cex/prices");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(2);
         expect(json.data[0].price).toBe(60000);
     });
@@ -183,7 +183,7 @@ describe("GET /api/cex/prices", () => {
         const res = await app.request("/api/cex/prices?quote=USDT");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0].symbol).toBe("BTCUSDT");
     });
@@ -204,7 +204,7 @@ describe("GET /api/cex/orderbook/:symbol", () => {
         const res = await app.request("/api/cex/orderbook/BTCUSDT?limit=5");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.bids).toHaveLength(1);
         expect(json.data.bids[0].price).toBe(60000);
         expect(json.data.asks[0].price).toBe(60001);
@@ -231,7 +231,7 @@ describe("GET /api/cex/trades/:symbol", () => {
         const res = await app.request("/api/cex/trades/BTCUSDT?limit=10");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0].side).toBe("buy");
     });
@@ -250,7 +250,7 @@ describe("GET /api/cex/klines/:symbol", () => {
         const res = await app.request("/api/cex/klines/BTCUSDT?interval=1h&limit=10");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0].open).toBe(59000);
         expect(json.data[0].close).toBe(60000);
@@ -275,7 +275,7 @@ describe("GET /api/cex/pairs", () => {
         const res = await app.request("/api/cex/pairs");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         // Only TRADING status
         expect(json.data).toHaveLength(2);
         expect(json.data[0].base).toBe("BTC");
@@ -292,7 +292,7 @@ describe("GET /api/cex/pairs", () => {
         const res = await app.request("/api/cex/pairs?quote=BTC");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0].symbol).toBe("ETHBTC");
     });
@@ -315,7 +315,7 @@ describe("GET /api/cex/book-ticker", () => {
         const res = await app.request("/api/cex/book-ticker?symbol=BTCUSDT");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.symbol).toBe("BTCUSDT");
         expect(json.data.spread).toBe(2);
     });
@@ -329,7 +329,7 @@ describe("GET /api/cex/book-ticker", () => {
         const res = await app.request("/api/cex/book-ticker");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(2);
     });
 });
@@ -355,7 +355,7 @@ describe("GET /api/cex/mini-ticker", () => {
         const res = await app.request("/api/cex/mini-ticker");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0].lastPrice).toBe(60000);
         expect(json.source).toBe("binance");
@@ -376,7 +376,7 @@ describe("GET /api/cex/avg-price/:symbol", () => {
         const res = await app.request("/api/cex/avg-price/btcusdt");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.symbol).toBe("BTCUSDT");
         expect(json.data.price).toBe(60000.5);
         expect(json.data.windowMinutes).toBe(5);

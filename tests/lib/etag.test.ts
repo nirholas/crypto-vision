@@ -250,7 +250,7 @@ describe("etagMiddleware", () => {
       headers: { "If-None-Match": 'W/"0000000000000000"' },
     });
     expect(res.status).toBe(200);
-    const data = await res.json();
+    const data = (await res.json()) as Record<string, any>;
     expect(data).toBeTruthy();
   });
 

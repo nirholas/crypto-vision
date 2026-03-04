@@ -18,6 +18,7 @@ import {
   Cell,
 } from 'recharts';
 import { chartColors } from '@/lib/colors';
+import { CandlestickChart, type OHLCVCandle } from '@/components/charts/CandlestickChart';
 
 // ============================================
 // Types
@@ -447,6 +448,7 @@ export function CoinChart({
   const [timeRange, setTimeRange] = useState<TimeRange>(initialTimeRange);
   const [chartType, setChartType] = useState<ChartType>(initialChartType);
   const [data, setData] = useState<PricePoint[]>([]);
+  const [ohlcData, setOhlcData] = useState<OHLCVCandle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -454,22 +456,65 @@ export function CoinChart({
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/charts?coin=${coinId}&range=${timeRange}`);
-      if (!res.ok) throw new Error('Failed to fetch chart data');
-      const json = await res.json();
-      setData(json.prices || []);
+      if (chartType === 'candlestick') {
+        // Fetch OHLC data for candlestick view
+        const daysMap: Record<TimeRange, string> = {
+          '1h': '1', '24h': '1', '7d': '7', '30d': '30',
+          '90d': '90', '1y': '365', 'max': 'max',
+        };
+        const days = daysMap[timeRange];
+        const res = await fetch(`/api/ohlc?coin=${coinId}&days=${days}`);
+        if (!res.ok) throw new Error('Failed to fetch OHLC data');
+        const json = await res.json();
+        // API may return [[timestamp, open, high, low, close], ...] or { ohlc: [...] }
+        const rawOhlc = json.ohlc || json;
+        if (Array.isArray(rawOhlc)) {
+          const candles: OHLCVCandle[] = rawOhlc.map((c: number[] | Record<string, number>) => {
+            if (Array.isArray(c)) {
+              return { time: Math.floor(c[0] / 1000), open: c[1], high: c[2], low: c[3], close: c[4], volume: c[5] };
+            }
+            return {
+              time: Math.floor((c.timestamp || c.time || 0) / 1000),
+              open: c.open, high: c.high, low: c.low, close: c.close, volume: c.volume,
+            };
+          });
+          setOhlcData(candles);
+        }
+      } else {
+        const res = await fetch(`/api/charts?coin=${coinId}&range=${timeRange}`);
+        if (!res.ok) throw new Error('Failed to fetch chart data');
+        const json = await res.json();
+        setData(json.prices || []);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load chart');
     } finally {
       setIsLoading(false);
     }
-  }, [coinId, timeRange]);
+  }, [coinId, timeRange, chartType]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
   const stats = useMemo(() => {
+    if (chartType === 'candlestick') {
+      if (ohlcData.length < 2) return null;
+      const start = ohlcData[0].open;
+      const current = ohlcData[ohlcData.length - 1].close;
+      const change = current - start;
+      const changePercent = (change / start) * 100;
+      const highs = ohlcData.map((d) => d.high);
+      const lows = ohlcData.map((d) => d.low);
+      return {
+        current,
+        change,
+        changePercent,
+        high: Math.max(...highs),
+        low: Math.min(...lows),
+        isPositive: change >= 0,
+      };
+    }
     if (data.length < 2) return null;
     const prices = data.map((d) => d.price);
     const start = prices[0];
@@ -484,7 +529,7 @@ export function CoinChart({
       low: Math.min(...prices),
       isPositive: change >= 0,
     };
-  }, [data]);
+  }, [data, ohlcData, chartType]);
 
   return (
     <div
@@ -535,12 +580,23 @@ export function CoinChart({
           <ChartError error={error} onRetry={fetchData} />
         ) : (
           <>
-            <PriceChart
-              data={data}
-              height={height}
-              type={chartType === 'candlestick' ? 'line' : chartType}
-            />
-            {showVolume && <VolumeChart data={data} />}
+            {chartType === 'candlestick' ? (
+              <CandlestickChart
+                data={ohlcData}
+                height={height}
+                showVolume={showVolume}
+                watermarkText={coinSymbol?.toUpperCase()}
+              />
+            ) : (
+              <>
+                <PriceChart
+                  data={data}
+                  height={height}
+                  type={chartType}
+                />
+                {showVolume && <VolumeChart data={data} />}
+              </>
+            )}
           </>
         )}
       </div>

@@ -41,7 +41,7 @@ describe("GET /api/gas", () => {
     const res = await app.request("/api/gas");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     expect(json.chains).toEqual(["ethereum", "polygon"]);
     expect(json).toHaveProperty("timestamp");
@@ -72,7 +72,7 @@ describe("GET /api/gas/:chain", () => {
     const res = await app.request("/api/gas/polygon");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.chain).toBe("polygon");
     expect(json.data.speeds).toHaveLength(3);
     expect(json.data.unit).toBe("gwei");
@@ -93,7 +93,7 @@ describe("GET /api/gas/:chain", () => {
     const res = await app.request("/api/gas/ethereum?source=etherscan");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.chain).toBe("ethereum");
     expect(json.data.source).toBe("etherscan");
     expect(json.data.safeGasPrice).toBe(15);
@@ -112,7 +112,7 @@ describe("GET /api/gas/:chain", () => {
     const res = await app.request("/api/gas/ethereum?source=etherscan");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.chain).toBe("ethereum");
     expect(json.data.speeds).toHaveLength(1);
     expect(evm.getGasOracle).toHaveBeenCalledWith("ethereum");
@@ -139,7 +139,7 @@ describe("GET /api/gas/eth/supply", () => {
     const res = await app.request("/api/gas/eth/supply");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.supplyWei).toBe("120000000000000000000000000");
     expect(json.data.supplyEth).toBe(120000000);
     expect(json.source).toBe("etherscan");
@@ -171,7 +171,7 @@ describe("GET /api/gas/eth/price", () => {
     const res = await app.request("/api/gas/eth/price");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.ethUsd).toBe(3500.5);
     expect(json.data.ethBtc).toBe(0.058);
     expect(json.data.ethUsdTimestamp).toBeTruthy();
@@ -192,7 +192,7 @@ describe("GET /api/gas/eth/price", () => {
     const res = await app.request("/api/gas/eth/price");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.ethUsdTimestamp).toBeNull();
     expect(json.data.ethBtcTimestamp).toBeNull();
   });
@@ -221,7 +221,7 @@ describe("GET /api/gas/eth/token/:address/holders", () => {
     const res = await app.request("/api/gas/eth/token/0xdac17f958d2ee523a2206206994597c13d831ec7/holders");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     expect(json.data[0].address).toBe("0xabc123");
     expect(json.data[0].quantity).toBe("1000000");
@@ -235,7 +235,7 @@ describe("GET /api/gas/eth/token/:address/holders", () => {
     const res = await app.request("/api/gas/eth/token/0x0000/holders");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(0);
   });
 

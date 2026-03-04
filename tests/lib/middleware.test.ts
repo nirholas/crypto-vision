@@ -30,7 +30,7 @@ describe("requestLogger", () => {
 
     const res = await app.request("/data");
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body).toEqual({ foo: "bar" });
   });
 });
@@ -59,7 +59,7 @@ describe("requestTimeout", () => {
     const res = await app.request("/slow");
     // Should be 504 due to timeout
     expect(res.status).toBe(504);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.code).toBe("TIMEOUT");
   });
 });
@@ -76,7 +76,7 @@ describe("globalErrorHandler", () => {
 
     const res = await app.request("/err");
     expect(res.status).toBe(404);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.code).toBe("NOT_FOUND");
     expect(body.message).toBe("Resource not found");
   });
@@ -90,7 +90,7 @@ describe("globalErrorHandler", () => {
 
     const res = await app.request("/json-err");
     expect(res.status).toBe(400);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.code).toBe("INVALID_JSON");
   });
 
@@ -105,7 +105,7 @@ describe("globalErrorHandler", () => {
 
     const res = await app.request("/unknown");
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.code).toBe("INTERNAL_ERROR");
     vi.unstubAllEnvs();
   });
@@ -120,7 +120,7 @@ describe("globalErrorHandler", () => {
 
     const res = await app.request("/prod-err");
     expect(res.status).toBe(500);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.message).not.toContain("secret internal details");
     expect(body.details).toBeUndefined();
     vi.unstubAllEnvs();

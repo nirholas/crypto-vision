@@ -28,7 +28,7 @@ describe("rateLimit middleware", () => {
       headers: { "x-forwarded-for": "10.0.0.1" },
     });
     expect(res.status).toBe(200);
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body).toEqual({ ok: true });
   });
 

@@ -16,15 +16,15 @@ import { log } from "./logger.js";
 // ─── Provider Config ─────────────────────────────────────────
 
 /**
- * Recursive type for dynamic provider API responses.
- * Each AI provider (OpenAI, Anthropic, Google, etc.) returns a different
- * response structure — this type allows safe deep property access
- * without resorting to `any`.
+ * Dynamic AI provider responses have varied, deeply nested structures
+ * (OpenAI, Anthropic, Gemini, Vertex AI each return different schemas).
+ * Runtime safety is provided by optional chaining + explicit casts in each
+ * provider's extractText/extractUsage. A recursive index type is impractical
+ * here because TS cannot narrow union-typed index signatures through
+ * optional chains.
  */
-interface ProviderResponse {
-  [key: string]: ProviderResponse | ProviderResponse[] | string | number | boolean | null | undefined;
-  [index: number]: ProviderResponse;
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ProviderResponse = Record<string, any>;
 
 interface AIProvider {
   name: string;
@@ -39,7 +39,7 @@ interface AIProvider {
     temperature: number,
   ) => { url: string; init: FetchOptions };
   // Provider response shapes vary (OpenAI, Anthropic, Gemini, etc.).
-  // Recursive index type allows safe deep access without `any`.
+  // Each extractor uses optional chaining for runtime safety.
   extractText: (response: ProviderResponse) => string;
   extractUsage: (response: ProviderResponse) => number | undefined;
 }

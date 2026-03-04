@@ -48,7 +48,7 @@ describe("GET /api/macro/overview", () => {
     const res = await app.request("/api/macro/overview");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.indices).toBeDefined();
     expect(json.commodities).toBeDefined();
     expect(json.bonds).toBeDefined();
@@ -79,7 +79,7 @@ describe("GET /api/macro/indices", () => {
     const res = await app.request("/api/macro/indices");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     expect(json.data[0].symbol).toBe("^SPX");
     expect(json).toHaveProperty("timestamp");
@@ -108,7 +108,7 @@ describe("GET /api/macro/commodities", () => {
     const res = await app.request("/api/macro/commodities");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(3);
     expect(json.data[0].name).toBe("Gold");
     expect(json).toHaveProperty("timestamp");
@@ -136,7 +136,7 @@ describe("GET /api/macro/bonds", () => {
     const res = await app.request("/api/macro/bonds");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     expect(json).toHaveProperty("timestamp");
   });
@@ -165,7 +165,7 @@ describe("GET /api/macro/vix", () => {
     const res = await app.request("/api/macro/vix");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.symbol).toBe("^VIX");
     expect(json.price).toBe(15.5);
   });
@@ -176,7 +176,7 @@ describe("GET /api/macro/vix", () => {
     const res = await app.request("/api/macro/vix");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toBeNull();
   });
 
@@ -204,7 +204,7 @@ describe("GET /api/macro/dxy", () => {
     const res = await app.request("/api/macro/dxy");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.price).toBe(104.2);
   });
 
@@ -237,7 +237,7 @@ describe("GET /api/macro/crypto", () => {
     const res = await app.request("/api/macro/crypto");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     expect(json.data[0].symbol).toBe("BTC-USD");
     expect(json).toHaveProperty("timestamp");
@@ -268,7 +268,7 @@ describe("GET /api/macro/quote/:symbol", () => {
     const res = await app.request("/api/macro/quote/AAPL");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.symbol).toBe("AAPL");
     expect(json.price).toBe(180.5);
     expect(macro.getQuote).toHaveBeenCalledWith("AAPL");
@@ -280,7 +280,7 @@ describe("GET /api/macro/quote/:symbol", () => {
     const res = await app.request("/api/macro/quote/INVALID");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toBeNull();
   });
 

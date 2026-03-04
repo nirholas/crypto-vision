@@ -48,7 +48,7 @@ describe("GET /api/solana/price/:token", () => {
     const res = await app.request("/api/solana/price/SOL");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.SOL.price).toBe(150.5);
     expect(jupiter.getPrice).toHaveBeenCalledWith("SOL");
   });
@@ -90,7 +90,7 @@ describe("GET /api/solana/prices", () => {
     const res = await app.request("/api/solana/prices?ids=SOL,BONK");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.SOL.price).toBe(150);
     expect(json.data.BONK.price).toBe(0.00002);
   });
@@ -99,7 +99,7 @@ describe("GET /api/solana/prices", () => {
     const res = await app.request("/api/solana/prices");
     expect(res.status).toBe(400);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toContain("Missing");
   });
 
@@ -133,7 +133,7 @@ describe("GET /api/solana/quote", () => {
     );
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.inAmount).toBe("1000000000");
     expect(json.outAmount).toBe("150500000");
     expect(jupiter.getQuote).toHaveBeenCalledWith("SOL_MINT", "USDC_MINT", "1000000000", undefined);
@@ -152,7 +152,7 @@ describe("GET /api/solana/quote", () => {
     const res = await app.request("/api/solana/quote?inputMint=A");
     expect(res.status).toBe(400);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toContain("Required");
   });
 
@@ -176,7 +176,7 @@ describe("GET /api/solana/tokens", () => {
     const res = await app.request("/api/solana/tokens");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.count).toBe(2);
     expect(json.data).toHaveLength(2);
   });
@@ -203,7 +203,7 @@ describe("GET /api/solana/tokens/popular", () => {
     const res = await app.request("/api/solana/tokens/popular");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.SOL.price).toBe(150);
   });
 
@@ -228,7 +228,7 @@ describe("GET /api/solana/search", () => {
     const res = await app.request("/api/solana/search?q=bonk");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.query).toBe("bonk");
     expect(json.data).toHaveLength(1);
     expect(json.data[0].symbol).toBe("BONK");
@@ -238,7 +238,7 @@ describe("GET /api/solana/search", () => {
     const res = await app.request("/api/solana/search");
     expect(res.status).toBe(400);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toContain("Missing");
   });
 });
@@ -281,7 +281,7 @@ describe("GET /api/solana/tokens/strict", () => {
     const res = await app.request("/api/solana/tokens/strict");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.count).toBe(1);
     expect(json.data).toHaveLength(1);
   });
@@ -307,7 +307,7 @@ describe("GET /api/solana/top-tokens", () => {
     const res = await app.request("/api/solana/top-tokens");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveLength(1);
   });
 

@@ -118,7 +118,7 @@ describe("GET /overview", () => {
         const res = await req("/overview");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data).toBeDefined();
         expect(body.data.liquidStaking).toHaveLength(1);
         expect(body.data.topYields).toHaveLength(1);
@@ -135,7 +135,7 @@ describe("GET /yields", () => {
         const res = await req("/yields");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data).toHaveLength(1);
         expect(body.data[0].project).toBe("lido");
         expect(body.count).toBe(1);
@@ -148,7 +148,7 @@ describe("GET /yields", () => {
         const res = await req("/yields?chain=solana");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data).toHaveLength(1);
         expect(body.data[0].chain).toBe("Solana");
     });
@@ -164,7 +164,7 @@ describe("GET /yields", () => {
         const res = await req("/yields?limit=2");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data).toHaveLength(2);
         expect(body.count).toBe(2);
     });
@@ -177,7 +177,7 @@ describe("GET /yield/:token", () => {
         const res = await req("/yield/eth");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data.apy).toBe(3.8);
         expect(body.data.apr).toBe(3.73);
         expect(body.data.unbondingDays).toBe(1);
@@ -213,7 +213,7 @@ describe("GET /validators/:chain", () => {
         const res = await req("/validators/ethereum");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data.chain).toBe("ethereum");
     });
 });
@@ -225,7 +225,7 @@ describe("GET /calculator", () => {
         const res = await req("/calculator?token=eth&amount=32&period=365");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         const calc = body.data;
         expect(calc.token).toBe("eth");
         expect(calc.amountStaked).toBe(32);
@@ -246,7 +246,7 @@ describe("GET /calculator", () => {
         const res = await req("/calculator?token=eth&amount=100&period=365");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         // Simple rewards for 100 ETH at 3.8% for 1 year = 3.8
         expect(body.data.simpleRewards).toBeCloseTo(3.8, 1);
     });
@@ -277,7 +277,7 @@ describe("GET /calculator", () => {
         const res = await req("/calculator?token=eth&amount=32");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data.periodDays).toBe(365);
     });
 });
@@ -289,7 +289,7 @@ describe("GET /liquid-staking", () => {
         const res = await req("/liquid-staking");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data).toHaveLength(1);
         expect(body.data[0].name).toBe("Lido");
         expect(body.data[0].marketShare).toBeDefined();
@@ -302,7 +302,7 @@ describe("GET /liquid-staking", () => {
         const res = await req("/liquid-staking?chain=ethereum");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.chain).toBe("ethereum");
         expect(staking.getLiquidStakingByChain).toHaveBeenCalledWith("ethereum");
     });
@@ -315,7 +315,7 @@ describe("GET /restaking", () => {
         const res = await req("/restaking");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data).toHaveLength(1);
         expect(body.data[0].name).toBe("EigenLayer");
         expect(body.data[0].marketShare).toBeDefined();
@@ -330,7 +330,7 @@ describe("GET /history/:token", () => {
         const res = await req("/history/eth");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data).toHaveLength(3);
         expect(body.token).toBe("eth");
         expect(body.count).toBe(3);
@@ -343,7 +343,7 @@ describe("GET /history/:token", () => {
         const res = await req("/history/unknown");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data).toHaveLength(0);
         expect(body.count).toBe(0);
     });
@@ -376,7 +376,7 @@ describe("GET /liquid", () => {
         const res = await req("/liquid");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.count).toBe(1);
         expect(body.data).toHaveLength(1);
     });

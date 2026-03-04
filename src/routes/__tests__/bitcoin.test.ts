@@ -59,7 +59,7 @@ describe("GET /api/bitcoin/price", () => {
     const res = await app.request("/api/bitcoin/price");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("timestamp");
     expect(Array.isArray(json.data)).toBe(true);
@@ -81,7 +81,7 @@ describe("GET /api/bitcoin/price", () => {
     const res = await app.request("/api/bitcoin/price");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data[0]).toMatchObject({
       currency: "JPY",
       last: 14500000,
@@ -133,7 +133,7 @@ describe("GET /api/bitcoin/stats", () => {
     const res = await app.request("/api/bitcoin/stats");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("timestamp");
 
@@ -152,7 +152,7 @@ describe("GET /api/bitcoin/stats", () => {
     vi.mocked(btc.getBTCStats).mockResolvedValue(mockStats);
 
     const res = await app.request("/api/bitcoin/stats");
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
 
     // total_bc_sent / 1e8
     expect(json.data.totalBtcSent).toBe(500000000000000 / 1e8);
@@ -187,7 +187,7 @@ describe("GET /api/bitcoin/fees", () => {
     const res = await app.request("/api/bitcoin/fees");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("timestamp");
 
@@ -212,7 +212,7 @@ describe("GET /api/bitcoin/fees", () => {
     const res = await app.request("/api/bitcoin/fees");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.fastest).toBe(2);
     expect(json.data.minimum).toBe(1);
   });
@@ -248,7 +248,7 @@ describe("GET /api/bitcoin/mempool", () => {
     const res = await app.request("/api/bitcoin/mempool");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("timestamp");
 
@@ -278,7 +278,7 @@ describe("GET /api/bitcoin/mempool", () => {
     const res = await app.request("/api/bitcoin/mempool");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.feeHistogram).toHaveLength(20);
   });
 
@@ -313,7 +313,7 @@ describe("GET /api/bitcoin/difficulty", () => {
     const res = await app.request("/api/bitcoin/difficulty");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("timestamp");
 
@@ -365,7 +365,7 @@ describe("GET /api/bitcoin/lightning", () => {
     const res = await app.request("/api/bitcoin/lightning");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("timestamp");
 
@@ -419,7 +419,7 @@ describe("GET /api/bitcoin/address/:address", () => {
     const res = await app.request(`/api/bitcoin/address/${testAddress}`);
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("timestamp");
 
@@ -457,7 +457,7 @@ describe("GET /api/bitcoin/address/:address", () => {
     const res = await app.request("/api/bitcoin/address/bc1qempty");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.balanceSat).toBe(0);
     expect(json.data.balanceBtc).toBe(0);
     expect(json.data.unconfirmedBalance).toBe(0);
@@ -485,7 +485,7 @@ describe("GET /api/bitcoin/address/:address", () => {
     const res = await app.request("/api/bitcoin/address/bc1qspending");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     // balance = (200M + 0) - (50M + 30M) = 120M
     expect(json.data.balanceSat).toBe(120000000);
     expect(json.data.unconfirmedBalance).toBe(-30000000);
@@ -530,7 +530,7 @@ describe("GET /api/bitcoin/tx/:txid", () => {
     const res = await app.request(`/api/bitcoin/tx/${testTxid}`);
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("timestamp");
 
@@ -572,7 +572,7 @@ describe("GET /api/bitcoin/tx/:txid", () => {
     const res = await app.request("/api/bitcoin/tx/unconfirmed_tx_hash");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     const data = json.data;
     expect(data.confirmed).toBe(false);
     expect(data.blockTime).toBeNull();
@@ -604,7 +604,7 @@ describe("GET /api/bitcoin/tx/:txid", () => {
     const res = await app.request("/api/bitcoin/tx/multi_io_tx");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.inputCount).toBe(3);
     expect(json.data.outputCount).toBe(2);
     expect(json.data.totalOutputValue).toBe(59990000);
@@ -629,7 +629,7 @@ describe("GET /api/bitcoin/block-height", () => {
     const res = await app.request("/api/bitcoin/block-height");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("timestamp");
     expect(json.data.height).toBe(890234);
@@ -641,7 +641,7 @@ describe("GET /api/bitcoin/block-height", () => {
     const res = await app.request("/api/bitcoin/block-height");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.height).toBe(0);
   });
 
@@ -678,7 +678,7 @@ describe("GET /api/bitcoin/block/:hash", () => {
     const res = await app.request(`/api/bitcoin/block/${blockHash}`);
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("source", "mempool.space");
     expect(json).toHaveProperty("timestamp");
@@ -738,7 +738,7 @@ describe("Cross-cutting concerns", () => {
     });
 
     const res = await app.request("/api/bitcoin/price");
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
 
     // Validate ISO 8601 format
     expect(json.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);

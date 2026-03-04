@@ -127,7 +127,7 @@ describe("GET /api/analytics/correlation", () => {
     const res = await app.request("/api/analytics/correlation");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("timestamp");
     expect(json.data).toHaveProperty("matrix");
@@ -175,7 +175,7 @@ describe("GET /api/analytics/correlation", () => {
     );
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.days).toBe(30);
     expect(json.data.assets).toContain("bitcoin");
     expect(json.data.assets).toContain("ethereum");
@@ -204,7 +204,7 @@ describe("GET /api/analytics/correlation", () => {
     const res = await app.request("/api/analytics/correlation");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     // Only bitcoin and solana succeeded
     expect(json.data.assets).toHaveLength(2);
     expect(json.data.assets).toContain("bitcoin");
@@ -220,7 +220,7 @@ describe("GET /api/analytics/correlation", () => {
     // Promise.allSettled never throws — all rejected means empty matrix
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.assets).toHaveLength(0);
     expect(json.data.matrix).toEqual({});
   });
@@ -237,7 +237,7 @@ describe("GET /api/analytics/correlation", () => {
     );
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.days).toBe(365);
     expect(cg.getMarketChart).toHaveBeenCalledWith("bitcoin", 365, "daily");
   });
@@ -339,7 +339,7 @@ describe("GET /api/analytics/volatility", () => {
     const res = await app.request("/api/analytics/volatility");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("count");
     expect(json).toHaveProperty("timestamp");
@@ -392,7 +392,7 @@ describe("GET /api/analytics/volatility", () => {
     const res = await app.request("/api/analytics/volatility?limit=2&days=60");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.period).toBe("60d");
     expect(json.data.rankings.length).toBeLessThanOrEqual(2);
 
@@ -429,7 +429,7 @@ describe("GET /api/analytics/volatility", () => {
     const res = await app.request("/api/analytics/volatility");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     // Only bitcoin should have enough data
     expect(json.data.rankings).toHaveLength(1);
     expect(json.data.rankings[0].id).toBe("bitcoin");
@@ -449,7 +449,7 @@ describe("GET /api/analytics/volatility", () => {
       sparkline: false,
     });
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.period).toBe("365d");
   });
 });
@@ -569,7 +569,7 @@ describe("GET /api/analytics/l2", () => {
     const res = await app.request("/api/analytics/l2");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("count");
     expect(json).toHaveProperty("timestamp");
@@ -619,7 +619,7 @@ describe("GET /api/analytics/l2", () => {
     const res = await app.request("/api/analytics/l2?sort=name");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     for (let i = 1; i < json.data.length; i++) {
       expect(
         json.data[i - 1].name.localeCompare(json.data[i].name),
@@ -636,7 +636,7 @@ describe("GET /api/analytics/l2", () => {
     const res = await app.request("/api/analytics/l2?limit=2");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     expect(json.count).toBe(2);
   });
@@ -673,7 +673,7 @@ describe("GET /api/analytics/l2", () => {
     const res = await app.request("/api/analytics/l2");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     const arb = json.data.find(
       (p: Record<string, unknown>) => p.id === "arbitrum",
     );
@@ -771,7 +771,7 @@ describe("GET /api/analytics/revenue", () => {
     const res = await app.request("/api/analytics/revenue");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("count");
     expect(json).toHaveProperty("period", "24h");
@@ -801,7 +801,7 @@ describe("GET /api/analytics/revenue", () => {
     const res = await app.request("/api/analytics/revenue?period=7d");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.period).toBe("7d");
     for (let i = 1; i < json.data.length; i++) {
       expect(json.data[i - 1].fees7d).toBeGreaterThanOrEqual(
@@ -820,7 +820,7 @@ describe("GET /api/analytics/revenue", () => {
     const res = await app.request("/api/analytics/revenue?period=30d");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.period).toBe("30d");
     for (let i = 1; i < json.data.length; i++) {
       expect(json.data[i - 1].fees30d).toBeGreaterThanOrEqual(
@@ -839,7 +839,7 @@ describe("GET /api/analytics/revenue", () => {
     const res = await app.request("/api/analytics/revenue");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     const lido = json.data.find(
       (e: Record<string, unknown>) => e.name === "Lido",
     );
@@ -862,7 +862,7 @@ describe("GET /api/analytics/revenue", () => {
     const res = await app.request("/api/analytics/revenue");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     // No entries because fees generate the entry list
     expect(json.data).toHaveLength(0);
     expect(json.count).toBe(0);
@@ -901,7 +901,7 @@ describe("GET /api/analytics/revenue", () => {
     const res = await app.request("/api/analytics/revenue");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     const lido = json.data.find(
       (e: Record<string, unknown>) => e.name === "Lido",
     );
@@ -939,7 +939,7 @@ describe("GET /api/analytics/revenue", () => {
     const res = await app.request("/api/analytics/revenue");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     const lido = json.data.find(
       (e: Record<string, unknown>) => e.name === "Lido",
     );
@@ -957,7 +957,7 @@ describe("GET /api/analytics/revenue", () => {
     const res = await app.request("/api/analytics/revenue?limit=2");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     expect(json.count).toBe(2);
   });
@@ -1029,7 +1029,7 @@ describe("GET /api/analytics/tt/projects", () => {
     const res = await app.request("/api/analytics/tt/projects");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("count", 5);
     expect(json).toHaveProperty("source", "tokenterminal");
@@ -1055,7 +1055,7 @@ describe("GET /api/analytics/tt/projects", () => {
     const res = await app.request("/api/analytics/tt/projects");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toEqual([]);
     expect(json.count).toBe(0);
     expect(json.source).toBe("tokenterminal");
@@ -1089,7 +1089,7 @@ describe("GET /api/analytics/tt/project/:id", () => {
     const res = await app.request("/api/analytics/tt/project/aave");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("projectId", "aave");
     expect(json).toHaveProperty("source", "tokenterminal");
@@ -1112,7 +1112,7 @@ describe("GET /api/analytics/tt/project/:id", () => {
 
     expect(tt.getProjectMetrics).toHaveBeenCalledWith("compound");
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.projectId).toBe("compound");
   });
 
@@ -1194,7 +1194,7 @@ describe("GET /api/analytics/tt/fees", () => {
     const res = await app.request("/api/analytics/tt/fees");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("count");
     expect(json).toHaveProperty("source", "tokenterminal");
@@ -1209,7 +1209,7 @@ describe("GET /api/analytics/tt/fees", () => {
     const res = await app.request("/api/analytics/tt/fees?limit=3");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(3);
     expect(json.count).toBe(3);
   });
@@ -1229,7 +1229,7 @@ describe("GET /api/analytics/tt/fees", () => {
     const res = await app.request("/api/analytics/tt/fees");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toEqual([]);
     expect(json.count).toBe(0);
   });
@@ -1279,7 +1279,7 @@ describe("GET /api/analytics/tt/active-users", () => {
     const res = await app.request("/api/analytics/tt/active-users");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("count", 4);
     expect(json).toHaveProperty("source", "tokenterminal");
@@ -1304,7 +1304,7 @@ describe("GET /api/analytics/tt/active-users", () => {
     const res = await app.request("/api/analytics/tt/active-users?limit=10");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(10);
     expect(json.count).toBe(10);
   });
@@ -1322,7 +1322,7 @@ describe("GET /api/analytics/tt/active-users", () => {
     const res = await app.request("/api/analytics/tt/active-users");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toEqual([]);
     expect(json.count).toBe(0);
   });
@@ -1348,7 +1348,7 @@ describe("GET /api/analytics/tt/market/:metric", () => {
     const res = await app.request("/api/analytics/tt/market/revenue");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveProperty("data");
     expect(json).toHaveProperty("metric", "revenue");
     expect(json).toHaveProperty("days", 30);
@@ -1380,7 +1380,7 @@ describe("GET /api/analytics/tt/market/:metric", () => {
     const res = await app.request("/api/analytics/tt/market/fees?days=7");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.days).toBe(7);
     expect(json.metric).toBe("fees");
     expect(json.data.metricId).toBe("fees");
@@ -1399,7 +1399,7 @@ describe("GET /api/analytics/tt/market/:metric", () => {
     expect(res.status).toBe(200);
 
     expect(tt.getMarketMetric).toHaveBeenCalledWith("tvl", 365);
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.days).toBe(365);
   });
 
@@ -1421,7 +1421,7 @@ describe("GET /api/analytics/tt/market/:metric", () => {
     const res = await app.request("/api/analytics/tt/market/active_users");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.metricId).toBe("active_users");
     expect(json.data.values).toEqual([]);
   });

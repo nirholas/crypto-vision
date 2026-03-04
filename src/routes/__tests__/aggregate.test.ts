@@ -58,7 +58,7 @@ describe("GET /api/aggregate/prices/:ids", () => {
         const res = await app.request("/api/aggregate/prices/BTC");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.btc).toBeDefined();
         expect(json.data.btc.coingecko).toBe(60000);
         expect(json.data.btc.coinpaprika).toBe(59800);
@@ -76,7 +76,7 @@ describe("GET /api/aggregate/prices/:ids", () => {
         const res = await app.request("/api/aggregate/prices/BTC");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.btc.coinpaprika).toBe(59800);
         // Others undefined or missing — average from available
         expect(json.data.btc.average).toBe(59800);
@@ -112,7 +112,7 @@ describe("GET /api/aggregate/global", () => {
         const res = await app.request("/api/aggregate/global");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.coingecko.totalMarketCap).toBe(2.5e12);
         expect(json.data.coinpaprika.totalMarketCap).toBe(2.4e12);
         expect(json.data.fearGreed.value).toBe(65);
@@ -127,7 +127,7 @@ describe("GET /api/aggregate/global", () => {
         const res = await app.request("/api/aggregate/global");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.coingecko).toBeNull();
         expect(json.data.coinpaprika).toBeNull();
         expect(json.data.fearGreed).toBeNull();
@@ -161,7 +161,7 @@ describe("GET /api/aggregate/tickers", () => {
         const res = await app.request("/api/aggregate/tickers?limit=10");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0].price).toBe(60000);
         expect(json.source).toBe("coinpaprika");
@@ -194,7 +194,7 @@ describe("GET /api/aggregate/assets", () => {
         const res = await app.request("/api/aggregate/assets?limit=10");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0].price).toBe(60000);
         expect(json.data[0].rank).toBe(1);
@@ -218,7 +218,7 @@ describe("GET /api/aggregate/history/:id", () => {
         const res = await app.request("/api/aggregate/history/bitcoin?interval=h1");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(2);
         expect(json.data[0].price).toBe(60000);
         expect(json.asset).toBe("bitcoin");
@@ -241,7 +241,7 @@ describe("GET /api/aggregate/top-movers", () => {
         const res = await app.request("/api/aggregate/top-movers?limit=1");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.gainers).toHaveLength(1);
         expect(json.data.losers).toHaveLength(1);
         expect(json.data.gainers[0].id).toBe("gainer");
@@ -288,7 +288,7 @@ describe("GET /api/aggregate/market-overview", () => {
         const res = await app.request("/api/aggregate/market-overview");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.global.totalMarketCap).toBe(2.5e12);
         expect(json.data.fearGreed.value).toBe(72);
         expect(json.data.trending).toHaveLength(1);
@@ -308,7 +308,7 @@ describe("GET /api/aggregate/market-overview", () => {
         const res = await app.request("/api/aggregate/market-overview");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.global).toBeNull();
         expect(json.data.fearGreed).toBeNull();
         expect(json.data.trending).toEqual([]);

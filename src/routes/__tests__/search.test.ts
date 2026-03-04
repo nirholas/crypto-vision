@@ -105,7 +105,7 @@ describe("GET /api/search/smart", () => {
     const res = await app.request("/api/search/smart?q=bitcoin");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(1);
     expect(json.data[0].id).toBe("coin:bitcoin");
     expect(json.data[0].type).toBe("coin");
@@ -121,7 +121,7 @@ describe("GET /api/search/smart", () => {
     const res = await app.request("/api/search/smart?q=a");
     expect(res.status).toBe(400);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toContain("at least 2");
     expect(smartSearch).not.toHaveBeenCalled();
   });
@@ -201,7 +201,7 @@ describe("GET /api/search/nlq", () => {
     const res = await app.request("/api/search/nlq?q=what%20is%20bitcoin");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.answer).toContain("Bitcoin");
     expect(json.data.sources).toHaveLength(1);
     expect(json.data.searchResults).toHaveLength(1);
@@ -216,7 +216,7 @@ describe("GET /api/search/nlq", () => {
     const res = await app.request("/api/search/nlq?q=hi");
     expect(res.status).toBe(400);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toContain("at least 5");
   });
 
@@ -253,7 +253,7 @@ describe("GET /api/search/nlq", () => {
     vi.mocked(ragQuery).mockResolvedValue(mockRagResult());
 
     const res = await app.request("/api/search/nlq?q=what%20is%20bitcoin");
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
 
     expect(json.data.searchResults).toHaveLength(5);
   });
@@ -281,7 +281,7 @@ describe("GET /api/search/suggest", () => {
     const res = await app.request("/api/search/suggest?q=bit");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toBeInstanceOf(Array);
     expect(json.data.length).toBeGreaterThan(0);
 
@@ -299,7 +299,7 @@ describe("GET /api/search/suggest", () => {
     const res = await app.request("/api/search/suggest?q=");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toEqual([]);
   });
 
@@ -307,7 +307,7 @@ describe("GET /api/search/suggest", () => {
     const res = await app.request("/api/search/suggest");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toEqual([]);
   });
 
@@ -318,7 +318,7 @@ describe("GET /api/search/suggest", () => {
     vi.mocked(cache.get).mockResolvedValue(JSON.stringify(cachedSuggestions));
 
     const res = await app.request("/api/search/suggest?q=bit");
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
 
     expect(json.data).toEqual(cachedSuggestions);
     expect(smartSearch).not.toHaveBeenCalled();

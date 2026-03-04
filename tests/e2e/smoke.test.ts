@@ -103,7 +103,7 @@ describe("Market Routes", () => {
     const res = await get("/api/coins");
     expect(isAcceptableStatus(res.status)).toBe(true);
     if (res.status === 200) {
-      const body = await res.json();
+      const body = (await res.json()) as Record<string, any>;
       // Response envelope wraps arrays as { data: [...], meta: {...} }
       const payload = body?.data ?? body;
       expect(Array.isArray(payload)).toBe(true);
@@ -140,7 +140,7 @@ describe("DeFi Routes", () => {
     const res = await get("/api/defi/protocols");
     expect(isAcceptableStatus(res.status)).toBe(true);
     if (res.status === 200) {
-      const body = await res.json();
+      const body = (await res.json()) as Record<string, any>;
       // Response may be enveloped as { data: ..., meta: ... }
       const payload = body?.data ?? body;
       expect(Array.isArray(payload) || typeof payload === "object").toBe(true);
@@ -310,7 +310,7 @@ describe("Agents Routes", () => {
     const res = await get("/api/agents");
     expect(isAcceptableStatus(res.status)).toBe(true);
     if (res.status === 200) {
-      const body = await res.json();
+      const body = (await res.json()) as Record<string, any>;
       // Response may be enveloped as { data: ..., meta: ... }
       const payload = body?.data ?? body;
       expect(Array.isArray(payload) || typeof payload === "object").toBe(true);

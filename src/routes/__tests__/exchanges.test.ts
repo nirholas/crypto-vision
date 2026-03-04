@@ -65,7 +65,7 @@ describe("GET /api/exchanges/list", () => {
     const res = await app.request("/api/exchanges/list");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.count).toBe(2);
     expect(json.data).toHaveLength(2);
     expect(json.data[0].exchangeId).toBe("binance");
@@ -95,7 +95,7 @@ describe("GET /api/exchanges/rates", () => {
     const res = await app.request("/api/exchanges/rates");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.count).toBe(2);
     expect(json.data[0].id).toBe("bitcoin");
   });
@@ -121,7 +121,7 @@ describe("GET /api/exchanges/rates/:id", () => {
     const res = await app.request("/api/exchanges/rates/bitcoin");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.id).toBe("bitcoin");
     expect(coincap.getRate).toHaveBeenCalledWith("bitcoin");
   });
@@ -147,7 +147,7 @@ describe("GET /api/exchanges/bybit/insurance", () => {
     const res = await app.request("/api/exchanges/bybit/insurance?coin=BTC");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.result.list[0].coin).toBe("BTC");
     expect(bybit.getInsurance).toHaveBeenCalledWith("BTC");
   });
@@ -206,7 +206,7 @@ describe("GET /api/exchanges/deribit/index", () => {
     const res = await app.request("/api/exchanges/deribit/index?currency=BTC");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.index_price).toBe(60000);
     expect(deribit.getIndexPrice).toHaveBeenCalledWith("BTC");
   });
@@ -243,7 +243,7 @@ describe("GET /api/exchanges/coincap/candles", () => {
     );
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("binance");
     expect(json.base).toBe("bitcoin");
     expect(json.quote).toBe("tether");
@@ -274,7 +274,7 @@ describe("GET /api/exchanges/okx/spot", () => {
     const res = await app.request("/api/exchanges/okx/spot");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.count).toBe(300);
     expect(json.data).toHaveLength(200);
   });
@@ -302,7 +302,7 @@ describe("GET /api/exchanges/okx/ticker/:instId", () => {
     const res = await app.request("/api/exchanges/okx/ticker/BTC-USDT");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.instId).toBe("BTC-USDT");
     expect(okx.getTicker).toHaveBeenCalledWith("BTC-USDT");
   });
@@ -329,7 +329,7 @@ describe("GET /api/exchanges/okx/instruments", () => {
     const res = await app.request("/api/exchanges/okx/instruments?type=SPOT");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.count).toBe(2);
     expect(okx.getInstruments).toHaveBeenCalledWith("SPOT");
   });
@@ -357,7 +357,7 @@ describe("GET /api/exchanges/okx/funding/:instId", () => {
     const res = await app.request("/api/exchanges/okx/funding/BTC-USDT-SWAP");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.fundingRate).toBe("0.0001");
     expect(okx.getFundingRate).toHaveBeenCalledWith("BTC-USDT-SWAP");
   });
@@ -383,7 +383,7 @@ describe("GET /api/exchanges/okx/mark-price", () => {
     const res = await app.request("/api/exchanges/okx/mark-price?type=SWAP");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.count).toBe(1);
     expect(okx.getMarkPrice).toHaveBeenCalledWith("SWAP", undefined);
   });
@@ -411,7 +411,7 @@ describe("GET /api/exchanges/bybit/spot", () => {
     const res = await app.request("/api/exchanges/bybit/spot");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.count).toBe(250);
     expect(json.data).toHaveLength(200);
     expect(bybit.getTickers).toHaveBeenCalledWith("spot");
@@ -439,7 +439,7 @@ describe("GET /api/exchanges/deribit/funding/:instrument", () => {
     const res = await app.request("/api/exchanges/deribit/funding/BTC-PERPETUAL");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.current_funding).toBe(0.00012);
     expect(deribit.getFundingRate).toHaveBeenCalledWith("BTC-PERPETUAL");
   });
@@ -467,7 +467,7 @@ describe("GET /api/exchanges/:id/markets", () => {
     const res = await app.request("/api/exchanges/binance/markets");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.exchange).toBe("binance");
     expect(json.count).toBe(1);
     expect(json.data[0].baseId).toBe("bitcoin");
@@ -495,7 +495,7 @@ describe("GET /api/exchanges/:id", () => {
     const res = await app.request("/api/exchanges/binance");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.exchangeId).toBe("binance");
   });
 

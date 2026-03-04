@@ -51,7 +51,7 @@ describe("GET /api/anomalies", () => {
     const res = await app.request("/api/anomalies");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toEqual([]);
     expect(body.total).toBe(0);
     expect(body.timestamp).toBeDefined();
@@ -65,7 +65,7 @@ describe("GET /api/anomalies", () => {
     const res = await app.request("/api/anomalies");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     // At least one event should exist from the ring buffer listener registered in the route
     expect(body.engineStats).toBeDefined();
     expect(body.engineStats.totalDetected).toBeGreaterThanOrEqual(1);
@@ -75,7 +75,7 @@ describe("GET /api/anomalies", () => {
     const res = await app.request("/api/anomalies?limit=5");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data.length).toBeLessThanOrEqual(5);
   });
 
@@ -100,7 +100,7 @@ describe("GET /api/anomalies/stats", () => {
     const res = await app.request("/api/anomalies/stats");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toBeDefined();
     expect(body.data.windows).toBeGreaterThanOrEqual(1);
     expect(body.data.totalDataPoints).toBeGreaterThanOrEqual(50);
@@ -114,7 +114,7 @@ describe("GET /api/anomalies/stats", () => {
     const res = await app.request("/api/anomalies/stats");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data.windows).toBe(0);
     expect(body.data.totalDetected).toBe(0);
   });
@@ -127,7 +127,7 @@ describe("GET /api/anomalies/types", () => {
     const res = await app.request("/api/anomalies/types");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toBeInstanceOf(Array);
     expect(body.count).toBeGreaterThanOrEqual(16);
 
@@ -158,7 +158,7 @@ describe("GET /api/anomalies/config", () => {
     const res = await app.request("/api/anomalies/config");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.detectorMethod).toBe("modified-z-score");
     expect(body.description).toContain("MAD");
     expect(body.data).toBeDefined();
@@ -174,7 +174,7 @@ describe("GET /api/anomalies/config", () => {
 
   it("includes cooldown in both ms and minutes", async () => {
     const res = await app.request("/api/anomalies/config");
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
 
     for (const [, config] of Object.entries(body.data) as [string, { cooldownMs: number; cooldownMinutes: number }][]) {
       expect(config.cooldownMs).toBeGreaterThan(0);

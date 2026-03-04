@@ -41,7 +41,7 @@ describe("GET /api/governance/proposals/:space", () => {
     const res = await app.request("/api/governance/proposals/aave.eth");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.space).toBe("aave.eth");
     expect(json.count).toBe(2);
     expect(json.data).toHaveLength(2);
@@ -77,7 +77,7 @@ describe("GET /api/governance/active", () => {
     const res = await app.request("/api/governance/active");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.count).toBe(2);
     expect(json.data).toHaveProperty("aave.eth");
     expect(json.data).toHaveProperty("uniswap");
@@ -106,7 +106,7 @@ describe("GET /api/governance/spaces", () => {
     const res = await app.request("/api/governance/spaces?limit=10");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.count).toBe(2);
     expect(json.data).toHaveLength(2);
     expect(snapshot.getTopSpaces).toHaveBeenCalledWith(10);
@@ -144,7 +144,7 @@ describe("GET /api/governance/space/:id", () => {
     const res = await app.request("/api/governance/space/aave.eth");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.id).toBe("aave.eth");
     expect(json.name).toBe("Aave");
     expect(snapshot.getSpace).toHaveBeenCalledWith("aave.eth");
@@ -172,7 +172,7 @@ describe("GET /api/governance/votes/:proposalId", () => {
     const res = await app.request("/api/governance/votes/proposal123?limit=50");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.proposalId).toBe("proposal123");
     expect(json.count).toBe(2);
     expect(json.data).toHaveLength(2);
@@ -207,7 +207,7 @@ describe("GET /api/governance/search", () => {
     const res = await app.request("/api/governance/search?q=aave");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.query).toBe("aave");
     expect(json.count).toBe(1);
     expect(json.data[0].name).toBe("Aave");
@@ -217,7 +217,7 @@ describe("GET /api/governance/search", () => {
     const res = await app.request("/api/governance/search");
     expect(res.status).toBe(400);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toContain("Missing");
   });
 
@@ -242,7 +242,7 @@ describe("GET /api/governance/top-spaces", () => {
     const res = await app.request("/api/governance/top-spaces?limit=5");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.count).toBe(1);
     expect(snapshot.getTopSpaces).toHaveBeenCalledWith(5);
   });

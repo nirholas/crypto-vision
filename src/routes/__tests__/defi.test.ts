@@ -55,7 +55,7 @@ describe("GET /api/defi/protocols", () => {
     const res = await app.request("/api/defi/protocols?limit=10");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     // Aave first (higher TVL)
     expect(json.data[0].name).toBe("Aave");
@@ -82,7 +82,7 @@ describe("GET /api/defi/protocols", () => {
     const res = await app.request("/api/defi/protocols?chain=arbitrum");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(1);
     expect(json.data[0].name).toBe("GMX");
   });
@@ -117,7 +117,7 @@ describe("GET /api/defi/protocol/:slug", () => {
     const res = await app.request("/api/defi/protocol/aave");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.name).toBe("Aave");
     // Returns last 90 data points
     expect(json.data.tvlHistory).toHaveLength(90);
@@ -145,7 +145,7 @@ describe("GET /api/defi/chains", () => {
     const res = await app.request("/api/defi/chains");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     // Ethereum first (higher TVL)
     expect(json.data[0].name).toBe("Ethereum");
     expect(json.data[1].name).toBe("BSC");
@@ -174,7 +174,7 @@ describe("GET /api/defi/chain/:name", () => {
     const res = await app.request("/api/defi/chain/ethereum");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(365);
   });
 
@@ -210,7 +210,7 @@ describe("GET /api/defi/yields", () => {
     const res = await app.request("/api/defi/yields?limit=10");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     // Sorted by APY descending
     expect(json.data[0].apy).toBe(15.5);
     expect(json.data[1].apy).toBe(5.2);
@@ -250,7 +250,7 @@ describe("GET /api/defi/stablecoins", () => {
     const res = await app.request("/api/defi/stablecoins");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     // USDT first (70B > 25B)
     expect(json.data[0].name).toBe("USDT");
     expect(json.data[0].circulating).toBe(70e9);
@@ -280,7 +280,7 @@ describe("GET /api/defi/dex-volumes", () => {
     const res = await app.request("/api/defi/dex-volumes");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.protocols[0].name).toBe("Uniswap");
     expect(json.data.totalChart).toHaveLength(1);
   });
@@ -309,7 +309,7 @@ describe("GET /api/defi/fees", () => {
     const res = await app.request("/api/defi/fees");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data[0].name).toBe("Ethereum");
   });
 
@@ -337,7 +337,7 @@ describe("GET /api/defi/bridges", () => {
     const res = await app.request("/api/defi/bridges");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     // Stargate first (higher volume)
     expect(json.data[0].name).toBe("Stargate");
   });
@@ -366,7 +366,7 @@ describe("GET /api/defi/raises", () => {
     const res = await app.request("/api/defi/raises?limit=10");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     // Project B first (more recent)
     expect(json.data[0].name).toBe("Project B");
   });

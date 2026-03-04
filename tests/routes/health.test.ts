@@ -82,7 +82,7 @@ describe("GET /", () => {
     const res = await app.request("/");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body).toMatchObject({
       name: "Crypto Vision",
       version: "0.1.0",
@@ -99,7 +99,7 @@ describe("GET /health", () => {
     const res = await app.request("/health");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.status).toBe("ok");
     expect(body).toHaveProperty("uptime");
     expect(body).toHaveProperty("timestamp");
@@ -111,14 +111,14 @@ describe("GET /health", () => {
 
   it("includes cache stats", async () => {
     const res = await app.request("/health");
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.cache).toHaveProperty("memoryEntries");
     expect(body.cache).toHaveProperty("redisConnected");
   });
 
   it("includes memory stats", async () => {
     const res = await app.request("/health");
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.memory).toHaveProperty("rss");
     expect(body.memory).toHaveProperty("heapUsed");
     expect(typeof body.memory.rss).toBe("number");
@@ -133,7 +133,7 @@ describe("GET /api", () => {
     const res = await app.request("/api");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body).toHaveProperty("name", "Crypto Vision API");
     expect(body).toHaveProperty("version");
     expect(body).toHaveProperty("endpoints");
@@ -151,7 +151,7 @@ describe("404 handler", () => {
     const res = await app.request("/nonexistent-path");
     expect(res.status).toBe(404);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body).toHaveProperty("error");
     expect(body).toHaveProperty("message");
     expect(body).toHaveProperty("docs", "/api");

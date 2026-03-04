@@ -125,7 +125,7 @@ describe("POST /calculate", () => {
         });
 
         expect(res.status).toBe(200);
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         const data = body.data;
 
         // 3 positions returned
@@ -165,7 +165,7 @@ describe("POST /calculate", () => {
         });
 
         expect(res.status).toBe(200);
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         const pos = body.data.positions[0];
 
         expect(pos.costBasis).toBeNull();
@@ -208,7 +208,7 @@ describe("POST /calculate", () => {
         });
 
         expect(res.status).toBe(200);
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data.positions).toHaveLength(1);
         expect(body.data.positions[0].coinId).toBe("bitcoin");
     });
@@ -233,7 +233,7 @@ describe("POST /analyze", () => {
         });
 
         expect(res.status).toBe(200);
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         const { summary, positions, topCorrelations, recommendations } = body.data;
 
         expect(summary).toHaveProperty("totalValue");
@@ -279,7 +279,7 @@ describe("POST /optimize", () => {
         });
 
         expect(res.status).toBe(200);
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         const { suggestions, assetMetrics, riskTolerance } = body.data;
 
         expect(riskTolerance).toBe("moderate");
@@ -325,7 +325,7 @@ describe("POST /optimize", () => {
         });
 
         expect(res.status).toBe(200);
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data.riskTolerance).toBe("conservative");
     });
 });
@@ -348,7 +348,7 @@ describe("POST /risk", () => {
         });
 
         expect(res.status).toBe(200);
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         const data = body.data;
 
         expect(data).toHaveProperty("volatility");
@@ -396,7 +396,7 @@ describe("POST /correlation", () => {
         });
 
         expect(res.status).toBe(200);
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         const { assets, matrix, strongestPairs, days } = body.data;
 
         expect(days).toBe(90);
@@ -444,7 +444,7 @@ describe("POST /backtest", () => {
         });
 
         expect(res.status).toBe(200);
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         const data = body.data;
 
         expect(data.initialInvestment).toBe(10000);
@@ -479,7 +479,7 @@ describe("POST /backtest", () => {
         });
 
         expect(res.status).toBe(200);
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data.rebalanceFrequency).toBe("weekly");
         expect(body.data.initialInvestment).toBe(50000);
     });
@@ -506,7 +506,7 @@ describe("GET /wallet/:address", () => {
         const res = await req("/wallet/0x1234567890abcdef1234567890abcdef12345678");
         expect(res.status).toBe(200);
 
-        const body = await res.json();
+        const body = (await res.json()) as Record<string, any>;
         expect(body.data.address).toBe("0x1234567890abcdef1234567890abcdef12345678");
         expect(body.data.chain).toBe("ethereum");
         expect(typeof body.data.ethPriceUsd).toBe("number");

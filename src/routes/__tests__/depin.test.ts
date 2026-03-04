@@ -40,7 +40,7 @@ describe("GET /api/depin/projects", () => {
     const res = await app.request("/api/depin/projects");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.count).toBe(2);
     expect(json.data).toHaveLength(2);
     expect(json.data[0].slug).toBe("helium");
@@ -52,7 +52,7 @@ describe("GET /api/depin/projects", () => {
     const res = await app.request("/api/depin/projects");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.count).toBe(0);
   });
 
@@ -82,7 +82,7 @@ describe("GET /api/depin/project/:slug", () => {
     const res = await app.request("/api/depin/project/helium");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.slug).toBe("helium");
     expect(json.name).toBe("Helium");
     expect(depin.getProject).toHaveBeenCalledWith("helium");
@@ -94,7 +94,7 @@ describe("GET /api/depin/project/:slug", () => {
     const res = await app.request("/api/depin/project/nonexistent");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toBeNull();
   });
 
@@ -122,7 +122,7 @@ describe("GET /api/depin/categories", () => {
     const res = await app.request("/api/depin/categories");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json).toHaveLength(4);
     expect(json).toContain("Wireless");
     expect(json).toContain("Storage");
@@ -152,7 +152,7 @@ describe("GET /api/depin/metrics", () => {
     const res = await app.request("/api/depin/metrics");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.totalProjects).toBe(200);
     expect(json.totalMarketCap).toBe(50e9);
     expect(json.totalDevices).toBe(5e6);
@@ -180,7 +180,7 @@ describe("GET /api/depin/category/:category", () => {
     const res = await app.request("/api/depin/category/Wireless");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.category).toBe("Wireless");
     expect(json.count).toBe(2);
     expect(json.data).toHaveLength(2);
@@ -193,7 +193,7 @@ describe("GET /api/depin/category/:category", () => {
     const res = await app.request("/api/depin/category/Unknown");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.count).toBe(0);
   });
 

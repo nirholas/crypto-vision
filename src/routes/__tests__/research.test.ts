@@ -78,7 +78,7 @@ describe("GET /api/research/assets", () => {
         const res = await app.request("/api/research/assets?limit=10&page=1");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0]).toMatchObject({
             id: "abc-123",
@@ -144,7 +144,7 @@ describe("GET /api/research/asset/:slug", () => {
         const res = await app.request("/api/research/asset/bitcoin");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.symbol).toBe("BTC");
         expect(json.data.market.price).toBe(60000);
         expect(json.data.profile.tagline).toBe("Digital gold");
@@ -157,7 +157,7 @@ describe("GET /api/research/asset/:slug", () => {
         const res = await app.request("/api/research/asset/nonexistent");
         expect(res.status).toBe(404);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.error).toContain("nonexistent");
     });
 });
@@ -183,7 +183,7 @@ describe("GET /api/research/asset/:slug/markets", () => {
         const res = await app.request("/api/research/asset/bitcoin/markets");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0].exchange).toBe("Binance");
         expect(json.asset).toBe("bitcoin");
@@ -208,7 +208,7 @@ describe("GET /api/research/signals/:symbol", () => {
         const res = await app.request("/api/research/signals/BTC");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.symbol).toBe("BTC");
         expect(json.data.inOutVar).toBeDefined();
     });
@@ -232,7 +232,7 @@ describe("GET /api/research/social/:coinId", () => {
         const res = await app.request("/api/research/social/1182");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.name).toBe("Bitcoin");
         expect(json.data.points).toBe(100);
     });
@@ -241,7 +241,7 @@ describe("GET /api/research/social/:coinId", () => {
         const res = await app.request("/api/research/social/abc");
         expect(res.status).toBe(400);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.error).toContain("number");
     });
 });
@@ -279,7 +279,7 @@ describe("GET /api/research/compare", () => {
         const res = await app.request("/api/research/compare?slugs=bitcoin,ethereum");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.length).toBeGreaterThanOrEqual(1);
     });
 
@@ -287,7 +287,7 @@ describe("GET /api/research/compare", () => {
         const res = await app.request("/api/research/compare");
         expect(res.status).toBe(400);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.error).toContain("slugs");
     });
 });
@@ -310,7 +310,7 @@ describe("GET /api/research/top-volume", () => {
         const res = await app.request("/api/research/top-volume?limit=10");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0].symbol).toBe("BTC");
     });
@@ -341,7 +341,7 @@ describe("GET /api/research/news", () => {
         const res = await app.request("/api/research/news");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0].title).toBe("BTC Rally");
         expect(json.data[0].source).toBe("CoinDesk");
@@ -363,7 +363,7 @@ describe("GET /api/research/search", () => {
         const res = await app.request("/api/research/search?q=bitcoin");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.query).toBe("bitcoin");
     });
@@ -372,7 +372,7 @@ describe("GET /api/research/search", () => {
         const res = await app.request("/api/research/search");
         expect(res.status).toBe(400);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.error).toContain("q");
     });
 });
@@ -388,7 +388,7 @@ describe("GET /api/research/price", () => {
         const res = await app.request("/api/research/price?fsyms=BTC&tsyms=USD");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.BTC.USD).toBe(60000);
         expect(json.source).toBe("cryptocompare");
     });
@@ -420,7 +420,7 @@ describe("GET /api/research/price-full", () => {
         const res = await app.request("/api/research/price-full?fsyms=BTC&tsyms=USD");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.BTC.USD.price).toBe(60000);
     });
 });
@@ -442,7 +442,7 @@ describe("GET /api/research/histoday/:symbol", () => {
         const res = await app.request("/api/research/histoday/BTC?limit=30");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.symbol).toBe("BTC");
         expect(json.source).toBe("cryptocompare");
@@ -467,7 +467,7 @@ describe("GET /api/research/top-mcap", () => {
         const res = await app.request("/api/research/top-mcap?limit=10");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0].name).toBe("BTC");
     });
@@ -490,7 +490,7 @@ describe("GET /api/research/exchanges/:symbol", () => {
         const res = await app.request("/api/research/exchanges/BTC");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0].exchange).toBe("Binance");
         expect(json.symbol).toBe("BTC");
@@ -512,7 +512,7 @@ describe("GET /api/research/news/categories", () => {
         const res = await app.request("/api/research/news/categories");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0].name).toBe("Bitcoin");
     });
@@ -533,7 +533,7 @@ describe("GET /api/research/blockchains", () => {
         const res = await app.request("/api/research/blockchains");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data).toHaveLength(1);
         expect(json.data[0].symbol).toBe("BTC");
     });
@@ -562,7 +562,7 @@ describe("GET /api/research/asset/:slug/market", () => {
         const res = await app.request("/api/research/asset/bitcoin/market");
         expect(res.status).toBe(200);
 
-        const json = await res.json();
+        const json = (await res.json()) as Record<string, any>;
         expect(json.data.price).toBe(60000);
         expect(json.source).toBe("messari");
     });

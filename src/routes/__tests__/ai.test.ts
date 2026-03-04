@@ -149,7 +149,7 @@ describe("GET /api/ai/sentiment/:coin", () => {
     const res = await app.request("/api/ai/sentiment/bitcoin");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.sentiment).toBe("bullish");
     expect(json.data.confidence).toBe(75);
     expect(json.model).toBe("test-model");
@@ -174,7 +174,7 @@ describe("GET /api/ai/sentiment/:coin", () => {
     const res = await app.request("/api/ai/sentiment/bitcoin");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.cached).toBe(true);
     expect(json.data.sentiment).toBe("neutral");
     // AI should not be called
@@ -189,7 +189,7 @@ describe("GET /api/ai/sentiment/:coin", () => {
     const res = await app.request("/api/ai/sentiment/fakecoin");
     expect(res.status).toBe(404);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toContain("not found");
     expect(json.code).toBe("NOT_FOUND");
   });
@@ -203,7 +203,7 @@ describe("GET /api/ai/sentiment/:coin", () => {
     const res = await app.request("/api/ai/sentiment/bitcoin");
     expect(res.status).toBe(500);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.code).toBe("AI_SERVICE_ERROR");
   });
 
@@ -221,7 +221,7 @@ describe("GET /api/ai/sentiment/:coin", () => {
     const res = await app.request("/api/ai/sentiment/bitcoin");
     expect(res.status).toBe(503);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.code).toBe("SERVICE_UNAVAILABLE");
   });
 });
@@ -254,7 +254,7 @@ describe("GET /api/ai/digest", () => {
     const res = await app.request("/api/ai/digest");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.headline).toBeDefined();
     expect(json.model).toBe("test-model");
   });
@@ -272,7 +272,7 @@ describe("GET /api/ai/digest", () => {
     const res = await app.request("/api/ai/digest");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.cached).toBe(true);
     expect(json.data.headline).toBe("Cached digest");
   });
@@ -330,7 +330,7 @@ describe("GET /api/ai/signals", () => {
     const res = await app.request("/api/ai/signals");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.signals).toHaveLength(1);
     expect(json.data.riskLevel).toBe("medium");
   });
@@ -368,7 +368,7 @@ describe("POST /api/ai/ask", () => {
     });
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data.answer).toContain("Bitcoin");
     expect(json.model).toBe("test-model");
   });
@@ -381,7 +381,7 @@ describe("POST /api/ai/ask", () => {
     });
     expect(res.status).toBe(400);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.error).toContain("question");
     expect(json.code).toBe("VALIDATION_FAILED");
   });
@@ -415,7 +415,7 @@ describe("POST /api/ai/ask", () => {
     });
     expect(res.status).toBe(503);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.code).toBe("SERVICE_UNAVAILABLE");
   });
 });

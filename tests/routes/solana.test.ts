@@ -235,7 +235,7 @@ describe("GET /overview", () => {
     const res = await app.request("/overview");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Record<string, unknown>;
 
     expect(data).toHaveProperty("price");
@@ -271,7 +271,7 @@ describe("GET /overview", () => {
     const res = await app.request("/overview");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Record<string, unknown>;
 
     expect(data.price).toBeNull();
@@ -290,7 +290,7 @@ describe("GET /tokens", () => {
     const res = await app.request("/tokens");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Array<Record<string, unknown>>;
     expect(data).toHaveLength(1);
     expect(data[0]).toMatchObject({
@@ -329,7 +329,7 @@ describe("GET /token/:mint", () => {
     const res = await app.request(`/token/${MOCK_TOKEN.address}`);
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Record<string, unknown>;
     expect(data.mint).toBe(MOCK_TOKEN.address);
     expect(data.name).toBe("Wrapped SOL");
@@ -356,7 +356,7 @@ describe("GET /quote", () => {
     );
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Record<string, unknown>;
     expect(data.inputAmount).toBe("1000000000");
     expect(data.outputAmount).toBe("145500000");
@@ -378,7 +378,7 @@ describe("GET /quote", () => {
     const res = await app.request("/quote");
     expect(res.status).toBe(400);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     expect(body).toHaveProperty("error");
   });
 
@@ -410,7 +410,7 @@ describe("GET /routes/:inputMint/:outputMint", () => {
     );
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Record<string, unknown>;
     expect(data).toHaveProperty("routes");
     expect((data.routes as Array<Record<string, unknown>>)).toHaveLength(1);
@@ -443,7 +443,7 @@ describe("GET /price/:mint", () => {
     const res = await app.request(`/price/${MOCK_TOKEN.address}`);
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Record<string, unknown>;
     expect(data.price).toBe(145.5);
     expect(data.symbol).toBe("SOL");
@@ -484,7 +484,7 @@ describe("GET /prices", () => {
     const res = await app.request(`/prices?ids=${MOCK_TOKEN.address}`);
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Array<Record<string, unknown>>;
     expect(data).toHaveLength(1);
     expect(body.count).toBe(1);
@@ -505,7 +505,7 @@ describe("GET /dex/pools", () => {
     const res = await app.request("/dex/pools");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Array<Record<string, unknown>>;
     expect(data).toHaveLength(1);
     expect(data[0].name).toBe("SOL / USDC");
@@ -533,7 +533,7 @@ describe("GET /dex/volume", () => {
     const res = await app.request("/dex/volume");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Record<string, unknown>;
     expect(data.totalVolumeH24).toBe(500_000_000);
     expect(data.poolCount).toBe(50);
@@ -553,7 +553,7 @@ describe("GET /validators", () => {
     const res = await app.request("/validators");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Array<Record<string, unknown>>;
     expect(data).toHaveLength(1);
     expect(data[0].delinquent).toBe(false);
@@ -569,7 +569,7 @@ describe("GET /validators", () => {
     const res = await app.request("/validators?include_delinquent=true");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Array<Record<string, unknown>>;
     expect(data).toHaveLength(2);
   });
@@ -582,7 +582,7 @@ describe("GET /validators", () => {
     vi.mocked(jupiter.getValidators).mockResolvedValue(validators);
 
     const res = await app.request("/validators?limit=10");
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     expect((body.data as Array<unknown>)).toHaveLength(10);
   });
 });
@@ -596,7 +596,7 @@ describe("GET /tps", () => {
     const res = await app.request("/tps");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Record<string, unknown>;
     expect(data.tps).toBe(3500);
     expect(data.nonVoteTps).toBe(800);
@@ -613,7 +613,7 @@ describe("GET /supply", () => {
     const res = await app.request("/supply");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Record<string, unknown>;
     expect(data.totalSol).toBe(580_000_000);
     expect(data.circulatingSol).toBe(440_000_000);
@@ -632,7 +632,7 @@ describe("GET /staking", () => {
     const res = await app.request("/staking");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Record<string, unknown>;
     expect(data.totalValidators).toBe(2000);
     expect(data.activeValidators).toBe(1900);
@@ -654,7 +654,7 @@ describe("GET /programs/top", () => {
     const res = await app.request("/programs/top");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Array<Record<string, unknown>>;
     expect(data).toHaveLength(1);
     expect(data[0].rank).toBe(1);
@@ -679,7 +679,7 @@ describe("GET /nft/collections", () => {
     const res = await app.request("/nft/collections");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Array<Record<string, unknown>>;
     expect(data).toHaveLength(1);
     expect(data[0].name).toBe("DeGods");
@@ -697,7 +697,7 @@ describe("GET /new-tokens", () => {
     const res = await app.request("/new-tokens");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Array<Record<string, unknown>>;
     expect(data).toHaveLength(1);
     expect(data[0].mint).toBe(MOCK_MEME_TOKEN.address);
@@ -724,7 +724,7 @@ describe("GET /memecoins", () => {
     const res = await app.request("/memecoins");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Array<Record<string, unknown>>;
     expect(data).toHaveLength(1);
     expect(data[0].symbol).toBe("BONK");
@@ -740,7 +740,7 @@ describe("GET /memecoins", () => {
     const res = await app.request("/memecoins");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     const data = body.data as Array<unknown>;
     expect(data).toHaveLength(0);
     expect(body.count).toBe(0);
@@ -756,7 +756,7 @@ describe("Legacy Routes", () => {
     const res = await app.request("/search?q=SOL");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     expect(body.query).toBe("SOL");
     expect((body.data as Array<unknown>)).toHaveLength(1);
   });
@@ -772,7 +772,7 @@ describe("Legacy Routes", () => {
     const res = await app.request("/tokens/strict");
     expect(res.status).toBe(200);
 
-    const body = await res.json() as Record<string, unknown>;
+    const body = (await res.json()) as Record<string, any> as Record<string, unknown>;
     expect(body.count).toBe(1);
   });
 

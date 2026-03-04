@@ -122,7 +122,7 @@ describe("GET /protocols", () => {
     const res = await app.request("/protocols");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toHaveLength(1);
     expect(body.data[0]).toMatchObject({
       name: "Aave",
@@ -141,7 +141,7 @@ describe("GET /protocols", () => {
     ]);
 
     const res = await app.request("/protocols?chain=ethereum");
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toHaveLength(1);
     expect(body.data[0].name).toBe("Aave");
   });
@@ -156,7 +156,7 @@ describe("GET /protocols", () => {
     vi.mocked(llama.getProtocols).mockResolvedValue(protocols);
 
     const res = await app.request("/protocols?limit=3");
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toHaveLength(3);
     expect(body.count).toBe(3);
   });
@@ -179,7 +179,7 @@ describe("GET /protocol/:slug", () => {
     const res = await app.request("/protocol/aave");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data.name).toBe("Aave");
     expect(body.data.chainTvls).toEqual({ Ethereum: 8_000_000_000 });
   });
@@ -194,7 +194,7 @@ describe("GET /chains", () => {
     const res = await app.request("/chains");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     // Should exclude the chain with tvl: 0
     expect(body.data).toHaveLength(2);
     expect(body.data[0].name).toBe("Ethereum");
@@ -211,7 +211,7 @@ describe("GET /yields", () => {
     const res = await app.request("/yields");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toHaveLength(2);
     // Should be sorted by APY desc
     expect(body.data[0].apy).toBeGreaterThanOrEqual(body.data[1].apy);
@@ -226,7 +226,7 @@ describe("GET /yields", () => {
     });
 
     const res = await app.request("/yields?chain=solana");
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data.every((p: any) => p.chain.toLowerCase() === "solana")).toBe(true);
   });
 
@@ -234,7 +234,7 @@ describe("GET /yields", () => {
     vi.mocked(llama.getYieldPools).mockResolvedValue(MOCK_YIELDS);
 
     const res = await app.request("/yields?stablecoin=true");
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data.every((p: any) => p.stablecoin === true)).toBe(true);
   });
 });
@@ -248,7 +248,7 @@ describe("GET /bridges", () => {
     const res = await app.request("/bridges");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toHaveLength(2);
     expect(body.data[0].name).toBe("Portal");
     expect(body.data[0].volumePrevDay).toBe(50_000_000);
@@ -264,7 +264,7 @@ describe("GET /raises", () => {
     const res = await app.request("/raises");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toHaveLength(2);
     expect(body.data[0].name).toBe("Project A");
     expect(body.data[0].amount).toBe(10_000_000);

@@ -123,7 +123,7 @@ describe("GET /coins", () => {
     const res = await app.request("/coins");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toHaveLength(1);
     expect(body.data[0]).toMatchObject({
       id: "bitcoin",
@@ -159,7 +159,7 @@ describe("GET /coin/:id", () => {
     const res = await app.request("/coin/bitcoin");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data.id).toBe("bitcoin");
     expect(body.data.description).toBe("Bitcoin is a cryptocurrency.");
     expect(body.data.marketData.price).toEqual({ usd: 65000 });
@@ -179,7 +179,7 @@ describe("GET /price", () => {
     const res = await app.request("/price?ids=bitcoin,ethereum");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data.bitcoin.usd).toBe(65000);
     expect(body.data.ethereum.usd).toBe(3500);
   });
@@ -188,7 +188,7 @@ describe("GET /price", () => {
     const res = await app.request("/price");
     expect(res.status).toBe(400);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body).toHaveProperty("error");
   });
 });
@@ -202,7 +202,7 @@ describe("GET /trending", () => {
     const res = await app.request("/trending");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toHaveLength(1);
     expect(body.data[0]).toMatchObject({
       id: "pepe",
@@ -221,7 +221,7 @@ describe("GET /global", () => {
     const res = await app.request("/global");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toMatchObject({
       activeCryptocurrencies: 12000,
       markets: 800,
@@ -245,7 +245,7 @@ describe("GET /search", () => {
     const res = await app.request("/search?q=bitcoin");
     expect(res.status).toBe(200);
 
-    const body = await res.json();
+    const body = (await res.json()) as Record<string, any>;
     expect(body.data).toHaveLength(1);
     expect(body.data[0].id).toBe("bitcoin");
   });

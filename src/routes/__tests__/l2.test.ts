@@ -66,7 +66,7 @@ describe("GET /api/l2/summary", () => {
     const res = await app.request("/api/l2/summary");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     // Zero TVL project filtered out
     expect(json.data).toHaveLength(2);
     // Arbitrum first (higher TVL)
@@ -121,7 +121,7 @@ describe("GET /api/l2/tvl", () => {
     const res = await app.request("/api/l2/tvl");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     // Arbitrum first (higher total TVL)
     expect(json.data[0].id).toBe("arbitrum");
@@ -148,7 +148,7 @@ describe("GET /api/l2/tvl", () => {
     const res = await app.request("/api/l2/tvl?limit=2");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
   });
 
@@ -163,7 +163,7 @@ describe("GET /api/l2/tvl", () => {
     const res = await app.request("/api/l2/tvl");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(1);
     expect(json.data[0].id).toBe("hasValue");
   });
@@ -206,7 +206,7 @@ describe("GET /api/l2/activity", () => {
     const res = await app.request("/api/l2/activity");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(2);
     // Base first (higher tx count)
     expect(json.data[0].id).toBe("base");
@@ -228,7 +228,7 @@ describe("GET /api/l2/activity", () => {
     const res = await app.request("/api/l2/activity?limit=3");
     expect(res.status).toBe(200);
 
-    const json = await res.json();
+    const json = (await res.json()) as Record<string, any>;
     expect(json.data).toHaveLength(3);
   });
 
