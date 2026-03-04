@@ -27,7 +27,13 @@ RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
 
-USER node
+# Agent prompts and templates needed at runtime
+COPY agents/src ./agents/src
+
+# Security: non-root user
+RUN addgroup -g 1001 -S appuser && \
+    adduser -S appuser -u 1001
+USER appuser
 
 EXPOSE 8080
 

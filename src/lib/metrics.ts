@@ -85,6 +85,52 @@ export const activeWebsocketConnections = new client.Gauge({
     registers: [registry],
 });
 
+/** Total WebSocket connections since process start (counter). */
+export const wsConnectionsTotal = new client.Counter({
+    name: "ws_connections_total",
+    help: "Total WebSocket connections since process start",
+    registers: [registry],
+});
+
+/** Current active WebSocket connections (gauge). */
+export const wsConnectionsActive = new client.Gauge({
+    name: "ws_connections_active",
+    help: "Current active WebSocket connections",
+    registers: [registry],
+});
+
+/** Total WebSocket messages sent, labelled by channel. */
+export const wsMessagesSentTotal = new client.Counter({
+    name: "ws_messages_sent_total",
+    help: "Total WebSocket messages sent to clients",
+    labelNames: ["channel"] as const,
+    registers: [registry],
+});
+
+/** Total WebSocket messages received from clients, labelled by type. */
+export const wsMessagesReceivedTotal = new client.Counter({
+    name: "ws_messages_received_total",
+    help: "Total WebSocket messages received from clients",
+    labelNames: ["type"] as const,
+    registers: [registry],
+});
+
+/** Total WebSocket errors (counter). */
+export const wsErrorsTotal = new client.Counter({
+    name: "ws_errors_total",
+    help: "Total WebSocket errors",
+    registers: [registry],
+});
+
+/** WebSocket message delivery latency in milliseconds (histogram). */
+export const wsMessageLatencyMs = new client.Histogram({
+    name: "ws_message_latency_ms",
+    help: "WebSocket message delivery latency in milliseconds",
+    labelNames: ["channel"] as const,
+    buckets: [0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500, 1000],
+    registers: [registry],
+});
+
 // ─── Queue Metrics ───────────────────────────────────────────
 
 /** Current queue depth (waiting + running), labelled by queue name. */

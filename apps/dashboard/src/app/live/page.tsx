@@ -15,7 +15,7 @@ import {
   BarChart3,
   Maximize2,
 } from 'lucide-react';
-import { StreamingChart } from '@/components/charts';
+import { StreamingChart } from '@/components/charts/StreamingChart';
 import { tokens } from '@/lib/colors';
 
 interface PriceUpdate {

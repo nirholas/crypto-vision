@@ -410,9 +410,10 @@ export function RiskRadar({ data, height = 300, className }: RiskRadarProps) {
 
 interface YieldPoint {
   time: string;
-  apr: number;
+  apr?: number;
   tvl?: number;
   protocol?: string;
+  [key: string]: string | number | undefined;
 }
 
 interface YieldChartProps {

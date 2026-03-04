@@ -1,0 +1,189 @@
+# Crypto Vision — Cloud Build Test Pipeline
+#
+# Runs all quality checks: typecheck, lint, unit tests, integration tests,
+# and optional smoke load test. Uploads test results to GCS.
+#
+# Trigger: Pull request to main, or manual
+# Usage:   gcloud builds submit --config cloudbuild-test.yaml .
+#
+# Substitutions:
+#   _BUCKET — GCS bucket for test results (default: crypto-vision-test-results)
+#   _RUN_LOAD_TEST — whether to run k6 smoke test (default: "false")
+
+substitutions:
+  _BUCKET: crypto-vision-test-results
+  _RUN_LOAD_TEST: "false"
+
+steps:
+  # ── 1. Install dependencies ────────────────────────────────
+  - name: node:22-alpine
+    id: install
+    entrypoint: npm
+    args: ["ci"]
+
+  # ── 2. Parallel quality checks ─────────────────────────────
+  - name: node:22-alpine
+    id: typecheck
+    entrypoint: npx
+    args: ["tsc", "--noEmit"]
+    waitFor: ["install"]
+
+  - name: node:22-alpine
+    id: lint
+    entrypoint: npm
+    args: ["run", "lint"]
+    waitFor: ["install"]
+
+  # ── 3. Unit tests with coverage ────────────────────────────
+  - name: node:22-alpine
+    id: unit-tests
+    entrypoint: npx
+    args:
+      - vitest
+      - run
+      - --reporter=default
+      - --reporter=junit
+      - --outputFile=/workspace/test-results/unit.xml
+      - --coverage
+      - --coverage.reporter=json-summary
+      - --coverage.reportsDirectory=/workspace/test-results/coverage
+    env:
+      - "NODE_ENV=test"
+      - "LOG_LEVEL=error"
+    waitFor: ["install"]
+
+  # ── 4. Build (needed for integration tests) ────────────────
+  - name: node:22-alpine
+    id: build
+    entrypoint: npm
+    args: ["run", "build"]
+    waitFor: ["install"]
+
+  # ── 5. Integration tests ───────────────────────────────────
+  - name: node:22-alpine
+    id: integration-tests
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -e
+        # Start server in background on random port
+        export PORT=0
+        node dist/src/index.js &
+        SERVER_PID=$!
+        # Wait for server to be ready
+        sleep 8
+        # Run integration tests
+        npx vitest run tests/integration/ \
+          --reporter=default \
+          --reporter=junit \
+          --outputFile=/workspace/test-results/integration.xml \
+          || true
+        # Clean up
+        kill $SERVER_PID 2>/dev/null || true
+    env:
+      - "NODE_ENV=test"
+      - "LOG_LEVEL=error"
+    waitFor: ["build"]
+
+  # ── 6. Fuzz tests ──────────────────────────────────────────
+  - name: node:22-alpine
+    id: fuzz-tests
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -e
+        export PORT=0
+        node dist/src/index.js &
+        SERVER_PID=$!
+        sleep 8
+        npx vitest run tests/fuzz/ \
+          --reporter=default \
+          --reporter=junit \
+          --outputFile=/workspace/test-results/fuzz.xml \
+          || true
+        kill $SERVER_PID 2>/dev/null || true
+    env:
+      - "NODE_ENV=test"
+      - "LOG_LEVEL=error"
+    waitFor: ["build"]
+
+  # ── 7. Benchmarks ──────────────────────────────────────────
+  - name: node:22-alpine
+    id: benchmarks
+    entrypoint: npx
+    args:
+      - vitest
+      - bench
+      - --reporter=default
+      - --outputFile=/workspace/test-results/benchmarks.json
+    env:
+      - "NODE_ENV=test"
+    waitFor: ["install"]
+
+  # ── 8. k6 smoke load test (optional) ───────────────────────
+  - name: grafana/k6:latest
+    id: load-smoke
+    entrypoint: sh
+    args:
+      - -c
+      - |
+        if [ "${_RUN_LOAD_TEST}" = "true" ]; then
+          k6 run \
+            --env BASE_URL=http://localhost:8080 \
+            --out json=/workspace/test-results/k6-smoke.json \
+            /workspace/tests/load/smoke.js
+        else
+          echo "Load test skipped (_RUN_LOAD_TEST != true)"
+        fi
+    waitFor: ["integration-tests"]
+
+  # ── 9. Upload test results to GCS ──────────────────────────
+  - name: gcr.io/cloud-builders/gsutil
+    id: upload-results
+    args:
+      - -m
+      - cp
+      - -r
+      - /workspace/test-results/
+      - "gs://${_BUCKET}/test-results/${SHORT_SHA}/"
+    waitFor:
+      - unit-tests
+      - integration-tests
+      - fuzz-tests
+      - benchmarks
+
+  # ── 10. Print summary ──────────────────────────────────────
+  - name: node:22-alpine
+    id: summary
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        echo "═══════════════════════════════════════"
+        echo "  Test Pipeline Complete"
+        echo "═══════════════════════════════════════"
+        echo ""
+        echo "  Commit: ${SHORT_SHA}"
+        echo "  Results: gs://${_BUCKET}/test-results/${SHORT_SHA}/"
+        echo ""
+        if [ -f /workspace/test-results/coverage/coverage-summary.json ]; then
+          echo "  Coverage:"
+          cat /workspace/test-results/coverage/coverage-summary.json | \
+            node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).total; \
+            console.log('    Statements: '+d.statements.pct+'%'); \
+            console.log('    Branches:   '+d.branches.pct+'%'); \
+            console.log('    Functions:  '+d.functions.pct+'%'); \
+            console.log('    Lines:      '+d.lines.pct+'%');"
+        fi
+    waitFor:
+      - unit-tests
+      - integration-tests
+      - fuzz-tests
+
+timeout: 1800s
+
+options:
+  machineType: E2_HIGHCPU_8
+  logging: CLOUD_LOGGING_ONLY

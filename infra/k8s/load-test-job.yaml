@@ -1,0 +1,194 @@
+# Crypto Vision — GKE Load Test Job
+#
+# Runs k6 stress tests from multiple pods in parallel against the production
+# or staging endpoint. Distributes load across 10 k6 instances for realistic
+# traffic simulation that can't be achieved from a single machine.
+#
+# Usage:
+#   # Create configmap from test scripts
+#   kubectl create configmap k6-scripts \
+#     --from-file=smoke.js=tests/load/smoke.js \
+#     --from-file=stress.js=tests/load/stress.js \
+#     --from-file=soak.js=tests/load/soak.js
+#
+#   # Run stress test
+#   kubectl apply -f infra/k8s/load-test-job.yaml
+#
+#   # Monitor
+#   kubectl logs -f job/load-test-stress --all-containers
+#
+#   # Cleanup
+#   kubectl delete job load-test-stress
+#
+# Environment variables:
+#   BASE_URL    — Target endpoint (default: https://cryptocurrency.cv)
+#   TEST_SCRIPT — Which test to run: smoke.js, stress.js, soak.js (default: stress.js)
+#   K6_OUT      — Output format (default: json=/results/k6-results.json)
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: load-test-stress
+  namespace: crypto-vision
+  labels:
+    app: crypto-vision
+    component: load-test
+    tier: testing
+spec:
+  # Run 10 k6 pods in parallel for distributed load generation
+  parallelism: 10
+  completions: 10
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      labels:
+        app: crypto-vision
+        component: load-test
+      annotations:
+        # Don't inject sidecars that might interfere with load generation
+        sidecar.istio.io/inject: "false"
+    spec:
+      containers:
+        - name: k6
+          image: grafana/k6:0.54.0
+          args:
+            - run
+            - --env
+            - "BASE_URL=$(BASE_URL)"
+            - --summary-export=/results/summary.json
+            - --out
+            - "$(K6_OUT)"
+            - /scripts/$(TEST_SCRIPT)
+          env:
+            - name: BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: load-test-config
+                  key: BASE_URL
+                  optional: true
+            - name: TEST_SCRIPT
+              valueFrom:
+                configMapKeyRef:
+                  name: load-test-config
+                  key: TEST_SCRIPT
+                  optional: true
+            - name: K6_OUT
+              value: "json=/results/k6-results.json"
+          envFrom:
+            - configMapRef:
+                name: load-test-config
+                optional: true
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: results
+              mountPath: /results
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "256Mi"
+            limits:
+              cpu: "2"
+              memory: "1Gi"
+      volumes:
+        - name: scripts
+          configMap:
+            name: k6-scripts
+        - name: results
+          emptyDir: {}
+      restartPolicy: Never
+      # Use preemptible/spot nodes for cost savings
+      nodeSelector:
+        cloud.google.com/gke-spot: "true"
+      tolerations:
+        - key: cloud.google.com/gke-spot
+          operator: Equal
+          value: "true"
+          effect: NoSchedule
+
+---
+# Default config — override with your target URL
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: load-test-config
+  namespace: crypto-vision
+  labels:
+    app: crypto-vision
+    component: load-test
+data:
+  BASE_URL: "https://cryptocurrency.cv"
+  TEST_SCRIPT: "stress.js"
+
+---
+# Soak test variant — single pod running for 2+ hours
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: load-test-soak
+  namespace: crypto-vision
+  labels:
+    app: crypto-vision
+    component: load-test
+    variant: soak
+spec:
+  parallelism: 3
+  completions: 3
+  backoffLimit: 1
+  # Soak tests run ~2 hours, keep results for 4 hours
+  activeDeadlineSeconds: 10800
+  ttlSecondsAfterFinished: 14400
+  template:
+    metadata:
+      labels:
+        app: crypto-vision
+        component: load-test
+        variant: soak
+    spec:
+      containers:
+        - name: k6
+          image: grafana/k6:0.54.0
+          args:
+            - run
+            - --env
+            - "BASE_URL=$(BASE_URL)"
+            - --summary-export=/results/soak-summary.json
+            - --out
+            - "json=/results/k6-soak-results.json"
+            - /scripts/soak.js
+          env:
+            - name: BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: load-test-config
+                  key: BASE_URL
+                  optional: true
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: results
+              mountPath: /results
+          resources:
+            requests:
+              cpu: "1"
+              memory: "512Mi"
+            limits:
+              cpu: "2"
+              memory: "1Gi"
+      volumes:
+        - name: scripts
+          configMap:
+            name: k6-scripts
+        - name: results
+          emptyDir: {}
+      restartPolicy: Never
+      nodeSelector:
+        cloud.google.com/gke-spot: "true"
+      tolerations:
+        - key: cloud.google.com/gke-spot
+          operator: Equal
+          value: "true"
+          effect: NoSchedule

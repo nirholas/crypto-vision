@@ -13,6 +13,7 @@ import { PortfolioProvider } from '@/components/portfolio';
 import { GlobalSearch } from '@/components/GlobalSearch';
 import { ToastProvider } from '@/components/Toast';
 import { CurrencyProvider } from '@/components/CurrencySelector';
+import { AppShell } from '@/components/AppShell';
 
 export const viewport: Viewport = {
   themeColor: '#000000',
@@ -240,7 +241,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className="bg-[var(--bg-primary)] antialiased min-h-screen text-white">
+      <body className="bg-[var(--bg-primary)] antialiased min-h-screen text-[var(--text-primary)]">
         {/* Skip Link for Accessibility */}
         <a href="#main-content" className="skip-link">
           Skip to main content
@@ -254,7 +255,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <PortfolioProvider>
                       <BookmarksProvider>
                         <PWAProvider>
-                          {children}
+                          <AppShell>
+                            {children}
+                          </AppShell>
                           <GlobalSearch />
                           <InstallPrompt />
                           <UpdatePrompt />

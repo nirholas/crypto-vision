@@ -142,3 +142,27 @@ export type {
   TokenIconProps,
   TokenWithInfoProps,
 } from './TokenWithChain';
+
+// Sidebar Component
+export { Sidebar } from './Sidebar';
+export type { SidebarProps } from './Sidebar';
+
+// TopBar Component
+export { TopBar } from './TopBar';
+export type { TopBarProps } from './TopBar';
+
+// SearchModal Component
+export { SearchModal } from './SearchModal';
+export type { SearchModalProps } from './SearchModal';
+
+// StatusDot Component
+export { StatusDot } from './StatusDot';
+export type { StatusDotProps } from './StatusDot';
+
+// Stat Component
+export { Stat } from './Stat';
+export type { StatProps } from './Stat';
+
+// DataTable Component
+export { DataTable } from './DataTable';
+export type { DataTableProps, Column } from './DataTable';

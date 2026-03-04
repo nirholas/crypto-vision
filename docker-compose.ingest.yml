@@ -9,6 +9,13 @@
 #   docker compose -f docker-compose.ingest.yml up
 #   docker compose -f docker-compose.ingest.yml up worker-market  # single worker
 #
+# With shared Redis/Postgres from main compose:
+#   docker compose up -d redis postgres
+#   docker compose -f docker-compose.ingest.yml --profile with-infra up
+#
+# Environment-based worker selection:
+#   WORKERS=market,defi docker compose -f docker-compose.ingest.yml up
+#
 # Prerequisites:
 #   - .env file with API keys (COINGECKO_API_KEY, etc.)
 #   - Built project: npm run build
@@ -30,6 +37,45 @@ services:
       timeout: 3s
       retries: 10
     restart: unless-stopped
+
+  # ── Shared Redis (when not using main compose) ────────────
+  redis:
+    image: redis:7-alpine
+    command: >
+      redis-server
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    profiles:
+      - with-infra
+
+  # ── Shared Postgres (when not using main compose) ─────────
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: cryptovision
+      POSTGRES_USER: cryptovision
+      POSTGRES_PASSWORD: cryptovision
+    volumes:
+      - ingest-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cryptovision"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    profiles:
+      - with-infra
 
   # ── Market Worker (every 2 min) ───────────────────────────
   worker-market:

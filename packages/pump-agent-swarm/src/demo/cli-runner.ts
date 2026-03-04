@@ -157,6 +157,8 @@ export class SwarmCLI {
   private isRunning = false;
   private lastStatus: SwarmStatus | null = null;
 
+  private isPaused = false;
+
   constructor() {
     this.sessionId = `swarm-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     this.eventBus = SwarmEventBus.getInstance();
@@ -943,13 +945,12 @@ export class SwarmCLI {
       return;
     }
 
-    // Check current phase to determine if paused
-    if (this.lastStatus?.phase === 'paused') {
-      // Resume
+    if (this.isPaused) {
+      this.isPaused = false;
       this.eventBus.emit('command:resume', 'lifecycle', 'cli-runner', {});
       console.log(green('\n  ▶️  Trading resumed\n'));
     } else {
-      // Pause
+      this.isPaused = true;
       this.eventBus.emit('command:pause', 'lifecycle', 'cli-runner', {});
       console.log(yellow('\n  ⏸  Trading paused. Press [space] to resume.\n'));
     }

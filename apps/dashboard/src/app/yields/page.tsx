@@ -50,7 +50,7 @@ interface YieldData {
   pools: YieldPool[];
   chartData: {
     time: string;
-    [key: string]: string | number; // protocol APR values
+    [key: string]: string | number | undefined;
   }[];
 }
 
@@ -142,7 +142,7 @@ async function fetchYieldData(): Promise<YieldData> {
   const chartData = Array.from({ length: 30 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - (29 - i));
-    const point: Record<string, string | number> = {
+    const point: { time: string; [key: string]: string | number | undefined } = {
       time: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     };
 
