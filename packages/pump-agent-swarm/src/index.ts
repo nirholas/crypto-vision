@@ -63,8 +63,18 @@ export type {
 } from './agents/narrative-agent.js';
 export { VolumeAgent } from './agents/volume-agent.js';
 export type { VolumeConfig, VolumeStats } from './agents/volume-agent.js';
+export { ExitAgent } from './agents/exit-agent.js';
+export type {
+  ExitConfig,
+  ExitConditions,
+  ExitPlan,
+  ExitOrder,
+  ExitResult,
+} from './agents/exit-agent.js';
 export { SentinelAgent } from './agents/sentinel-agent.js';
 export type { SafetyRule, HealthReport, HealthCheck } from './agents/sentinel-agent.js';
+export { MarketMakerAgent } from './agents/market-maker-agent.js';
+export type { SpreadSnapshot, InventorySnapshot } from './agents/market-maker-agent.js';
 
 // ─── Bundle / Jito ────────────────────────────────────────────
 export { JitoClient } from './bundle/jito-client.js';
@@ -97,6 +107,19 @@ export type {
 
 // ─── Analytics (x402) ─────────────────────────────────────────
 export { AnalyticsClient } from './analytics/x402-client.js';
+
+// ─── Intelligence ─────────────────────────────────────────────
+export { StrategyBrain, DEFAULT_STRATEGY_BRAIN_CONFIG } from './intelligence/strategy-brain.js';
+export type {
+  StrategyBrainConfig,
+  MarketContext,
+  StrategyDecision,
+  TokenAssessment,
+  LaunchDecision,
+  BuyDecision,
+  SwarmMetricsInput,
+  PerformanceMetrics,
+} from './intelligence/strategy-brain.js';
 
 // ─── Trading ──────────────────────────────────────────────────
 export { VolumeGenerator } from './trading/volume-generator.js';
@@ -191,6 +214,56 @@ export type {
   TokenDistribution,
   DistributionAnalysis,
 } from './bundle/supply-distributor.js';
+
+// ─── Bundle / Analytics ──────────────────────────────────
+export { BundleAnalytics } from './bundle/bundle-analytics.js';
+export type {
+  LaunchResult,
+  LaunchAnalysis,
+  TimingAnalysis,
+  CostAnalysis,
+  SupplyAnalysis,
+  CurveImpactAnalysis,
+  LaunchReport,
+  BaselineComparison,
+} from './bundle/bundle-analytics.js';
+
+// ─── Bundle / Validation ──────────────────────────────────
+export { BundleValidator } from './bundle/bundle-validator.js';
+export type {
+  BundleToValidate,
+  ExpectedOutcome,
+  BundleValidationResult,
+  ValidationError,
+  ValidationWarning,
+  SimulationResult,
+  AccountChange,
+  BalanceCheckResult,
+  WalletBalanceDetail,
+  FeeEstimate,
+  ConflictDetection,
+  AccountConflict,
+  InstructionValidation,
+} from './bundle/bundle-validator.js';
+
+// ─── Bundle Coordinator ──────────────────────────────────
+export { BundleCoordinator } from './bundle/bundle-coordinator.js';
+export type {
+  BundleCoordinatorConfig,
+  BundleResult,
+} from './bundle/bundle-coordinator.js';
+
+// ─── Order Routing ────────────────────────────────────────────
+export { OrderRouter, DEFAULT_ROUTER_CONFIG } from './trading/order-router.js';
+export type {
+  SubmitOptions,
+  OrderResult,
+  OrderStatus,
+  TransactionConfirmation,
+  EndpointPerformance,
+  RouterStats,
+  RouterConfig,
+} from './trading/order-router.js';
 
 // ─── Position Management ──────────────────────────────────────
 export { PositionManager } from './trading/position-manager.js';
