@@ -59,6 +59,8 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Terminal', href: '/markets', icon: <Terminal size={18} /> },
       { label: 'Swarm Control', href: '/swarm', icon: <Bot size={18} /> },
+      { label: 'Launch Token', href: '/swarm/launch', icon: <Hexagon size={18} /> },
+      { label: 'Swarm Wallets', href: '/swarm/wallets', icon: <Wallet size={18} /> },
       { label: 'Bundle Manager', href: '/defi', icon: <Package size={18} /> },
       { label: 'Market Maker', href: '/liquidations', icon: <Activity size={18} /> },
     ],
