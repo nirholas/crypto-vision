@@ -22,3 +22,6 @@ coverage
 *.key
 *.p12
 *.pfx
+
+# Swarm / pump-agent-swarm
+packages/pump-agent-swarm/
