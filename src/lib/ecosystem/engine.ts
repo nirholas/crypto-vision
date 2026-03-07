@@ -434,7 +434,7 @@ export class EcosystemEngine extends EventEmitter {
       }
 
       if (this.config.liveTrading) {
-        // Real on-chain execution via pump-agent-swarm
+        // Real on-chain execution
         const result = await this.executeTrade(organismId, decision.execution);
         this.emit("trade:executed", organismId, decision.execution, result);
 
@@ -510,7 +510,7 @@ export class EcosystemEngine extends EventEmitter {
     organismId: string,
     execution: { mint: string; symbol: string; direction: string; amount: string; maxSlippageBps: number },
   ): Promise<TradeResult> {
-    // This will be wired to the pump-agent-swarm's TraderAgent
+    // This will be wired to the trading agent
     // For now, return a placeholder result
     return {
       success: false,

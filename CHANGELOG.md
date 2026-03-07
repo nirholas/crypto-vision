@@ -9,7 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
-- **Alpha Scanner** — Continuous Pump.fun opportunity scanner with 5 detection strategies (Early Entry, Graduation Play, Narrative Match, Volume Surge, Revival) in `packages/pump-agent-swarm/src/intelligence/alpha-scanner.ts`
+
 - **Comprehensive documentation suite** — 25+ documentation files covering architecture, API reference, security, monitoring, troubleshooting, and all subsystems
 
 ---
@@ -84,7 +84,7 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - **Cloud Build** — CI/CD pipelines for API and workers
 
 ### Packages
-- **@nirholas/pump-agent-swarm** — Multi-agent trading swarm for Pump.fun (intelligence, coordination, trading, risk management, dashboard)
+
 - **@nirholas/market-data** — Unified market data SDK
 - **@nirholas/agent-runtime** — AI agent execution runtime
 - **@nirholas/mcp-server** — Model Context Protocol server

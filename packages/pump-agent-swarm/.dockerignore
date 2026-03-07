@@ -1,5 +1,0 @@
-# pump-agent-swarm — ignore build artifacts & secrets
-dist/
-node_modules/
-.env
-*.log

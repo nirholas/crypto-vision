@@ -515,6 +515,57 @@ The full OpenAPI 3.1 specification is available at [openapi.yaml](openapi.yaml).
 ---
 
 ## Packages
+> 📖 See [docs/PACKAGES.md](docs/PACKAGES.md) for full package API documentation.
+
+Eight packages in `packages/` provide standalone functionality:
+
+### `@nirholas/erc8004-agent-runtime` — [packages/agent-runtime](packages/agent-runtime)
+ERC-8004 compliant agent runtime for decentralized AI agents with A2A (Agent-to-Agent) messaging and x402 micropayments.
+
+**Key exports:**
+- `ERC8004Agent` — Base agent class with lifecycle management
+- `A2AHandler` — Agent-to-Agent communication protocol handler
+- `TaskManager` — Task queue management for agent workloads
+- `x402Middleware` — HTTP 402 micropayment middleware
+- `IdentityManager` — On-chain identity management
+- `ReputationManager` — Agent reputation scoring
+- `searchAgents`, `connectToAgent` — Agent discovery and connection
+- Middleware: `authMiddleware`, `rateLimitMiddleware`, `loggingMiddleware`
+
+**Stack:** TypeScript, Hono, ethers.js, EventEmitter3
+
+### `@nirholas/binance-mcp-server` — [packages/binance-mcp](packages/binance-mcp)
+MCP (Model Context Protocol) server for Binance exchange. Provides AI-accessible tools for spot trading, staking, wallet management, NFTs, Binance Pay, and mining.
+
+**Stack:** TypeScript, `@modelcontextprotocol/sdk`, `@binance/*` SDK packages
+
+### `@nirholas/bnbchain-mcp` — [packages/bnbchain-mcp](packages/bnbchain-mcp)
+MCP server for BNB Chain with dual support for BSC (EVM smart contracts) and Greenfield (decentralized storage).
+
+**Stack:** TypeScript, `@modelcontextprotocol/sdk`, `@bnb-chain/greenfield-js-sdk`, ethers.js
+
+### `@nirholas/crypto-market-data` — [packages/market-data](packages/market-data)
+Standalone crypto market data service, Edge Runtime compatible. Aggregates CoinGecko, DeFiLlama, and Fear & Greed data with built-in caching and rate limiting.
+
+**Stack:** TypeScript, Edge Runtime compatible
+
+### `@crypto-vision/mcp-server` — [packages/mcp-server](packages/mcp-server)
+MCP server exposing Crypto Vision intelligence tools to AI models. Includes Solana integration.
+
+**Stack:** TypeScript, `@modelcontextprotocol/sdk`, `@solana/web3.js`
+
+
+
+### `sweep` — [packages/sweep](packages/sweep)
+Multi-chain dust sweeper with DeFi routing. Sweeps small token balances across chains, consolidating them via DEX routes.
+
+**Stack:** TypeScript, Hono, ethers.js, `@solana/web3.js`, bullmq, drizzle-orm
+
+### `abi-to-mcp` (UCAI) — [packages/ucai](packages/ucai)
+Universal Contract AI Interface — Python tool that generates MCP servers from Ethereum ABI files. Published on PyPI as `abi-to-mcp`. Web builder at [mcp.ucai.tech](https://mcp.ucai.tech).
+
+**Stack:** Python, `mcp`, web3.py
+
 
 > 📖 See [docs/PACKAGES.md](docs/PACKAGES.md) for full package API documentation.
 
@@ -560,9 +611,7 @@ MCP server exposing Crypto Vision intelligence tools to AI models. Includes Sola
 
 **Stack:** TypeScript, `@modelcontextprotocol/sdk`, `@solana/web3.js`
 
-### `@nirholas/pump-agent-swarm` — [packages/pump-agent-swarm](packages/pump-agent-swarm)
 
-Pump.fun agent swarm system with creator agents (token minting), trader agents (automated trading), x402 micropayments, bundle coordination, intelligence gathering, a real-time dashboard, API, and Telegram bot.
 
 **Stack:** TypeScript, Hono, ethers.js, grammy, bullmq, drizzle-orm
 

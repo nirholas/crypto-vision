@@ -1,8 +1,0 @@
-{
-  "name": "bigint-buffer",
-  "version": "1.1.5",
-  "description": "Pure-JS drop-in replacement for bigint-buffer — eliminates native C++ buffer overflow vulnerability (GHSA-3gc7-fjrx-p6mg)",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "license": "MIT"
-}

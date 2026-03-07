@@ -181,23 +181,7 @@ export const WORKFLOW_TEMPLATES: Record<string, WorkflowTemplate> = {
     ],
   },
 
-  "pump-fun-swarm": {
-    id: "pump-fun-swarm",
-    name: "Pump.fun Agent Swarm Analysis",
-    description:
-      "Analyze token launches on Pump.fun using multi-agent intelligence. " +
-      "Evaluates bonding curve dynamics, holder concentration, rug risk, " +
-      "volume patterns, and graduation probability. Uses x402-paid premium " +
-      "analytics for real-time on-chain data.",
-    exampleQuestions: [
-      "Find the best new Pump.fun launches in the last hour",
-      "Is this Pump.fun token safe to buy? Check the bonding curve",
-      "Which Pump.fun tokens are closest to graduating?",
-      "Analyze holder distribution for this Pump.fun memecoin",
-    ],
-    steps: [
-      {
-        agentId: "pump-fun-sdk-expert",
+  // pump-fun-swarm template removed
         task: "Analyze the bonding curve state for the token(s) in question. " +
           "Check virtualSolReserves, virtualTokenReserves, graduation progress, " +
           "and current price. Identify if the curve is healthy or showing signs of manipulation.",

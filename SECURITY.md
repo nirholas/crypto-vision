@@ -89,9 +89,7 @@ The `/api/security/` endpoints integrate GoPlus Security for:
 - Owner privilege analysis
 - Phishing contract identification
 
-### Pump Agent Swarm Security
-
-The `packages/pump-agent-swarm` handles real funds on Solana mainnet:
+ 
 
 - **Wallet isolation** — each agent role uses separate wallets
 - **Fund limits** — configurable maximum SOL per wallet
