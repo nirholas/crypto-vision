@@ -26,6 +26,17 @@ import {
   ChevronLeft,
   ChevronRight,
   Hexagon,
+  ArrowRightLeft,
+  Scan,
+  Gauge,
+  Anchor,
+  Building2,
+  Globe,
+  Layers,
+  Lock,
+  Palette,
+  Ship,
+  Coins,
 } from 'lucide-react';
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
@@ -76,10 +87,26 @@ const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Research',
     items: [
+      { label: 'Smart Money', href: '/smart-money', icon: <ArrowRightLeft size={18} /> },
+      { label: 'Wallet Intel', href: '/wallet-intel', icon: <Scan size={18} /> },
       { label: 'AI Analysis', href: '/sentiment', icon: <Brain size={18} /> },
       { label: 'DeFi', href: '/defi', icon: <Landmark size={18} /> },
       { label: 'On-Chain', href: '/correlation', icon: <Link2 size={18} /> },
       { label: 'Sentiment', href: '/buzz', icon: <MessageSquare size={18} /> },
+    ],
+  },
+  {
+    title: 'Analytics',
+    items: [
+      { label: 'Derivatives', href: '/derivatives', icon: <Gauge size={18} /> },
+      { label: 'Exchanges', href: '/exchanges', icon: <Building2 size={18} /> },
+      { label: 'Whale Tracker', href: '/whales', icon: <Ship size={18} /> },
+      { label: 'ETF Tracker', href: '/etf', icon: <Anchor size={18} /> },
+      { label: 'Macro', href: '/macro', icon: <Globe size={18} /> },
+      { label: 'Staking & Yields', href: '/staking', icon: <Coins size={18} /> },
+      { label: 'Token Unlocks', href: '/unlocks', icon: <Lock size={18} /> },
+      { label: 'L2 Analytics', href: '/l2', icon: <Layers size={18} /> },
+      { label: 'NFT Market', href: '/nft', icon: <Palette size={18} /> },
     ],
   },
   {
