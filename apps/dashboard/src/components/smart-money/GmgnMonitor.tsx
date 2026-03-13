@@ -28,6 +28,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { tokens } from '@/lib/colors';
+import { NetworkFlowViz } from './NetworkFlowViz';
 import { NetworkFlow } from './NetworkFlow';
 import { useGmgnWallets, useGmgnTrades, useGmgnCategories } from './gmgn-hooks';
 import type { GmgnChain, GmgnWalletCategory, TradeEvent } from './gmgn-types';
@@ -75,6 +76,21 @@ export function GmgnMonitor() {
     if (selectedCategory === 'all') return trades;
     return trades.filter((t) => t.walletCategory === selectedCategory);
   }, [trades, selectedCategory]);
+
+  // Convert to NetworkFlowViz-compatible format
+  const vizTrades = useMemo(() => filteredTrades.map((t) => ({
+    id: t.id,
+    walletLabel: t.walletLabel,
+    walletAddress: t.walletAddress,
+    token: t.tokenSymbol,
+    tokenAddress: t.tokenAddress,
+    action: t.action === 'first_buy' ? 'buy' as const : t.action,
+    amount: t.amountUsd / 100,
+    amountUsd: t.amountUsd,
+    chain: t.chain,
+    timestamp: t.timestamp,
+    exchange: t.chain === 'sol' ? 'Jupiter' : 'PancakeSwap',
+  })), [filteredTrades]);
 
   // Aggregate stats
   const aggStats = useMemo(() => {
@@ -232,9 +248,9 @@ export function GmgnMonitor() {
 
       {/* ─── Network Flow Tab ─────────────────────────── */}
       {tab === 'network' && (
-        <div className="bg-surface rounded-xl border border-surface-border overflow-hidden">
+        <div>
           {tradesLoading || filteredTrades.length === 0 ? (
-            <div className="h-[700px] flex items-center justify-center">
+            <div className="bg-surface rounded-xl border border-surface-border h-[700px] flex items-center justify-center">
               <div className="text-center">
                 <RefreshCw
                   size={24}
@@ -246,7 +262,7 @@ export function GmgnMonitor() {
               </div>
             </div>
           ) : (
-            <NetworkFlow trades={filteredTrades} />
+            <NetworkFlowViz externalTrades={vizTrades} />
           )}
         </div>
       )}
