@@ -61,7 +61,7 @@ interface TradeEvent {
   walletAddress: string;
   token: string;
   tokenAddress: string;
-  action: 'buy' | 'sell' | 'transfer';
+  action: 'buy' | 'sell' | 'transfer' | 'first_buy';
   amount: number;
   amountUsd: number;
   chain: 'sol' | 'bsc';
@@ -302,9 +302,11 @@ function shortAddr(addr: string): string {
 
 interface NetworkFlowVizProps {
   className?: string;
+  /** External trade events from GMGN data. When provided, uses real data instead of simulation */
+  externalTrades?: TradeEvent[];
 }
 
-export function NetworkFlowViz({ className }: NetworkFlowVizProps) {
+export function NetworkFlowViz({ className, externalTrades }: NetworkFlowVizProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const animFrameRef = useRef<number>(0);
@@ -400,6 +402,38 @@ export function NetworkFlowViz({ className }: NetworkFlowVizProps) {
   useEffect(() => {
     if (!playing) return;
 
+    // When external trades are provided, iterate through them
+    if (externalTrades && externalTrades.length > 0) {
+      let idx = 0;
+      const interval = setInterval(() => {
+        const ext = externalTrades[idx % externalTrades.length];
+        // Map external GMGN trade to internal TradeEvent format
+        const trade: TradeEvent = {
+          id: `ext-${Date.now()}-${idx}`,
+          walletLabel: ext.walletLabel,
+          walletAddress: ext.walletAddress,
+          token: ext.token,
+          tokenAddress: ext.tokenAddress,
+          action: ext.action,
+          amount: ext.amount,
+          amountUsd: ext.amountUsd,
+          chain: ext.chain,
+          timestamp: Date.now(),
+          exchange: ext.chain === 'sol' ? 'Jupiter' : 'PancakeSwap',
+        };
+        spawnParticle(trade);
+        setStats((prev) => ({
+          totalTrades: prev.totalTrades + 1,
+          buys: prev.buys + (trade.action === 'buy' ? 1 : 0),
+          sells: prev.sells + (trade.action === 'sell' ? 1 : 0),
+          volume: prev.volume + trade.amountUsd,
+        }));
+        idx++;
+      }, 400 + Math.random() * 600);
+      return () => clearInterval(interval);
+    }
+
+    // Default: simulated trades
     const interval = setInterval(() => {
       const trade = generateTrade(chainFilter);
       spawnParticle(trade);
@@ -412,7 +446,7 @@ export function NetworkFlowViz({ className }: NetworkFlowVizProps) {
     }, 400 + Math.random() * 600); // 2-4 trades/sec
 
     return () => clearInterval(interval);
-  }, [playing, chainFilter, spawnParticle]);
+  }, [playing, chainFilter, spawnParticle, externalTrades]);
 
   // Canvas animation loop
   useEffect(() => {
