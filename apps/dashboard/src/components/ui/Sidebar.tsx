@@ -37,6 +37,9 @@ import {
   Palette,
   Ship,
   Coins,
+  AlertTriangle,
+  Bitcoin,
+  Vote,
 } from 'lucide-react';
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
@@ -87,7 +90,9 @@ const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Research',
     items: [
+      { label: 'GMGN Monitor', href: '/gmgn', icon: <Eye size={18} /> },
       { label: 'Smart Money', href: '/smart-money', icon: <ArrowRightLeft size={18} /> },
+      { label: 'SM Live', href: '/smart-money-live', icon: <Activity size={18} /> },
       { label: 'Wallet Intel', href: '/wallet-intel', icon: <Scan size={18} /> },
       { label: 'AI Analysis', href: '/sentiment', icon: <Brain size={18} /> },
       { label: 'DeFi', href: '/defi', icon: <Landmark size={18} /> },
@@ -98,6 +103,9 @@ const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Analytics',
     items: [
+      { label: 'Anomalies', href: '/anomalies', icon: <AlertTriangle size={18} /> },
+      { label: 'Bitcoin', href: '/bitcoin', icon: <Bitcoin size={18} /> },
+      { label: 'Governance', href: '/governance', icon: <Vote size={18} /> },
       { label: 'Derivatives', href: '/derivatives', icon: <Gauge size={18} /> },
       { label: 'Exchanges', href: '/exchanges', icon: <Building2 size={18} /> },
       { label: 'Whale Tracker', href: '/whales', icon: <Ship size={18} /> },

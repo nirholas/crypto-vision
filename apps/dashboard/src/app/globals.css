@@ -7,23 +7,23 @@
    Bloomberg-style Dark Trading Terminal Theme
    =========================================== */
 :root {
-  /* Backgrounds */
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #12121a;
-  --bg-tertiary: #1a1a2e;
+  /* Backgrounds — pure black */
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #111111;
 
-  /* Surfaces */
-  --surface: #12121a;
-  --surface-alt: #1a1a2e;
-  --surface-hover: #22223a;
-  --surface-elevated: #252540;
-  --surface-border: rgba(255, 255, 255, 0.06);
+  /* Surfaces — near-black cards */
+  --surface: #0a0a0a;
+  --surface-alt: #111111;
+  --surface-hover: #1a1a1a;
+  --surface-elevated: #1f1f1f;
+  --surface-border: rgba(255, 255, 255, 0.08);
 
-  /* Text */
-  --text-primary: #e4e4e7;
-  --text-secondary: #a1a1aa;
-  --text-muted: #52525b;
-  --text-disabled: #3f3f46;
+  /* Text — white hierarchy */
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-muted: #666666;
+  --text-disabled: #444444;
 
   /* Brand */
   --brand: #00d4aa;
@@ -33,13 +33,13 @@
   --secondary: #7b61ff;
   --secondary-hover: #8f78ff;
 
-  /* Semantic */
-  --gain: #00d68f;
-  --gain-bg: rgba(0, 214, 143, 0.1);
-  --loss: #ff3d71;
-  --loss-bg: rgba(255, 61, 113, 0.1);
-  --warning: #ffaa00;
-  --warning-bg: rgba(255, 170, 0, 0.1);
+  /* Semantic — bright red & green */
+  --gain: #00ff00;
+  --gain-bg: rgba(0, 255, 0, 0.08);
+  --loss: #ff0000;
+  --loss-bg: rgba(255, 0, 0, 0.08);
+  --warning: #ffcc00;
+  --warning-bg: rgba(255, 204, 0, 0.08);
   --info: #7b61ff;
 
   /* Layout */
@@ -175,20 +175,20 @@ html, body {
    GLASS MORPHISM
    =========================================== */
 .glass {
-  background: rgba(18, 18, 26, 0.8);
+  background: rgba(10, 10, 10, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--surface-border);
 }
 .glass-card {
-  background: rgba(18, 18, 26, 0.6);
+  background: rgba(10, 10, 10, 0.7);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--surface-border);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
 }
 .glass-subtle {
-  background: rgba(26, 26, 46, 0.4);
+  background: rgba(17, 17, 17, 0.5);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--surface-border);
@@ -207,8 +207,8 @@ html, body {
 }
 .card-glow { transition: box-shadow 0.3s ease-out; }
 .card-glow:hover { box-shadow: 0 0 20px rgba(0, 212, 170, 0.15), 0 0 40px rgba(0, 212, 170, 0.05); }
-.card-glow-gain:hover { box-shadow: 0 0 20px rgba(0, 214, 143, 0.2), 0 0 40px rgba(0, 214, 143, 0.08); }
-.card-glow-loss:hover { box-shadow: 0 0 20px rgba(255, 61, 113, 0.2), 0 0 40px rgba(255, 61, 113, 0.08); }
+.card-glow-gain:hover { box-shadow: 0 0 20px rgba(0, 255, 0, 0.2), 0 0 40px rgba(0, 255, 0, 0.08); }
+.card-glow-loss:hover { box-shadow: 0 0 20px rgba(255, 0, 0, 0.2), 0 0 40px rgba(255, 0, 0, 0.08); }
 
 .card-shine { position: relative; overflow: hidden; }
 .card-shine::before {
@@ -274,8 +274,8 @@ html, body {
    =========================================== */
 .price-flash-up { animation: flash-green 0.5s ease; }
 .price-flash-down { animation: flash-red 0.5s ease; }
-@keyframes flash-green { 0% { background-color: transparent; } 50% { background-color: rgba(0, 214, 143, 0.2); } 100% { background-color: transparent; } }
-@keyframes flash-red { 0% { background-color: transparent; } 50% { background-color: rgba(255, 61, 113, 0.2); } 100% { background-color: transparent; } }
+@keyframes flash-green { 0% { background-color: transparent; } 50% { background-color: rgba(0, 255, 0, 0.15); } 100% { background-color: transparent; } }
+@keyframes flash-red { 0% { background-color: transparent; } 50% { background-color: rgba(255, 0, 0, 0.15); } 100% { background-color: transparent; } }
 .value-update { animation: value-bounce 0.3s ease-out; }
 .counter-animate { display: inline-block; transition: transform 0.15s ease-out; }
 
@@ -339,8 +339,8 @@ html, body {
 
 .glow-primary { box-shadow: 0 0 20px rgba(0, 212, 170, 0.2); }
 .glow-secondary { box-shadow: 0 0 20px rgba(123, 97, 255, 0.2); }
-.glow-gain { box-shadow: 0 0 20px rgba(0, 214, 143, 0.2); }
-.glow-loss { box-shadow: 0 0 20px rgba(255, 61, 113, 0.2); }
+.glow-gain { box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); }
+.glow-loss { box-shadow: 0 0 20px rgba(255, 0, 0, 0.2); }
 
 .live-pulse::after {
   content: ''; position: absolute; top: 0; right: 0;
@@ -448,8 +448,8 @@ html, body {
 .connection-status-dot-disconnected { background-color: var(--text-muted); }
 .connection-status-dot-error { background-color: var(--loss); animation: connection-pulse-red 1.5s ease-in-out infinite; }
 
-@keyframes connection-pulse-green { 0%, 100% { box-shadow: 0 0 0 0 rgba(0, 214, 143, 0.6); } 50% { box-shadow: 0 0 0 4px rgba(0, 214, 143, 0); } }
-@keyframes connection-pulse-red { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 61, 113, 0.6); } 50% { box-shadow: 0 0 0 4px rgba(255, 61, 113, 0); } }
+@keyframes connection-pulse-green { 0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.6); } 50% { box-shadow: 0 0 0 4px rgba(0, 255, 0, 0); } }
+@keyframes connection-pulse-red { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.6); } 50% { box-shadow: 0 0 0 4px rgba(255, 0, 0, 0); } }
 @keyframes connection-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
 /* ===========================================
@@ -478,8 +478,8 @@ html, body {
 
 .price-flash-border-up { animation: flash-border-green 0.5s ease; }
 .price-flash-border-down { animation: flash-border-red 0.5s ease; }
-@keyframes flash-border-green { 0% { border-color: transparent; } 50% { border-color: var(--gain); box-shadow: 0 0 8px rgba(0, 214, 143, 0.3); } 100% { border-color: transparent; } }
-@keyframes flash-border-red { 0% { border-color: transparent; } 50% { border-color: var(--loss); box-shadow: 0 0 8px rgba(255, 61, 113, 0.3); } 100% { border-color: transparent; } }
+@keyframes flash-border-green { 0% { border-color: transparent; } 50% { border-color: var(--gain); box-shadow: 0 0 8px rgba(0, 255, 0, 0.3); } 100% { border-color: transparent; } }
+@keyframes flash-border-red { 0% { border-color: transparent; } 50% { border-color: var(--loss); box-shadow: 0 0 8px rgba(255, 0, 0, 0.3); } 100% { border-color: transparent; } }
 
 .skeleton-pulse { background: var(--surface); animation: skeleton-pulse-animation 1.5s ease-in-out infinite; }
 @keyframes skeleton-pulse-animation { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }

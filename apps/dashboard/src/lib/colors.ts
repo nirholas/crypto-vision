@@ -24,46 +24,46 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const tokens = {
-  // Background hierarchy
+  // Background hierarchy — pure black
   background: {
-    primary: '#0D1421', // Main app background
-    secondary: '#131A2A', // Sections, header
-    tertiary: '#171E2E', // Nested containers
+    primary: '#000000',
+    secondary: '#0a0a0a',
+    tertiary: '#111111',
   },
 
   // Surface hierarchy (cards, modals, dropdowns)
   surface: {
-    default: '#1E2329', // Cards, modals
-    hover: '#252B36', // Hover state
-    elevated: '#2B3139', // Dropdowns, popovers
-    border: '#2B3544', // All borders
+    default: '#0a0a0a',
+    hover: '#1a1a1a',
+    elevated: '#1f1f1f',
+    border: 'rgba(255, 255, 255, 0.08)',
   },
 
-  // Text hierarchy
+  // Text hierarchy — white
   text: {
-    primary: '#FFFFFF', // Headings, important text
-    secondary: '#A6B0C3', // Body text, labels
-    muted: '#808A9D', // Captions, metadata
-    disabled: '#5E6673', // Disabled state
+    primary: '#FFFFFF',
+    secondary: '#B0B0B0',
+    muted: '#666666',
+    disabled: '#444444',
   },
 
   // Brand colors
   brand: {
-    primary: '#3861FB', // CMC blue - CTAs, links
-    primaryHover: '#4A73FF',
-    secondary: '#8DC647', // CoinGecko green
+    primary: '#00d4aa',
+    primaryHover: '#00e4ba',
+    secondary: '#7b61ff',
   },
 
-  // Semantic colors
+  // Semantic colors — bright red & green
   semantic: {
-    gain: '#16C784', // Positive change
-    gainBg: 'rgba(22, 199, 132, 0.1)',
-    loss: '#EA3943', // Negative change
-    lossBg: 'rgba(234, 57, 67, 0.1)',
-    warning: '#F7931A', // Bitcoin orange
-    warningBg: 'rgba(247, 147, 26, 0.1)',
-    info: '#3B82F6',
-    infoBg: 'rgba(59, 130, 246, 0.1)',
+    gain: '#00ff00',
+    gainBg: 'rgba(0, 255, 0, 0.08)',
+    loss: '#ff0000',
+    lossBg: 'rgba(255, 0, 0, 0.08)',
+    warning: '#ffcc00',
+    warningBg: 'rgba(255, 204, 0, 0.08)',
+    info: '#7b61ff',
+    infoBg: 'rgba(123, 97, 255, 0.08)',
   },
 } as const;
 

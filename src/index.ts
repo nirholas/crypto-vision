@@ -82,6 +82,7 @@ import { solanaRoutes } from "@/routes/solana";
 import { stakingRoutes } from "@/routes/staking";
 import { unlocksRoutes } from "@/routes/unlocks";
 import { whaleRoutes } from "@/routes/whales";
+import { gmgnRoutes } from "@/routes/gmgn";
 import { createWsRoutes } from "@/routes/ws";
 import { cryptoVisionRoutes } from "@/routes/crypto-vision";
 
@@ -771,6 +772,7 @@ app.route("/api/depin", depinRoutes);
 app.route("/api/exchanges", exchangesRoutes);
 app.route("/api/nft", nftRoutes);
 app.route("/api/whales", whaleRoutes);
+app.route("/api/gmgn", gmgnRoutes);
 app.route("/api/staking", stakingRoutes);
 app.route("/api/calendar", calendarRoutes);
 app.route("/api/oracles", oracleRoutes);

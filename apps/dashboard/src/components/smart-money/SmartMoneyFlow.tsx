@@ -14,13 +14,15 @@ import { ArrowRightLeft, Radio, BarChart3, RefreshCw } from 'lucide-react';
 import { FlowDiagram } from './FlowDiagram';
 import { LiveFeed } from './LiveFeed';
 import { FlowMetrics } from './FlowMetrics';
+import { NetworkFlowViz } from './NetworkFlowViz';
 import { useFlowData } from './hooks';
 
 // ─── Tabs ───────────────────────────────────────────────────
 
-type Tab = 'flow' | 'live' | 'metrics';
+type Tab = 'network' | 'flow' | 'live' | 'metrics';
 
 const TABS: { id: Tab; label: string; Icon: typeof ArrowRightLeft }[] = [
+  { id: 'network', label: 'Network', Icon: Radio },
   { id: 'flow', label: 'Flow Map', Icon: ArrowRightLeft },
   { id: 'live', label: 'Live Feed', Icon: Radio },
   { id: 'metrics', label: 'Metrics', Icon: BarChart3 },
@@ -29,7 +31,7 @@ const TABS: { id: Tab; label: string; Icon: typeof ArrowRightLeft }[] = [
 // ─── Component ──────────────────────────────────────────────
 
 export function SmartMoneyFlow() {
-  const [activeTab, setActiveTab] = useState<Tab>('flow');
+  const [activeTab, setActiveTab] = useState<Tab>('network');
   const { data: flowData, isLoading } = useFlowData();
 
   return (
@@ -76,6 +78,8 @@ export function SmartMoneyFlow() {
 
       {/* Tab content */}
       <div className="min-h-[500px]">
+        {activeTab === 'network' && <NetworkFlowViz />}
+
         {activeTab === 'flow' && (
           <div className="bg-surface rounded-xl border border-surface-border p-6">
             <div className="flex items-center justify-between mb-4">
