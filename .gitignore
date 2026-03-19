@@ -23,4 +23,10 @@ coverage
 *.p12
 *.pfx
 
+agents 
+apps 
+infra 
+packages 
 pump-agent-swarm
+scripts 
+src 
