@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test & Typecheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Audit
+        run: pnpm audit --audit-level=high
+        continue-on-error: true
+
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t x402-facilitator:test .
+
+      - name: Verify image starts
+        run: |
+          docker run -d \
+            --name test-facilitator \
+            -p 3402:3402 \
+            -e FACILITATOR_PRIVATE_KEY=0x0000000000000000000000000000000000000000000000000000000000000001 \
+            -e BASE_RPC_URL=https://mainnet.base.org \
+            -e PORT=3402 \
+            x402-facilitator:test
+
+          # Wait for startup
+          sleep 5
+
+          # Health check
+          curl -f http://localhost:3402/health || exit 1
+
+          # Cleanup
+          docker stop test-facilitator
+          docker rm test-facilitator
