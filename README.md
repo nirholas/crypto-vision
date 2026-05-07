@@ -1,5 +1,5 @@
 # Crypto Vision   
-
+ 
 > A production-grade crypto intelligence platform — 200+ API endpoints, 37 data sources, 58 AI agents, real-time WebSocket feeds, anomaly detection, RAG-powered semantic search, BigQuery data warehouse, and a complete AI model training pipeline.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
