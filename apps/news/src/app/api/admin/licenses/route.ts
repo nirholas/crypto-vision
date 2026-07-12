@@ -8,6 +8,7 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { kv } from '@vercel/kv';
+import { requireAdminAuth } from '@/lib/admin-auth';
 
 export const runtime = 'edge';
 
@@ -288,6 +289,10 @@ async function getRevenueStats(): Promise<RevenueStats> {
 // =============================================================================
 
 export async function GET(request: NextRequest) {
+  // Require admin authentication before exposing revenue / key / payment data
+  const authError = requireAdminAuth(request);
+  if (authError) return authError;
+
   try {
     const { searchParams } = new URL(request.url);
 

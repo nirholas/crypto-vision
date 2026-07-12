@@ -7,7 +7,24 @@
 'use client';
 
 import { memo, useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import sanitizeHtml from 'sanitize-html';
 import type { ChatMessage } from './types';
+
+/** Escape HTML special chars so message previews cannot inject markup. */
+const escapeHtml = (text: string): string =>
+  text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+/** Only the <mark> highlight wrapper we generate is allowed through. */
+const HIGHLIGHT_SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags: ['mark'],
+  allowedAttributes: { mark: ['class'] },
+  disallowedTagsMode: 'escape',
+};
 
 // Debounce hook for search performance
 function useDebounce<T>(value: T, delay: number): T {
@@ -34,9 +51,16 @@ interface SearchResult {
 }
 
 function highlightText(text: string, query: string): string {
-  if (!query.trim()) return text;
+  // Escape the preview text FIRST so message content cannot inject markup,
+  // then wrap matches in <mark>, then sanitize as defense in depth.
+  const escaped = escapeHtml(text);
+  if (!query.trim()) return escaped;
   const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-  return text.replace(regex, '<mark class="bg-yellow-500/30 text-yellow-200 rounded px-0.5">$1</mark>');
+  const highlighted = escaped.replace(
+    regex,
+    '<mark class="bg-yellow-500/30 text-yellow-200 rounded px-0.5">$1</mark>'
+  );
+  return sanitizeHtml(highlighted, HIGHLIGHT_SANITIZE_OPTIONS);
 }
 
 function MessageSearchComponent({ messages, onResultClick, onClose }: MessageSearchProps) {
