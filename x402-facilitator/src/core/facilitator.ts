@@ -14,7 +14,7 @@ import type {
   PaymentRequirements,
 } from '../types/index.js';
 import { ERC20_TRANSFER_WITH_AUTHORIZATION_ABI } from '../abi/erc20-permit.js';
-import { verifyPayment } from './verifier.js';
+import { PaymentVerifier, verifyPayment } from './verifier.js';
 import { logger } from '../utils/logger.js';
 import { metrics } from '../utils/metrics.js';
 
@@ -55,6 +55,7 @@ export class Facilitator {
   private publicClients: Map<SupportedChainId, PublicClient> = new Map();
   private readonly address: Address;
   private inflightNonces: Set<string> = new Set();
+  private readonly paymentVerifier = new PaymentVerifier();
 
   constructor(config: FacilitatorConfig) {
     const account = privateKeyToAccount(config.privateKey);
@@ -83,12 +84,17 @@ export class Facilitator {
    */
   async verify(
     payment: X402Payment,
-    _requirements?: PaymentRequirements,
+    requirements?: PaymentRequirements,
   ): Promise<VerifyResponse> {
     const start = Date.now();
 
     try {
-      const result = await verifyPayment(payment);
+      // When requirements are provided, enforce them (chain/asset/recipient/amount/
+      // timing/expiry/signature) via PaymentVerifier. Fall back to the standalone
+      // verifier only when no requirements are supplied.
+      const result = requirements
+        ? await this.paymentVerifier.verify(payment, requirements)
+        : await verifyPayment(payment);
 
       metrics.verifyRequests.inc({ valid: String(result.valid) });
       metrics.verifyLatency.observe(Date.now() - start);

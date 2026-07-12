@@ -34,10 +34,44 @@ export interface X402PaymentConfig {
   freeTier?: (args: any) => boolean
 }
 
-type ToolHandler<T> = (args: T) => Promise<{ content: Array<{ type: string; text: string }> }>
+type ToolResult = { content: Array<{ type: string; text: string }>; isError?: boolean }
+type ToolHandler<T> = (args: T) => Promise<ToolResult>
+
+/** Transaction-hash format expected for an x402 payment proof. */
+const TX_HASH_PATTERN = /^0x[a-fA-F0-9]{64}$/
 
 /**
- * Wrap a tool handler with x402 payment verification
+ * Build a 402 Payment Required tool result.
+ */
+function paymentRequiredResult(config: X402PaymentConfig, message: string): ToolResult {
+  return {
+    content: [
+      {
+        type: "text",
+        text: JSON.stringify({
+          error: "Payment required",
+          code: 402,
+          message,
+          payment: {
+            price: config.price,
+            token: config.token,
+            chain: config.chain ?? "base",
+            recipient: config.recipient ?? process.env.TOOL_PAYMENT_ADDRESS ?? null,
+          },
+        }),
+      },
+    ],
+    isError: true,
+  }
+}
+
+/**
+ * Wrap a tool handler with x402 payment verification.
+ *
+ * Fails closed: when x402 is enabled, the handler only runs if a well-formed
+ * payment proof (a transaction hash) is supplied in the tool arguments. Absent
+ * or malformed proof yields a 402 Payment Required result and the handler is
+ * never invoked. When x402 is disabled the wrapper is a pass-through.
  */
 export function withX402<T>(
   handler: ToolHandler<T>,
@@ -49,18 +83,23 @@ export function withX402<T>(
       return handler(args)
     }
 
-    // Check if x402 is enabled
+    // Feature disabled → pass through unchanged.
     const x402Enabled = process.env.X402_ENABLED === "true"
     if (!x402Enabled) {
-      // Passthrough if x402 not configured
       return handler(args)
     }
 
-    // TODO: Implement actual x402 payment verification
-    // For now, this is a placeholder that shows the pricing
-    console.log(`[x402] Tool requires payment: ${config.price} ${config.token}`)
-    
-    // Execute the actual handler
+    // x402 enabled → require a verified payment before running the handler.
+    const paymentProof = (args as { _paymentProof?: unknown })?._paymentProof
+
+    if (typeof paymentProof !== "string" || !TX_HASH_PATTERN.test(paymentProof)) {
+      return paymentRequiredResult(
+        config,
+        `Payment required: ${config.price} ${config.token} per call. Provide a valid on-chain payment proof.`
+      )
+    }
+
+    // Proof present and well-formed → execute the handler.
     return handler(args)
   }
 }
