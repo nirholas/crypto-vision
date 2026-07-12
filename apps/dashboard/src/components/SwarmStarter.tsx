@@ -16,19 +16,14 @@ export function SwarmStarter({ onStarted, onError }: SwarmStarterProps) {
     setError(null);
 
     try {
-      const openRouterApiKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
-
-      if (!openRouterApiKey) {
-        throw new Error('OpenRouter API key not configured. Set NEXT_PUBLIC_OPENROUTER_API_KEY environment variable.');
-      }
-
+      // The OpenRouter API key is held server-side (OPENROUTER_API_KEY) and
+      // never sent from the browser. We only pass non-sensitive demo config.
       const response = await fetch('/api/swarm/start', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          openRouterApiKey,
           audience: 'technical',
           presenterName: 'AI Swarm Demo',
           hackathonName: 'Live Demonstration',

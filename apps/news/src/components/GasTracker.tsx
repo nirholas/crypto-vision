@@ -136,14 +136,14 @@ async function fetchGasFromOwlracle(): Promise<GasPrice | null> {
 // Blocknative public endpoint
 async function fetchGasFromBlocknative(): Promise<GasPrice | null> {
   try {
+    // SECURITY: never send a Blocknative API key from the browser — any
+    // NEXT_PUBLIC_* value is baked into the client bundle and extractable.
+    // This keyless request uses Blocknative's public endpoint; to use an
+    // authenticated key, add a server route that reads BLOCKNATIVE_API_KEY
+    // (no NEXT_PUBLIC_ prefix) and proxy this fetch through it.
     const response = await fetch(
       'https://api.blocknative.com/gasprices/blockprices',
-      { 
-        cache: 'no-store',
-        headers: {
-          'Authorization': process.env.NEXT_PUBLIC_BLOCKNATIVE_API_KEY || '',
-        }
-      }
+      { cache: 'no-store' }
     );
     
     if (!response.ok) return null;

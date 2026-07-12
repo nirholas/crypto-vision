@@ -8,8 +8,30 @@
 'use client';
 
 import { useRef, useEffect, useState, memo } from 'react';
+import sanitizeHtml from 'sanitize-html';
 import type { ChatMessage as ChatMessageType, Source, ConfidenceScore } from './types';
 import { ConfidenceBadge } from './ConfidenceBadge';
+
+/** Escape HTML special chars so raw AI/RAG text cannot inject markup. */
+const escapeHtml = (text: string): string =>
+  text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+/** Conservative allowlist for the inline markdown we generate ourselves. */
+const INLINE_SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags: ['a', 'strong', 'em', 'code', 'br', 'button'],
+  allowedAttributes: {
+    a: ['href', 'target', 'rel', 'class'],
+    code: ['class'],
+    button: ['class', 'data-citation'],
+  },
+  allowedSchemes: ['http', 'https'],
+  disallowedTagsMode: 'escape',
+};
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -122,11 +144,15 @@ function ChatMessageComponent({
     return parts;
   };
 
-  // Process inline markdown
+  // Process inline markdown. Raw text is HTML-escaped FIRST so any markup in
+  // the AI/RAG content is neutralized; we then apply our own markdown
+  // transforms and finally run the result through sanitize-html as defense in
+  // depth (drops any tag/scheme outside the allowlist).
   const processInline = (text: string) => {
-    // Handle citations [1], [2], etc
-    const citationPattern = /\[(\d+)\]/g;
-    let processed = text.replace(citationPattern, (match, num) => {
+    let processed = escapeHtml(text);
+
+    // Citations [1], [2], etc → clickable buttons
+    processed = processed.replace(/\[(\d+)\]/g, (_match, num) => {
       return `<button class="citation-link" data-citation="${num}">[${num}]</button>`;
     });
 
@@ -136,12 +162,15 @@ function ChatMessageComponent({
     processed = processed.replace(/\*(.+?)\*/g, '<em>$1</em>');
     // Inline code
     processed = processed.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
-    // Links
-    processed = processed.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" class="text-blue-400 hover:underline">$1</a>');
+    // Links — only allow http(s) hrefs; drop javascript:/data:/other schemes
+    processed = processed.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label, url) => {
+      if (!/^https?:/i.test(url)) return label;
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">${label}</a>`;
+    });
     // Line breaks
     processed = processed.replace(/\n/g, '<br />');
 
-    return processed;
+    return sanitizeHtml(processed, INLINE_SANITIZE_OPTIONS);
   };
 
   // Handle citation clicks

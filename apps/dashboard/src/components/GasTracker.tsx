@@ -53,14 +53,14 @@ export function GasTracker() {
           setEthPrice(priceData.ethereum?.usd || 0);
         }
 
-        // Fetch real gas data from Etherscan API (free tier)
-        // Note: For production, add ETHERSCAN_API_KEY to .env
-        const etherscanApiKey = process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY || '';
-        const gasUrl = etherscanApiKey 
-          ? `https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=${etherscanApiKey}`
-          : 'https://api.etherscan.io/api?module=gastracker&action=gasoracle';
-        
-        const gasRes = await fetch(gasUrl);
+        // Fetch real gas data from Etherscan's keyless public gas oracle.
+        // SECURITY: never embed an Etherscan API key here — any NEXT_PUBLIC_*
+        // value is baked into the client bundle and extractable. To use an
+        // authenticated (higher-rate-limit) key, add a server route that reads
+        // ETHERSCAN_API_KEY (no NEXT_PUBLIC_ prefix) and proxy this fetch through it.
+        const gasRes = await fetch(
+          'https://api.etherscan.io/api?module=gastracker&action=gasoracle'
+        );
         
         if (gasRes.ok) {
           const gasResult = await gasRes.json();

@@ -7,13 +7,17 @@ import { swarmEventManager } from '../events/route';
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // Parse (and ignore) any client-supplied config. The OpenRouter key is
+    // read from server-side env ONLY — it must never be accepted from, or
+    // exposed to, the browser.
+    await request.json().catch(() => ({}));
 
-    // Validate required fields
-    if (!body.openRouterApiKey) {
+    // Server-held secret (no NEXT_PUBLIC_ prefix, never shipped to the client)
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    if (!openRouterApiKey) {
       return NextResponse.json(
-        { error: 'openRouterApiKey is required' },
-        { status: 400 }
+        { error: 'OpenRouter API key not configured on the server' },
+        { status: 500 }
       );
     }
 
