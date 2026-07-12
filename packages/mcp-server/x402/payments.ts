@@ -11,7 +11,12 @@
  */
 
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
+import type { Address, Hash } from "viem"
 import Logger from "@/utils/logger.js"
+import { verifyPaymentForTool, type SupportedChainId } from "./verify.js"
+
+// Chain the tool-payment requirements settle on (Base mainnet, eip155:8453)
+const PAYMENT_CHAIN_ID: SupportedChainId = 8453
 
 // Fee recipient address - UPDATE THIS TO YOUR ADDRESS
 export const FEE_RECIPIENT = process.env.X402_FEE_RECIPIENT || "0x742d35Cc6634C0532925a3b844Bc9e7595f5bB0D"
@@ -131,36 +136,75 @@ export function generatePaymentHeader(toolName: string): Record<string, string> 
 }
 
 /**
- * Verify x402 payment was made
- * In production, this would verify the transaction on-chain
+ * Verify x402 payment was made.
+ *
+ * Fails closed: a well-formed transaction hash is NOT sufficient on its own.
+ * The proof is verified on-chain (recipient + amount + token + confirmation)
+ * via {@link verifyPaymentForTool}. Access is only granted when that on-chain
+ * check succeeds. An explicit `X402_ALLOW_UNVERIFIED=true` dev flag can bypass
+ * on-chain verification for local development only.
  */
 export async function verifyPayment(
   toolName: string,
   paymentProof: string
 ): Promise<{ valid: boolean; error?: string }> {
   const requirement = getPaymentRequirement(toolName)
-  
+
   // Free tools don't need payment
   if (!requirement) {
     return { valid: true }
   }
-  
-  // TODO: Implement actual on-chain verification
-  // For now, accept any non-empty proof
+
   if (!paymentProof) {
-    return { 
-      valid: false, 
-      error: `Payment required: ${requirement.amount} ${requirement.currency} to ${requirement.recipient}` 
+    return {
+      valid: false,
+      error: `Payment required: ${requirement.amount} ${requirement.currency} to ${requirement.recipient}`
     }
   }
-  
-  // Verify transaction hash format
+
+  // Payment proof must be a transaction hash
   if (!/^0x[a-fA-F0-9]{64}$/.test(paymentProof)) {
     return { valid: false, error: "Invalid payment proof format" }
   }
-  
-  Logger.info("Payment verified", { toolName, paymentProof, amount: requirement.amount })
-  return { valid: true }
+
+  // Dev-only escape hatch. Never active under production defaults.
+  if (process.env.X402_ALLOW_UNVERIFIED === "true") {
+    Logger.warn(
+      "X402_ALLOW_UNVERIFIED=true — skipping on-chain payment verification (development only)",
+      { toolName, paymentProof }
+    )
+    return { valid: true }
+  }
+
+  // Verify the payment on-chain: recipient, amount, token and confirmation.
+  try {
+    const verification = await verifyPaymentForTool(
+      toolName,
+      paymentProof as Hash,
+      PAYMENT_CHAIN_ID,
+      requirement.recipient as Address
+    )
+
+    if (!verification.valid) {
+      return {
+        valid: false,
+        error: verification.error ?? "On-chain payment verification failed",
+      }
+    }
+
+    Logger.info("Payment verified on-chain", {
+      toolName,
+      paymentProof,
+      amount: requirement.amount,
+    })
+    return { valid: true }
+  } catch (error) {
+    Logger.error(`x402 Payments: on-chain verification error for ${toolName}: ${error}`)
+    return {
+      valid: false,
+      error: "on-chain verification unavailable",
+    }
+  }
 }
 
 /**

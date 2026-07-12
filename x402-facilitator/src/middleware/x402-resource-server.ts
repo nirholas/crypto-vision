@@ -53,7 +53,7 @@ export function x402PaymentRequired(options: ResourceServerOptions): MiddlewareH
       const verifyRes = await fetchFn(`${facilitatorUrl}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ payment, paymentRequirements }),
+        body: JSON.stringify({ paymentPayload: payment, paymentRequirements }),
       });
 
       const verifyData = (await verifyRes.json()) as VerifyResponse;
@@ -66,7 +66,7 @@ export function x402PaymentRequired(options: ResourceServerOptions): MiddlewareH
       const settleRes = await fetchFn(`${facilitatorUrl}/settle`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ payment, paymentRequirements }),
+        body: JSON.stringify({ paymentPayload: payment, paymentRequirements }),
       });
 
       const settleData = (await settleRes.json()) as SettleResponse;

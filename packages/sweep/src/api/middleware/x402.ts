@@ -473,29 +473,45 @@ export function x402Middleware(config: X402Config) {
       c.req.header("x-forwarded-for")?.split(",")[0] || 
       "anonymous";
 
-    // Check for x-credits header (prepaid credits)
+    // Check for x-credits header (prepaid credits).
+    // SECURITY: credits may ONLY be spent from the authenticated wallet's
+    // balance. The x-credits header cannot be trusted to name an arbitrary
+    // account, or any caller could drain another user's credits. We derive
+    // the wallet from the SIWE session on the context and only honor the
+    // header when it matches that authenticated address. If there is no
+    // authenticated wallet, skip the credits path entirely (no deduction).
+    const authWalletAddress = c.get("walletAddress");
     const creditsHeader = c.req.header("x-credits");
-    if (creditsHeader && finalConfig.allowCredits) {
-      try {
-        const walletAddress = creditsHeader;
-        const creditBalance = await checkCredits(walletAddress);
-        
-        if (creditBalance >= finalConfig.amountCents) {
-          // Deduct credits and proceed
-          await deductCredits(walletAddress, finalConfig.amountCents, endpoint);
-          
-          c.header(CREDITS_HEADER, finalConfig.amountCents.toString());
-          c.set("x402PaymentType" as never, "credits");
-          
-          // Record usage
-          await recordUsage(walletAddress, endpoint, method, finalConfig.amountCents, "credits");
-          
-          await next();
-          return;
+    if (creditsHeader && finalConfig.allowCredits && authWalletAddress) {
+      const headerMatchesAuth =
+        creditsHeader.toLowerCase() === authWalletAddress.toLowerCase();
+
+      if (!headerMatchesAuth) {
+        console.warn(
+          "[x402] x-credits header does not match authenticated wallet; ignoring credits path"
+        );
+      } else {
+        try {
+          const walletAddress = authWalletAddress;
+          const creditBalance = await checkCredits(walletAddress);
+
+          if (creditBalance >= finalConfig.amountCents) {
+            // Deduct credits and proceed
+            await deductCredits(walletAddress, finalConfig.amountCents, endpoint);
+
+            c.header(CREDITS_HEADER, finalConfig.amountCents.toString());
+            c.set("x402PaymentType" as never, "credits");
+
+            // Record usage
+            await recordUsage(walletAddress, endpoint, method, finalConfig.amountCents, "credits");
+
+            await next();
+            return;
+          }
+        } catch (error) {
+          console.error("[x402] Credits check error:", error);
+          // Fall through to x402 payment
         }
-      } catch (error) {
-        console.error("[x402] Credits check error:", error);
-        // Fall through to x402 payment
       }
     }
 

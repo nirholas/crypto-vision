@@ -199,26 +199,44 @@ export async function verifyPaymentProof(
     }
     result.details!.amountMatches = true
 
-    // Verify facilitator signature if provided
-    if (proof.facilitatorSignature && facilitatorAddress) {
-      const signatureValid = await verifyFacilitatorSignature(
-        proof,
-        proof.facilitatorSignature,
-        facilitatorAddress
+    // A payment proof is only trusted when a known facilitator has signed it.
+    // Fail closed if the signature (or the address needed to check it) is absent
+    // or invalid — an unsigned proof carries no cryptographic guarantee.
+    if (!proof.facilitatorSignature) {
+      result.valid = false
+      result.errors.push(
+        "No facilitator signature provided - payment cannot be verified"
       )
-      if (!signatureValid) {
-        result.valid = false
-        result.errors.push("Invalid facilitator signature")
-        logSecurityEvent("invalid_signature", {
-          type: "facilitator",
-          txHash: proof.txHash,
-        }, "warning")
-        return result
-      }
-      result.details!.signatureValid = true
-    } else if (!proof.facilitatorSignature) {
-      result.warnings.push("No facilitator signature provided - verify transaction on-chain")
+      logSecurityEvent("invalid_signature", {
+        type: "facilitator_missing",
+        txHash: proof.txHash,
+      }, "warning")
+      return result
     }
+
+    if (!facilitatorAddress) {
+      result.valid = false
+      result.errors.push(
+        "No facilitator address configured - cannot verify signature"
+      )
+      return result
+    }
+
+    const signatureValid = await verifyFacilitatorSignature(
+      proof,
+      proof.facilitatorSignature,
+      facilitatorAddress
+    )
+    if (!signatureValid) {
+      result.valid = false
+      result.errors.push("Invalid facilitator signature")
+      logSecurityEvent("invalid_signature", {
+        type: "facilitator",
+        txHash: proof.txHash,
+      }, "warning")
+      return result
+    }
+    result.details!.signatureValid = true
 
     // Mark nonce as used
     markNonceUsed(proof.nonce, proof.txHash)

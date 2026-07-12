@@ -190,13 +190,18 @@ export async function verifyPaymentOnChain(
   } catch (error) {
     console.error("[Payment] On-chain verification error:", error);
 
-    // Return valid=true with warning if we can't verify
-    // This allows fallback to facilitator verification
-    if (process.env.X402_STRICT_VERIFICATION !== "true") {
-      console.warn("[Payment] Falling back to permissive mode");
+    // Fail CLOSED by default: an error during verification means we cannot
+    // prove the payment is valid, so we must reject it.
+    // A single explicit dev opt-in (X402_ALLOW_UNVERIFIED=true) can force the
+    // legacy permissive behavior for local development only.
+    if (process.env.X402_ALLOW_UNVERIFIED === "true") {
+      console.warn(
+        "[Payment] X402_ALLOW_UNVERIFIED=true — treating unverifiable payment as valid. " +
+          "This is UNSAFE and must never be enabled in production."
+      );
       return {
         valid: true,
-        error: "On-chain verification unavailable, proceeding with caution",
+        error: "On-chain verification unavailable, allowed by X402_ALLOW_UNVERIFIED",
       };
     }
 
