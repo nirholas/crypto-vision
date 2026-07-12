@@ -16,6 +16,7 @@
  */
 
 import { IngestionWorker, runWorkerCLI, type WorkerConfig } from "./worker-base.js";
+import { pathToFileURL } from "node:url";
 import { Tables } from "../lib/bigquery.js";
 import { Topics } from "../lib/pubsub.js";
 import { log } from "../lib/logger.js";
@@ -152,7 +153,9 @@ class BackfillWorker extends IngestionWorker {
 
 // ── CLI Entry Point ──────────────────────────────────────
 
-const worker = new BackfillWorker();
-runWorkerCLI(worker);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const worker = new BackfillWorker();
+  runWorkerCLI(worker);
+}
 
 export { BackfillWorker };
