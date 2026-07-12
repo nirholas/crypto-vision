@@ -14,6 +14,7 @@ import { Tables } from "../lib/bigquery.js";
 import { log } from "../lib/logger.js";
 import { Topics } from "../lib/pubsub.js";
 import { IngestionWorker, runWorkerCLI, type WorkerConfig } from "./worker-base.js";
+import { pathToFileURL } from "node:url";
 
 class MacroIngestionWorker extends IngestionWorker {
     constructor(overrides?: Partial<WorkerConfig>) {
@@ -135,7 +136,9 @@ class MacroIngestionWorker extends IngestionWorker {
 
 // ── CLI Entry Point ──────────────────────────────────────
 
-const worker = new MacroIngestionWorker();
-runWorkerCLI(worker);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const worker = new MacroIngestionWorker();
+  runWorkerCLI(worker);
+}
 
 export { MacroIngestionWorker };

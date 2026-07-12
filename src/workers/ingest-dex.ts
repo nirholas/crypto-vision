@@ -14,6 +14,7 @@ import { ingestDexPairs } from "../lib/bq-ingest.js";
 import { log } from "../lib/logger.js";
 import { Topics } from "../lib/pubsub.js";
 import { IngestionWorker, runWorkerCLI, type WorkerConfig } from "./worker-base.js";
+import { pathToFileURL } from "node:url";
 import { channelManager } from "../lib/ws-channels.js";
 
 class DexIngestionWorker extends IngestionWorker {
@@ -162,7 +163,9 @@ class DexIngestionWorker extends IngestionWorker {
 
 // ── CLI Entry Point ──────────────────────────────────────
 
-const worker = new DexIngestionWorker();
-runWorkerCLI(worker);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const worker = new DexIngestionWorker();
+  runWorkerCLI(worker);
+}
 
 export { DexIngestionWorker };

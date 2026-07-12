@@ -11,6 +11,7 @@
  */
 
 import { IngestionWorker, runWorkerCLI, type WorkerConfig } from "./worker-base.js";
+import { pathToFileURL } from "node:url";
 import { Tables } from "../lib/bigquery.js";
 import { Topics } from "../lib/pubsub.js";
 import { log } from "../lib/logger.js";
@@ -218,7 +219,9 @@ class DefiIngestionWorker extends IngestionWorker {
 
 // ── CLI Entry Point ──────────────────────────────────────
 
-const worker = new DefiIngestionWorker();
-runWorkerCLI(worker);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const worker = new DefiIngestionWorker();
+  runWorkerCLI(worker);
+}
 
 export { DefiIngestionWorker };
