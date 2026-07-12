@@ -6,14 +6,51 @@
  */
 import "dotenv/config"
 
+import { timingSafeEqual } from "node:crypto"
+
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js"
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js"
 import cors from "cors"
 import express from "express"
-import type { Request, Response } from "express"
+import type { NextFunction, Request, Response } from "express"
 
 import Logger from "@/utils/logger"
 import { startServer } from "./base"
+
+// Shared-secret gate for the HTTP transport. These endpoints can drive
+// fund-moving tools that sign on-chain transfers using the server's own
+// PRIVATE_KEY, so they must never be reachable by unauthenticated remote callers.
+const AUTH_TOKEN = process.env.MCP_AUTH_TOKEN
+
+// Constant-time comparison of the presented bearer token against MCP_AUTH_TOKEN.
+const tokenMatches = (authorization?: string): boolean => {
+  if (!AUTH_TOKEN) return false
+  if (!authorization?.startsWith("Bearer ")) return false
+  const presented = Buffer.from(authorization.slice("Bearer ".length))
+  const expected = Buffer.from(AUTH_TOKEN)
+  // timingSafeEqual requires equal-length buffers; a length mismatch is a miss.
+  if (presented.length !== expected.length) return false
+  return timingSafeEqual(presented, expected)
+}
+
+// Auth middleware. When MCP_AUTH_TOKEN is unset the listener is bound to
+// loopback only (see host resolution below), so local calls are allowed through
+// without a token; remote exposure of the unauthenticated transport is impossible.
+const requireAuth = (req: Request, res: Response, next: NextFunction) => {
+  if (!AUTH_TOKEN) {
+    next()
+    return
+  }
+  if (!tokenMatches(req.headers.authorization)) {
+    res.status(401).json({
+      jsonrpc: "2.0",
+      error: { code: -32001, message: "Unauthorized" },
+      id: (req.body as { id?: unknown })?.id ?? null
+    })
+    return
+  }
+  next()
+}
 
 /**
  * HTTP-based MCP Server for ChatGPT Developer Mode
@@ -34,12 +71,15 @@ export const startHTTPServer = async () => {
     const app = express()
     
     // Middleware
-    // Security: Restrict CORS to configured origins instead of wildcard
-    const allowedOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : ['*']
+    // Security: Restrict CORS to an explicit allowlist (MCP_CORS_ORIGINS,
+    // comma-split). Default to no cross-origin access when unset — never wildcard.
+    const corsOrigins = process.env.MCP_CORS_ORIGINS
+      ? process.env.MCP_CORS_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean)
+      : []
     app.use(cors({
-      origin: allowedOrigins.includes('*') ? '*' : allowedOrigins,
+      origin: corsOrigins.length > 0 ? corsOrigins : false,
       methods: ["GET", "POST", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "mcp-session-id", "last-event-id"],
+      allowedHeaders: ["Content-Type", "Authorization", "mcp-session-id", "last-event-id"],
       exposedHeaders: ["mcp-session-id"]
     }))
     app.use(express.json())
@@ -88,7 +128,7 @@ export const startHTTPServer = async () => {
     })
 
     // Main MCP endpoint - handles all MCP protocol messages
-    app.post("/mcp", async (req: Request, res: Response) => {
+    app.post("/mcp", requireAuth, async (req: Request, res: Response) => {
       const sessionId = req.headers["mcp-session-id"] as string | undefined
       let session = sessionId ? sessions.get(sessionId) : undefined
 
@@ -149,7 +189,7 @@ export const startHTTPServer = async () => {
     })
 
     // Handle GET requests for SSE streams (server-to-client notifications)
-    app.get("/mcp", async (req: Request, res: Response) => {
+    app.get("/mcp", requireAuth, async (req: Request, res: Response) => {
       const sessionId = req.headers["mcp-session-id"] as string
       const session = sessions.get(sessionId)
 
@@ -171,7 +211,7 @@ export const startHTTPServer = async () => {
     })
 
     // Handle session termination
-    app.delete("/mcp", async (req: Request, res: Response) => {
+    app.delete("/mcp", requireAuth, async (req: Request, res: Response) => {
       const sessionId = req.headers["mcp-session-id"] as string
       const session = sessions.get(sessionId)
 
@@ -198,10 +238,38 @@ export const startHTTPServer = async () => {
     })
 
     const PORT = process.env.PORT || 3001
-    app.listen(PORT, () => {
-      Logger.info(`Universal Crypto MCP HTTP Server running on http://localhost:${PORT}`)
-      Logger.info(`ChatGPT Developer Mode URL: http://localhost:${PORT}/mcp`)
-      Logger.info(`Health check: http://localhost:${PORT}/health`)
+
+    // Resolve the bind host. Default to loopback; only widen when an explicit
+    // MCP_HOST is provided. If no auth token is configured, force loopback
+    // regardless of MCP_HOST so the unauthenticated transport cannot be reached
+    // remotely.
+    let HOST = process.env.MCP_HOST || "127.0.0.1"
+    if (!AUTH_TOKEN) {
+      if (
+        process.env.MCP_HOST &&
+        process.env.MCP_HOST !== "127.0.0.1" &&
+        process.env.MCP_HOST !== "localhost"
+      ) {
+        Logger.warn(
+          `MCP_AUTH_TOKEN is not set — ignoring MCP_HOST=${process.env.MCP_HOST} and binding to loopback (127.0.0.1). This transport exposes fund-moving tools and MUST NOT be exposed unauthenticated. Set MCP_AUTH_TOKEN to enable remote access.`
+        )
+      } else {
+        Logger.warn(
+          "MCP_AUTH_TOKEN is not set — binding to loopback (127.0.0.1) only. This transport exposes fund-moving tools; set MCP_AUTH_TOKEN before exposing it to remote callers."
+        )
+      }
+      HOST = "127.0.0.1"
+    }
+
+    app.listen(Number(PORT), HOST, () => {
+      Logger.info(`Universal Crypto MCP HTTP Server running on http://${HOST}:${PORT}`)
+      Logger.info(`ChatGPT Developer Mode URL: http://${HOST}:${PORT}/mcp`)
+      Logger.info(`Health check: http://${HOST}:${PORT}/health`)
+      Logger.info(
+        AUTH_TOKEN
+          ? "Auth: bearer token required (MCP_AUTH_TOKEN)"
+          : "Auth: none — loopback-only. Set MCP_AUTH_TOKEN to allow authenticated remote access."
+      )
     })
 
     return { sessions }
