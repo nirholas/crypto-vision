@@ -6,6 +6,7 @@ function entries from an ABI.
 AGENT 1: This file needs full implementation. See AGENTS.md for requirements.
 """
 
+import keyword
 from typing import Any
 
 from abi_to_mcp.core.exceptions import ABIParseError
@@ -52,9 +53,17 @@ class FunctionParser:
         - Empty inputs/outputs arrays
         - Tuple types with components
         """
-        try:
-            name = entry.get("name", "")
+        name = entry.get("name", "")
+        # The function name is templated directly into generated Python source,
+        # so an unchecked name from an untrusted ABI is a code-injection vector.
+        # Reject anything that is not a bare Python identifier (fail closed).
+        if not name.isidentifier() or keyword.iskeyword(name):
+            raise ValueError(
+                f"Invalid function name {name!r}: must be a valid Python "
+                "identifier and not a Python keyword"
+            )
 
+        try:
             # Parse inputs
             inputs = [self.parse_parameter(p) for p in entry.get("inputs", [])]
 

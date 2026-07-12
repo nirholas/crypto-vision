@@ -114,6 +114,10 @@ class ABIParser:
             except ABIParseError:
                 # Re-raise ABIParseError as-is
                 raise
+            except ValueError:
+                # Invalid identifier caught by the code-injection guard in the
+                # sub-parsers: fail closed and surface the clear ValueError.
+                raise
             except Exception as e:
                 entry_type_str = (
                     entry.get("type") if isinstance(entry, dict) else str(type(entry).__name__)
