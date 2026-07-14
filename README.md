@@ -1,4 +1,7 @@
 # Crypto Vision   
+
+**[Live API and docs](https://nirholas.github.io/crypto-vision/)** · Free REST endpoints for prices, DeFi and on-chain data, plus per-datapoint access settled in USDC over [x402](https://three.ws/.well-known/x402.json).
+
  
 > A production-grade crypto intelligence platform — 200+ API endpoints, 37 data sources, 58 AI agents, real-time WebSocket feeds, anomaly detection, RAG-powered semantic search, BigQuery data warehouse, and a complete AI model training pipeline.
 
