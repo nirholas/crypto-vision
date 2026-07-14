@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crypto Vision - the open cryptocurrency data API</title>
+<meta name="description" content="Real-time prices, OHLCV, DeFi TVL, yields, on-chain analytics and crypto news across 10,000+ tokens. Free REST endpoints, plus pay-per-call data points settled in USDC over x402. No API key to start.">
+<link rel="canonical" href="https://cryptocurrency.cv/">
+<meta property="og:title" content="Crypto Vision - the open cryptocurrency data API">
+<meta property="og:description" content="Free REST endpoints for prices, DeFi, on-chain and news. Plus 4,000+ single data points you can buy for a fraction of a cent, settled in USDC over x402.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cryptocurrency.cv/">
+<style>
+  :root{
+    --bg:#ffffff; --fg:#0b0d12; --muted:#5b6472; --line:#e4e7ec;
+    --card:#f7f8fa; --accent:#2f6df6; --accent-fg:#fff; --code-bg:#0f1218; --code-fg:#e6edf3;
+    --ok:#0f9d58; --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#0b0d12;--fg:#e8ecf1;--muted:#9aa4b2;--line:#222833;--card:#12161d;--code-bg:#05070a;--accent:#5b8cff;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  a{color:var(--accent)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  header{padding:72px 0 40px;border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em;margin-bottom:28px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+  h1{font-size:clamp(30px,5vw,46px);line-height:1.15;letter-spacing:-.025em;margin:0 0 16px}
+  .lede{font-size:clamp(16px,2.2vw,19px);color:var(--muted);max-width:62ch;margin:0 0 28px}
+  .cta{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{display:inline-block;padding:11px 18px;border-radius:8px;font-weight:600;text-decoration:none;
+    border:1px solid var(--line);transition:transform .12s ease,box-shadow .12s ease,background .12s ease}
+  .btn:hover{transform:translateY(-1px)}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .btn.primary{background:var(--accent);color:var(--accent-fg);border-color:transparent}
+  .btn.primary:hover{box-shadow:0 6px 18px rgba(47,109,246,.28)}
+  section{padding:56px 0;border-bottom:1px solid var(--line)}
+  h2{font-size:24px;letter-spacing:-.02em;margin:0 0 8px}
+  .sub{color:var(--muted);margin:0 0 24px;max-width:64ch}
+  .live{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .stat .k{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .stat .v{font-size:22px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums}
+  .stat .v.skel{color:transparent;background:linear-gradient(90deg,var(--line),var(--card),var(--line));
+    background-size:200% 100%;animation:sh 1.2s infinite;border-radius:5px;min-height:1.4em}
+  @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  .err{color:var(--muted);font-size:13px;margin-top:10px}
+  pre{background:var(--code-bg);color:var(--code-fg);padding:16px;border-radius:10px;overflow-x:auto;
+    font-family:var(--mono);font-size:13.5px;line-height:1.55;margin:0 0 14px}
+  code{font-family:var(--mono)}
+  table{width:100%;border-collapse:collapse;font-size:14.5px;display:block;overflow-x:auto}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  td code{font-size:13px}
+  .price{color:var(--ok);font-weight:600}
+  footer{padding:40px 0 64px;color:var(--muted);font-size:14px}
+  footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span> Crypto Vision</div>
+    <h1>The open cryptocurrency data API.</h1>
+    <p class="lede">
+      Prices, OHLCV, DeFi TVL, yields, on-chain analytics and news across thousands of tokens.
+      The core REST endpoints are free and need no API key. Individual data points can be bought
+      for a fraction of a cent, settled in USDC over the x402 protocol, so an autonomous agent can
+      pay for exactly the one number it needs.
+    </p>
+    <div class="cta">
+      <a class="btn primary" href="#quickstart">Quickstart</a>
+      <a class="btn" href="#endpoints">Endpoints</a>
+      <a class="btn" href="https://github.com/nirholas/crypto-vision">GitHub</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Live right now</h2>
+    <p class="sub">These numbers are fetched from the API by your browser as this page loads. No cached values, no fixtures.</p>
+    <div class="live">
+      <div class="stat"><div class="k">Total market cap</div><div class="v skel" id="mcap">loading</div></div>
+      <div class="stat"><div class="k">24h volume</div><div class="v skel" id="vol">loading</div></div>
+      <div class="stat"><div class="k">BTC dominance</div><div class="v skel" id="dom">loading</div></div>
+      <div class="stat"><div class="k">Fear &amp; Greed</div><div class="v skel" id="fng">loading</div></div>
+    </div>
+    <p class="err" id="liveerr" hidden></p>
+  </div>
+</section>
+
+<section id="quickstart">
+  <div class="wrap">
+    <h2>Quickstart</h2>
+    <p class="sub">No signup, no key. Every command below is real and runs as written.</p>
+    <pre><code># Global market state
+curl https://three.ws/api/coin/global
+
+# Fear and Greed index
+curl https://three.ws/api/coin/fear-greed
+
+# Top coins by market cap
+curl "https://three.ws/api/coin/markets?per_page=10"
+
+# DeFi protocols ranked by TVL
+curl https://three.ws/api/defi/protocols</code></pre>
+  </div>
+</section>
+
+<section id="endpoints">
+  <div class="wrap">
+    <h2>Endpoints</h2>
+    <p class="sub">The free tier covers the data most applications need. All responses are JSON and CORS is open, so you can call them straight from a browser.</p>
+    <table>
+      <thead><tr><th>Endpoint</th><th>Returns</th><th>Price</th></tr></thead>
+      <tbody>
+        <tr><td><code>/api/coin/global</code></td><td>Market cap, volume, dominance</td><td>Free</td></tr>
+        <tr><td><code>/api/coin/markets</code></td><td>Ranked coins with price and volume</td><td>Free</td></tr>
+        <tr><td><code>/api/coin/trending</code></td><td>Trending tokens</td><td>Free</td></tr>
+        <tr><td><code>/api/coin/fear-greed</code></td><td>Sentiment index</td><td>Free</td></tr>
+        <tr><td><code>/api/defi/protocols</code></td><td>Protocols ranked by TVL</td><td>Free</td></tr>
+        <tr><td><code>/api/defi/yields</code></td><td>Yield pools with APY</td><td>Free</td></tr>
+        <tr><td><code>/api/defi/stablecoins</code></td><td>Stablecoin supply and peg</td><td>Free</td></tr>
+        <tr><td><code>/api/intel/heatmap</code></td><td>Market heatmap</td><td>Free</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Buy a single number</h2>
+    <p class="sub">
+      Every metric is also addressable on its own. Ask for one field, pay for one field. Each call
+      returns a signed, machine-readable answer and settles in USDC over x402, so an agent can buy
+      data with no account, no key and no invoice.
+    </p>
+    <pre><code># Ask without paying: the endpoint replies 402 with its price and payment terms
+curl -i https://three.ws/api/x402/d/coin/bitcoin/price
+
+# Other data points, same shape
+#   /api/x402/d/coin/&lt;id&gt;/&lt;metric&gt;      price, market-cap, volume-24h, change-24h, ...
+#   /api/x402/d/protocol/&lt;slug&gt;/tvl
+#   /api/x402/d/chain/&lt;name&gt;/tvl
+#   /api/x402/d/gas/standard
+#   /api/x402/d/fear-greed/index</code></pre>
+    <p class="sub">
+      Over 4,000 of these data points are published in the
+      <a href="https://three.ws/.well-known/x402.json">x402 discovery document</a>,
+      priced at <span class="price">$0.0005</span> per call. Any x402 client can find and pay them
+      automatically.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Crypto Vision is open source and served by the
+    <a href="https://three.ws">three.ws</a> platform.
+    <a href="https://github.com/nirholas/crypto-vision">Source</a> ·
+    <a href="https://three.ws/.well-known/x402.json">x402 discovery</a>
+  </div>
+</footer>
+
+<script>
+const API = 'https://three.ws/api';
+const nf = (n, d = 2) => {
+  if (n === null || n === undefined || Number.isNaN(n)) return null;
+  const abs = Math.abs(n);
+  if (abs >= 1e12) return '$' + (n / 1e12).toFixed(d) + 'T';
+  if (abs >= 1e9) return '$' + (n / 1e9).toFixed(d) + 'B';
+  if (abs >= 1e6) return '$' + (n / 1e6).toFixed(d) + 'M';
+  return '$' + n.toLocaleString();
+};
+const put = (id, text) => {
+  const el = document.getElementById(id);
+  if (!el || text === null) return;
+  el.textContent = text;
+  el.classList.remove('skel');
+};
+const fail = (msg) => {
+  const e = document.getElementById('liveerr');
+  e.hidden = false;
+  e.textContent = msg;
+};
+
+// One request to /api/coin/global carries every figure on this panel, including
+// the sentiment index. If it is unreachable we say so plainly rather than showing
+// a stale or invented number.
+(async () => {
+  try {
+    const res = await fetch(API + '/coin/global');
+    if (!res.ok) throw new Error('http ' + res.status);
+    const g = await res.json();
+
+    const m = g.market || {};
+    put('mcap', nf(m.market_cap_usd));
+    put('vol', nf(m.volume_24h_usd));
+
+    const btc = (m.dominance || []).find((d) => d.symbol === 'BTC');
+    put('dom', btc && typeof btc.pct === 'number' ? btc.pct.toFixed(1) + '%' : null);
+
+    const fg = g.fear_greed || {};
+    put('fng', fg.value != null ? String(fg.value) + (fg.label ? ' · ' + fg.label : '') : null);
+  } catch (err) {
+    fail('The live figures could not be loaded just now. The curl commands below still work.');
+  } finally {
+    document.querySelectorAll('.v.skel').forEach((el) => {
+      el.textContent = 'unavailable';
+      el.classList.remove('skel');
+    });
+  }
+})();
+</script>
+</body>
+</html>
