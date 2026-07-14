@@ -8,8 +8,6 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-≥22-green)](https://nodejs.org/)
 [![Hono](https://img.shields.io/badge/Hono-4.7-orange)](https://hono.dev/)
-[![License](https://img.shields.io/badge/License-AGPL--3.0-red)](LICENSE)
- 
 ---
 
 ## Table of Contents
@@ -557,8 +555,6 @@ MCP server exposing Crypto Vision intelligence tools to AI models. Includes Sola
 
 **Stack:** TypeScript, `@modelcontextprotocol/sdk`, `@solana/web3.js`
 
-
-
 ### `sweep` — [packages/sweep](packages/sweep)
 Multi-chain dust sweeper with DeFi routing. Sweeps small token balances across chains, consolidating them via DEX routes.
 
@@ -568,7 +564,6 @@ Multi-chain dust sweeper with DeFi routing. Sweeps small token balances across c
 Universal Contract AI Interface — Python tool that generates MCP servers from Ethereum ABI files. Published on PyPI as `abi-to-mcp`. Web builder at [mcp.ucai.tech](https://mcp.ucai.tech).
 
 **Stack:** Python, `mcp`, web3.py
-
 
 > 📖 See [docs/PACKAGES.md](docs/PACKAGES.md) for full package API documentation.
 
@@ -613,8 +608,6 @@ Standalone crypto market data service, Edge Runtime compatible. Aggregates CoinG
 MCP server exposing Crypto Vision intelligence tools to AI models. Includes Solana integration.
 
 **Stack:** TypeScript, `@modelcontextprotocol/sdk`, `@solana/web3.js`
-
-
 
 **Stack:** TypeScript, Hono, ethers.js, grammy, bullmq, drizzle-orm
 
@@ -1212,9 +1205,7 @@ Comprehensive documentation is available in the [`docs/`](docs/) directory:
 
 ## License
 
-[AGPL-3.0](LICENSE)
-
----
+All rights reserved. See [LICENSE](LICENSE).
 
 ## Contributing
 
