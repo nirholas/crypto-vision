@@ -1,4 +1,4 @@
-# Crypto Vision   
+# Crypto Vision    
 
 **[Live API and docs](https://nirholas.github.io/crypto-vision/)** · Free REST endpoints for prices, DeFi and on-chain data, plus per-datapoint access settled in USDC over [x402](https://three.ws/.well-known/x402.json).
 
