@@ -9,5 +9,8 @@
         "upstream",
         "**/*.test.ts",
         "tests"
-    ]
+    ],
+    "tsc-alias": {
+        "resolveFullPaths": true
+    }
 }

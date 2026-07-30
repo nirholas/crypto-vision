@@ -31,13 +31,30 @@ import { aiQueue, heavyFetchQueue } from "@/lib/queue";
 import { rateLimit } from "@/lib/rate-limit";
 import { responseEnvelope } from "@/lib/response-envelope";
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Walk up to find package.json. The entry file sits at src/ when run from
+// source and dist/src/ once compiled, so a fixed number of levels resolves
+// correctly in only one of those.
+const findPackageJson = (from: string): string => {
+  let dir = from;
+  for (;;) {
+    const candidate = resolve(dir, "package.json");
+    if (existsSync(candidate)) return candidate;
+    const parent = dirname(dir);
+    if (parent === dir) {
+      throw new Error(`package.json not found above ${from}`);
+    }
+    dir = parent;
+  }
+};
+
 const pkg = JSON.parse(
-  readFileSync(resolve(__dirname, "..", "package.json"), "utf-8")
+  readFileSync(findPackageJson(__dirname), "utf-8")
 ) as { version: string };
 const APP_VERSION = pkg.version;
 
