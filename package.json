@@ -1,7 +1,7 @@
 {
   "name": "crypto-vision",
   "version": "0.1.0",
-  "description": "The complete cryptocurrency intelligence API — cryptocurrency.cv",
+  "description": "The complete cryptocurrency intelligence API - https://nirholas.github.io/crypto-vision/",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",

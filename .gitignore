@@ -24,10 +24,4 @@ coverage
 *.pfx
 
 # Folders
-/agents 
-/apps 
-/infra 
-/packages 
 /pump-agent-swarm
-/scripts 
-/src 

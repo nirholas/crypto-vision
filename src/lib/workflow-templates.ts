@@ -180,40 +180,6 @@ export const WORKFLOW_TEMPLATES: Record<string, WorkflowTemplate> = {
       },
     ],
   },
-
-  // pump-fun-swarm template removed
-        task: "Analyze the bonding curve state for the token(s) in question. " +
-          "Check virtualSolReserves, virtualTokenReserves, graduation progress, " +
-          "and current price. Identify if the curve is healthy or showing signs of manipulation.",
-        dependsOn: [],
-        priority: 1,
-      },
-      {
-        agentId: "whale-watcher",
-        task: "Check holder concentration for the Pump.fun token. " +
-          "Identify if any single wallet holds >10% of supply, if the creator " +
-          "still holds tokens, and whether there are signs of coordinated wallet clusters.",
-        dependsOn: [],
-        priority: 1,
-      },
-      {
-        agentId: "smart-contract-auditor",
-        task: "Evaluate the safety of this Pump.fun token. Check if update authority " +
-          "is revoked, if the metadata URI is on a permanent storage solution (Arweave/IPFS), " +
-          "and if the bonding curve account has any unusual permissions.",
-        dependsOn: ["pump-fun-sdk-expert"],
-        priority: 2,
-      },
-      {
-        agentId: "narrative-trend-analyst",
-        task: "Assess the memecoin narrative and social momentum for this token. " +
-          "Is the name/theme trending? Is there organic community formation? " +
-          "Compare to similar recent launches that succeeded or failed.",
-        dependsOn: ["whale-watcher"],
-        priority: 2,
-      },
-    ],
-  },
 };
 
 // ─── Public API ──────────────────────────────────────────────

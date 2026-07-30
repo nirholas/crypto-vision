@@ -246,7 +246,8 @@ export async function getMetricsSummary(): Promise<Record<string, unknown>> {
         // Skip default process metrics in summary — they're in /metrics
         if (metric.name.startsWith("cv_")) continue;
 
-        if ((metric.type as string) === "counter" || (metric.type as string) === "gauge") {
+        const metricType = String(metric.type);
+        if (metricType === "counter" || metricType === "gauge") {
             const values: Record<string, number> = {};
             for (const val of metric.values) {
                 const labelKey = Object.entries(val.labels)
@@ -259,7 +260,7 @@ export async function getMetricsSummary(): Promise<Record<string, unknown>> {
                 help: metric.help,
                 values,
             };
-        } else if ((metric.type as string) === "histogram") {
+        } else if (metricType === "histogram") {
             const buckets: Record<string, Record<string, number>> = {};
             for (const val of metric.values) {
                 const labelKey = Object.entries(val.labels)

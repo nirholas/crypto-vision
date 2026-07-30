@@ -218,7 +218,7 @@ function connect(pairs?: readonly string[]): void {
       const msg = JSON.parse(raw.toString()) as BinanceStreamMessage;
 
       // Binance error detection
-      if ("error" in (msg as Record<string, unknown>)) {
+      if ("error" in (msg as unknown as Record<string, unknown>)) {
         const err = msg as unknown as { error: { code: number; msg: string } };
         logger.error(
           { code: err.error.code, msg: err.error.msg },

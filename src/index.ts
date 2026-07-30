@@ -2,7 +2,7 @@
  * Crypto Vision — Main Entry Point
  *
  * The complete cryptocurrency intelligence API.
- * https://cryptocurrency.cv
+ * https://nirholas.github.io/crypto-vision/
  */
 
 import { serve } from "@hono/node-server";
@@ -150,7 +150,7 @@ app.get("/", (c) =>
     version: APP_VERSION,
     docs: "/api",
     health: "/health",
-    website: "https://cryptocurrency.cv",
+    website: "https://nirholas.github.io/crypto-vision/",
   })
 );
 
