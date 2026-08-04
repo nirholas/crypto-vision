@@ -1,6 +1,6 @@
 {
   "name": "crypto-vision",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "The complete cryptocurrency intelligence API - https://nirholas.github.io/crypto-vision/",
   "type": "module",
   "scripts": {
@@ -30,7 +30,17 @@
     "stego:scan": "tsx scripts/stego.ts scan",
     "stego:inject": "tsx scripts/stego.ts inject"
   },
-  "dependencies": {
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.18.1",
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "@typescript-eslint/parser": "^8.56.0",
+    "eslint": "^9.0.0",
+    "tsc-alias": "^1.8.16",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.0",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^3.0.0",
     "@google-cloud/aiplatform": "^6.5.0",
     "@google-cloud/bigquery": "^8.1.1",
     "@google-cloud/pubsub": "^5.3.0",
@@ -53,18 +63,6 @@
     "undici": "^7.22.0",
     "ws": "^8.19.0",
     "zod": "^3.24.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.0.0",
-    "@types/ws": "^8.18.1",
-    "@typescript-eslint/eslint-plugin": "^8.56.0",
-    "@typescript-eslint/parser": "^8.56.0",
-    "eslint": "^9.0.0",
-    "tsc-alias": "^1.8.16",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.0",
-    "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^3.0.0"
   },
   "overrides": {
     "@esbuild-kit/core-utils": {
