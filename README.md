@@ -1214,3 +1214,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and [SECURITY
 ---
 
 *Built with TypeScript, Hono, and an unhealthy obsession with crypto data.*
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=nirholas/crypto-vision&type=Date)](https://www.star-history.com/#nirholas/crypto-vision&Date)
