@@ -100,7 +100,7 @@ Consolidate all dependencies from prompts 01-75 into a single, correct `package.
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.30.0",
-    "@pump-fun/pump-sdk": "github:nirholas/pump-fun-sdk",
+    "@pump-fun/pump-sdk": "^4.0.0",
     "@solana/spl-token": "^0.4.0",
     "@solana/web3.js": "^1.95.0",
     "better-sqlite3": "^11.0.0",

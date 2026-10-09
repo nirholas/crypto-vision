@@ -48,8 +48,8 @@ The order router is the critical path for all trades:
 // 3. Calculate slippage (using SlippageCalculator)
 // 4. Choose execution method: direct transaction OR Jito bundle
 // 5. Build the Solana transaction:
-//    - For buys: call Pump.fun's buy instruction on the bonding curve
-//    - For sells: call Pump.fun's sell instruction on the bonding curve
+//    - For buys: buy_exact_quote_in_v3 on the bonding curve (legacy buy for cashback coins)
+//    - For sells: sell_v3 on the bonding curve (legacy sell for cashback coins)
 // 6. Set priority fee (using GasOptimizer)
 // 7. Submit transaction (direct or via Jito)
 // 8. Confirm transaction
@@ -57,7 +57,12 @@ The order router is the critical path for all trades:
 // 10. Emit trade events
 ```
 
-Must handle real Pump.fun IDL instructions — refer to `src/pump-sdk.d.ts` for the interface.
+Must handle real Pump.fun IDL instructions. Build them with the official `@pump-fun/pump-sdk` 4 builders (see `src/trading/pump-trade.ts` in the swarm package), never by hand:
+
+- Read the inputs with `OnlinePumpSdk.fetchBuyState` / `fetchSellState` plus `fetchGlobal` and `fetchFeeConfig`, and use the mint's own token program (Token-2022 for create_v2 coins, SPL Token for legacy create coins) for every ATA and balance read.
+- Buys: quote with `getBuyV3TokenAmountFromQuoteAmount`, then `PUMP_SDK.buyExactQuoteInV3Instructions` with a minimum token output. Sells: quote with `getSellSolAmountFromTokenAmount`, then `PUMP_SDK.sellV3Instructions` with a minimum SOL output. The v3 instructions take 17 accounts and no creator vault or fee recipient.
+- Cashback coins (`bondingCurve.isCashbackCoin`) reject v3 with error 6094: send the legacy `buyInstructions` / `sellInstructions` for them, with a real token amount.
+- Graduated coins (`bondingCurve.complete`) trade on PumpSwap through `@pump-fun/pump-swap-sdk` 2.1.0 (`buy_v2` / `sell_v2`), not on the curve.
 
 ### 2. Complete Position Manager
 

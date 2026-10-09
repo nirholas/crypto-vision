@@ -120,7 +120,7 @@ Create `packages/pump-agent-swarm/src/intelligence/alpha-scanner.ts` — continu
    // Score boost: +20 if in priority category
    ```
 
-   **Graduation Play** — tokens close to graduating to Raydium:
+   **Graduation Play**: tokens close to graduating to PumpSwap:
    ```typescript
    // Criteria:
    // - Graduation progress > 70% (SOL in curve > 60 SOL)

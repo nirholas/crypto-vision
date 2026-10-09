@@ -155,7 +155,7 @@ Create `packages/pump-agent-swarm/src/intelligence/token-evaluator.ts` — perfo
    // - Token is very new (<5 min old): -15pts (could be honeypot)
    // - Very few holders (<5): -20pts
    // - No social proof (0 comments): -10pts
-   // - Raydium pool exists but no liquidity: -30pts (potential rug)
+   // - PumpSwap pool exists but no liquidity: -30pts (potential rug)
    ```
 
 9. **Scoring criteria — Age Factor (0-100)**:

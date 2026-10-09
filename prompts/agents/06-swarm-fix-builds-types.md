@@ -22,8 +22,7 @@ This is brittle. The build and type system need to be solid.
 ### 1. Fix Dependencies & Build
 
 - Run `npm install` and fix any dependency resolution issues
-- Ensure `@pump-fun/pump-sdk` installs correctly (if not published to npm, check if it's a git dependency or needs a local type declaration)
-- Review `src/pump-sdk.d.ts` — this is the fallback type declaration. Make it comprehensive
+- Depend on `@pump-fun/pump-sdk` `^4.0.0` from npm. It ships its own type declarations, so remove the `postinstall` compile step and do not keep a local ambient `src/pump-sdk.d.ts`: an ambient module declaration shadows the real SDK types and hides breaking changes
 - Fix all import paths throughout the codebase
 - Ensure `npm run build` (`tsc -p tsconfig.build.json`) succeeds with zero errors
 
@@ -115,7 +114,7 @@ npm run cli -- --help  # Shows CLI help (or at least doesn't crash)
 - `packages/pump-agent-swarm/tsconfig.json` — Fix config
 - `packages/pump-agent-swarm/tsconfig.build.json` — Fix build config
 - `packages/pump-agent-swarm/src/types.ts` — Fix all types
-- `packages/pump-agent-swarm/src/pump-sdk.d.ts` — Complete type declarations
+- `packages/pump-agent-swarm/src/pump-sdk.d.ts`: delete it in favor of the SDK's own types
 - `packages/pump-agent-swarm/src/index.ts` — Fix barrel export
 - `packages/pump-agent-swarm/src/*/index.ts` — Fix all barrel exports
 - `packages/pump-agent-swarm/src/strategies.ts` — Fix BN usage

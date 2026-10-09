@@ -155,7 +155,7 @@ All files go in `packages/pump-agent-swarm/src/intelligence/`
 - `TrendDetector` class
 - Monitor Pump.fun for patterns:
   - Fetch recent launches from `https://frontend-api-v3.pump.fun/coins?sort=created_timestamp&order=desc`
-  - Track graduation rate (what % of recent launches graduate to Raydium)
+  - Track graduation rate (what % of recent launches graduate to PumpSwap)
   - Detect trending categories (AI coins, animal coins, political coins, etc.)
   - Identify peak activity hours
 - Methods: `detectTrends(): Promise<MarketTrends>`, `isGoodTimeToLaunch(): Promise<LaunchTimingAssessment>`, `getTrendingCategories(): Promise<CategoryTrend[]>`, `getMarketActivity(): Promise<ActivityMetrics>`

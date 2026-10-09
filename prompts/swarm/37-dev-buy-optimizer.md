@@ -59,7 +59,7 @@ Create `packages/pump-agent-swarm/src/bundle/dev-buy-optimizer.ts` — calculate
    //   price = virtualSolReserves / virtualTokenReserves (in SOL per token)
    
    // Graduation threshold:
-   //   When real SOL in curve reaches ~85 SOL, token graduates to Raydium
+   //   When real SOL in curve reaches ~85 SOL, token graduates to a PumpSwap pool
    
    interface PumpFunCurveParams {
      virtualSolReserves: bigint;     // 30 SOL in lamports
