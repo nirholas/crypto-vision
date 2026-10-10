@@ -1218,3 +1218,26 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and [SECURITY
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=nirholas/crypto-vision&type=Date)](https://www.star-history.com/#nirholas/crypto-vision&Date)
+
+<!-- three.ws:growth -->
+## Support the project
+
+If crypto-vision saves you time, **[star it on GitHub](https://github.com/nirholas/crypto-vision)**. Stars are how other developers and AI agents find the repositories worth trusting, and they cost you one click.
+
+Know someone who would use it? [Post on X](https://twitter.com/intent/tweet?text=crypto-vision%3A%20The%20most%20comprehensive%20cryptocurrency%20API&url=https%3A%2F%2Fgithub.com%2Fnirholas%2Fcrypto-vision) · [Share on Bluesky](https://bsky.app/intent/compose?text=crypto-vision%3A%20The%20most%20comprehensive%20cryptocurrency%20API%20https%3A%2F%2Fgithub.com%2Fnirholas%2Fcrypto-vision) · [Share on LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fgithub.com%2Fnirholas%2Fcrypto-vision) · [Submit to Hacker News](https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fgithub.com%2Fnirholas%2Fcrypto-vision&t=crypto-vision%3A%20The%20most%20comprehensive%20cryptocurrency%20API) · [Share on Reddit](https://www.reddit.com/submit?url=https%3A%2F%2Fgithub.com%2Fnirholas%2Fcrypto-vision&title=crypto-vision%3A%20The%20most%20comprehensive%20cryptocurrency%20API)
+
+## Built for AI agents too
+
+Coding agents and LLM tooling can read this repo directly: [AGENTS.md](./AGENTS.md), [llms.txt](./llms.txt), [llms-full.txt](./llms-full.txt). Point an agent at `https://github.com/nirholas/crypto-vision` and it has the context it needs.
+
+## More from the same author
+
+- [All repositories by nirholas](https://github.com/nirholas/nirholas#readme): the full catalog, grouped by topic
+- [three.ws](https://three.ws): the platform for 3D AI agents with Solana wallets, a skill marketplace and x402 payments
+- Questions or ideas: [open an issue](https://github.com/nirholas/crypto-vision/issues) or [start a discussion](https://github.com/nirholas/crypto-vision/discussions)
+
+## Contributors
+
+[![Contributors](https://contrib.rocks/image?repo=nirholas/crypto-vision)](https://github.com/nirholas/crypto-vision/graphs/contributors)
+
+<!-- /three.ws:growth -->

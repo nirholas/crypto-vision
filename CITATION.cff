@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+title: "crypto-vision"
+abstract: "The most comprehensive cryptocurrency API. Real-time prices, OHLCV, order books & market cap for 10,000+ tokens across 500+ exchanges. DeFi TVL, yields & protocol metrics. On-chain analytics & whale alerts. Crypto news & AI sentiment. Historical data. REST, WebSocket & GraphQL endpoints. Python, TypeScript, Go, React, PHP SDKs."
+repository-code: "https://github.com/nirholas/crypto-vision"
+url: "https://three.ws"
+authors:
+  - name: three.ws
+    website: "https://three.ws"

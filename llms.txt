@@ -1,0 +1,28 @@
+# crypto-vision
+
+> The most comprehensive cryptocurrency API. Real-time prices, OHLCV, order books & market cap for 10,000+ tokens across 500+ exchanges. DeFi TVL, yields & protocol metrics. On-chain analytics & whale alerts. Crypto news & AI sentiment. Historical data. REST, WebSocket & GraphQL endpoints. Python, TypeScript, Go, React, PHP SDKs.
+
+crypto-vision is an open-source repository by nirholas, part of the three.ws ecosystem.
+
+## Docs
+
+- [README](https://github.com/nirholas/crypto-vision/blob/HEAD/README.md): install, usage and reference
+- [Table of Contents](https://github.com/nirholas/crypto-vision/blob/HEAD/README.md#table-of-contents)
+- [Overview](https://github.com/nirholas/crypto-vision/blob/HEAD/README.md#overview)
+- [Quick Start](https://github.com/nirholas/crypto-vision/blob/HEAD/README.md#quick-start)
+- [Environment Variables](https://github.com/nirholas/crypto-vision/blob/HEAD/README.md#environment-variables)
+- [Architecture](https://github.com/nirholas/crypto-vision/blob/HEAD/README.md#architecture)
+- [API Reference](https://github.com/nirholas/crypto-vision/blob/HEAD/README.md#api-reference)
+- [Data Sources](https://github.com/nirholas/crypto-vision/blob/HEAD/README.md#data-sources)
+- [Packages](https://github.com/nirholas/crypto-vision/blob/HEAD/README.md#packages)
+- [AGENTS.md](https://github.com/nirholas/crypto-vision/blob/HEAD/AGENTS.md): guidance for coding agents
+- [Full text for LLMs](https://github.com/nirholas/crypto-vision/blob/HEAD/llms-full.txt): the README inlined
+
+## Project
+
+- [Source](https://github.com/nirholas/crypto-vision)
+- [Issues](https://github.com/nirholas/crypto-vision/issues)
+- [Discussions](https://github.com/nirholas/crypto-vision/discussions)
+- [Homepage](https://cryptocurrency.cv)
+- [three.ws](https://three.ws): the platform this is part of
+- [All repositories by nirholas](https://github.com/nirholas/nirholas#readme)
