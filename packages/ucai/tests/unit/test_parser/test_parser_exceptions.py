@@ -27,7 +27,7 @@ class TestABIParserExceptionHandling:
         parser = ABIParser()
         
         # Create a function parser that raises a generic exception
-        with patch.object(parser.function_parser, 'parse', side_effect=ValueError("Unexpected error")):
+        with patch.object(parser.function_parser, 'parse', side_effect=RuntimeError("Unexpected error")):
             with pytest.raises(ABIParseError, match="Failed to parse entry 0"):
                 parser.parse([{"type": "function", "name": "test", "inputs": [], "outputs": []}])
     
