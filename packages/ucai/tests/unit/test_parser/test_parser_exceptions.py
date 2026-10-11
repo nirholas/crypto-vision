@@ -85,15 +85,24 @@ class TestABIParserExceptionHandling:
 class TestErrorParserExceptionHandling:
     """Test exception handling in error parser."""
     
-    def test_parse_handles_missing_name(self):
-        """Test error parser handles missing name gracefully."""
+    def test_parse_rejects_missing_name(self):
+        """A error with no name is rejected: names are templated into generated source."""
         from abi_to_mcp.parser.error_parser import ErrorParser
         
         parser = ErrorParser()
         
-        # Missing 'name' field uses default empty string
-        result = parser.parse({"type": "error", "inputs": []})
-        assert result.name == ""
+        with pytest.raises(ValueError, match="Invalid error name"):
+            parser.parse({"type": "error", "inputs": []})
+
+    @pytest.mark.parametrize("name", ["x(); import os", "class", "a-b", "1abc", 'f"; evil()'])
+    def test_parse_rejects_non_identifier_name(self, name):
+        """A error name that is not a bare Python identifier cannot reach code generation."""
+        from abi_to_mcp.parser.error_parser import ErrorParser
+        
+        parser = ErrorParser()
+        
+        with pytest.raises(ValueError, match="Invalid error name"):
+            parser.parse({"type": "error", "inputs": [], "name": name})
     
     def test_parse_raises_exception_on_invalid_inputs(self):
         """Test error parser raises ABIParseError on truly malformed input."""
@@ -104,21 +113,30 @@ class TestErrorParserExceptionHandling:
         
         # Pass something that causes an exception during iteration
         with pytest.raises(ABIParseError):
-            parser.parse({"type": "error", "inputs": "not_a_list"})
+            parser.parse({"type": "error", "name": "Boom", "inputs": "not_a_list"})
 
 
 class TestEventParserExceptionHandling:
     """Test exception handling in event parser."""
     
-    def test_parse_handles_missing_name(self):
-        """Test event parser handles missing name gracefully."""
+    def test_parse_rejects_missing_name(self):
+        """A event with no name is rejected: names are templated into generated source."""
         from abi_to_mcp.parser.event_parser import EventParser
         
         parser = EventParser()
         
-        # Missing 'name' field uses default empty string
-        result = parser.parse({"type": "event", "inputs": []})
-        assert result.name == ""
+        with pytest.raises(ValueError, match="Invalid event name"):
+            parser.parse({"type": "event", "inputs": []})
+
+    @pytest.mark.parametrize("name", ["x(); import os", "class", "a-b", "1abc", 'f"; evil()'])
+    def test_parse_rejects_non_identifier_name(self, name):
+        """A event name that is not a bare Python identifier cannot reach code generation."""
+        from abi_to_mcp.parser.event_parser import EventParser
+        
+        parser = EventParser()
+        
+        with pytest.raises(ValueError, match="Invalid event name"):
+            parser.parse({"type": "event", "inputs": [], "name": name})
     
     def test_parse_raises_exception_on_invalid_inputs(self):
         """Test event parser raises ABIParseError on truly malformed input."""
@@ -129,21 +147,30 @@ class TestEventParserExceptionHandling:
         
         # Pass something that causes an exception during iteration
         with pytest.raises(ABIParseError):
-            parser.parse({"type": "event", "inputs": "not_a_list"})
+            parser.parse({"type": "event", "name": "Transfer", "inputs": "not_a_list"})
 
 
 class TestFunctionParserExceptionHandling:
     """Test exception handling in function parser."""
     
-    def test_parse_handles_missing_name(self):
-        """Test function parser handles missing name gracefully."""
+    def test_parse_rejects_missing_name(self):
+        """A function with no name is rejected: names are templated into generated source."""
         from abi_to_mcp.parser.function_parser import FunctionParser
         
         parser = FunctionParser()
         
-        # Missing 'name' field uses default empty string
-        result = parser.parse({"type": "function", "inputs": [], "outputs": []})
-        assert result.name == ""
+        with pytest.raises(ValueError, match="Invalid function name"):
+            parser.parse({"type": "function", "inputs": [], "outputs": []})
+
+    @pytest.mark.parametrize("name", ["x(); import os", "class", "a-b", "1abc", 'f"; evil()'])
+    def test_parse_rejects_non_identifier_name(self, name):
+        """A function name that is not a bare Python identifier cannot reach code generation."""
+        from abi_to_mcp.parser.function_parser import FunctionParser
+        
+        parser = FunctionParser()
+        
+        with pytest.raises(ValueError, match="Invalid function name"):
+            parser.parse({"type": "function", "inputs": [], "outputs": [], "name": name})
     
     def test_parse_raises_exception_on_invalid_inputs(self):
         """Test function parser raises ABIParseError on truly malformed input."""
