@@ -16,7 +16,7 @@
   "dependencies": {
     "@hono/node-server": "^1.13.0",
     "@hono/zod-validator": "^0.7.6",
-    "hono": "^4.6.0",
+    "hono": "^4.13.7",
     "lru-cache": "^11.2.7",
     "viem": "^2.21.0",
     "zod": "^3.23.0"
