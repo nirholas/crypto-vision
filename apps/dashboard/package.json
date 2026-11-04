@@ -166,6 +166,8 @@
     "path-to-regexp@^8": "^8.4.0",
     "picomatch@^2": "^2.3.2",
     "picomatch@^4": "^4.0.4",
-    "express-rate-limit@^8": "^8.2.2"
+    "express-rate-limit@^8": "^8.2.2",
+    "minimatch@^10": "^11.0.1",
+    "minimatch@^9": "^11.0.1"
   }
 }
