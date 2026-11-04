@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Fine-tune open-source LLM using LoRA + Unsloth (2x faster training)
+Fine-tune open-source LLM using QLoRA (transformers + bitsandbytes + PEFT)
 
 Supports: Llama 3.1 (8B/70B), Mistral 7B, Qwen 2.5 7B
 Uses QLoRA (4-bit base + LoRA adapters) for memory efficiency.
@@ -222,19 +222,29 @@ def main() -> None:
 
     # Import heavy dependencies after validation (faster fail on bad data)
     logger.info("Loading training libraries...")
-    from unsloth import FastLanguageModel
+    import torch
     from datasets import load_dataset
-    from trl import SFTTrainer
-    from transformers import TrainingArguments
+    from peft import LoraConfig, PeftModel, get_peft_model, prepare_model_for_kbit_training
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+    from trl import SFTConfig, SFTTrainer
 
-    # Load base model with 4-bit quantization (QLoRA)
+    # Load base model with 4-bit NF4 quantization (QLoRA)
     logger.info(f"Loading model: {args.model}")
-    model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=args.model,
-        max_seq_length=args.max_seq_len,
-        dtype=None,  # Auto-detect (BF16 on Ampere+, FP16 otherwise)
-        load_in_4bit=True,  # QLoRA — 4-bit base model
+    tokenizer = AutoTokenizer.from_pretrained(args.model)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    model = AutoModelForCausalLM.from_pretrained(
+        args.model,
+        quantization_config=BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+        ),
+        dtype=torch.bfloat16,
+        device_map="auto",
     )
+    model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=True)
     logger.info(
         f"Model loaded. Parameters: {model.num_parameters():,} "
         f"(trainable after LoRA: ~{model.num_parameters() * args.lora_r / model.config.hidden_size:,.0f})"
@@ -242,17 +252,19 @@ def main() -> None:
 
     # Apply LoRA adapters to all attention + MLP projection layers
     logger.info("Applying LoRA adapters...")
-    model = FastLanguageModel.get_peft_model(
+    model = get_peft_model(
         model,
-        r=args.lora_r,
-        target_modules=[
-            "q_proj", "k_proj", "v_proj", "o_proj",
-            "gate_proj", "up_proj", "down_proj",
-        ],
-        lora_alpha=lora_alpha,
-        lora_dropout=args.lora_dropout,
-        bias="none",
-        use_gradient_checkpointing="unsloth",  # Unsloth-optimized checkpointing
+        LoraConfig(
+            r=args.lora_r,
+            target_modules=[
+                "q_proj", "k_proj", "v_proj", "o_proj",
+                "gate_proj", "up_proj", "down_proj",
+            ],
+            lora_alpha=lora_alpha,
+            lora_dropout=args.lora_dropout,
+            bias="none",
+            task_type="CAUSAL_LM",
+        ),
     )
 
     # Load training data
@@ -310,8 +322,11 @@ def main() -> None:
         json.dump(metadata, f, indent=2)
 
     # Configure training
-    training_args = TrainingArguments(
+    training_args = SFTConfig(
         output_dir=args.output,
+        dataset_text_field="text",
+        max_length=args.max_seq_len,
+        packing=True,  # Pack short sequences together for efficiency
         num_train_epochs=args.epochs,
         per_device_train_batch_size=args.batch_size,
         per_device_eval_batch_size=args.batch_size,
@@ -328,7 +343,8 @@ def main() -> None:
         save_steps=args.save_steps,
         save_total_limit=3,
         lr_scheduler_type="cosine",
-        optim="adamw_8bit",
+        optim="paged_adamw_8bit",
+        gradient_checkpointing=True,
         seed=args.seed,
         report_to=args.report_to,
         load_best_model_at_end=True,
@@ -341,12 +357,9 @@ def main() -> None:
     # Initialize trainer
     trainer = SFTTrainer(
         model=model,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
-        dataset_text_field="text",
-        max_seq_length=args.max_seq_len,
-        packing=True,  # Pack short sequences together for efficiency
         args=training_args,
     )
 
@@ -363,7 +376,7 @@ def main() -> None:
 
     # Save final LoRA adapter
     logger.info(f"Saving LoRA adapter to {args.output}")
-    model.save_pretrained(args.output)
+    trainer.model.save_pretrained(args.output)
     tokenizer.save_pretrained(args.output)
 
     # Save final training metrics
@@ -375,7 +388,14 @@ def main() -> None:
     if not args.no_merge:
         merged_path = f"{args.output}-merged"
         logger.info(f"Merging LoRA weights into base model → {merged_path}")
-        model = model.merge_and_unload()
+        # Merge into a full-precision copy of the base model; merging into
+        # the 4-bit training weights would bake quantization error in.
+        del trainer, model
+        torch.cuda.empty_cache()
+        base_model = AutoModelForCausalLM.from_pretrained(
+            args.model, dtype=torch.bfloat16, device_map="auto"
+        )
+        model = PeftModel.from_pretrained(base_model, args.output).merge_and_unload()
         model.save_pretrained(merged_path)
         tokenizer.save_pretrained(merged_path)
         logger.info(f"Merged model saved to {merged_path}")
@@ -387,45 +407,25 @@ def main() -> None:
                 f"Quantizing to {args.quantize_method.upper()} 4-bit → {quantized_path}"
             )
 
+            from gptqmodel import AWQConfig, GPTQConfig, GPTQModel
+
+            del model
+            torch.cuda.empty_cache()
+
             if args.quantize_method == "gptq":
-                from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
+                quant_config = GPTQConfig(bits=4, group_size=128, desc_act=True)
+            else:
+                # Asymmetric (zero-point) 4-bit AWQ in GEMM format
+                quant_config = AWQConfig(bits=4, group_size=128, sym=False)
 
-                quantize_config = BaseQuantizeConfig(
-                    bits=4,
-                    group_size=128,
-                    desc_act=True,
-                )
+            # Use a subset of the formatted training text as calibration data
+            calib_size = min(256, len(train_dataset))
+            calibration = train_dataset.select(range(calib_size))["text"]
 
-                quantized_model = AutoGPTQForCausalLM.from_pretrained(
-                    merged_path,
-                    quantize_config=quantize_config,
-                    device_map="auto",
-                )
-                # Use a subset of training data as calibration data
-                calib_size = min(256, len(train_dataset))
-                quantized_model.quantize(
-                    train_dataset.select(range(calib_size))
-                )
-                quantized_model.save_quantized(quantized_path)
-                tokenizer.save_pretrained(quantized_path)
-
-            elif args.quantize_method == "awq":
-                from awq import AutoAWQForCausalLM
-
-                awq_model = AutoAWQForCausalLM.from_pretrained(
-                    merged_path, device_map="auto"
-                )
-                awq_model.quantize(
-                    tokenizer,
-                    quant_config={
-                        "zero_point": True,
-                        "q_group_size": 128,
-                        "w_bit": 4,
-                        "version": "GEMM",
-                    },
-                )
-                awq_model.save_quantized(quantized_path)
-                tokenizer.save_pretrained(quantized_path)
+            quantized_model = GPTQModel.load(merged_path, quant_config)
+            quantized_model.quantize(calibration, batch_size=1)
+            quantized_model.save(quantized_path)
+            tokenizer.save_pretrained(quantized_path)
 
             logger.info(f"Quantized model saved to {quantized_path}")
     else:

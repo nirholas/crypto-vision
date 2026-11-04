@@ -128,7 +128,7 @@
     "lighthouse": "^13.0.1",
     "pa11y": "^9.0.1",
     "postcss": "^8.4.31",
-    "sharp": "^0.34.5",
+    "sharp": "^0.35.5",
     "storybook": "^8.6.14",
     "stylelint": "^17.0.0",
     "stylelint-config-standard": "^40.0.0",
