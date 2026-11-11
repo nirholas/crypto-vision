@@ -1,0 +1,1 @@
+{"name":"crypto-vision","version":"0.1.2","description":"Run the self-hosted Crypto Vision API (Hono, port 8080) and query its market, DeFi, news, gas and on-chain endpoints.","author":{"name":"nirholas"},"repository":"https://github.com/nirholas/crypto-vision","homepage":"https://nirholas.github.io/crypto-vision/","keywords":["crypto","api","defi","market-data","news","hono"]}
